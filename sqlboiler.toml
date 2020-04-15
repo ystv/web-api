@@ -1,0 +1,7 @@
+[psql]
+dbname = "ystv"
+user = "postgres"
+pass = "rhys"
+host = "localhost"
+sslmode = "disable"
+whitelist = ["videos", "video_files", "video_boxes"]
