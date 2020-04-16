@@ -6,6 +6,8 @@ package models
 import "testing"
 
 func TestUpsert(t *testing.T) {
+	t.Run("Quotes", testQuotesUpsert)
+
 	t.Run("VideoBoxes", testVideoBoxesUpsert)
 
 	t.Run("VideoFiles", testVideoFilesUpsert)

@@ -12,72 +12,85 @@ import "testing"
 // It does NOT run each operation group in parallel.
 // Separating the tests thusly grants avoidance of Postgres deadlocks.
 func TestParent(t *testing.T) {
+	t.Run("Quotes", testQuotes)
 	t.Run("VideoBoxes", testVideoBoxes)
 	t.Run("VideoFiles", testVideoFiles)
 	t.Run("Videos", testVideos)
 }
 
 func TestDelete(t *testing.T) {
+	t.Run("Quotes", testQuotesDelete)
 	t.Run("VideoBoxes", testVideoBoxesDelete)
 	t.Run("VideoFiles", testVideoFilesDelete)
 	t.Run("Videos", testVideosDelete)
 }
 
 func TestQueryDeleteAll(t *testing.T) {
+	t.Run("Quotes", testQuotesQueryDeleteAll)
 	t.Run("VideoBoxes", testVideoBoxesQueryDeleteAll)
 	t.Run("VideoFiles", testVideoFilesQueryDeleteAll)
 	t.Run("Videos", testVideosQueryDeleteAll)
 }
 
 func TestSliceDeleteAll(t *testing.T) {
+	t.Run("Quotes", testQuotesSliceDeleteAll)
 	t.Run("VideoBoxes", testVideoBoxesSliceDeleteAll)
 	t.Run("VideoFiles", testVideoFilesSliceDeleteAll)
 	t.Run("Videos", testVideosSliceDeleteAll)
 }
 
 func TestExists(t *testing.T) {
+	t.Run("Quotes", testQuotesExists)
 	t.Run("VideoBoxes", testVideoBoxesExists)
 	t.Run("VideoFiles", testVideoFilesExists)
 	t.Run("Videos", testVideosExists)
 }
 
 func TestFind(t *testing.T) {
+	t.Run("Quotes", testQuotesFind)
 	t.Run("VideoBoxes", testVideoBoxesFind)
 	t.Run("VideoFiles", testVideoFilesFind)
 	t.Run("Videos", testVideosFind)
 }
 
 func TestBind(t *testing.T) {
+	t.Run("Quotes", testQuotesBind)
 	t.Run("VideoBoxes", testVideoBoxesBind)
 	t.Run("VideoFiles", testVideoFilesBind)
 	t.Run("Videos", testVideosBind)
 }
 
 func TestOne(t *testing.T) {
+	t.Run("Quotes", testQuotesOne)
 	t.Run("VideoBoxes", testVideoBoxesOne)
 	t.Run("VideoFiles", testVideoFilesOne)
 	t.Run("Videos", testVideosOne)
 }
 
 func TestAll(t *testing.T) {
+	t.Run("Quotes", testQuotesAll)
 	t.Run("VideoBoxes", testVideoBoxesAll)
 	t.Run("VideoFiles", testVideoFilesAll)
 	t.Run("Videos", testVideosAll)
 }
 
 func TestCount(t *testing.T) {
+	t.Run("Quotes", testQuotesCount)
 	t.Run("VideoBoxes", testVideoBoxesCount)
 	t.Run("VideoFiles", testVideoFilesCount)
 	t.Run("Videos", testVideosCount)
 }
 
 func TestHooks(t *testing.T) {
+	t.Run("Quotes", testQuotesHooks)
 	t.Run("VideoBoxes", testVideoBoxesHooks)
 	t.Run("VideoFiles", testVideoFilesHooks)
 	t.Run("Videos", testVideosHooks)
 }
 
 func TestInsert(t *testing.T) {
+	t.Run("Quotes", testQuotesInsert)
+	t.Run("Quotes", testQuotesInsertWhitelist)
 	t.Run("VideoBoxes", testVideoBoxesInsert)
 	t.Run("VideoBoxes", testVideoBoxesInsertWhitelist)
 	t.Run("VideoFiles", testVideoFilesInsert)
@@ -149,30 +162,35 @@ func TestToManyRemove(t *testing.T) {
 }
 
 func TestReload(t *testing.T) {
+	t.Run("Quotes", testQuotesReload)
 	t.Run("VideoBoxes", testVideoBoxesReload)
 	t.Run("VideoFiles", testVideoFilesReload)
 	t.Run("Videos", testVideosReload)
 }
 
 func TestReloadAll(t *testing.T) {
+	t.Run("Quotes", testQuotesReloadAll)
 	t.Run("VideoBoxes", testVideoBoxesReloadAll)
 	t.Run("VideoFiles", testVideoFilesReloadAll)
 	t.Run("Videos", testVideosReloadAll)
 }
 
 func TestSelect(t *testing.T) {
+	t.Run("Quotes", testQuotesSelect)
 	t.Run("VideoBoxes", testVideoBoxesSelect)
 	t.Run("VideoFiles", testVideoFilesSelect)
 	t.Run("Videos", testVideosSelect)
 }
 
 func TestUpdate(t *testing.T) {
+	t.Run("Quotes", testQuotesUpdate)
 	t.Run("VideoBoxes", testVideoBoxesUpdate)
 	t.Run("VideoFiles", testVideoFilesUpdate)
 	t.Run("Videos", testVideosUpdate)
 }
 
 func TestSliceUpdateAll(t *testing.T) {
+	t.Run("Quotes", testQuotesSliceUpdateAll)
 	t.Run("VideoBoxes", testVideoBoxesSliceUpdateAll)
 	t.Run("VideoFiles", testVideoFilesSliceUpdateAll)
 	t.Run("Videos", testVideosSliceUpdateAll)

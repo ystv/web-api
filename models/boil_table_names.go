@@ -4,10 +4,12 @@
 package models
 
 var TableNames = struct {
+	Quotes     string
 	VideoBoxes string
 	VideoFiles string
 	Videos     string
 }{
+	Quotes:     "quotes",
 	VideoBoxes: "video_boxes",
 	VideoFiles: "video_files",
 	Videos:     "videos",

@@ -25,8 +25,14 @@ func main() {
 		c.Next()
 	})
 
+	// Index
 	r.GET("/", rootPage)
+	// Videos
 	r.GET("/videos", controllers.FindVideos)
 	r.GET("/videos/:ID", controllers.FindVideo)
+	r.POST("/videos", controllers.CreateVideo)
+	// Quotes
+	r.GET("/quotes", controllers.FindQuotes)
+	r.GET("/quotes/:ID", controllers.FindQuote)
 	r.Run()
 }
