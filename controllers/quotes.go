@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"database/sql"
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -16,14 +15,14 @@ func FindQuotes(c *gin.Context) {
 
 	ctx := context.Background()
 	quotes, _ := models.Quotes().All(ctx, db)
-	c.JSON(http.StatusOK, quotes)
+	c.JSON(200, quotes)
 }
 
 // FindQuote checks videos table by ID
 func FindQuote(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("ID"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Number": "pls"})
+		c.JSON(400, gin.H{"Number": "pls"})
 	}
 
 	db := c.MustGet("db").(*sql.DB)
@@ -33,5 +32,5 @@ func FindQuote(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	c.JSON(http.StatusOK, b)
+	c.JSON(200, b)
 }

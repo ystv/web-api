@@ -11,6 +11,7 @@ require (
 	github.com/golang/protobuf v1.4.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
+	github.com/labstack/echo/v4 v4.1.16 // indirect
 	github.com/lib/pq v1.3.0
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

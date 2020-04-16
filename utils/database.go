@@ -10,6 +10,7 @@ import (
 	"github.com/vattle/sqlboiler/boil"
 )
 
+// InitDB Initialises the connection to the database
 func InitDB() *sql.DB {
 	err := godotenv.Load() // Load .env file
 	if err != nil {

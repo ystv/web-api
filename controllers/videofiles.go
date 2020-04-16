@@ -10,38 +10,38 @@ import (
 	"github.com/ystv/web-api/models"
 )
 
-// FindVideos Returns all videos
-func FindVideos(c *gin.Context) {
+// FindVideoFiles Returns all video files
+func FindVideoFiles(c *gin.Context) {
 	db := c.MustGet("db").(*sql.DB)
 
 	ctx := context.Background()
-	videos, _ := models.Videos().All(ctx, db)
-	c.JSON(200, videos)
+	vf, _ := models.VideoFiles().All(ctx, db)
+	c.JSON(200, vf)
 }
 
-// FindVideo checks videos table by ID
-func FindVideo(c *gin.Context) {
+// FindVideoFile checks video_files table by ID
+func FindVideoFile(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("ID"))
 	if err != nil {
-		c.JSON(200, gin.H{"Number": "pls"})
+		c.JSON(400, gin.H{"Number": "pls"})
 	}
 
 	db := c.MustGet("db").(*sql.DB)
-	v := &models.Video{ID: id}
+	vf := &models.VideoFile{ID: id}
 
-	b, err := models.FindVideo(context.Background(), db, v.ID)
+	b, err := models.FindVideoFile(context.Background(), db, vf.ID)
 	if err != nil {
 		panic(err)
 	}
 	c.JSON(200, b)
 }
 
-// CreateVideo creates a video oh boy
-func CreateVideo(c *gin.Context) {
+// CreateVideoFile creates a video file
+func CreateVideoFile(c *gin.Context) {
 	db := c.MustGet("db").(*sql.DB)
 
 	// Validate input
-	v := &models.Video{}
+	v := &models.VideoFile{}
 	if err := c.ShouldBindJSON(v); err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 	}

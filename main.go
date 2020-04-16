@@ -25,14 +25,20 @@ func main() {
 		c.Next()
 	})
 
+	// Initilise routes
 	// Index
 	r.GET("/", rootPage)
-	// Videos
-	r.GET("/videos", controllers.FindVideos)
-	r.GET("/videos/:ID", controllers.FindVideo)
-	r.POST("/videos", controllers.CreateVideo)
-	// Quotes
-	r.GET("/quotes", controllers.FindQuotes)
-	r.GET("/quotes/:ID", controllers.FindQuote)
+	// Tables
+	tables := r.Group("/tables")
+	{
+		// Videos
+		tables.GET("/videos", controllers.FindVideos)
+		tables.GET("/videos/:ID", controllers.FindVideo)
+		tables.POST("/videos", controllers.CreateVideo)
+		// Quotes
+		tables.GET("/quotes", controllers.FindQuotes)
+		tables.GET("/quotes/:ID", controllers.FindQuote)
+	}
+
 	r.Run()
 }
