@@ -18,3 +18,10 @@ func VideoList() (models.VideoSlice, error) {
 	v, err := models.Videos().All(ctx, utils.DB)
 	return v, err
 }
+
+// VideoFind find video
+func VideoFind(id int) (*models.Video, error) {
+	ctx := context.Background()
+	v, err := models.FindVideo(ctx, utils.DB, id)
+	return v, err
+}

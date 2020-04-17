@@ -2,6 +2,7 @@ package v1
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services"
@@ -12,22 +13,41 @@ import (
 // @Description create new video, there is more to videos!
 // @Accept json
 // @Produce json
-// @Param	body	body	v1.videoCreateReq	true	"video create parameter"
-// @Success 200 {object} models.VideoCreate
+// @Param	body	body	models.Video	true	"video create parameter"
+// @Success 200 {object} models.Video
 // @Router /v1/videos [post]
 func VideoCreate(c echo.Context) error {
 	return c.JSON(http.StatusOK, "update ok")
 }
 
 // VideoList Video list API
-// @Summary User list API
+// @Summary Video list API
 // @Description list videos
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.VideoList
+// @Success 200 {object} models.VideoSlice
 // @Router /v1/videos [get]
 func VideoList(c echo.Context) error {
 	res, err := services.VideoList()
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
+// VideoFind Video find API
+// @Summary Video find API
+// @Description find video
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.Video
+// @Router /v1/videos/{video_id} [get]
+func VideoFind(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.String(400, "Number pls")
+	}
+	res, err := services.VideoFind(id)
 	if err != nil {
 		return err
 	}
