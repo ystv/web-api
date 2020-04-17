@@ -11,16 +11,17 @@ require (
 	github.com/golang/protobuf v1.4.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
-	github.com/labstack/echo/v4 v4.1.16 // indirect
+	github.com/labstack/echo/v4 v4.1.16
 	github.com/lib/pq v1.3.0
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.6.3
+	github.com/swaggo/echo-swagger v1.0.0
+	github.com/swaggo/swag v1.6.5 // indirect
 	github.com/vattle/sqlboiler v2.5.0+incompatible
 	github.com/volatiletech/inflect v0.0.0-20170731032912-e7201282ae8d // indirect
 	github.com/volatiletech/null v8.0.0+incompatible

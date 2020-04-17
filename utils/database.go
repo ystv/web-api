@@ -11,7 +11,7 @@ import (
 )
 
 // InitDB Initialises the connection to the database
-func InitDB() *sql.DB {
+func InitDB() {
 	err := godotenv.Load() // Load .env file
 	if err != nil {
 		panic(err)
@@ -29,7 +29,10 @@ func InitDB() *sql.DB {
 		panic(err)
 	}
 	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	boil.SetDB(db)
-	return db
+	boil.DebugMode = true
 }
