@@ -11,6 +11,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// InitRoutes initialise routes
 func InitRoutes() *echo.Echo {
 	e := echo.New()
 

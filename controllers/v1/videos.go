@@ -1,14 +1,10 @@
 package v1
 
 import (
-	"context"
-	"database/sql"
-	"strconv"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"github.com/labstack/echo/v4"
-	"github.com/volatiletech/sqlboiler/boil"
-	"github.com/ystv/web-api/models"
+	"github.com/ystv/web-api/services"
 )
 
 // VideoCreate Video create API
@@ -20,11 +16,7 @@ import (
 // @Success 200 {object} models.VideoCreate
 // @Router /v1/videos [post]
 func VideoCreate(c echo.Context) error {
-	v := &videoCreateReq{}
-	if err := c.Bind(v); err != nil {
-		return err
-	}
-	return c.JSON(http..StatusOK, map[string]uint{"video_id": videoID})
+	return c.JSON(http.StatusOK, "update ok")
 }
 
 // VideoList Video list API
@@ -62,6 +54,6 @@ func VideoUpdate(c echo.Context) error {
 // @Param   video_id     path    int     true        "video id parameter"
 // @Success 200 string string	""
 // @Router /v1/videos/{video_id} [delete]
-func videoDelete(c echo.Context) error {
+func VideoDelete(c echo.Context) error {
 	return c.JSON(http.StatusOK, "delete ok")
 }

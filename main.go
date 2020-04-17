@@ -1,9 +1,9 @@
 package main
 
-//go:generate ./sqlboiler --wipe psql
+//go:generate ./sqlboiler --wipe psql --add-global-variants
 
 import (
-	"github.com/ystv/web-api/utils"
+	utils "github.com/ystv/web-api/routes"
 )
 
 func main() {

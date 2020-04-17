@@ -366,6 +366,11 @@ func AddVideoHook(hookPoint boil.HookPoint, videoHook VideoHook) {
 	}
 }
 
+// OneG returns a single video record from the query using the global executor.
+func (q videoQuery) OneG(ctx context.Context) (*Video, error) {
+	return q.One(ctx, boil.GetContextDB())
+}
+
 // One returns a single video record from the query.
 func (q videoQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Video, error) {
 	o := &Video{}
@@ -385,6 +390,11 @@ func (q videoQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Video,
 	}
 
 	return o, nil
+}
+
+// AllG returns all Video records from the query using the global executor.
+func (q videoQuery) AllG(ctx context.Context) (VideoSlice, error) {
+	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all Video records from the query.
@@ -407,6 +417,11 @@ func (q videoQuery) All(ctx context.Context, exec boil.ContextExecutor) (VideoSl
 	return o, nil
 }
 
+// CountG returns the count of all Video records in the query, and panics on error.
+func (q videoQuery) CountG(ctx context.Context) (int64, error) {
+	return q.Count(ctx, boil.GetContextDB())
+}
+
 // Count returns the count of all Video records in the query.
 func (q videoQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
@@ -420,6 +435,11 @@ func (q videoQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64
 	}
 
 	return count, nil
+}
+
+// ExistsG checks if the row exists in the table, and panics on error.
+func (q videoQuery) ExistsG(ctx context.Context) (bool, error) {
+	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -904,6 +924,14 @@ func (videoL) LoadRedirectVideos(ctx context.Context, e boil.ContextExecutor, si
 	return nil
 }
 
+// SetRedirectG of the video to the related item.
+// Sets o.R.Redirect to related.
+// Adds o to related.R.RedirectVideos.
+// Uses the global database handle.
+func (o *Video) SetRedirectG(ctx context.Context, insert bool, related *Video) error {
+	return o.SetRedirect(ctx, boil.GetContextDB(), insert, related)
+}
+
 // SetRedirect of the video to the related item.
 // Sets o.R.Redirect to related.
 // Adds o to related.R.RedirectVideos.
@@ -951,6 +979,14 @@ func (o *Video) SetRedirect(ctx context.Context, exec boil.ContextExecutor, inse
 	return nil
 }
 
+// RemoveRedirectG relationship.
+// Sets o.R.Redirect to nil.
+// Removes o from all passed in related items' relationships struct (Optional).
+// Uses the global database handle.
+func (o *Video) RemoveRedirectG(ctx context.Context, related *Video) error {
+	return o.RemoveRedirect(ctx, boil.GetContextDB(), related)
+}
+
 // RemoveRedirect relationship.
 // Sets o.R.Redirect to nil.
 // Removes o from all passed in related items' relationships struct (Optional).
@@ -982,6 +1018,14 @@ func (o *Video) RemoveRedirect(ctx context.Context, exec boil.ContextExecutor, r
 		break
 	}
 	return nil
+}
+
+// SetVideoBoxG of the video to the related item.
+// Sets o.R.VideoBox to related.
+// Adds o to related.R.Videos.
+// Uses the global database handle.
+func (o *Video) SetVideoBoxG(ctx context.Context, insert bool, related *VideoBox) error {
+	return o.SetVideoBox(ctx, boil.GetContextDB(), insert, related)
 }
 
 // SetVideoBox of the video to the related item.
@@ -1029,6 +1073,15 @@ func (o *Video) SetVideoBox(ctx context.Context, exec boil.ContextExecutor, inse
 	}
 
 	return nil
+}
+
+// AddVideoFilesG adds the given related objects to the existing relationships
+// of the video, optionally inserting them as new records.
+// Appends related to o.R.VideoFiles.
+// Sets related.R.Video appropriately.
+// Uses the global database handle.
+func (o *Video) AddVideoFilesG(ctx context.Context, insert bool, related ...*VideoFile) error {
+	return o.AddVideoFiles(ctx, boil.GetContextDB(), insert, related...)
 }
 
 // AddVideoFiles adds the given related objects to the existing relationships
@@ -1084,6 +1137,15 @@ func (o *Video) AddVideoFiles(ctx context.Context, exec boil.ContextExecutor, in
 	return nil
 }
 
+// AddRedirectVideosG adds the given related objects to the existing relationships
+// of the video, optionally inserting them as new records.
+// Appends related to o.R.RedirectVideos.
+// Sets related.R.Redirect appropriately.
+// Uses the global database handle.
+func (o *Video) AddRedirectVideosG(ctx context.Context, insert bool, related ...*Video) error {
+	return o.AddRedirectVideos(ctx, boil.GetContextDB(), insert, related...)
+}
+
 // AddRedirectVideos adds the given related objects to the existing relationships
 // of the video, optionally inserting them as new records.
 // Appends related to o.R.RedirectVideos.
@@ -1137,6 +1199,17 @@ func (o *Video) AddRedirectVideos(ctx context.Context, exec boil.ContextExecutor
 	return nil
 }
 
+// SetRedirectVideosG removes all previously related items of the
+// video replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Redirect's RedirectVideos accordingly.
+// Replaces o.R.RedirectVideos with related.
+// Sets related.R.Redirect's RedirectVideos accordingly.
+// Uses the global database handle.
+func (o *Video) SetRedirectVideosG(ctx context.Context, insert bool, related ...*Video) error {
+	return o.SetRedirectVideos(ctx, boil.GetContextDB(), insert, related...)
+}
+
 // SetRedirectVideos removes all previously related items of the
 // video replacing them completely with the passed
 // in related items, optionally inserting them as new records.
@@ -1169,6 +1242,14 @@ func (o *Video) SetRedirectVideos(ctx context.Context, exec boil.ContextExecutor
 		o.R.RedirectVideos = nil
 	}
 	return o.AddRedirectVideos(ctx, exec, insert, related...)
+}
+
+// RemoveRedirectVideosG relationships from objects passed in.
+// Removes related items from R.RedirectVideos (uses pointer comparison, removal does not keep order)
+// Sets related.R.Redirect.
+// Uses the global database handle.
+func (o *Video) RemoveRedirectVideosG(ctx context.Context, related ...*Video) error {
+	return o.RemoveRedirectVideos(ctx, boil.GetContextDB(), related...)
 }
 
 // RemoveRedirectVideos relationships from objects passed in.
@@ -1213,6 +1294,11 @@ func Videos(mods ...qm.QueryMod) videoQuery {
 	return videoQuery{NewQuery(mods...)}
 }
 
+// FindVideoG retrieves a single record by ID.
+func FindVideoG(ctx context.Context, iD int, selectCols ...string) (*Video, error) {
+	return FindVideo(ctx, boil.GetContextDB(), iD, selectCols...)
+}
+
 // FindVideo retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindVideo(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Video, error) {
@@ -1237,6 +1323,11 @@ func FindVideo(ctx context.Context, exec boil.ContextExecutor, iD int, selectCol
 	}
 
 	return videoObj, nil
+}
+
+// InsertG a single record. See Insert for whitelist behavior description.
+func (o *Video) InsertG(ctx context.Context, columns boil.Columns) error {
+	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -1318,6 +1409,12 @@ func (o *Video) Insert(ctx context.Context, exec boil.ContextExecutor, columns b
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
+// UpdateG a single Video record using the global executor.
+// See Update for more documentation.
+func (o *Video) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
+	return o.Update(ctx, boil.GetContextDB(), columns)
+}
+
 // Update uses an executor to update the Video.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
@@ -1381,6 +1478,11 @@ func (o *Video) Update(ctx context.Context, exec boil.ContextExecutor, columns b
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
+// UpdateAllG updates all rows with the specified column values.
+func (q videoQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+}
+
 // UpdateAll updates all rows with the specified column values.
 func (q videoQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -1396,6 +1498,11 @@ func (q videoQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, co
 	}
 
 	return rowsAff, nil
+}
+
+// UpdateAllG updates all rows with the specified column values.
+func (o VideoSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -1444,6 +1551,11 @@ func (o VideoSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, co
 		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all video")
 	}
 	return rowsAff, nil
+}
+
+// UpsertG attempts an insert, and does an update or ignore on conflict.
+func (o *Video) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
@@ -1561,6 +1673,12 @@ func (o *Video) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnC
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
+// DeleteG deletes a single Video record.
+// DeleteG will match against the primary key column to find the record to delete.
+func (o *Video) DeleteG(ctx context.Context) (int64, error) {
+	return o.Delete(ctx, boil.GetContextDB())
+}
+
 // Delete deletes a single Video record with an executor.
 // Delete will match against the primary key column to find the record to delete.
 func (o *Video) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
@@ -1618,6 +1736,11 @@ func (q videoQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (i
 	return rowsAff, nil
 }
 
+// DeleteAllG deletes all rows in the slice.
+func (o VideoSlice) DeleteAllG(ctx context.Context) (int64, error) {
+	return o.DeleteAll(ctx, boil.GetContextDB())
+}
+
 // DeleteAll deletes all rows in the slice, using an executor.
 func (o VideoSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
@@ -1667,6 +1790,15 @@ func (o VideoSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (i
 	return rowsAff, nil
 }
 
+// ReloadG refetches the object from the database using the primary keys.
+func (o *Video) ReloadG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: no Video provided for reload")
+	}
+
+	return o.Reload(ctx, boil.GetContextDB())
+}
+
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *Video) Reload(ctx context.Context, exec boil.ContextExecutor) error {
@@ -1677,6 +1809,16 @@ func (o *Video) Reload(ctx context.Context, exec boil.ContextExecutor) error {
 
 	*o = *ret
 	return nil
+}
+
+// ReloadAllG refetches every row with matching primary key column values
+// and overwrites the original object slice with the newly updated slice.
+func (o *VideoSlice) ReloadAllG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: empty VideoSlice provided for reload all")
+	}
+
+	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -1706,6 +1848,11 @@ func (o *VideoSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) e
 	*o = slice
 
 	return nil
+}
+
+// VideoExistsG checks if the Video row exists.
+func VideoExistsG(ctx context.Context, iD int) (bool, error) {
+	return VideoExists(ctx, boil.GetContextDB(), iD)
 }
 
 // VideoExists checks if the Video row exists.

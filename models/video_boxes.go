@@ -369,6 +369,11 @@ func AddVideoBoxHook(hookPoint boil.HookPoint, videoBoxHook VideoBoxHook) {
 	}
 }
 
+// OneG returns a single videoBox record from the query using the global executor.
+func (q videoBoxQuery) OneG(ctx context.Context) (*VideoBox, error) {
+	return q.One(ctx, boil.GetContextDB())
+}
+
 // One returns a single videoBox record from the query.
 func (q videoBoxQuery) One(ctx context.Context, exec boil.ContextExecutor) (*VideoBox, error) {
 	o := &VideoBox{}
@@ -388,6 +393,11 @@ func (q videoBoxQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Vid
 	}
 
 	return o, nil
+}
+
+// AllG returns all VideoBox records from the query using the global executor.
+func (q videoBoxQuery) AllG(ctx context.Context) (VideoBoxSlice, error) {
+	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all VideoBox records from the query.
@@ -410,6 +420,11 @@ func (q videoBoxQuery) All(ctx context.Context, exec boil.ContextExecutor) (Vide
 	return o, nil
 }
 
+// CountG returns the count of all VideoBox records in the query, and panics on error.
+func (q videoBoxQuery) CountG(ctx context.Context) (int64, error) {
+	return q.Count(ctx, boil.GetContextDB())
+}
+
 // Count returns the count of all VideoBox records in the query.
 func (q videoBoxQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
@@ -423,6 +438,11 @@ func (q videoBoxQuery) Count(ctx context.Context, exec boil.ContextExecutor) (in
 	}
 
 	return count, nil
+}
+
+// ExistsG checks if the row exists in the table, and panics on error.
+func (q videoBoxQuery) ExistsG(ctx context.Context) (bool, error) {
+	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -557,6 +577,15 @@ func (videoBoxL) LoadVideos(ctx context.Context, e boil.ContextExecutor, singula
 	return nil
 }
 
+// AddVideosG adds the given related objects to the existing relationships
+// of the video_box, optionally inserting them as new records.
+// Appends related to o.R.Videos.
+// Sets related.R.VideoBox appropriately.
+// Uses the global database handle.
+func (o *VideoBox) AddVideosG(ctx context.Context, insert bool, related ...*Video) error {
+	return o.AddVideos(ctx, boil.GetContextDB(), insert, related...)
+}
+
 // AddVideos adds the given related objects to the existing relationships
 // of the video_box, optionally inserting them as new records.
 // Appends related to o.R.Videos.
@@ -616,6 +645,11 @@ func VideoBoxes(mods ...qm.QueryMod) videoBoxQuery {
 	return videoBoxQuery{NewQuery(mods...)}
 }
 
+// FindVideoBoxG retrieves a single record by ID.
+func FindVideoBoxG(ctx context.Context, iD int, selectCols ...string) (*VideoBox, error) {
+	return FindVideoBox(ctx, boil.GetContextDB(), iD, selectCols...)
+}
+
 // FindVideoBox retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindVideoBox(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*VideoBox, error) {
@@ -640,6 +674,11 @@ func FindVideoBox(ctx context.Context, exec boil.ContextExecutor, iD int, select
 	}
 
 	return videoBoxObj, nil
+}
+
+// InsertG a single record. See Insert for whitelist behavior description.
+func (o *VideoBox) InsertG(ctx context.Context, columns boil.Columns) error {
+	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -721,6 +760,12 @@ func (o *VideoBox) Insert(ctx context.Context, exec boil.ContextExecutor, column
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
+// UpdateG a single VideoBox record using the global executor.
+// See Update for more documentation.
+func (o *VideoBox) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
+	return o.Update(ctx, boil.GetContextDB(), columns)
+}
+
 // Update uses an executor to update the VideoBox.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
@@ -784,6 +829,11 @@ func (o *VideoBox) Update(ctx context.Context, exec boil.ContextExecutor, column
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
+// UpdateAllG updates all rows with the specified column values.
+func (q videoBoxQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+}
+
 // UpdateAll updates all rows with the specified column values.
 func (q videoBoxQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -799,6 +849,11 @@ func (q videoBoxQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor,
 	}
 
 	return rowsAff, nil
+}
+
+// UpdateAllG updates all rows with the specified column values.
+func (o VideoBoxSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -847,6 +902,11 @@ func (o VideoBoxSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor,
 		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all videoBox")
 	}
 	return rowsAff, nil
+}
+
+// UpsertG attempts an insert, and does an update or ignore on conflict.
+func (o *VideoBox) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
@@ -964,6 +1024,12 @@ func (o *VideoBox) Upsert(ctx context.Context, exec boil.ContextExecutor, update
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
+// DeleteG deletes a single VideoBox record.
+// DeleteG will match against the primary key column to find the record to delete.
+func (o *VideoBox) DeleteG(ctx context.Context) (int64, error) {
+	return o.Delete(ctx, boil.GetContextDB())
+}
+
 // Delete deletes a single VideoBox record with an executor.
 // Delete will match against the primary key column to find the record to delete.
 func (o *VideoBox) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
@@ -1021,6 +1087,11 @@ func (q videoBoxQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 	return rowsAff, nil
 }
 
+// DeleteAllG deletes all rows in the slice.
+func (o VideoBoxSlice) DeleteAllG(ctx context.Context) (int64, error) {
+	return o.DeleteAll(ctx, boil.GetContextDB())
+}
+
 // DeleteAll deletes all rows in the slice, using an executor.
 func (o VideoBoxSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
@@ -1070,6 +1141,15 @@ func (o VideoBoxSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor)
 	return rowsAff, nil
 }
 
+// ReloadG refetches the object from the database using the primary keys.
+func (o *VideoBox) ReloadG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: no VideoBox provided for reload")
+	}
+
+	return o.Reload(ctx, boil.GetContextDB())
+}
+
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *VideoBox) Reload(ctx context.Context, exec boil.ContextExecutor) error {
@@ -1080,6 +1160,16 @@ func (o *VideoBox) Reload(ctx context.Context, exec boil.ContextExecutor) error 
 
 	*o = *ret
 	return nil
+}
+
+// ReloadAllG refetches every row with matching primary key column values
+// and overwrites the original object slice with the newly updated slice.
+func (o *VideoBoxSlice) ReloadAllG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: empty VideoBoxSlice provided for reload all")
+	}
+
+	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -1109,6 +1199,11 @@ func (o *VideoBoxSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor
 	*o = slice
 
 	return nil
+}
+
+// VideoBoxExistsG checks if the VideoBox row exists.
+func VideoBoxExistsG(ctx context.Context, iD int) (bool, error) {
+	return VideoBoxExists(ctx, boil.GetContextDB(), iD)
 }
 
 // VideoBoxExists checks if the VideoBox row exists.

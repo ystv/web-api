@@ -389,6 +389,11 @@ func AddQuoteHook(hookPoint boil.HookPoint, quoteHook QuoteHook) {
 	}
 }
 
+// OneG returns a single quote record from the query using the global executor.
+func (q quoteQuery) OneG(ctx context.Context) (*Quote, error) {
+	return q.One(ctx, boil.GetContextDB())
+}
+
 // One returns a single quote record from the query.
 func (q quoteQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Quote, error) {
 	o := &Quote{}
@@ -408,6 +413,11 @@ func (q quoteQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Quote,
 	}
 
 	return o, nil
+}
+
+// AllG returns all Quote records from the query using the global executor.
+func (q quoteQuery) AllG(ctx context.Context) (QuoteSlice, error) {
+	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all Quote records from the query.
@@ -430,6 +440,11 @@ func (q quoteQuery) All(ctx context.Context, exec boil.ContextExecutor) (QuoteSl
 	return o, nil
 }
 
+// CountG returns the count of all Quote records in the query, and panics on error.
+func (q quoteQuery) CountG(ctx context.Context) (int64, error) {
+	return q.Count(ctx, boil.GetContextDB())
+}
+
 // Count returns the count of all Quote records in the query.
 func (q quoteQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
@@ -443,6 +458,11 @@ func (q quoteQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64
 	}
 
 	return count, nil
+}
+
+// ExistsG checks if the row exists in the table, and panics on error.
+func (q quoteQuery) ExistsG(ctx context.Context) (bool, error) {
+	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -465,6 +485,11 @@ func (q quoteQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bool
 func Quotes(mods ...qm.QueryMod) quoteQuery {
 	mods = append(mods, qm.From("\"quotes\""))
 	return quoteQuery{NewQuery(mods...)}
+}
+
+// FindQuoteG retrieves a single record by ID.
+func FindQuoteG(ctx context.Context, iD int, selectCols ...string) (*Quote, error) {
+	return FindQuote(ctx, boil.GetContextDB(), iD, selectCols...)
 }
 
 // FindQuote retrieves a single record by ID with an executor.
@@ -491,6 +516,11 @@ func FindQuote(ctx context.Context, exec boil.ContextExecutor, iD int, selectCol
 	}
 
 	return quoteObj, nil
+}
+
+// InsertG a single record. See Insert for whitelist behavior description.
+func (o *Quote) InsertG(ctx context.Context, columns boil.Columns) error {
+	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -572,6 +602,12 @@ func (o *Quote) Insert(ctx context.Context, exec boil.ContextExecutor, columns b
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
+// UpdateG a single Quote record using the global executor.
+// See Update for more documentation.
+func (o *Quote) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
+	return o.Update(ctx, boil.GetContextDB(), columns)
+}
+
 // Update uses an executor to update the Quote.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
@@ -635,6 +671,11 @@ func (o *Quote) Update(ctx context.Context, exec boil.ContextExecutor, columns b
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
+// UpdateAllG updates all rows with the specified column values.
+func (q quoteQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+}
+
 // UpdateAll updates all rows with the specified column values.
 func (q quoteQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -650,6 +691,11 @@ func (q quoteQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, co
 	}
 
 	return rowsAff, nil
+}
+
+// UpdateAllG updates all rows with the specified column values.
+func (o QuoteSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -698,6 +744,11 @@ func (o QuoteSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, co
 		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all quote")
 	}
 	return rowsAff, nil
+}
+
+// UpsertG attempts an insert, and does an update or ignore on conflict.
+func (o *Quote) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
@@ -815,6 +866,12 @@ func (o *Quote) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnC
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
+// DeleteG deletes a single Quote record.
+// DeleteG will match against the primary key column to find the record to delete.
+func (o *Quote) DeleteG(ctx context.Context) (int64, error) {
+	return o.Delete(ctx, boil.GetContextDB())
+}
+
 // Delete deletes a single Quote record with an executor.
 // Delete will match against the primary key column to find the record to delete.
 func (o *Quote) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
@@ -872,6 +929,11 @@ func (q quoteQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (i
 	return rowsAff, nil
 }
 
+// DeleteAllG deletes all rows in the slice.
+func (o QuoteSlice) DeleteAllG(ctx context.Context) (int64, error) {
+	return o.DeleteAll(ctx, boil.GetContextDB())
+}
+
 // DeleteAll deletes all rows in the slice, using an executor.
 func (o QuoteSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
@@ -921,6 +983,15 @@ func (o QuoteSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (i
 	return rowsAff, nil
 }
 
+// ReloadG refetches the object from the database using the primary keys.
+func (o *Quote) ReloadG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: no Quote provided for reload")
+	}
+
+	return o.Reload(ctx, boil.GetContextDB())
+}
+
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *Quote) Reload(ctx context.Context, exec boil.ContextExecutor) error {
@@ -931,6 +1002,16 @@ func (o *Quote) Reload(ctx context.Context, exec boil.ContextExecutor) error {
 
 	*o = *ret
 	return nil
+}
+
+// ReloadAllG refetches every row with matching primary key column values
+// and overwrites the original object slice with the newly updated slice.
+func (o *QuoteSlice) ReloadAllG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: empty QuoteSlice provided for reload all")
+	}
+
+	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -960,6 +1041,11 @@ func (o *QuoteSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor) e
 	*o = slice
 
 	return nil
+}
+
+// QuoteExistsG checks if the Quote row exists.
+func QuoteExistsG(ctx context.Context, iD int) (bool, error) {
+	return QuoteExists(ctx, boil.GetContextDB(), iD)
 }
 
 // QuoteExists checks if the Quote row exists.
