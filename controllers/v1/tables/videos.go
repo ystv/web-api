@@ -1,4 +1,4 @@
-package v1
+package tables
 
 import (
 	"net/http"
@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Param	body	body	models.Video	true	"video create parameter"
 // @Success 200 {object} models.Video
-// @Router /v1/videos [post]
+// @Router /v1/tables/videos [post]
 func VideoCreate(c echo.Context) error {
 	return c.JSON(http.StatusOK, "update ok")
 }
@@ -26,7 +26,7 @@ func VideoCreate(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.VideoSlice
-// @Router /v1/videos [get]
+// @Router /v1/tables/videos [get]
 func VideoList(c echo.Context) error {
 	res, err := services.VideoList()
 	if err != nil {
@@ -41,7 +41,7 @@ func VideoList(c echo.Context) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} models.Video
-// @Router /v1/videos/{video_id} [get]
+// @Router /v1/tables/videos/{video_id} [get]
 func VideoFind(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -61,7 +61,7 @@ func VideoFind(c echo.Context) error {
 // @Produce  json
 // @Param   video_id     path    int     true        "video id parameter"
 // @Success 200 string string	""
-// @Router /v1/videos/{video_id} [put]
+// @Router /v1/tables/videos/{video_id} [put]
 func VideoUpdate(c echo.Context) error {
 	return c.JSON(http.StatusOK, "update ok")
 }
@@ -73,7 +73,7 @@ func VideoUpdate(c echo.Context) error {
 // @Produce  json
 // @Param   video_id     path    int     true        "video id parameter"
 // @Success 200 string string	""
-// @Router /v1/videos/{video_id} [delete]
+// @Router /v1/tables/videos/{video_id} [delete]
 func VideoDelete(c echo.Context) error {
 	return c.JSON(http.StatusOK, "delete ok")
 }

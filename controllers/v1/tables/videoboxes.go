@@ -1,4 +1,4 @@
-package v1
+package tables
 
 import (
 	"context"
