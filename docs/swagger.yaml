@@ -1,0 +1,218 @@
+definitions:
+  models.Quote:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      posted_by:
+        type: string
+      posted_date:
+        type: string
+      quote:
+        type: string
+    type: object
+  models.QuoteSlice:
+    items:
+      $ref: '#/definitions/models.Quote'
+    type: array
+  models.Video:
+    properties:
+      created_by:
+        type: string
+      created_date:
+        type: string
+      description:
+        type: string
+      display_name:
+        type: string
+      duration:
+        type: string
+      id:
+        type: integer
+      is_enabled:
+        type: boolean
+      keywords:
+        type: string
+      ordering:
+        type: string
+      redirect_id:
+        type: string
+      search_index_data:
+        type: string
+      url_name:
+        type: string
+      video_box_id:
+        type: integer
+    type: object
+  models.VideoSlice:
+    items:
+      $ref: '#/definitions/models.Video'
+    type: array
+info:
+  contact: {}
+  license: {}
+paths:
+  /v1/tables/quotes:
+    get:
+      consumes:
+      - application/json
+      description: list quotes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QuoteSlice'
+      summary: Quote list API
+    post:
+      consumes:
+      - application/json
+      description: create new quote, there is more to quotes!
+      parameters:
+      - description: quote create parameter
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Quote'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Quote'
+      summary: Quote create API
+  /v1/tables/quotes/{quote_id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete quotes
+      parameters:
+      - description: quote id parameter
+        in: path
+        name: quote_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Quote delete API
+    get:
+      consumes:
+      - application/json
+      description: find quote
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Quote'
+      summary: Quote find API
+    put:
+      consumes:
+      - application/json
+      description: update quotes
+      parameters:
+      - description: quote id parameter
+        in: path
+        name: quote_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Quote update API
+  /v1/tables/videos:
+    get:
+      consumes:
+      - application/json
+      description: list videos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.VideoSlice'
+      summary: Video list API
+    post:
+      consumes:
+      - application/json
+      description: create new video, there is more to videos!
+      parameters:
+      - description: video create parameter
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.Video'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Video'
+      summary: Video create API
+  /v1/tables/videos/{video_id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete videos
+      parameters:
+      - description: video id parameter
+        in: path
+        name: video_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Video delete API
+    get:
+      consumes:
+      - application/json
+      description: find video
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Video'
+      summary: Video find API
+    put:
+      consumes:
+      - application/json
+      description: update videos
+      parameters:
+      - description: video id parameter
+        in: path
+        name: video_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Video update API
+swagger: "2.0"

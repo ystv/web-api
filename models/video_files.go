@@ -327,6 +327,11 @@ func AddVideoFileHook(hookPoint boil.HookPoint, videoFileHook VideoFileHook) {
 	}
 }
 
+// OneG returns a single videoFile record from the query using the global executor.
+func (q videoFileQuery) OneG(ctx context.Context) (*VideoFile, error) {
+	return q.One(ctx, boil.GetContextDB())
+}
+
 // One returns a single videoFile record from the query.
 func (q videoFileQuery) One(ctx context.Context, exec boil.ContextExecutor) (*VideoFile, error) {
 	o := &VideoFile{}
@@ -346,6 +351,11 @@ func (q videoFileQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Vi
 	}
 
 	return o, nil
+}
+
+// AllG returns all VideoFile records from the query using the global executor.
+func (q videoFileQuery) AllG(ctx context.Context) (VideoFileSlice, error) {
+	return q.All(ctx, boil.GetContextDB())
 }
 
 // All returns all VideoFile records from the query.
@@ -368,6 +378,11 @@ func (q videoFileQuery) All(ctx context.Context, exec boil.ContextExecutor) (Vid
 	return o, nil
 }
 
+// CountG returns the count of all VideoFile records in the query, and panics on error.
+func (q videoFileQuery) CountG(ctx context.Context) (int64, error) {
+	return q.Count(ctx, boil.GetContextDB())
+}
+
 // Count returns the count of all VideoFile records in the query.
 func (q videoFileQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	var count int64
@@ -381,6 +396,11 @@ func (q videoFileQuery) Count(ctx context.Context, exec boil.ContextExecutor) (i
 	}
 
 	return count, nil
+}
+
+// ExistsG checks if the row exists in the table, and panics on error.
+func (q videoFileQuery) ExistsG(ctx context.Context) (bool, error) {
+	return q.Exists(ctx, boil.GetContextDB())
 }
 
 // Exists checks if the row exists in the table.
@@ -514,6 +534,14 @@ func (videoFileL) LoadVideo(ctx context.Context, e boil.ContextExecutor, singula
 	return nil
 }
 
+// SetVideoG of the videoFile to the related item.
+// Sets o.R.Video to related.
+// Adds o to related.R.VideoFiles.
+// Uses the global database handle.
+func (o *VideoFile) SetVideoG(ctx context.Context, insert bool, related *Video) error {
+	return o.SetVideo(ctx, boil.GetContextDB(), insert, related)
+}
+
 // SetVideo of the videoFile to the related item.
 // Sets o.R.Video to related.
 // Adds o to related.R.VideoFiles.
@@ -567,6 +595,11 @@ func VideoFiles(mods ...qm.QueryMod) videoFileQuery {
 	return videoFileQuery{NewQuery(mods...)}
 }
 
+// FindVideoFileG retrieves a single record by ID.
+func FindVideoFileG(ctx context.Context, iD int, selectCols ...string) (*VideoFile, error) {
+	return FindVideoFile(ctx, boil.GetContextDB(), iD, selectCols...)
+}
+
 // FindVideoFile retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
 func FindVideoFile(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*VideoFile, error) {
@@ -591,6 +624,11 @@ func FindVideoFile(ctx context.Context, exec boil.ContextExecutor, iD int, selec
 	}
 
 	return videoFileObj, nil
+}
+
+// InsertG a single record. See Insert for whitelist behavior description.
+func (o *VideoFile) InsertG(ctx context.Context, columns boil.Columns) error {
+	return o.Insert(ctx, boil.GetContextDB(), columns)
 }
 
 // Insert a single record using an executor.
@@ -672,6 +710,12 @@ func (o *VideoFile) Insert(ctx context.Context, exec boil.ContextExecutor, colum
 	return o.doAfterInsertHooks(ctx, exec)
 }
 
+// UpdateG a single VideoFile record using the global executor.
+// See Update for more documentation.
+func (o *VideoFile) UpdateG(ctx context.Context, columns boil.Columns) (int64, error) {
+	return o.Update(ctx, boil.GetContextDB(), columns)
+}
+
 // Update uses an executor to update the VideoFile.
 // See boil.Columns.UpdateColumnSet documentation to understand column list inference for updates.
 // Update does not automatically update the record in case of default values. Use .Reload() to refresh the records.
@@ -735,6 +779,11 @@ func (o *VideoFile) Update(ctx context.Context, exec boil.ContextExecutor, colum
 	return rowsAff, o.doAfterUpdateHooks(ctx, exec)
 }
 
+// UpdateAllG updates all rows with the specified column values.
+func (q videoFileQuery) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return q.UpdateAll(ctx, boil.GetContextDB(), cols)
+}
+
 // UpdateAll updates all rows with the specified column values.
 func (q videoFileQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, cols M) (int64, error) {
 	queries.SetUpdate(q.Query, cols)
@@ -750,6 +799,11 @@ func (q videoFileQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor
 	}
 
 	return rowsAff, nil
+}
+
+// UpdateAllG updates all rows with the specified column values.
+func (o VideoFileSlice) UpdateAllG(ctx context.Context, cols M) (int64, error) {
+	return o.UpdateAll(ctx, boil.GetContextDB(), cols)
 }
 
 // UpdateAll updates all rows with the specified column values, using an executor.
@@ -798,6 +852,11 @@ func (o VideoFileSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor
 		return 0, errors.Wrap(err, "models: unable to retrieve rows affected all in update all videoFile")
 	}
 	return rowsAff, nil
+}
+
+// UpsertG attempts an insert, and does an update or ignore on conflict.
+func (o *VideoFile) UpsertG(ctx context.Context, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
+	return o.Upsert(ctx, boil.GetContextDB(), updateOnConflict, conflictColumns, updateColumns, insertColumns)
 }
 
 // Upsert attempts an insert using an executor, and does an update or ignore on conflict.
@@ -915,6 +974,12 @@ func (o *VideoFile) Upsert(ctx context.Context, exec boil.ContextExecutor, updat
 	return o.doAfterUpsertHooks(ctx, exec)
 }
 
+// DeleteG deletes a single VideoFile record.
+// DeleteG will match against the primary key column to find the record to delete.
+func (o *VideoFile) DeleteG(ctx context.Context) (int64, error) {
+	return o.Delete(ctx, boil.GetContextDB())
+}
+
 // Delete deletes a single VideoFile record with an executor.
 // Delete will match against the primary key column to find the record to delete.
 func (o *VideoFile) Delete(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
@@ -972,6 +1037,11 @@ func (q videoFileQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor
 	return rowsAff, nil
 }
 
+// DeleteAllG deletes all rows in the slice.
+func (o VideoFileSlice) DeleteAllG(ctx context.Context) (int64, error) {
+	return o.DeleteAll(ctx, boil.GetContextDB())
+}
+
 // DeleteAll deletes all rows in the slice, using an executor.
 func (o VideoFileSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) (int64, error) {
 	if len(o) == 0 {
@@ -1021,6 +1091,15 @@ func (o VideoFileSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor
 	return rowsAff, nil
 }
 
+// ReloadG refetches the object from the database using the primary keys.
+func (o *VideoFile) ReloadG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: no VideoFile provided for reload")
+	}
+
+	return o.Reload(ctx, boil.GetContextDB())
+}
+
 // Reload refetches the object from the database
 // using the primary keys with an executor.
 func (o *VideoFile) Reload(ctx context.Context, exec boil.ContextExecutor) error {
@@ -1031,6 +1110,16 @@ func (o *VideoFile) Reload(ctx context.Context, exec boil.ContextExecutor) error
 
 	*o = *ret
 	return nil
+}
+
+// ReloadAllG refetches every row with matching primary key column values
+// and overwrites the original object slice with the newly updated slice.
+func (o *VideoFileSlice) ReloadAllG(ctx context.Context) error {
+	if o == nil {
+		return errors.New("models: empty VideoFileSlice provided for reload all")
+	}
+
+	return o.ReloadAll(ctx, boil.GetContextDB())
 }
 
 // ReloadAll refetches every row with matching primary key column values
@@ -1060,6 +1149,11 @@ func (o *VideoFileSlice) ReloadAll(ctx context.Context, exec boil.ContextExecuto
 	*o = slice
 
 	return nil
+}
+
+// VideoFileExistsG checks if the VideoFile row exists.
+func VideoFileExistsG(ctx context.Context, iD int) (bool, error) {
+	return VideoFileExists(ctx, boil.GetContextDB(), iD)
 }
 
 // VideoFileExists checks if the VideoFile row exists.

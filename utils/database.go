@@ -10,8 +10,10 @@ import (
 	"github.com/vattle/sqlboiler/boil"
 )
 
+var DB *sql.DB
+
 // InitDB Initialises the connection to the database
-func InitDB() *sql.DB {
+func InitDB() {
 	err := godotenv.Load() // Load .env file
 	if err != nil {
 		panic(err)
@@ -24,12 +26,15 @@ func InitDB() *sql.DB {
 
 	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s sslmode=disable", dbName, dbHost, username, password) // Build connection string
 
-	db, err := sql.Open("postgres", dbURI)
+	DB, err = sql.Open("postgres", dbURI)
 	if err != nil {
 		panic(err)
 	}
-	err = db.Ping()
+	err = DB.Ping()
+	if err != nil {
+		panic(err)
+	}
 
-	boil.SetDB(db)
-	return db
+	boil.SetDB(DB)
+	boil.DebugMode = true
 }

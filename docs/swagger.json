@@ -1,0 +1,333 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {},
+        "license": {}
+    },
+    "paths": {
+        "/v1/tables/quotes": {
+            "get": {
+                "description": "list quotes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Quote list API",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QuoteSlice"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create new quote, there is more to quotes!",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Quote create API",
+                "parameters": [
+                    {
+                        "description": "quote create parameter",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Quote"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Quote"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tables/quotes/{quote_id}": {
+            "get": {
+                "description": "find quote",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Quote find API",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Quote"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update quotes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Quote update API",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "quote id parameter",
+                        "name": "quote_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete quotes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Quote delete API",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "quote id parameter",
+                        "name": "quote_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tables/videos": {
+            "get": {
+                "description": "list videos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Video list API",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.VideoSlice"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "create new video, there is more to videos!",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Video create API",
+                "parameters": [
+                    {
+                        "description": "video create parameter",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Video"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Video"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tables/videos/{video_id}": {
+            "get": {
+                "description": "find video",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Video find API",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Video"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update videos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Video update API",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "video id parameter",
+                        "name": "video_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete videos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Video delete API",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "video id parameter",
+                        "name": "video_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Quote": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "posted_by": {
+                    "type": "string"
+                },
+                "posted_date": {
+                    "type": "string"
+                },
+                "quote": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.QuoteSlice": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/models.Quote"
+            }
+        },
+        "models.Video": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "created_date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "display_name": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "keywords": {
+                    "type": "string"
+                },
+                "ordering": {
+                    "type": "string"
+                },
+                "redirect_id": {
+                    "type": "string"
+                },
+                "search_index_data": {
+                    "type": "string"
+                },
+                "url_name": {
+                    "type": "string"
+                },
+                "video_box_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.VideoSlice": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/models.Video"
+            }
+        }
+    }
+}
