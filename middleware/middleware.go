@@ -9,6 +9,7 @@ import (
 // Init initialse database connection
 func Init(e *echo.Echo) {
 	utils.InitDB()
+	utils.InitCDN()
 
 	e.Pre(echoMw.RemoveTrailingSlash())
 	e.Use(echoMw.Logger())
