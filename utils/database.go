@@ -3,30 +3,28 @@ package utils
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/vattle/sqlboiler/boil"
 )
 
+// DB object
 var DB *sql.DB
 
 // InitDB Initialises the connection to the database
 func InitDB() {
-	err := godotenv.Load() // Load .env file
-	if err != nil {
-		panic(err)
-	}
-
 	username := os.Getenv("db_user")
 	password := os.Getenv("db_pass")
 	dbName := os.Getenv("db_name")
 	dbHost := os.Getenv("db_host")
+	dbPort := os.Getenv("db_port")
 
-	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s sslmode=disable", dbName, dbHost, username, password) // Build connection string
+	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=disable", dbName, dbHost, username, password, dbPort) // Build connection string
 
-	DB, err = sql.Open("postgres", dbURI)
+	DB, err := sql.Open("postgres", dbURI)
 	if err != nil {
 		panic(err)
 	}
@@ -36,5 +34,11 @@ func InitDB() {
 	}
 
 	boil.SetDB(DB)
-	boil.DebugMode = true
+
+	ret, err := strconv.ParseBool(os.Getenv("debug"))
+	if err != nil {
+		panic(err)
+	}
+	boil.DebugMode = ret
+	log.Printf("Connected to DB: %s", dbHost)
 }

@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"io/ioutil"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -20,7 +21,11 @@ import (
 func Init() *echo.Echo {
 	e := echo.New()
 
-	e.Debug = true
+	ret, err := strconv.ParseBool(os.Getenv("debug"))
+	if err != nil {
+		panic(err)
+	}
+	e.Debug = ret
 
 	middleware.Init(e)
 
@@ -93,11 +98,24 @@ func Init() *echo.Echo {
 
 	}
 	e.GET("/", func(c echo.Context) error {
-		content, err := ioutil.ReadFile("logo.txt")
-		if err != nil {
-			panic(err)
-		}
-		text := string(content)
+		text := `                                                                                
+                                                              @@@@@             
+                                                                     @@@@       
+                                                                         @@@    
+                                               @@@@                        @@@@ 
+                                               @@@@                          @@@
+        .    @@@@@         @@@@   @@@@@@     @@@@@@@@@  @@@@        @@@@     @@@
+     @%       @@@@@       @@@@  @@@@@@@@@@   @@@@@@@@@   @@@@      @@@@       @@
+   @@           @@@@    @@@@@   @@@@           @@@@       @@@@    @@@@       @@ 
+  @@             @@@@  @@@@@     @@@@@@@@      @@@@        @@@@  @@@@       @@  
+ @@               @@@@@@@@           @@@@@@    @@@@         @@@@@@@@      @@    
+ @@@               @@@@@@       @@@    @@@@    @@@@          @@@@@@     @       
+ @@@                @@@@        @@@@@@@@@@     @@@@           @@@@              
+  (@@@             @@@@                                                         
+     @@@         @@@@@                                                          
+        @@@@    @@@@@                                                           
+              @@@@@                                                             
+`
 		return c.String(http.StatusOK, text)
 	})
 	return e

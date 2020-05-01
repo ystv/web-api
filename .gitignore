@@ -3,3 +3,4 @@ sqlboiler
 sqlboiler-psql
 sqlboiler.toml
 swag
+docker-compose.yml
