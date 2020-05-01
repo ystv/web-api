@@ -18,7 +18,7 @@ This is currently built to handle a few of the tables in `ystv`. If there is a f
 
 if that doesn't work try `git clone https://github.com/ystv/web-api`
 
-# Installing
+## Installing
 
 Run `go build -o web-api`, hopefully you've got the binary.
 

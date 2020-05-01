@@ -1,0 +1,18 @@
+version: "3"
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - db_user=
+      - db_pass=
+      - db_name=
+      - db_host=
+      - db_port=
+      - cdn_endpoint=
+      - cdn_accessKeyID=
+      - cdn_secretAccessKey=
+      - debug=false
+    ports:
+      - "8080:8080"

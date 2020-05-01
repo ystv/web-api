@@ -1,6 +1,6 @@
-.env
+/.env
+/sqlboiler.toml
+/docker-compose.yml
+swag
 sqlboiler
 sqlboiler-psql
-sqlboiler.toml
-swag
-docker-compose.yml
