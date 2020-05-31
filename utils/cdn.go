@@ -4,23 +4,31 @@ import (
 	"log"
 	"os"
 
-	"github.com/minio/minio-go/v6"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 // CDN object
-var CDN *minio.Client
+var CDN *s3.S3
 
 // InitCDN Initialise connection to CDN
 func InitCDN() {
 	endpoint := os.Getenv("cdn_endpoint")
 	accessKeyID := os.Getenv("cdn_accessKeyID")
 	secretAccessKey := os.Getenv("cdn_secretAccessKey")
-	useSSL := true
 
-	// Initialise minio client object
-	CDN, err := minio.New(endpoint, accessKeyID, secretAccessKey, useSSL)
-	if err != nil {
-		panic(err)
+	// Configure to use CDN Server
+
+	s3Config := &aws.Config{
+		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
+		Endpoint:         aws.String(endpoint),
+		Region:           aws.String("ystv-wales-1"),
+		S3ForcePathStyle: aws.Bool(true),
 	}
-	log.Printf("Connected to CDN: %s@%s", accessKeyID, CDN.EndpointURL().Host)
+	newSession := session.New(s3Config)
+	CDN := s3.New(newSession)
+
+	log.Printf("Connected to CDN: %s@%s", accessKeyID, CDN.Endpoint)
 }

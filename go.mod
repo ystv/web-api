@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
-	github.com/aws/aws-sdk-go v1.31.7 // indirect
+	github.com/aws/aws-sdk-go v1.31.7
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gin-gonic/gin v1.6.2
