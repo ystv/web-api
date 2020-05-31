@@ -54,5 +54,6 @@ func CreationCreate(c echo.Context) error {
 
 // CreationList Handles listing all creations
 func CreationList(c echo.Context) error {
-	return c.String(http.StatusOK, "Listed creations")
+	objects := services.ListObjects(("pending"))
+	return c.JSON(http.StatusOK, objects)
 }

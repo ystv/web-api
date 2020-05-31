@@ -4,16 +4,25 @@ package main
 
 import (
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"github.com/ystv/web-api/routes"
 )
 
 func main() {
-	err := godotenv.Load() // Load .env file
+	err := godotenv.Load(".env.local", ".env") // Load .env file
 	if err != nil {
-		log.Println("No .env file present, using global env")
+		log.Println(err)
+	}
+	debug, err := strconv.ParseBool(os.Getenv("debug"))
+	if err != nil {
+		debug = false
+	}
+	if debug {
+		log.Println("Debug Mode - Disabled auth - pls don't run in production")
 	}
 	e := routes.Init()
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":8081"))
 }

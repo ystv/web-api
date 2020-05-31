@@ -40,5 +40,5 @@ func InitDB() {
 		panic(err)
 	}
 	boil.DebugMode = ret
-	log.Printf("Connected to DB: %s", dbHost)
+	log.Printf("Connected to DB: %s@%s", dbName, dbHost)
 }

@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/minio/minio-go/v6"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -30,4 +31,23 @@ func GenerateUploadURL(bucket string, object string) (*url.URL, error) {
 	expiry := time.Second * 24 * 60 * 60 // 1 day.
 	presignedURL, err := utils.CDN.PresignedPutObject(bucket, object, expiry)
 	return presignedURL, err
+}
+
+// ListObjects Returns an array of ObjectInfo of the input bucket
+func ListObjects(bucket string) []minio.ObjectInfo {
+	var objects []minio.ObjectInfo
+	// Create a done channel to control function go routine.
+	doneCh := make(chan struct{})
+
+	// Indicate to our routine to exit cleanly upon return
+	defer close(doneCh)
+
+	objectCh := utils.CDN.ListObjectsV2(bucket, "/", true, doneCh)
+	for object := range objectCh {
+		if object.Err != nil {
+			log.Printf("Couldn't list object: %v", object.Err)
+		}
+		objects = append(objects, object)
+	}
+	return objects
 }

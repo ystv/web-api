@@ -25,7 +25,7 @@ Run `go build -o web-api`, hopefully you've got the binary.
 Copy the `.env` file from `configs` and place it in the root directory  
 `mv configs/.env .`
 
-Run `./web-api` and hopefully it should be runnig.
+Run `./web-api` and hopefully it should be running.
 
 # Docker
 

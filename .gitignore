@@ -1,4 +1,4 @@
-/.env
+.env.local
 /sqlboiler.toml
 /docker-compose.yml
 swag

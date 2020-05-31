@@ -22,5 +22,5 @@ func InitCDN() {
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("Connect to CDN: %s", CDN.EndpointURL().Host)
+	log.Printf("Connected to CDN: %s@%s", accessKeyID, CDN.EndpointURL().Host)
 }
