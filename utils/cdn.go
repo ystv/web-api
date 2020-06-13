@@ -28,7 +28,7 @@ func InitCDN() {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 	newSession := session.New(s3Config)
-	CDN := s3.New(newSession)
+	CDN = s3.New(newSession)
 
 	log.Printf("Connected to CDN: %s@%s", accessKeyID, CDN.Endpoint)
 }

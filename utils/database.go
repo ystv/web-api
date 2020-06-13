@@ -24,12 +24,15 @@ func InitDB() {
 
 	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=disable", dbName, dbHost, username, password, dbPort) // Build connection string
 
-	DB, err := sql.Open("postgres", dbURI)
+	// Declared err since DB would be nil reference for when it is used outside, the := needed to be = essentially
+	var err error
+	DB, err = sql.Open("postgres", dbURI)
 	if err != nil {
 		panic(err)
 	}
 	err = DB.Ping()
 	if err != nil {
+		log.Println(err.Error())
 		panic(err)
 	}
 

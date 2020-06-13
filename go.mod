@@ -16,7 +16,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/labstack/echo/v4 v4.1.16
-	github.com/lib/pq v1.3.0
+	github.com/lib/pq v1.7.0
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/minio/minio-go/v6 v6.0.55
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
