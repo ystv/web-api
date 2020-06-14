@@ -40,3 +40,31 @@ func ListObjects(bucket string) ([]*s3.Object, error) {
 
 	return resp.Contents, err
 }
+
+// ListPendingUploads Returns an array of S3 objects in pending and thier metadata
+func ListPendingUploads() ([]pendingUpload, error) {
+	videos, err := ListObjects("pending")
+	if err != nil {
+		log.Printf("Unabled to list objects: %s", err.Error())
+	}
+
+	var pus []pendingUpload
+	for i, video := range videos {
+		var pu pendingUpload
+		pu.ID = i
+		pu.Name = *video.Key
+		pu.Owner = *video.Owner.DisplayName
+		pu.Status = "Processing"
+		pus = append(pus, pu)
+	}
+
+	return pus, err
+}
+
+type pendingUpload struct {
+	ID          int
+	Name        string
+	Status      string
+	Owner       string
+	CreatedDate time.Time
+}
