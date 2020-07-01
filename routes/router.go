@@ -78,7 +78,7 @@ func Init() *echo.Echo {
 				{
 					creation.POST("/meta", v1creator.CreationMetaCreate)
 					creation.POST("/video", v1creator.CreationFileUpload)
-					creator.GET("", v1creator.CreationFind)
+					creation.GET("", v1creator.CreationFind)
 				}
 				creator.POST("", v1creator.CreationCreate)
 				creator.GET("", v1creator.CreationList)

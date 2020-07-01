@@ -14,26 +14,6 @@ func CreationMetaCreate(c echo.Context) error {
 
 // CreationFileUpload Handles uploading a file
 func CreationFileUpload(c echo.Context) error {
-	// file, err := c.FormFile("file")
-	// if err != nil {
-	// 	return err
-	// }
-	// src, err := file.Open()
-	// if err != nil {
-	// 	return err
-	// }
-	// defer src.Close()
-
-	// dst, err := os.Create(file.Filename)
-	// if err != nil {
-	// 	return err
-	// }
-	// defer dst.Close()
-
-	// if _, err = io.Copy(dst, src); err != nil {
-	// 	return err
-	// }
-	// return c.String(http.StatusOK, "Lovely")
 	services.CreateBucket("pending", "ystv-wales-1")
 	url, err := services.GenerateUploadURL("pending", c.Param("id"))
 	if err != nil {
@@ -44,7 +24,8 @@ func CreationFileUpload(c echo.Context) error {
 
 // CreationFind Handles finding a creation by ID
 func CreationFind(c echo.Context) error {
-	return c.String(http.StatusOK, "Found creation")
+	creation, _ := services.CreationFind()
+	return c.JSON(http.StatusOK, creation)
 }
 
 // CreationCreate Handles creation of a creation lol

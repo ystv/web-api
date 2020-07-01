@@ -15,4 +15,5 @@ func Init(e *echo.Echo) {
 	e.Pre(echoMw.RemoveTrailingSlash())
 	e.Use(echoMw.Logger())
 	e.Use(echoMw.Recover())
+	e.Use(echoMw.CORS())
 }
