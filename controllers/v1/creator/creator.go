@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services"
+	"github.com/ystv/web-api/services/creator"
 )
 
 // CreationMetaCreate Handes uploading meta data for a creation
@@ -14,8 +14,8 @@ func CreationMetaCreate(c echo.Context) error {
 
 // CreationFileUpload Handles uploading a file
 func CreationFileUpload(c echo.Context) error {
-	services.CreateBucket("pending", "ystv-wales-1")
-	url, err := services.GenerateUploadURL("pending", c.Param("id"))
+	creator.CreateBucket("pending", "ystv-wales-1")
+	url, err := creator.GenerateUploadURL("pending", c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -24,7 +24,7 @@ func CreationFileUpload(c echo.Context) error {
 
 // CreationFind Handles finding a creation by ID
 func CreationFind(c echo.Context) error {
-	creation, _ := services.CreationFind()
+	creation, _ := creator.VideoItemFind()
 	return c.JSON(http.StatusOK, creation)
 }
 
@@ -35,7 +35,7 @@ func CreationCreate(c echo.Context) error {
 
 // CreationList Handles listing all creations
 func CreationList(c echo.Context) error {
-	creations, err := services.ListPendingUploads()
+	creations, err := creator.ListPendingUploads()
 	if err != nil {
 		return err
 	}
