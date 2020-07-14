@@ -11,10 +11,14 @@ import (
 	"github.com/ystv/web-api/routes"
 )
 
+// Version returns web-api's current version
+var Version = "dev (0.3.0)"
+
 func main() {
+	log.Printf("web-api Version %s", Version)
 	err := godotenv.Load(".env.local", ".env") // Load .env file
 	if err != nil {
-		log.Println(err)
+		log.Printf("Failed to load env file %s", err.Error()))
 	}
 	debug, err := strconv.ParseBool(os.Getenv("debug"))
 	if err != nil {

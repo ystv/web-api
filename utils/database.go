@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	// PostgreSQL driver
 	_ "github.com/lib/pq"
 	"github.com/vattle/sqlboiler/boil"
 )
@@ -30,7 +31,6 @@ func InitDB() {
 	if err != nil {
 		panic(err)
 	}
-	defer DB.Close()
 	err = DB.Ping()
 	if err != nil {
 		log.Println(err.Error())

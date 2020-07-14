@@ -10,49 +10,63 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-type pendingUpload struct {
-	ID          int
-	Name        string
-	Status      string
-	Owner       string
-	CreatedDate time.Time
-}
-
-// VideoItem All data stored for a video item
-type VideoItem struct {
-	ID          int         `json:"id"`
-	Name        string      `json:"name"`
-	Status      string      `json:"status"`
-	Owner       string      `json:"owner"`
-	CreatedDate time.Time   `json:"createdDate"`
-	Description string      `json:"description"`
-	Duration    int         `json:"duration"`
-	Preset      string      `json:"preset"`
-	Views       int         `json:"views"`
-	Files       []videofile `json:"files"`
-}
-
-type videofile struct {
-	ID     int    `json:"id"`
-	URI    string `json:"uri"`
-	Preset string `json:"preset"`
-	Status string `json:"status"`
-}
-
-type preset struct {
-	ID          int       `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Encodes     []encodes `json:"encodes"`
-}
-
-type encodes struct {
-	ID          int    `json:"id"`
-	Description string `json:"description"`
-	Preset      int    `json:"presetId"`
-	Arguements  string `json:"arguements"`
-	Watermarked bool   `json:"watermarked"`
-}
+type (
+	// PendingUpload represents a uploaded video that didn't have any metadata attached.
+	PendingUpload struct {
+		ID          int
+		Name        string
+		Status      string
+		Owner       string
+		CreatedDate time.Time
+	}
+	// VideoMeta represents basic information about the videoitem used for listing.
+	VideoMeta struct {
+		ID            int       `json:"id"`
+		Name          string    `json:"name"`
+		Description   string    `json:"description"`
+		Status        string    `json:"status"`
+		Owner         string    `json:"owner"`
+		BroadcastDate time.Time `json:"broadcastDate"`
+		Views         int       `json:"views"`
+		Duration      int       `json:"duration"`
+		Preset        string    `json:"preset"`
+	}
+	// VideoItem represents the basic in-depth information including videofiles.
+	VideoItem struct {
+		ID          int         `json:"id"`
+		Name        string      `json:"name"`
+		Status      string      `json:"status"`
+		Owner       string      `json:"owner"`
+		CreatedDate time.Time   `json:"createdDate"`
+		Description string      `json:"description"`
+		Duration    int         `json:"duration"`
+		Preset      string      `json:"preset"`
+		Views       int         `json:"views"`
+		Files       []VideoFile `json:"files"`
+	}
+	// VideoFile represents each file that a video item has stored.
+	VideoFile struct {
+		ID     int    `json:"id"`
+		URI    string `json:"uri"`
+		Preset string `json:"preset"`
+		Status string `json:"status"`
+	}
+	// Preset represents the preset that auto generated the video files from the source material.
+	Preset struct {
+		ID          int      `json:"id"`
+		Name        string   `json:"name"`
+		Description string   `json:"description"`
+		Encodes     []Encode `json:"encodes"`
+	}
+	// Encode represents the each encode of a preset
+	Encode struct {
+		ID          int    `json:"id"`
+		Description string `json:"description"`
+		Preset      int    `json:"presetId"`
+		Arguements  string `json:"arguements"`
+		Watermarked bool   `json:"watermarked"`
+	}
+)
 
 // CreateBucket Creates a new bucket
 func CreateBucket(name string, location string) {
@@ -87,7 +101,7 @@ func ListObjects(bucket string) ([]*s3.Object, error) {
 }
 
 // ListPendingUploads Returns an array of S3 objects in pending and thier metadata
-func ListPendingUploads() ([]pendingUpload, error) {
+func ListPendingUploads() ([]PendingUpload, error) {
 	videos, err := ListObjects("pending")
 	if err != nil {
 		log.Printf("Unabled to list objects: %s", err.Error())
@@ -97,9 +111,9 @@ func ListPendingUploads() ([]pendingUpload, error) {
 	statuses := []string{"Processing", "Available", "Pending", "Encode error", "Metadata needed", "Locked"}
 	rand.Seed(time.Now().Unix())
 
-	var pus []pendingUpload
+	var pus []PendingUpload
 	for i, video := range videos {
-		pu := pendingUpload{ID: i, Name: *video.Key, Owner: users[rand.Intn(len(users))], Status: statuses[rand.Intn(len(statuses))]}
+		pu := PendingUpload{ID: i, Name: *video.Key, Owner: users[rand.Intn(len(users))], Status: statuses[rand.Intn(len(statuses))]}
 		pus = append(pus, pu)
 	}
 
@@ -117,7 +131,7 @@ func VideoItemFind() (*VideoItem, error) {
 		Description: "Big video description",
 		Duration:    300,
 		Views:       56,
-		Files: []videofile{{
+		Files: []VideoFile{{
 			ID:     1,
 			Preset: "Original master",
 			Status: "Internal",
@@ -148,10 +162,11 @@ func VideoItemFind() (*VideoItem, error) {
 	return &creation, nil
 }
 
-func PresetFindByID(ID int) (*preset, error) {
-	originalVideo := preset{ID: 0, Name: "Original file", Description: "File uploaded to YSTV"}
-	hdVideo := preset{ID: 1, Name: "HD Video", Description: "The latest and greatest 720p"}
-	unknownVideo := preset{ID: -1, Name: "Unknown video", Description: "We don't know what this file is"}
+// PresetFind a preset from it's ID
+func PresetFind(ID int) (*Preset, error) {
+	originalVideo := Preset{ID: 0, Name: "Original file", Description: "File uploaded to YSTV"}
+	hdVideo := Preset{ID: 1, Name: "HD Video", Description: "The latest and greatest 720p"}
+	unknownVideo := Preset{ID: -1, Name: "Unknown video", Description: "We don't know what this file is"}
 	switch ID {
 	case 0:
 		return &originalVideo, nil

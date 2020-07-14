@@ -77,12 +77,18 @@ func Init() *echo.Echo {
 				videos := creator.Group("/videos")
 				{
 					videos.GET("", v1creator.CreationList)
-					videos.GET("/:id", v1creator.CreationCreate)
-					videos.POST("/:id", v1creator.CreationCreate)
+					videos.POST("", v1creator.CreationList)
+					videoItem := videos.Group(":/id")
+					{
+						videoItem.GET("", v1creator.CreationCreate)
+						videoItem.PUT("", v1creator.CreationCreate)
+						videoItem.GET("/files")
+					}
 				}
 				playlists := creator.Group("/playlists")
 				{
 					playlists.GET("", v1creator.CreationCreate)
+					playlists.POST("", v1creator.CreationCreate)
 				}
 				creation := creator.Group("/:id")
 				{

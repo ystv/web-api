@@ -25,6 +25,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.6.3
+	github.com/streadway/amqp v1.0.0
 	github.com/swaggo/echo-swagger v1.0.0
 	github.com/swaggo/swag v1.6.5
 	github.com/vattle/sqlboiler v2.5.0+incompatible
