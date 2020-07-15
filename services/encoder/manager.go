@@ -47,42 +47,16 @@ func ListObjects(bucket string) ([]*s3.Object, error) {
 
 // Manager subroutine provides a service to manage videos, also
 // ensuring consistency of video library.
+
+var MessagingClient utils.IMessagingClient
+
 func Manager() {
-	mqUsername := os.Getenv("mq_user")
-	mqPassword := os.Getenv("mq_pass")
-	mqHost := os.Getenv("mq_host")
-	mqPort := os.Getenv("mq_port")
-
-	mq := fmt.Sprintf("amqp://%s:%s@%s:%s", mqUsername, mqPassword, mqHost, mqPort)
-	conn, err := amqp.Dial(mq)
-	if err != nil {
-		log.Fatalf("Failed to connect to MQ: %s", err.Error())
-	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		log.Fatalf("Failed to connect to channel: %s", err.Error())
-	}
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare(
-		"encode_queue",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		log.Fatalf("Failed to declare queue: %s", err.Error())
-	}
-
+	//TODO Make the cool subroutine here
 }
 
 // CreateEncode creates an encode item in the message queue.
 func CreateEncode(v creator.VideoFile, e creator.Encode) error {
-
+	MessagingClient.
 	return nil
 }
 

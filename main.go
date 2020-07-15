@@ -12,7 +12,7 @@ import (
 )
 
 // Version returns web-api's current version
-var Version = "dev (0.3.0)"
+var Version = "dev (0.3.1)"
 
 func main() {
 	log.Printf("web-api Version %s", Version)
