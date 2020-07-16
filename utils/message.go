@@ -13,11 +13,12 @@ import (
 type IMessagingClient interface {
 	ConnectToBroker(connectionString string)
 	Publish(msg []byte, exchangeName string, exchangeType string) error
-	PubishOnQueue(msg []byte, queueName string) error
+	PublishOnQueue(msg []byte, queueName string) error
 	PublishOnQueueWithContext(ctx context.Context, msg []byte, queueName string) error
 	Subscribe(exchangeName string, exchangeType string, consumerName string, handlerFunc func(amqp.Delivery)) error
 	SubscribeToQueue(queueName string, consumerName string, handlerFunc func(amqp.Delivery)) error
 	Close()
+	Info() string
 }
 
 // MessagingClient encapsulates a pointer to an amqp.Connection
@@ -183,7 +184,8 @@ func (m *MessagingClient) Subscribe(exchangeName string, exchangeType string, co
 		true,         // Auto-ack
 		false,        // Exclusive
 		false,        // No-local
-		nil,
+		false,        //No-wait
+		nil,          // Arguments
 	)
 
 	if err != nil {
@@ -194,6 +196,7 @@ func (m *MessagingClient) Subscribe(exchangeName string, exchangeType string, co
 	return nil
 }
 
+// SubscribeToQueue registers a function for the queue.
 func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string, handlerFunc func(amqp.Delivery)) error {
 	ch, err := m.conn.Channel()
 	if err != nil {
@@ -229,6 +232,7 @@ func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string
 	return nil
 }
 
+// Close closes the connection to the AMQP-broker
 func (m *MessagingClient) Close() {
 	if m.conn != nil {
 		log.Printf("Closing connection to AMQP broker")
@@ -242,15 +246,23 @@ func consumeLoop(deliveries <-chan amqp.Delivery, handlerFunc func(d amqp.Delive
 	}
 }
 
+// Info returns AMQP info
+func (m *MessagingClient) Info() string {
+	return fmt.Sprintf("%s (%s)", m.conn.Properties["product"], m.conn.Properties["version"])
+}
+
+// MQ global mq
 var MQ IMessagingClient
 
+// InitMessaging initialising the AMQP broker
 func InitMessaging() {
 	mqUsername := os.Getenv("mq_user")
 	mqPassword := os.Getenv("mq_pass")
 	mqHost := os.Getenv("mq_host")
 	mqPort := os.Getenv("mq_port")
 
-	mq := fmt.Sprintf("amqp://%s:%s@%s:%s", mqUsername, mqPassword, mqHost, mqPort)
-	MQ = &MessagingClient
-	MQ.ConnectToBroker(mq)
+	mqString := fmt.Sprintf("amqp://%s:%s@%s:%s", mqUsername, mqPassword, mqHost, mqPort)
+	MQ = &MessagingClient{}
+	MQ.ConnectToBroker(mqString)
+	log.Printf("Connected to MQ: %s@%s - %s", mqUsername, mqHost, MQ.Info())
 }

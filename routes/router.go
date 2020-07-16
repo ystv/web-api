@@ -21,7 +21,7 @@ import (
 // Init initialise routes
 func Init() *echo.Echo {
 	e := echo.New()
-
+	e.HideBanner = true
 	debug, err := strconv.ParseBool(os.Getenv("debug"))
 	if err != nil {
 		panic(err)
@@ -82,7 +82,7 @@ func Init() *echo.Echo {
 					{
 						videoItem.GET("", v1creator.CreationCreate)
 						videoItem.PUT("", v1creator.CreationCreate)
-						videoItem.GET("/files")
+						videoItem.GET("/files", v1creator.CreationCreate)
 					}
 				}
 				playlists := creator.Group("/playlists")

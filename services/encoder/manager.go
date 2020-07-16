@@ -1,14 +1,11 @@
 package encoder
 
 import (
-	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/streadway/amqp"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/utils"
 )
@@ -56,7 +53,6 @@ func Manager() {
 
 // CreateEncode creates an encode item in the message queue.
 func CreateEncode(v creator.VideoFile, e creator.Encode) error {
-	MessagingClient.
 	return nil
 }
 

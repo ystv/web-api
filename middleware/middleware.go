@@ -10,6 +10,7 @@ import (
 func Init(e *echo.Echo) {
 	utils.InitDB()
 	utils.InitCDN()
+	utils.InitMessaging()
 	// utils.InitAuth()
 
 	e.Pre(echoMw.RemoveTrailingSlash())
