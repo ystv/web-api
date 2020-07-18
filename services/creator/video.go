@@ -2,7 +2,6 @@ package creator
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"math/rand"
 	"time"
@@ -10,7 +9,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/lib/pq"
+	_ "github.com/lib/pq"
 	"github.com/ystv/web-api/utils"
+	"gopkg.in/square/go-jose.v2/json"
 )
 
 type (
@@ -130,40 +131,51 @@ func ListPendingUploads() ([]PendingUpload, error) {
 	return pus, err
 }
 
-type DBVideoItem struct {
-	ID            int            `db:"video_item_id"`
-	SeriesID      int            `db:"series_id"`
-	Name          string         `db:"name"`
-	URL           sql.NullString `db:"url"`
-	Description   sql.NullString `db:"description"`
-	Thumbnail     sql.NullString `db:"thumbnail"`
-	Duration      time.Duration  `db:"date_part"`
-	Views         int            `db:"views"`
-	Genre         int            `db:"genre"`
-	Tags          pq.StringArray `db:"tags"`
-	Status        string         `db:"status"`
-	Preset        sql.NullInt64  `db:"preset"`
-	BroadcastDate time.Time      `db:"broadcast_date"`
-	CreatedAt     time.Time      `db:"created_at"`
-	CreatedBy     sql.NullInt64  `db:"created_by"`
-}
+type (
+	DBVideoItem struct {
+		ID    int            `db:"video_id"`
+		Name  string         `db:"name"`
+		Files pq.StringArray `db:"files"`
+	}
+	DBVideoFile []struct {
+		URI    string `json:"uri,omitempty"`
+		Preset int    `json:"preset,string,omitempty"`
+		Status string `json:"status,omitempty"`
+		Size   int    `json:"size,string,omitempty"`
+	}
+	DBVideoItem2 struct {
+		ID    int         `db:"video_id"`
+		Name  string      `db:"name"`
+		Files DBVideoFile `db:"files"`
+	}
+)
 
 // VideoItemFind returns the metadata for a given creation
-func VideoItemFind(ctx context.Context, id int) (*DBVideoItem, error) {
+func VideoItemFind(ctx context.Context, id int) (*DBVideoItem2, error) {
 
 	v := DBVideoItem{}
 	err := utils.DB.Get(&v,
-		`SELECT video_id video_item_id, series_id, name, url, description, thumbnail, EXTRACT(EPOCH FROM duration) AS duration, views,
-				genre, tags, status, preset, broadcast_date, created_at, created_by, ARRAY(SELECT file_id FROM video.files WHERE video_id = video_item_id) AS files
-				FROM video.items
-				WHERE video_id = 200
-				ORDER BY video_id
-				LIMIT 1`, id)
+		`SELECT item.video_id, item.name, array_agg(json_build_object('uri', file.uri, 'preset', file.encode_format , 'status', file.status, 'size', file.size)) AS files
+		FROM video.items item
+		INNER JOIN video.files file ON item.video_id = file.video_id
+		WHERE item.video_id = $1
+		GROUP BY item.video_id, item.name
+		ORDER BY item.video_id
+		LIMIT 1;`, id)
 	log.Printf("Error: %+v", err)
 	if err != nil {
 		return nil, err
 	}
-	return &v, nil
+
+	files, err := json.Marshal(v.Files)
+	log.Printf("Marshal: %+v", err)
+	log.Printf(string(files))
+	files2 := DBVideoFile{}
+	err = json.Unmarshal(files, &files2)
+	log.Printf("Unmarshal: %+v", err)
+	log.Printf("new array: %+v", files2)
+	v2 := DBVideoItem2{ID: v.ID, Name: v.Name, Files: files2}
+	return &v2, nil
 	//creation := VideoItem{
 	//	ID:          1,
 	//	Name:        "Setup Tour 2020",
