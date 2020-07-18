@@ -2,7 +2,6 @@ package creator
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -25,8 +24,8 @@ func CreationFileUpload(c echo.Context) error {
 	return c.JSON(http.StatusOK, url)
 }
 
+// VideoFind finds a video by ID
 func VideoFind(c echo.Context) error {
-	log.Print("Yay")
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, "Number pls")

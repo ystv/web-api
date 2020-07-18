@@ -8,7 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/ystv/web-api/storage"
+	"github.com/ystv/web-api/storage/video"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -131,8 +131,8 @@ func ListPendingUploads() ([]PendingUpload, error) {
 }
 
 // VideoItemFind returns the metadata for a given creation
-func VideoItemFind(ctx context.Context, id int) (*storage.SQLVideoItem, error) {
-	return storage.VideoItem(ctx, id)
+func VideoItemFind(ctx context.Context, id int) (*video.SQLVideoItem, error) {
+	return video.FindVideoItem(ctx, id)
 
 	// files, err := json.Marshal(v.Files)
 	// log.Printf("Marshal: %+v", err)
