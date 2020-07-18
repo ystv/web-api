@@ -1,7 +1,10 @@
 package creator
 
 import (
+	"context"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator"
@@ -22,10 +25,17 @@ func CreationFileUpload(c echo.Context) error {
 	return c.JSON(http.StatusOK, url)
 }
 
-// CreationFind Handles finding a creation by ID
-func CreationFind(c echo.Context) error {
-	creation, _ := creator.VideoItemFind()
-	return c.JSON(http.StatusOK, creation)
+func VideoFind(c echo.Context) error {
+	log.Print("Yay")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.String(http.StatusBadRequest, "Number pls")
+	}
+	v, err := creator.VideoItemFind(context.Background(), id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, v)
 }
 
 // CreationCreate Handles creation of a creation lol

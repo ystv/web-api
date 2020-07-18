@@ -1,19 +1,18 @@
 package utils
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 
 	// PostgreSQL driver
 	_ "github.com/lib/pq"
-	"github.com/vattle/sqlboiler/boil"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // DB object
-var DB *sql.DB
+var DB *sqlx.DB
 
 // InitDB Initialises the connection to the database
 func InitDB() {
@@ -27,7 +26,7 @@ func InitDB() {
 
 	// Declared err since DB would be nil reference for when it is used outside, the := needed to be = essentially
 	var err error
-	DB, err = sql.Open("postgres", dbURI)
+	DB, err = sqlx.Open("postgres", dbURI)
 	if err != nil {
 		panic(err)
 	}
@@ -37,12 +36,5 @@ func InitDB() {
 		panic(err)
 	}
 
-	boil.SetDB(DB)
-
-	ret, err := strconv.ParseBool(os.Getenv("debug"))
-	if err != nil {
-		panic(err)
-	}
-	boil.DebugMode = ret
 	log.Printf("Connected to DB: %s@%s", dbName, dbHost)
 }

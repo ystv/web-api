@@ -1,16 +1,26 @@
 package creator
 
 import (
+	"context"
+	"database/sql"
 	"log"
 	"math/rand"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/lib/pq"
 	"github.com/ystv/web-api/utils"
 )
 
 type (
+	IVideoItem interface {
+		ListVideoItems() ([]VideoItem, error)
+		FindVideoItems(id int) (VideoItem, error)
+		CreateVideoItem(item VideoItem) (VideoItem, error)
+		UpdateVideoItem(item VideoItem) (VideoItem, error)
+		DeleteVideoItem(id int) (VideoItem, error)
+	}
 	// PendingUpload represents a uploaded video that didn't have any metadata attached.
 	PendingUpload struct {
 		ID          int
@@ -120,46 +130,78 @@ func ListPendingUploads() ([]PendingUpload, error) {
 	return pus, err
 }
 
+type DBVideoItem struct {
+	ID            int            `db:"video_item_id"`
+	SeriesID      int            `db:"series_id"`
+	Name          string         `db:"name"`
+	URL           sql.NullString `db:"url"`
+	Description   sql.NullString `db:"description"`
+	Thumbnail     sql.NullString `db:"thumbnail"`
+	Duration      time.Duration  `db:"date_part"`
+	Views         int            `db:"views"`
+	Genre         int            `db:"genre"`
+	Tags          pq.StringArray `db:"tags"`
+	Status        string         `db:"status"`
+	Preset        sql.NullInt64  `db:"preset"`
+	BroadcastDate time.Time      `db:"broadcast_date"`
+	CreatedAt     time.Time      `db:"created_at"`
+	CreatedBy     sql.NullInt64  `db:"created_by"`
+}
+
 // VideoItemFind returns the metadata for a given creation
-func VideoItemFind() (*VideoItem, error) {
-	creation := VideoItem{
-		ID:          1,
-		Name:        "Setup Tour 2020",
-		Status:      "Available",
-		Owner:       "Rhys",
-		CreatedDate: time.Now(),
-		Description: "Big video description",
-		Duration:    300,
-		Views:       56,
-		Files: []VideoFile{{
-			ID:     1,
-			Preset: "Original master",
-			Status: "Internal",
-			URI:    "cdn.ystv.co.uk/videos/1/1",
-		}, {
-			ID:     2,
-			Preset: "FHD Video",
-			Status: "Public",
-			URI:    "cdn.ystv.co.uk/videos/1/2",
-		}, {
-			ID:     3,
-			Preset: "HD Video",
-			Status: "Processing",
-			URI:    "",
-		}, {
-			ID:     4,
-			Preset: "English Subtitles",
-			Status: "Public",
-			URI:    "cdn.ystv.co.uk/videos/1/4",
-		}, {
-			ID:     5,
-			Preset: "Thumbnails",
-			Status: "Internal",
-			URI:    "cdn.ystv.co.uk/videos/1/5",
-		},
-		},
+func VideoItemFind(ctx context.Context, id int) (*DBVideoItem, error) {
+
+	v := DBVideoItem{}
+	err := utils.DB.Get(&v,
+		`SELECT video_id video_item_id, series_id, name, url, description, thumbnail, EXTRACT(EPOCH FROM duration) AS duration, views,
+				genre, tags, status, preset, broadcast_date, created_at, created_by, ARRAY(SELECT file_id FROM video.files WHERE video_id = video_item_id) AS files
+				FROM video.items
+				WHERE video_id = 200
+				ORDER BY video_id
+				LIMIT 1`, id)
+	log.Printf("Error: %+v", err)
+	if err != nil {
+		return nil, err
 	}
-	return &creation, nil
+	return &v, nil
+	//creation := VideoItem{
+	//	ID:          1,
+	//	Name:        "Setup Tour 2020",
+	//	Status:      "Available",
+	//	Owner:       "Rhys",
+	//	CreatedDate: time.Now(),
+	//	Description: "Big video description",
+	//	Duration:    300,
+	//	Views:       56,
+	//	Files: []VideoFile{{
+	//		ID:     1,
+	//		Preset: "Original master",
+	//		Status: "Internal",
+	//		URI:    "cdn.ystv.co.uk/videos/1/1",
+	//	}, {
+	//		ID:     2,
+	//		Preset: "FHD Video",
+	//		Status: "Public",
+	//		URI:    "cdn.ystv.co.uk/videos/1/2",
+	//	}, {
+	//		ID:     3,
+	//		Preset: "HD Video",
+	//		Status: "Processing",
+	//		URI:    "",
+	//	}, {
+	//		ID:     4,
+	//		Preset: "English Subtitles",
+	//		Status: "Public",
+	//		URI:    "cdn.ystv.co.uk/videos/1/4",
+	//	}, {
+	//		ID:     5,
+	//		Preset: "Thumbnails",
+	//		Status: "Internal",
+	//		URI:    "cdn.ystv.co.uk/videos/1/5",
+	//	},
+	//	},
+	//}
+	//return &creation, nil
 }
 
 // PresetFind a preset from it's ID
