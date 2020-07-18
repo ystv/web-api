@@ -8,13 +8,12 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/lib/pq"
-	_ "github.com/lib/pq"
+	"github.com/ystv/web-api/storage"
 	"github.com/ystv/web-api/utils"
-	"gopkg.in/square/go-jose.v2/json"
 )
 
 type (
+	//IVideoItem defines all creator video interactions
 	IVideoItem interface {
 		ListVideoItems() ([]VideoItem, error)
 		FindVideoItems(id int) (VideoItem, error)
@@ -131,51 +130,19 @@ func ListPendingUploads() ([]PendingUpload, error) {
 	return pus, err
 }
 
-type (
-	DBVideoItem struct {
-		ID    int            `db:"video_id"`
-		Name  string         `db:"name"`
-		Files pq.StringArray `db:"files"`
-	}
-	DBVideoFile []struct {
-		URI    string `json:"uri,omitempty"`
-		Preset int    `json:"preset,string,omitempty"`
-		Status string `json:"status,omitempty"`
-		Size   int    `json:"size,string,omitempty"`
-	}
-	DBVideoItem2 struct {
-		ID    int         `db:"video_id"`
-		Name  string      `db:"name"`
-		Files DBVideoFile `db:"files"`
-	}
-)
-
 // VideoItemFind returns the metadata for a given creation
-func VideoItemFind(ctx context.Context, id int) (*DBVideoItem2, error) {
+func VideoItemFind(ctx context.Context, id int) (*storage.SQLVideoItem, error) {
+	return storage.VideoItem(ctx, id)
 
-	v := DBVideoItem{}
-	err := utils.DB.Get(&v,
-		`SELECT item.video_id, item.name, array_agg(json_build_object('uri', file.uri, 'preset', file.encode_format , 'status', file.status, 'size', file.size)) AS files
-		FROM video.items item
-		INNER JOIN video.files file ON item.video_id = file.video_id
-		WHERE item.video_id = $1
-		GROUP BY item.video_id, item.name
-		ORDER BY item.video_id
-		LIMIT 1;`, id)
-	log.Printf("Error: %+v", err)
-	if err != nil {
-		return nil, err
-	}
-
-	files, err := json.Marshal(v.Files)
-	log.Printf("Marshal: %+v", err)
-	log.Printf(string(files))
-	files2 := DBVideoFile{}
-	err = json.Unmarshal(files, &files2)
-	log.Printf("Unmarshal: %+v", err)
-	log.Printf("new array: %+v", files2)
-	v2 := DBVideoItem2{ID: v.ID, Name: v.Name, Files: files2}
-	return &v2, nil
+	// files, err := json.Marshal(v.Files)
+	// log.Printf("Marshal: %+v", err)
+	// log.Printf(string(files))
+	// files2 := DBVideoFile{}
+	// err = json.Unmarshal(files, &files2)
+	// log.Printf("Unmarshal: %+v", err)
+	// log.Printf("new array: %+v", files2)
+	// v2 := DBVideoItem2{ID: v.ID, Name: v.Name, Files: files2}
+	// return &v2, nil
 	//creation := VideoItem{
 	//	ID:          1,
 	//	Name:        "Setup Tour 2020",
