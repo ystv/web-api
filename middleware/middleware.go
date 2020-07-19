@@ -17,4 +17,5 @@ func Init(e *echo.Echo) {
 	e.Use(echoMw.Logger())
 	e.Use(echoMw.Recover())
 	e.Use(echoMw.CORS())
+	e.Use(echoMw.Gzip())
 }
