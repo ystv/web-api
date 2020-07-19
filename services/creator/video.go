@@ -130,6 +130,11 @@ func ListPendingUploads() ([]PendingUpload, error) {
 	return pus, err
 }
 
+// VideoMetaList returns a list of simplified VideoMeta
+func VideoMetaList(ctx context.Context) (*[]video.SQLVideoMeta, error) {
+	return video.MetaList(ctx)
+}
+
 // VideoItemFind returns the metadata for a given creation
 func VideoItemFind(ctx context.Context, id int) (*video.SQLVideoItem, error) {
 	return video.FindVideoItem(ctx, id)

@@ -44,7 +44,7 @@ func CreationCreate(c echo.Context) error {
 
 // CreationList Handles listing all creations
 func CreationList(c echo.Context) error {
-	creations, err := creator.ListPendingUploads()
+	creations, err := creator.VideoMetaList(context.Background())
 	if err != nil {
 		return err
 	}
