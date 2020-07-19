@@ -50,3 +50,20 @@ func CreationList(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, creations)
 }
+
+// CalendarList Handles listing all vidoes from a calendar year/month
+func CalendarList(c echo.Context) error {
+	year, err := strconv.Atoi(c.Param("year"))
+	if err != nil {
+		c.String(http.StatusBadRequest, "Number pls")
+	}
+	month, err := strconv.Atoi(c.Param("month"))
+	if err != nil {
+		c.String(http.StatusBadRequest, "Number pls")
+	}
+	v, err := creator.CalendarList(context.Background(), year, month)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, v)
+}

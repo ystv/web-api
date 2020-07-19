@@ -39,6 +39,7 @@ type (
 		EncodeFormat string   `db:"name" json:"encodeFormat"`
 		Status       string   `db:"status" json:"status"`
 		Size         null.Int `db:"size" json:"size"`
+		MimeType     string   `db:"mime_type" json:"mimeType"`
 	}
 	// SQLVideoMeta represents just the metadata of a video, used for listing.
 	SQLVideoMeta struct {
@@ -53,6 +54,12 @@ type (
 		Status         string         `db:"status" json:"status"`
 		BroadcastDate  string         `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt      string         `db:"created_at" json:"createdAt"`
+	}
+	// SQLVideoMetaCal represents simple metadata for a calendar
+	SQLVideoMetaCal struct {
+		ID            int    `db:"video_id" json:"videoID"`
+		Name          string `db:"name" json:"name"`
+		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
 	}
 )
 
@@ -88,7 +95,7 @@ func FindVideoItem(ctx context.Context, id int) (*SQLVideoItem, error) {
 		return nil, err
 	}
 	err = utils.DB.SelectContext(ctx, &v.Files,
-		`SELECT uri, name, status, size
+		`SELECT uri, name, status, size, mime_type
 		FROM video.files
 		INNER JOIN video.encode_formats ON id = encode_format
 		WHERE video_id = $1;`, id)
@@ -107,6 +114,20 @@ func MetaList(ctx context.Context) (*[]SQLVideoMeta, error) {
 		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
 		series_position, status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		trim(both '"' from to_json(created_at)::text) AS created_at
-		FROM video.items;`)
+		FROM video.items
+		ORDER BY video_id;`)
+	return &v, err
+}
+
+// CalendarList returns a list of VideoMeta's for a given month/year
+func CalendarList(ctx context.Context, year int, month int) (*[]SQLVideoMetaCal, error) {
+	v := []SQLVideoMetaCal{}
+	err := utils.DB.SelectContext(ctx, &v,
+		`SELECT video_id, name,
+		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date
+		FROM video.items
+		WHERE EXTRACT(YEAR FROM broadcast_date) = $1 AND
+		EXTRACT(MONTH FROM broadcast_date) = $2`, year, month)
+	log.Print(v)
 	return &v, err
 }

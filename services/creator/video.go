@@ -138,66 +138,9 @@ func VideoMetaList(ctx context.Context) (*[]video.SQLVideoMeta, error) {
 // VideoItemFind returns the metadata for a given creation
 func VideoItemFind(ctx context.Context, id int) (*video.SQLVideoItem, error) {
 	return video.FindVideoItem(ctx, id)
-
-	// files, err := json.Marshal(v.Files)
-	// log.Printf("Marshal: %+v", err)
-	// log.Printf(string(files))
-	// files2 := DBVideoFile{}
-	// err = json.Unmarshal(files, &files2)
-	// log.Printf("Unmarshal: %+v", err)
-	// log.Printf("new array: %+v", files2)
-	// v2 := DBVideoItem2{ID: v.ID, Name: v.Name, Files: files2}
-	// return &v2, nil
-	//creation := VideoItem{
-	//	ID:          1,
-	//	Name:        "Setup Tour 2020",
-	//	Status:      "Available",
-	//	Owner:       "Rhys",
-	//	CreatedDate: time.Now(),
-	//	Description: "Big video description",
-	//	Duration:    300,
-	//	Views:       56,
-	//	Files: []VideoFile{{
-	//		ID:     1,
-	//		Preset: "Original master",
-	//		Status: "Internal",
-	//		URI:    "cdn.ystv.co.uk/videos/1/1",
-	//	}, {
-	//		ID:     2,
-	//		Preset: "FHD Video",
-	//		Status: "Public",
-	//		URI:    "cdn.ystv.co.uk/videos/1/2",
-	//	}, {
-	//		ID:     3,
-	//		Preset: "HD Video",
-	//		Status: "Processing",
-	//		URI:    "",
-	//	}, {
-	//		ID:     4,
-	//		Preset: "English Subtitles",
-	//		Status: "Public",
-	//		URI:    "cdn.ystv.co.uk/videos/1/4",
-	//	}, {
-	//		ID:     5,
-	//		Preset: "Thumbnails",
-	//		Status: "Internal",
-	//		URI:    "cdn.ystv.co.uk/videos/1/5",
-	//	},
-	//	},
-	//}
-	//return &creation, nil
 }
 
-// PresetFind a preset from it's ID
-func PresetFind(ID int) (*Preset, error) {
-	originalVideo := Preset{ID: 0, Name: "Original file", Description: "File uploaded to YSTV"}
-	hdVideo := Preset{ID: 1, Name: "HD Video", Description: "The latest and greatest 720p"}
-	unknownVideo := Preset{ID: -1, Name: "Unknown video", Description: "We don't know what this file is"}
-	switch ID {
-	case 0:
-		return &originalVideo, nil
-	case 1:
-		return &hdVideo, nil
-	}
-	return &unknownVideo, nil
+// CalendarList returns simple VideoMeta for a calendar month
+func CalendarList(ctx context.Context, year int, month int) (*[]video.SQLVideoMetaCal, error) {
+	return video.CalendarList(ctx, year, month)
 }

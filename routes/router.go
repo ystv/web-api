@@ -71,6 +71,7 @@ func Init() *echo.Echo {
 				}
 				creator.POST("", v1creator.CreationCreate)
 				creator.GET("", v1creator.CreationList)
+				creator.GET("/calendar/:year/:month", v1creator.CalendarList)
 			}
 		}
 		public := apiV1.Group("/public")
