@@ -51,19 +51,28 @@ func CreationList(c echo.Context) error {
 	return c.JSON(http.StatusOK, creations)
 }
 
-// CalendarList Handles listing all vidoes from a calendar year/month
+// CalendarList Handles listing all videos from a calendar year/month
 func CalendarList(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		return c.String(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
 	}
 	month, err := strconv.Atoi(c.Param("month"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		return c.String(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
 	v, err := creator.CalendarList(context.Background(), year, month)
 	if err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, v)
+}
+
+// Stats handles sending general stats about the video library
+func Stats(c echo.Context) error {
+	s, err := creator.Stats(context.Background())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, s)
 }

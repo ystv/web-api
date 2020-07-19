@@ -8,7 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/ystv/web-api/storage/video"
+	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 )
 

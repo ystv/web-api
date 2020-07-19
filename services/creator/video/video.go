@@ -2,7 +2,6 @@ package video
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -59,6 +58,7 @@ type (
 	SQLVideoMetaCal struct {
 		ID            int    `db:"video_id" json:"videoID"`
 		Name          string `db:"name" json:"name"`
+		Status        string `db:"status" json:"status"`
 		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
 	}
 )
@@ -82,7 +82,7 @@ func (v *Controller) Find(ctx context.Context, id int) error {
 // FindVideoItem returns a VideoItem by it's ID.
 func FindVideoItem(ctx context.Context, id int) (*SQLVideoItem, error) {
 	v := SQLVideoItem{}
-	err := utils.DB.Get(&v,
+	err := utils.DB.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name item_name, item.url,
 		item.description, item.thumbnail, EXTRACT(EPOCH FROM item.duration)::int AS duration,
 		item.views, item.tags, item.series_position, item.status,
@@ -99,7 +99,6 @@ func FindVideoItem(ctx context.Context, id int) (*SQLVideoItem, error) {
 		FROM video.files
 		INNER JOIN video.encode_formats ON id = encode_format
 		WHERE video_id = $1;`, id)
-	log.Print(err)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +114,7 @@ func MetaList(ctx context.Context) (*[]SQLVideoMeta, error) {
 		series_position, status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		trim(both '"' from to_json(created_at)::text) AS created_at
 		FROM video.items
-		ORDER BY video_id;`)
+		ORDER BY broadcast_date DESC;`)
 	return &v, err
 }
 
@@ -123,11 +122,10 @@ func MetaList(ctx context.Context) (*[]SQLVideoMeta, error) {
 func CalendarList(ctx context.Context, year int, month int) (*[]SQLVideoMetaCal, error) {
 	v := []SQLVideoMetaCal{}
 	err := utils.DB.SelectContext(ctx, &v,
-		`SELECT video_id, name,
+		`SELECT video_id, name, status,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date
 		FROM video.items
 		WHERE EXTRACT(YEAR FROM broadcast_date) = $1 AND
 		EXTRACT(MONTH FROM broadcast_date) = $2`, year, month)
-	log.Print(v)
 	return &v, err
 }
