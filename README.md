@@ -1,8 +1,6 @@
 # YSTV web-api
 
-A Go based backend that should be able to handle website queries?
-
-This is currently built to handle a few of the tables in `ystv`. If there is a future table needed, you'll probably need to re-run [sqlboiler](https://github.com/volatiletech/sqlboiler) so it can generate the new models. (You'll probably want to update `sqlboiler.toml` so your table isn't blacklisted)
+A Go based backend that should be able to handle website queries? Hopefully having a supportive subroutine to keep everything in order. Designed kind of like a monolith but we'll see where we get to with it.
 
 ## Functionality
 
@@ -101,3 +99,9 @@ Updating the DB schema use `goose` to migrate safely.
   Internal API that is the main "business logic" for each service web-api provides.
 - /utils  
   Provides access to commonly used functions, i.e. cdn, mq, sql
+
+### Database info
+
+This is currently built to handle a few of the tables in `ystv`. If there is a future table needed, you'll probably need to re-run [sqlboiler](https://github.com/volatiletech/sqlboiler) so it can generate the new models. (You'll probably want to update `sqlboiler.toml` so your table isn't blacklisted). However we might be moving away from this.
+
+Schema is currently stored in the planning repo.
