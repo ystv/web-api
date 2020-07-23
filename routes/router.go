@@ -6,7 +6,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
+	echoMw "github.com/labstack/echo/v4/middleware"
 	v1creator "github.com/ystv/web-api/controllers/v1/creator"
 	v1public "github.com/ystv/web-api/controllers/v1/public"
 	v1stream "github.com/ystv/web-api/controllers/v1/stream"
@@ -15,6 +17,13 @@ import (
 
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
+
+// JWTClaims represents an identifiable JWT
+type JWTClaims struct {
+	UserID   int    `json:"userID"`
+	Username string `json:"username"`
+	jwt.StandardClaims
+}
 
 // Init initialise routes
 func Init() *echo.Echo {
@@ -27,6 +36,10 @@ func Init() *echo.Echo {
 	e.Debug = debug
 
 	middleware.Init(e)
+	config := echoMw.JWTConfig{
+		Claims:     &JWTClaims{},
+		SigningKey: []byte(os.Getenv("signing_key")),
+	}
 
 	// swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
@@ -43,6 +56,7 @@ func Init() *echo.Echo {
 	apiV1 := e.Group("v1")
 	{
 		internal := apiV1.Group("/internal")
+		internal.Use(echoMw.JWTWithConfig(config))
 		{
 			creator := internal.Group("/creator")
 			{
@@ -84,7 +98,6 @@ func Init() *echo.Echo {
 		}
 
 	}
-	e.Use(middleware.IsAuthenticated)
 	e.GET("/", func(c echo.Context) error {
 		text := `                                                                                
                                                               @@@@@             

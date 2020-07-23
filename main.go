@@ -9,6 +9,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/ystv/web-api/routes"
+	"github.com/ystv/web-api/utils"
 )
 
 // Version returns web-api's current version
@@ -29,6 +30,9 @@ func main() {
 	if debug {
 		log.Println("Debug Mode - Disabled auth - pls don't run in production")
 	}
+	utils.InitDB()
+	utils.InitCDN()
+	// utils.InitMessaging()
 	e := routes.Init()
 
 	e.Logger.Fatal(e.Start(":8081"))
