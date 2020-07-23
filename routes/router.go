@@ -84,6 +84,7 @@ func Init() *echo.Echo {
 		}
 
 	}
+	e.Use(middleware.IsAuthenticated)
 	e.GET("/", func(c echo.Context) error {
 		text := `                                                                                
                                                               @@@@@             

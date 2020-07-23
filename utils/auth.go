@@ -6,7 +6,6 @@ package utils
 
 // 	"golang.org/x/oauth2"
 // 	"github.com/coreos/go-oidc"
-// 	"github.com/Nerzal/gocloak"
 // )
 
 // // InitAuth Initialises the OIDC Client
