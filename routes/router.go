@@ -56,7 +56,9 @@ func Init() *echo.Echo {
 	apiV1 := e.Group("v1")
 	{
 		internal := apiV1.Group("/internal")
-		internal.Use(echoMw.JWTWithConfig(config))
+		if !debug {
+			internal.Use(echoMw.JWTWithConfig(config))
+		}
 		{
 			creator := internal.Group("/creator")
 			{
