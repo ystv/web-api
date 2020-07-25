@@ -37,8 +37,9 @@ func Init() *echo.Echo {
 
 	middleware.Init(e)
 	config := echoMw.JWTConfig{
-		Claims:     &JWTClaims{},
-		SigningKey: []byte(os.Getenv("signing_key")),
+		Claims:      &JWTClaims{},
+		TokenLookup: "cookie:token",
+		SigningKey:  []byte(os.Getenv("signing_key")),
 	}
 
 	// swagger
