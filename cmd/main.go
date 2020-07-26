@@ -15,6 +15,9 @@ import (
 // Version returns web-api's current version
 var Version = "dev (0.4.1)"
 
+// Commit returns latest commit hash
+var Commit = "unknown"
+
 func main() {
 	log.Printf("web-api Version %s", Version)
 	err := godotenv.Load()            // Load .env file for production
@@ -33,7 +36,7 @@ func main() {
 	utils.InitDB()
 	utils.InitCDN()
 	// utils.InitMessaging()
-	e := routes.Init()
+	e := routes.Init(Version, Commit)
 
 	e.Logger.Fatal(e.Start(":8081"))
 }

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -26,7 +27,7 @@ type JWTClaims struct {
 }
 
 // Init initialise routes
-func Init() *echo.Echo {
+func Init(version, commit string) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	debug, err := strconv.ParseBool(os.Getenv("debug"))
@@ -102,24 +103,24 @@ func Init() *echo.Echo {
 
 	}
 	e.GET("/", func(c echo.Context) error {
-		text := `                                                                                
+		text := fmt.Sprintf(`                                                                                
                                                               @@@@@             
                                                                      @@@@       
                                                                          @@@    
                                                @@@@                        @@@@ 
                                                @@@@                          @@@
         .    @@@@@         @@@@   @@@@@@     @@@@@@@@@  @@@@        @@@@     @@@
-     @%       @@@@@       @@@@  @@@@@@@@@@   @@@@@@@@@   @@@@      @@@@       @@
+     @@       @@@@@       @@@@  @@@@@@@@@@   @@@@@@@@@   @@@@      @@@@       @@
    @@           @@@@    @@@@@   @@@@           @@@@       @@@@    @@@@       @@ 
   @@             @@@@  @@@@@     @@@@@@@@      @@@@        @@@@  @@@@       @@  
  @@               @@@@@@@@           @@@@@@    @@@@         @@@@@@@@      @@    
  @@@               @@@@@@       @@@    @@@@    @@@@          @@@@@@     @       
  @@@                @@@@        @@@@@@@@@@     @@@@           @@@@              
   (@@@             @@@@                                                         
-     @@@         @@@@@                                                          
-        @@@@    @@@@@                                                           
-              @@@@@                                                             
-`
+     @@@         @@@@@          web-api                                         
+        @@@@    @@@@@           Version: %s                                     
+              @@@@@             Commit ID: %s                                                
+`, version, commit)
 		return c.String(http.StatusOK, text)
 	})
 	return e

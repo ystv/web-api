@@ -10,7 +10,7 @@ import (
 var config = echoMw.CORSConfig{
 	AllowCredentials: true,
 	Skipper:          echoMw.DefaultSkipper,
-	AllowOrigins:     []string{"http://localhost:3000", "https://creator.ystv.co.uk", "http://comp.ystv.co.uk", "new.ystv.co.uk"},
+	AllowOrigins:     []string{"http://localhost:3000", "creator.ystv.co.uk", "http://comp.ystv.co.uk", "new.ystv.co.uk", "http://creator.ystv.co.uk:3000"},
 	AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	AllowMethods:     []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
 }
