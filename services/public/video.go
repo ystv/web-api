@@ -2,6 +2,9 @@ package public
 
 import (
 	"log"
+	"net/url"
+	"strconv"
+	"strings"
 
 	_ "github.com/lib/pq"
 	"github.com/ystv/web-api/utils"
@@ -36,10 +39,10 @@ type (
 		Name          string      `db:"name" json:"name"`
 		URL           string      `db:"url" json:"url"`
 		Description   null.String `db:"description" json:"description"`
-		Thumbnail     null.String
-		BroadcastDate string   `db:"broadcast_date" json:"broadcastDate"`
-		Views         int      `db:"views" json:"views"`
-		Duration      null.Int `db:"duration" json:"duration"`
+		Thumbnail     null.String `db:"thumbnail" json:"thumbnail"`
+		BroadcastDate string      `db:"broadcast_date" json:"broadcastDate"`
+		Views         int         `db:"views" json:"views"`
+		Duration      null.Int    `db:"duration" json:"duration"`
 	}
 )
 
@@ -86,4 +89,38 @@ func VideoFind(id int) (*VideoItem, error) {
 		return nil, err
 	}
 	return &v, nil
+}
+
+func URLToVideo(url *url.URL) (*VideoItem, error) {
+	log.Print(url.Path)
+	// Splitting URL
+	videoPath := strings.Split(url.Path, "/")
+	// If length is 1 and it's a number might be a video
+	if len(videoPath) == 1 && isInt(videoPath[0]) {
+		videoID, _ := strconv.Atoi(videoPath[0])
+		video, err := VideoFind(videoID)
+		return video, err
+	}
+	// from, err := utils.DB.Prepare(``)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	return nil, nil
+}
+
+func isInt(number string) bool {
+	if _, err := strconv.Atoi(number); err == nil {
+		return true
+	}
+	return false
+}
+
+func urlToBr(videoPath []string) {
+	for depth := 0; depth < len(videoPath); depth++ {
+		// If this is not the final crumb, it is parent
+		if depth <= len(videoPath) {
+
+		}
+	}
+
 }
