@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // for DB, although likely not needed
 	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
 )
@@ -91,6 +91,8 @@ func VideoFind(id int) (*VideoItem, error) {
 	return &v, nil
 }
 
+// URLToVideo takes a user's request URL and
+// maps it to a video.
 func URLToVideo(url *url.URL) (*VideoItem, error) {
 	log.Print(url.Path)
 	// Splitting URL

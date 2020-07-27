@@ -9,11 +9,21 @@ Generation of usable JWT's is available in web-auth currently.
 ### REST API
 
 - [ ] API for public website
-  - [ ] Videos
-  - [ ] Teams
+  - [ ] VOD
+    - [x] Videos
+    - [ ] Series
+    - [ ] Playlists
+  - [ ] Live
+    - [ ] Streams
+  - [x] Teams
 - [ ] Internal (Secured)
-  - [x] Creator Studio
-  - [x] Encoder
+  - [ ] Creator Studio
+    - [x] Videos
+    - [ ] Series
+    - [ ] Playlists
+    - [x] Calendar
+  - [ ] Encoder
+  - [ ] Stream auth
   - [ ] Misc internal services
 
 ### Services
@@ -24,6 +34,7 @@ Generation of usable JWT's is available in web-auth currently.
 
 - [x] Postgres
 - [x] RabbitMQ
+- [x] web-api auth
 - [ ] Authstack
 
 ## Dependencies
