@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/ystv/web-api/utils"
+	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -11,23 +12,49 @@ type (
 	// this is useful when you want to know the current series and
 	// see it's immediate children.
 	Series struct {
-		Series               SeriesMeta  `json:"series"`
-		ImmediateChildSeries SeriesMeta  `json:"childSeries"`
-		ChildVideos          []VideoMeta `json:"videos"`
+		SeriesMeta
+		ImmediateChildSeries []SeriesMeta `json:"childSeries"`
+		ChildVideos          []VideoMeta  `json:"videos"`
 	}
 	// SeriesMeta is used as a children object for a series
-	SeriesMeta []struct {
-		SeriesID    int    `json:"seriesID" db:"series_id"`
-		SeriesName  string `json:"seriesName" db:"series_name"`
-		Description string `json:"description" db:"description"`
-		Thumbnail   string `json:"thumbnail" db:"thumbnail"`
-		Depth       int    `json:"depth" db:"depth"`
+	SeriesMeta struct {
+		SeriesID    int         `json:"seriesID" db:"series_id"`
+		SeriesName  null.String `json:"seriesName" db:"name"`
+		Description null.String `json:"description" db:"description"`
+		Thumbnail   null.String `json:"thumbnail" db:"thumbnail"`
+		Depth       int         `json:"-" db:"depth"`
 	}
 )
 
+// SeriesAndChildren provides the immediate children of children and videos
+func SeriesAndChildren(SeriesID int) (Series, error) {
+	s := Series{}
+	s, err := SeriesInfo(SeriesID)
+	s.ImmediateChildSeries, err = SeriesImmediateChildrenSeries(SeriesID)
+	s.ChildVideos, err = VideoOfSeries(SeriesID)
+	if err != nil {
+		log.Printf("SeriesInfo failed: %+v", err)
+	}
+	return s, err
+}
+
+// SeriesInfo provides basic information for only the selected series
+func SeriesInfo(SeriesID int) (Series, error) {
+	s := Series{}
+	err := utils.DB.Get(&s,
+		`SELECT series_id, name, description, thumbnail
+		FROM video.series
+		WHERE series_id = $1`, SeriesID)
+	if err != nil {
+		log.Printf("SeriesInfo failed: %+v", err)
+	}
+	return s, err
+}
+
 // SeriesAllChildrenSeriesNoDepth returns all series a chosen series
 // without depth
-func (s SeriesMeta) SeriesAllChildrenSeriesNoDepth(SeriesID int) error {
+func SeriesAllChildrenSeriesNoDepth(SeriesID int) ([]SeriesMeta, error) {
+	s := []SeriesMeta{}
 	err := utils.DB.Select(&s,
 		`SELECT
 			child.series_id,
@@ -45,11 +72,12 @@ func (s SeriesMeta) SeriesAllChildrenSeriesNoDepth(SeriesID int) error {
 	if err != nil {
 		log.Print(err)
 	}
-	return err
+	return s, err
 }
 
 // SeriesImmediateChildrenSeries returns series directly below the chosen series
-func (s SeriesMeta) SeriesImmediateChildrenSeries(SeriesID int) error {
+func SeriesImmediateChildrenSeries(SeriesID int) ([]SeriesMeta, error) {
+	s := []SeriesMeta{}
 	err := utils.DB.Select(&s,
 		`SELECT * from (
 			SELECT 
@@ -81,11 +109,12 @@ func (s SeriesMeta) SeriesImmediateChildrenSeries(SeriesID int) error {
 	if err != nil {
 		log.Printf("Failed SeriesImmediateChildren: %+v", err)
 	}
-	return err
+	return s, err
 }
 
 // SeriesAll returns all series in the DB including their depth
-func (s SeriesMeta) SeriesAll() error {
+func SeriesAll() ([]SeriesMeta, error) {
+	s := []SeriesMeta{}
 	err := utils.DB.Select(&s,
 		`SELECT
 			child.series_id, child.name, child.description, child.thumbnail,
@@ -100,11 +129,12 @@ func (s SeriesMeta) SeriesAll() error {
 	if err != nil {
 		log.Printf("Failed SeriesAll: %+v", err)
 	}
-	return err
+	return s, err
 }
 
 // SeriesAllBelow returns all series below a certain series
-func (s SeriesMeta) SeriesAllBelow(SeriesID int) error {
+func SeriesAllBelow(SeriesID int) ([]SeriesMeta, error) {
+	s := []SeriesMeta{}
 	err := utils.DB.Select(&s,
 		`SELECT 
 			node.series_id, node.name, node.description, node.thumbnail,
@@ -133,5 +163,5 @@ func (s SeriesMeta) SeriesAllBelow(SeriesID int) error {
 	if err != nil {
 		log.Printf("Failed SeriesAllBelow: %+v", err)
 	}
-	return err
+	return s, err
 }
