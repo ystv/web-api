@@ -124,3 +124,18 @@ func urlToBr(videoPath []string) {
 	}
 
 }
+
+// VideoOfSeries returns all the vidos belonging to a series
+func VideoOfSeries(SeriesID int) ([]VideoMeta, error) {
+	v := []VideoMeta{}
+	err := utils.DB.Select(&v,
+		`SELECT video_id, name, url, description, thumbnail,
+		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
+		views, EXTRACT(EPOCH FROM duration)::int AS duration
+		FROM video.items
+		WHERE series_id = $1 AND status = 'public'`, SeriesID)
+	if err != nil {
+		log.Printf("Failed to select VideoOfSeries: %+v", err)
+	}
+	return v, err
+}
