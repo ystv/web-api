@@ -43,3 +43,16 @@ func URLToVideo(c echo.Context) error {
 	public.URLToVideo(c.Request().URL)
 	return c.NoContent(http.StatusOK)
 }
+
+// VideoBreadcrumb handles generating the breadcrumb of a video
+func VideoBreadcrumb(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Bad video ID")
+	}
+	v, err := public.VideoBreadcrumb(id)
+	if err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return c.JSON(http.StatusOK, v)
+}

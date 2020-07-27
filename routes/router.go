@@ -95,8 +95,10 @@ func Init(version, commit string) *echo.Echo {
 		{
 			public.GET("/videos/:offset/:page", publicV1.ListVideos)
 			public.GET("/video/:id", publicV1.Video)
+			public.GET("/video/:id/breadcrumb", publicV1.VideoBreadcrumb)
 			public.GET("/video/by_url", publicV1.URLToVideo)
 			public.GET("/series/:id", publicV1.SeriesByID)
+			public.GET("/series/:id/breadcrumb", publicV1.SeriesBreadcrumb)
 			public.GET("/teams", publicV1.ListTeams)
 		}
 		stream := apiV1.Group("/stream")

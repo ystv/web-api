@@ -7,6 +7,8 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
+// TODO add AND to ensure only public is displayed
+
 type (
 	// Series provides basic information about a series
 	// this is useful when you want to know the current series and
@@ -19,6 +21,7 @@ type (
 	// SeriesMeta is used as a children object for a series
 	SeriesMeta struct {
 		SeriesID    int         `json:"seriesID" db:"series_id"`
+		URL         string      `json:"url" db:"url"`
 		SeriesName  null.String `json:"seriesName" db:"name"`
 		Description null.String `json:"description" db:"description"`
 		Thumbnail   null.String `json:"thumbnail" db:"thumbnail"`
@@ -42,7 +45,7 @@ func SeriesAndChildren(SeriesID int) (Series, error) {
 func SeriesInfo(SeriesID int) (Series, error) {
 	s := Series{}
 	err := utils.DB.Get(&s,
-		`SELECT series_id, name, description, thumbnail
+		`SELECT series_id, url, name, description, thumbnail
 		FROM video.series
 		WHERE series_id = $1`, SeriesID)
 	if err != nil {
@@ -81,7 +84,7 @@ func SeriesImmediateChildrenSeries(SeriesID int) ([]SeriesMeta, error) {
 	err := utils.DB.Select(&s,
 		`SELECT * from (
 			SELECT 
-						node.series_id, node.name, node.description, node.thumbnail,
+						node.series_id, node.url, node.name, node.description, node.thumbnail,
 						(COUNT(parent.*) - (sub_tree.depth + 1)) AS depth
 					FROM
 						video.series AS node,
@@ -117,7 +120,7 @@ func SeriesAll() ([]SeriesMeta, error) {
 	s := []SeriesMeta{}
 	err := utils.DB.Select(&s,
 		`SELECT
-			child.series_id, child.name, child.description, child.thumbnail,
+			child.series_id, child.url, child.name, child.description, child.thumbnail,
 			(COUNT(parent.*) -1) AS depth
 		FROM
 			video.series child,
@@ -137,7 +140,7 @@ func SeriesAllBelow(SeriesID int) ([]SeriesMeta, error) {
 	s := []SeriesMeta{}
 	err := utils.DB.Select(&s,
 		`SELECT 
-			node.series_id, node.name, node.description, node.thumbnail,
+			node.series_id, node.url node.name, node.description, node.thumbnail,
 			(COUNT(parent.*) - (sub_tree.depth + 1)) AS depth
 		FROM
 			video.series AS node,
@@ -162,6 +165,25 @@ func SeriesAllBelow(SeriesID int) ([]SeriesMeta, error) {
 		ORDER BY node.series_left asc;`, SeriesID)
 	if err != nil {
 		log.Printf("Failed SeriesAllBelow: %+v", err)
+	}
+	return s, err
+}
+
+// SeriesBreadcrumb will return the breadcrumb from SeriesID to root
+func SeriesBreadcrumb(SeriesID int) ([]Breadcrumb, error) {
+	s := []Breadcrumb{}
+	// TODO Need a bool to indicate if series is in URL
+	err := utils.DB.Select(&s,
+		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
+		FROM
+			video.series node,
+			video.series parent
+		WHERE
+			node.series_left BETWEEN parent.series_left AND parent.series_right
+			AND node.series_id = $1
+		ORDER BY parent.series_left;`, SeriesID)
+	if err != nil {
+		log.Printf("BreadcrumbSeries failed: %+v", err)
 	}
 	return s, err
 }

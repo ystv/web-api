@@ -117,7 +117,7 @@ func isInt(number string) bool {
 	return false
 }
 
-func urlToBr(videoPath []string) {
+func urlToBreadcrumb(videoPath []string) {
 	for depth := 0; depth < len(videoPath); depth++ {
 		// If this is not the final crumb, it is parent
 		if depth <= len(videoPath) {
@@ -127,11 +127,11 @@ func urlToBr(videoPath []string) {
 
 }
 
-// VideoOfSeries returns all the vidos belonging to a series
+// VideoOfSeries returns all the videos belonging to a series
 func VideoOfSeries(SeriesID int) ([]VideoMeta, error) {
 	v := []VideoMeta{}
 	err := utils.DB.Select(&v,
-		`SELECT video_id, name, url, description, thumbnail,
+		`SELECT video_id, series_id, name, url, description, thumbnail,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		views, EXTRACT(EPOCH FROM duration)::int AS duration
 		FROM video.items
@@ -140,4 +140,33 @@ func VideoOfSeries(SeriesID int) ([]VideoMeta, error) {
 		log.Printf("Failed to select VideoOfSeries: %+v", err)
 	}
 	return v, err
+}
+
+// VideoBreadcrumb returns the absolute path from a VideoID
+func VideoBreadcrumb(VideoID int) ([]Breadcrumb, error) {
+	var vB Breadcrumb // Video breadcrumb
+	err := utils.DB.Get(&vB,
+		`SELECT video_id as id, series_id, COALESCE(name, url) as name, url
+		FROM video.items
+		WHERE video_id = $1`, VideoID)
+	if err != nil {
+		log.Printf("VideoBreadcrumb failed: %+v", err)
+		return nil, err
+	}
+	sB, err := SeriesBreadcrumb(vB.SeriesID)
+	if err != nil {
+		return nil, err
+	}
+	sB = append(sB, vB)
+
+	return sB, err
+}
+
+// Breadcrumb generic to be used for both series and video as a breadcrumb
+type Breadcrumb struct {
+	ID       int    `db:"id" json:"id"`
+	URL      string `db:"url" json:"url"`
+	UseInURL bool   `db:"use" json:"useInURL"`
+	Name     string `db:"name" json:"name"`
+	SeriesID int    `db:"series_id" json:"-"` // Here since needed
 }

@@ -20,3 +20,16 @@ func SeriesByID(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, v)
 }
+
+// SeriesBreadcrumb returns the breadcrumb of a given series
+func SeriesBreadcrumb(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Bad video ID")
+	}
+	v, err := public.SeriesBreadcrumb(id)
+	if err != nil {
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return c.JSON(http.StatusOK, v)
+}
