@@ -68,28 +68,22 @@ type Item struct {
 
 // Find will returns either a series or a video for a given path
 func Find(path string) (Item, error) {
-	log.Println("Find started")
 	blank := Item{}
 
 	Series, err := series.FromPath(path)
 	if err != nil {
 		// Might be a video, so we'll go back a crumb and check for a series
-		log.Print(err)
 		if err == sql.ErrNoRows {
-			log.Println("Going back a layer")
 			split := strings.Split(path, "/")
 			PathWithoutLast := strings.Join(split[:len(split)-1], "/")
-			log.Printf("Querying with %s", PathWithoutLast)
 			Series, err := series.FromPath(PathWithoutLast)
-			// log.Printf("from path: %v", Series)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					// No series, so there will be no videos
 					return blank, err
-				} else {
-					log.Printf("Find failed from 2nd last: %+v", err)
-					return blank, err
 				}
+				log.Printf("Find failed from 2nd last: %+v", err)
+				return blank, err
 			}
 			// Found series
 			if len(Series.ChildVideos) == 0 {

@@ -146,7 +146,3 @@ func OfSeries(SeriesID int) ([]Meta, error) {
 	}
 	return v, err
 }
-
-// func FromPath(path string) (Item) {
-// 	VideoID
-// }

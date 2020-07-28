@@ -15,7 +15,7 @@ Generation of usable JWT's is available in web-auth currently.
     - [ ] Playlists
     - [ ] Search
     - [x] Breadcrumbs
-    - [ ] Path to video
+    - [x] Path to video
     - [x] Path to series
     - [ ] Thumbnail inheritance
   - [ ] Live

@@ -66,27 +66,25 @@ func Init(version, commit string) *echo.Echo {
 			{
 				videos := creator.Group("/videos")
 				{
-					//videos.GET("", creatorV1.VideoList)
+					videos.GET("", creatorV1.VideoList)
 					//videos.POST("", creatorV1.VideoCreate)
 					videoItem := videos.Group("/:id")
 					{
 						videoItem.GET("", creatorV1.VideoFind)
-						videoItem.PUT("", creatorV1.CreationCreate)
+						videoItem.PUT("", creatorV1.VideoCreate)
 					}
+				}
+				series := creator.Group("/series")
+				{
+					series.GET("", creatorV1.SeriesListAll)
 				}
 				playlists := creator.Group("/playlists")
 				{
 					playlists.GET("", notImplemented)
 					playlists.POST("", notImplemented)
 				}
-				creation := creator.Group("/:id")
-				{
-					creation.POST("/meta", creatorV1.CreationMetaCreate)
-					creation.POST("/video", creatorV1.CreationFileUpload)
-					creation.GET("", creatorV1.VideoFind)
-				}
 				creator.POST("", notImplemented)
-				creator.GET("", creatorV1.CreationList)
+				creator.GET("", creatorV1.VideoList)
 				creator.GET("/calendar/:year/:month", creatorV1.CalendarList)
 				creator.GET("/stats", creatorV1.Stats)
 			}

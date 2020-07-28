@@ -1,6 +1,7 @@
 package series
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/ystv/web-api/services/creator/video"
@@ -24,7 +25,7 @@ type (
 		SeriesName  null.String `json:"seriesName" db:"name"`
 		Description null.String `json:"description" db:"description"`
 		Thumbnail   null.String `json:"thumbnail" db:"thumbnail"`
-		Depth       int         `json:"-" db:"depth"`
+		Depth       int         `json:"depth" db:"depth"`
 	}
 )
 
@@ -144,11 +145,14 @@ func AllBelow(SeriesID int) ([]Meta, error) {
 	return s, err
 }
 
+// FromPath will return a series from a given path
 func FromPath(path string) (Series, error) {
 	var s Series
 	err := utils.DB.Get(&s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	if err != nil {
-		log.Printf("FromPath failed: %+v", err)
+		if err != sql.ErrNoRows {
+			log.Printf("FromPath failed: %+v", err)
+		}
 		return s, err
 	}
 	s, err = View(s.SeriesID)
