@@ -2,9 +2,9 @@ package video
 
 import (
 	"context"
+	"log"
 	"time"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
@@ -63,21 +63,22 @@ type (
 	}
 )
 
-type Controller struct {
-	db *sqlx.DB
-}
+// TODO stop using global DB
+// type Controller struct {
+// 	db *sqlx.DB
+// }
 
-func NewController(db *sqlx.DB) *Controller {
-	return &Controller{db: db}
-}
+// func NewController(db *sqlx.DB) *Controller {
+// 	return &Controller{db: db}
+// }
 
-func (v *Controller) List(ctx context.Context) ([]*SQLVideoMeta, error) {
-	return nil, nil
-}
+// func (v *Controller) List(ctx context.Context) ([]*SQLVideoMeta, error) {
+// 	return nil, nil
+// }
 
-func (v *Controller) Find(ctx context.Context, id int) error {
-	return nil
-}
+// func (v *Controller) Find(ctx context.Context, id int) error {
+// 	return nil
+// }
 
 // FindVideoItem returns a VideoItem by it's ID.
 func FindVideoItem(ctx context.Context, id int) (*SQLVideoItem, error) {
@@ -128,4 +129,19 @@ func CalendarList(ctx context.Context, year int, month int) (*[]SQLVideoMetaCal,
 		WHERE EXTRACT(YEAR FROM broadcast_date) = $1 AND
 		EXTRACT(MONTH FROM broadcast_date) = $2`, year, month)
 	return &v, err
+}
+
+// OfSeries returns all the videos belonging to a series
+func OfSeries(SeriesID int) ([]SQLVideoMeta, error) {
+	v := []SQLVideoMeta{}
+	err := utils.DB.Select(&v,
+		`SELECT video_id, series_id, name, url, description, thumbnail,
+		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
+		views, EXTRACT(EPOCH FROM duration)::int AS duration
+		FROM video.items
+		WHERE series_id = $1 AND status = 'public'`, SeriesID)
+	if err != nil {
+		log.Printf("Failed to select VideoOfSeries: %+v", err)
+	}
+	return v, err
 }
