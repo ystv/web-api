@@ -11,8 +11,13 @@ Generation of usable JWT's is available in web-auth currently.
 - [ ] API for public website
   - [ ] VOD
     - [x] Videos
-    - [ ] Series
+    - [x] Series
     - [ ] Playlists
+    - [ ] Search
+    - [x] Breadcrumbs
+    - [ ] Path to video
+    - [x] Path to series
+    - [ ] Thumbnail inheritance
   - [ ] Live
     - [ ] Streams
   - [x] Teams
@@ -22,6 +27,7 @@ Generation of usable JWT's is available in web-auth currently.
     - [ ] Series
     - [ ] Playlists
     - [x] Calendar
+    - [x] Stats
   - [ ] Encoder
   - [ ] Stream auth
   - [ ] Misc internal services
@@ -29,12 +35,13 @@ Generation of usable JWT's is available in web-auth currently.
 ### Services
 
 - [ ] Encode management
+- [ ] Mailer
 
 ### Connections
 
 - [x] Postgres
 - [x] RabbitMQ
-- [x] web-api auth
+- [x] web-auth intergration
 - [ ] Authstack
 
 ## Dependencies
@@ -92,8 +99,11 @@ Then fill in the docker-compose file with your credentials.
 
 Clone the repo and create a `.env.local` for an easy config setup. Use the `debug` flag to disable auth.  
 I recommend not using the production environment for testing and recommend running postgres and rabbitmq in Docker.  
-Updating the DB schema use `goose` to migrate safely.  
+Updating the DB schema use `goose` to migrate safely.
+
 Developed on Go version 1.14+
+
+Try to keep all "business" logic with in the `/services` and try to keep the imports local to that package, but you'll probably need the `utils` package but we're trying to keep it modular so web-api can theoretically be split up and keeping it seperate would likely make it a lot easier.
 
 ### Layout
 

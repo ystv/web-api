@@ -14,8 +14,8 @@ type (
 	// see it's immediate children.
 	Series struct {
 		Meta
-		ImmediateChildSeries []Meta               `json:"childSeries"`
-		ChildVideos          []video.SQLVideoMeta `json:"videos"`
+		ImmediateChildSeries []Meta       `json:"childSeries"`
+		ChildVideos          []video.Meta `json:"videos"`
 	}
 	// Meta is used as a children object for a series
 	Meta struct {
@@ -141,5 +141,15 @@ func AllBelow(SeriesID int) ([]Meta, error) {
 	if err != nil {
 		log.Printf("Failed SeriesAllBelow: %+v", err)
 	}
+	return s, err
+}
+
+func PathToSeries(path string) (Series, error) {
+	var SeriesID int
+	err := utils.DB.Get(SeriesID, `SELECT series_id FROM video.series_paths, video_series WHERE path = $1`, path)
+	if err != nil {
+		log.Printf("PathToSeries failed: %+v", err)
+	}
+	s, err := View(SeriesID)
 	return s, err
 }

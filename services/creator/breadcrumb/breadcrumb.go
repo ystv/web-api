@@ -3,6 +3,8 @@ package breadcrumb
 import (
 	"log"
 
+	"github.com/ystv/web-api/services/creator/series"
+	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -53,3 +55,10 @@ func Video(VideoID int) ([]Breadcrumb, error) {
 
 	return sB, err
 }
+
+type Path struct {
+	video.Item
+	series.Series
+}
+
+func Find(path string)

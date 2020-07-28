@@ -117,15 +117,20 @@ func isInt(number string) bool {
 	return false
 }
 
-func urlToBreadcrumb(videoPath []string) {
-	for depth := 0; depth < len(videoPath); depth++ {
-		// If this is not the final crumb, it is parent
-		if depth <= len(videoPath) {
+// func PathToVideo() {
+// 	var err error
+// 	var SeriesID int
+// 	for depth := 0; depth < len(videoPath); depth++ {
+// 		// If this is not the final crumb, it is parent
+// 		if depth <= len(videoPath) {
+// 			err = utils.DB.Select(&SeriesID,
+// 				`SELECT series_id
+// 				FROM video.series
+// 				WHERE name = $1`)
+// 		}
+// 	}
 
-		}
-	}
-
-}
+// }
 
 // VideoOfSeries returns all the videos belonging to a series
 func VideoOfSeries(SeriesID int) ([]VideoMeta, error) {
