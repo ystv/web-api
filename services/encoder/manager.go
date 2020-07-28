@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ystv/web-api/services/creator"
+	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -52,7 +53,7 @@ func Manager() {
 }
 
 // CreateEncode creates an encode item in the message queue.
-func CreateEncode(v creator.VideoFile, e creator.Encode) error {
+func CreateEncode(v video.File, e creator.Encode) error {
 	return nil
 }
 
@@ -62,7 +63,7 @@ func ListEncodesFromPreset(p creator.Preset) ([]creator.Encode, error) {
 
 // RefreshVideoItem will run CreateEncode() on a VideoItem for any
 // encodes missing in the preset.
-func RefreshVideoItem(v creator.VideoItem) error {
+func RefreshVideoItem(v video.Item) error {
 	return nil
 }
 

@@ -13,9 +13,9 @@ import (
 // TODO update schema so duration is not null
 
 type (
-	// SQLVideoItem represents a more readable VideoItem with
+	// Item represents a more readable VideoItem with
 	// an array of associated VideoFiles.
-	SQLVideoItem struct {
+	Item struct {
 		ID             int            `db:"video_id" json:"videoID"`
 		SeriesID       int            `db:"series_id" json:"seriesID"`
 		Name           string         `db:"item_name" json:"name"`
@@ -30,18 +30,18 @@ type (
 		Preset         null.String    `db:"preset_name" json:"preset"`
 		BroadcastDate  string         `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt      time.Time      `db:"created_at" json:"createdAt"`
-		Files          []SQLVideoFile `db:"files" json:"files"`
+		Files          []File         `db:"files" json:"files"`
 	}
-	// SQLVideoFile represents a more readable VideoFile.
-	SQLVideoFile struct {
+	// File represents a more readable VideoFile.
+	File struct {
 		URI          string   `db:"uri" json:"uri"`
 		EncodeFormat string   `db:"name" json:"encodeFormat"`
 		Status       string   `db:"status" json:"status"`
 		Size         null.Int `db:"size" json:"size"`
 		MimeType     string   `db:"mime_type" json:"mimeType"`
 	}
-	// SQLVideoMeta represents just the metadata of a video, used for listing.
-	SQLVideoMeta struct {
+	// Meta represents just the metadata of a video, used for listing.
+	Meta struct {
 		ID             int            `db:"video_id" json:"videoID"`
 		SeriesID       int            `db:"series_id" json:"seriesID"`
 		Name           string         `db:"name" json:"name"`
@@ -54,8 +54,8 @@ type (
 		BroadcastDate  string         `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt      string         `db:"created_at" json:"createdAt"`
 	}
-	// SQLVideoMetaCal represents simple metadata for a calendar
-	SQLVideoMetaCal struct {
+	// MetaCal represents simple metadata for a calendar
+	MetaCal struct {
 		ID            int    `db:"video_id" json:"videoID"`
 		Name          string `db:"name" json:"name"`
 		Status        string `db:"status" json:"status"`
@@ -72,7 +72,7 @@ type (
 // 	return &Controller{db: db}
 // }
 
-// func (v *Controller) List(ctx context.Context) ([]*SQLVideoMeta, error) {
+// func (v *Controller) List(ctx context.Context) ([]*Meta, error) {
 // 	return nil, nil
 // }
 
@@ -81,8 +81,8 @@ type (
 // }
 
 // FindVideoItem returns a VideoItem by it's ID.
-func FindVideoItem(ctx context.Context, id int) (*SQLVideoItem, error) {
-	v := SQLVideoItem{}
+func FindVideoItem(ctx context.Context, id int) (*Item, error) {
+	v := Item{}
 	err := utils.DB.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name item_name, item.url,
 		item.description, item.thumbnail, EXTRACT(EPOCH FROM item.duration)::int AS duration,
@@ -107,8 +107,8 @@ func FindVideoItem(ctx context.Context, id int) (*SQLVideoItem, error) {
 }
 
 // MetaList returns a list of VideoMeta's
-func MetaList(ctx context.Context) (*[]SQLVideoMeta, error) {
-	v := []SQLVideoMeta{}
+func MetaList(ctx context.Context) (*[]Meta, error) {
+	v := []Meta{}
 	err := utils.DB.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url,
 		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
@@ -120,8 +120,8 @@ func MetaList(ctx context.Context) (*[]SQLVideoMeta, error) {
 }
 
 // CalendarList returns a list of VideoMeta's for a given month/year
-func CalendarList(ctx context.Context, year int, month int) (*[]SQLVideoMetaCal, error) {
-	v := []SQLVideoMetaCal{}
+func CalendarList(ctx context.Context, year int, month int) (*[]MetaCal, error) {
+	v := []MetaCal{}
 	err := utils.DB.SelectContext(ctx, &v,
 		`SELECT video_id, name, status,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date
@@ -132,8 +132,8 @@ func CalendarList(ctx context.Context, year int, month int) (*[]SQLVideoMetaCal,
 }
 
 // OfSeries returns all the videos belonging to a series
-func OfSeries(SeriesID int) ([]SQLVideoMeta, error) {
-	v := []SQLVideoMeta{}
+func OfSeries(SeriesID int) ([]Meta, error) {
+	v := []Meta{}
 	err := utils.DB.Select(&v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
@@ -145,3 +145,7 @@ func OfSeries(SeriesID int) ([]SQLVideoMeta, error) {
 	}
 	return v, err
 }
+
+// func FromPath(path string) (Item) {
+// 	VideoID
+// }

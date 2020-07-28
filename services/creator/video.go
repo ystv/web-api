@@ -15,11 +15,11 @@ import (
 type (
 	//IVideoItem defines all creator video interactions
 	IVideoItem interface {
-		ListVideoItems() ([]VideoItem, error)
-		FindVideoItems(id int) (VideoItem, error)
-		CreateVideoItem(item VideoItem) (VideoItem, error)
-		UpdateVideoItem(item VideoItem) (VideoItem, error)
-		DeleteVideoItem(id int) (VideoItem, error)
+		ListVideoItems() ([]video.Item, error)
+		FindVideoItems(id int) (video.Item, error)
+		CreateVideoItem(item video.Item) (video.Item, error)
+		UpdateVideoItem(item video.Item) (video.Item, error)
+		DeleteVideoItem(id int) (video.Item, error)
 	}
 	// PendingUpload represents a uploaded video that didn't have any metadata attached.
 	PendingUpload struct {
@@ -28,38 +28,6 @@ type (
 		Status      string
 		Owner       string
 		CreatedDate time.Time
-	}
-	// VideoMeta represents basic information about the videoitem used for listing.
-	VideoMeta struct {
-		ID            int       `json:"id"`
-		Name          string    `json:"name"`
-		Description   string    `json:"description"`
-		Status        string    `json:"status"`
-		Owner         string    `json:"owner"`
-		BroadcastDate time.Time `json:"broadcastDate"`
-		Views         int       `json:"views"`
-		Duration      int       `json:"duration"`
-		Preset        string    `json:"preset"`
-	}
-	// VideoItem represents the basic in-depth information including videofiles.
-	VideoItem struct {
-		ID          int         `json:"id"`
-		Name        string      `json:"name"`
-		Status      string      `json:"status"`
-		Owner       string      `json:"owner"`
-		CreatedDate time.Time   `json:"createdDate"`
-		Description string      `json:"description"`
-		Duration    int         `json:"duration"`
-		Preset      string      `json:"preset"`
-		Views       int         `json:"views"`
-		Files       []VideoFile `json:"files"`
-	}
-	// VideoFile represents each file that a video item has stored.
-	VideoFile struct {
-		ID     int    `json:"id"`
-		URI    string `json:"uri"`
-		Preset string `json:"preset"`
-		Status string `json:"status"`
 	}
 	// Preset represents the preset that auto generated the video files from the source material.
 	Preset struct {
@@ -131,16 +99,16 @@ func ListPendingUploads() ([]PendingUpload, error) {
 }
 
 // VideoMetaList returns a list of simplified VideoMeta
-func VideoMetaList(ctx context.Context) (*[]video.SQLVideoMeta, error) {
+func VideoMetaList(ctx context.Context) (*[]video.Meta, error) {
 	return video.MetaList(ctx)
 }
 
 // VideoItemFind returns the metadata for a given creation
-func VideoItemFind(ctx context.Context, id int) (*video.SQLVideoItem, error) {
+func VideoItemFind(ctx context.Context, id int) (*video.Item, error) {
 	return video.FindVideoItem(ctx, id)
 }
 
 // CalendarList returns simple VideoMeta for a calendar month
-func CalendarList(ctx context.Context, year int, month int) (*[]video.SQLVideoMetaCal, error) {
+func CalendarList(ctx context.Context, year int, month int) (*[]video.MetaCal, error) {
 	return video.CalendarList(ctx, year, month)
 }
