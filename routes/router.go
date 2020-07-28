@@ -93,6 +93,7 @@ func Init(version, commit string) *echo.Echo {
 		}
 		public := apiV1.Group("/public")
 		{
+			public.GET("/find/*", publicV1.Find)
 			public.GET("/videos/:offset/:page", publicV1.ListVideos)
 			public.GET("/video/:id", publicV1.Video)
 			public.GET("/video/:id/breadcrumb", publicV1.VideoBreadcrumb)

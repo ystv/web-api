@@ -43,11 +43,10 @@ func ListObjects(bucket string) ([]*s3.Object, error) {
 	return resp.Contents, err
 }
 
+var messagingClient utils.IMessagingClient
+
 // Manager subroutine provides a service to manage videos, also
 // ensuring consistency of video library.
-
-var MessagingClient utils.IMessagingClient
-
 func Manager() {
 	//TODO Make the cool subroutine here
 }
@@ -57,6 +56,7 @@ func CreateEncode(v video.File, e creator.Encode) error {
 	return nil
 }
 
+// ListEncodesFromPreset returns all encodes available in a preset
 func ListEncodesFromPreset(p creator.Preset) ([]creator.Encode, error) {
 	return nil, nil
 }

@@ -1,7 +1,11 @@
 package breadcrumb
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"log"
+	"strings"
 
 	"github.com/ystv/web-api/services/creator/series"
 	"github.com/ystv/web-api/services/creator/video"
@@ -56,9 +60,57 @@ func Video(VideoID int) ([]Breadcrumb, error) {
 	return sB, err
 }
 
-type Path struct {
-	video.Item
-	series.Series
+// Item is either a video or a series
+type Item struct {
+	Video  *video.Item
+	Series series.Series
 }
 
-func Find(path string)
+// Find will returns either a series or a video for a given path
+func Find(path string) (Item, error) {
+	log.Println("Find started")
+	blank := Item{}
+
+	Series, err := series.FromPath(path)
+	if err != nil {
+		// Might be a video, so we'll go back a crumb and check for a series
+		log.Print(err)
+		if err == sql.ErrNoRows {
+			log.Println("Going back a layer")
+			split := strings.Split(path, "/")
+			PathWithoutLast := strings.Join(split[:len(split)-1], "/")
+			log.Printf("Querying with %s", PathWithoutLast)
+			Series, err := series.FromPath(PathWithoutLast)
+			// log.Printf("from path: %v", Series)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					// No series, so there will be no videos
+					return blank, err
+				} else {
+					log.Printf("Find failed from 2nd last: %+v", err)
+					return blank, err
+				}
+			}
+			// Found series
+			if len(Series.ChildVideos) == 0 {
+				// No videos on series
+				return blank, errors.New("Series: No videos")
+			}
+			// We've got videos
+			for _, v := range Series.ChildVideos {
+				// Check if video name matches last path
+				if v.URL == split[len(split)-1] {
+					// Found video
+					foundVideo, _ := video.FindVideoItem(context.Background(), v.ID)
+					return Item{Video: foundVideo}, nil
+
+				}
+			}
+		} else {
+			log.Printf("Find failed from path: %+v", err)
+			return blank, err
+		}
+	}
+	// Found series
+	return Item{Series: Series}, nil
+}

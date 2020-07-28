@@ -134,8 +134,9 @@ func CalendarList(ctx context.Context, year int, month int) (*[]MetaCal, error) 
 // OfSeries returns all the videos belonging to a series
 func OfSeries(SeriesID int) ([]Meta, error) {
 	v := []Meta{}
+	//TODO Update this select to fill all fields
 	err := utils.DB.Select(&v,
-		`SELECT video_id, series_id, name, url, description, thumbnail,
+		`SELECT video_id, series_id, name, url,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		views, EXTRACT(EPOCH FROM duration)::int AS duration
 		FROM video.items

@@ -144,12 +144,13 @@ func AllBelow(SeriesID int) ([]Meta, error) {
 	return s, err
 }
 
-func PathToSeries(path string) (Series, error) {
-	var SeriesID int
-	err := utils.DB.Get(SeriesID, `SELECT series_id FROM video.series_paths, video_series WHERE path = $1`, path)
+func FromPath(path string) (Series, error) {
+	var s Series
+	err := utils.DB.Get(&s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	if err != nil {
-		log.Printf("PathToSeries failed: %+v", err)
+		log.Printf("FromPath failed: %+v", err)
+		return s, err
 	}
-	s, err := View(SeriesID)
+	s, err = View(s.SeriesID)
 	return s, err
 }
