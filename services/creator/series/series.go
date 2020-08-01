@@ -150,6 +150,7 @@ func FromPath(path string) (Series, error) {
 	var s Series
 	err := utils.DB.Get(&s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	if err != nil {
+		// We ignore ErrNoRows since it's not a log worthy error and the path function will generate this eror when used
 		if err != sql.ErrNoRows {
 			log.Printf("FromPath failed: %+v", err)
 		}
@@ -157,4 +158,49 @@ func FromPath(path string) (Series, error) {
 	}
 	s, err = View(s.SeriesID)
 	return s, err
+}
+
+type rec struct {
+	Name     string
+	Depth    int
+	Children []rec
+}
+
+var GlobSeries []Meta
+
+func Init() {
+	GlobSeries, _ = All()
+}
+
+func recursive(depth int, indexglb int) ([]rec, int) {
+	all := []rec{}
+	for index, item := range GlobSeries[indexglb:] {
+		temp := rec{}
+		if item.Depth < depth {
+			return all, index
+		}
+		temp.Name = item.URL
+		temp.Depth = item.Depth
+		if index == len(GlobSeries) {
+			all = append(all, temp)
+			return all, index
+		}
+		if GlobSeries[index+1].Depth < depth {
+			all = append(all, temp)
+			return all, index
+		}
+		if GlobSeries[index+1].Depth > depth {
+			temp.Children, index = recursive(item.Depth, index+1)
+		}
+		all = append(all, temp)
+	}
+	return all, len(GlobSeries)
+}
+
+func ToJSON() []rec {
+	Init()
+	final, index := recursive(0, 0)
+	log.Print(final)
+	log.Print(index)
+	return final
 }
