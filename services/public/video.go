@@ -140,7 +140,8 @@ func VideoOfSeries(SeriesID int) ([]VideoMeta, error) {
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		views, EXTRACT(EPOCH FROM duration)::int AS duration
 		FROM video.items
-		WHERE series_id = $1 AND status = 'public'`, SeriesID)
+		WHERE series_id = $1 AND status = 'public'
+		ORDER BY series_position ASC;`, SeriesID)
 	if err != nil {
 		log.Printf("Failed to select VideoOfSeries: %+v", err)
 	}
