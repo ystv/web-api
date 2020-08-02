@@ -2,7 +2,10 @@ package playlist
 
 import (
 	"database/sql"
+	"log"
+	"time"
 
+	"github.com/lib/pq"
 	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
@@ -21,6 +24,8 @@ type (
 		Description null.String `db:"description" json:"description"`
 		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
 		Status      string      `db:"status"`
+		CreatedAt   time.Time   `db:"created_at" json:"createdAt"`
+		CreatedBy   int         `db:"created_by" json:"createdBy"`
 	}
 )
 
@@ -46,18 +51,60 @@ func Get(playlistID int) (Playlist, error) {
 	err = utils.DB.Select(&p.Videos,
 		`SELECT name, url
 		FROM video.items
-		INNER JOIN video.playlist_items ON id = video_item_id`)
+		INNER JOIN video.playlist_items ON video_id = video_item_id;`)
+	log.Print(err)
 	return p, err
 }
 
 // New makes a playlist item
 func New(p Playlist) (sql.Result, error) {
-	sql, err := utils.DB.Exec(
-		`INSERT INTO video.playlists(name, description, thumbnail, status)
-		VALUES ($1, $2, $3, $4);`, p.Name, p.Description, p.Thumbnail, p.Status)
+	res, err := utils.DB.Exec(
+		`INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, p.CreatedAt, p.CreatedBy)
 	if err != nil {
-		return sql, err
+		return res, err
 	}
-	// TODO finish query
-	return utils.DB.Exec(`INSERT INTO video.playlist_items(`)
+	if len(p.Videos) != 0 {
+		res, err = AddVideos(p)
+	}
+	return res, err
+}
+
+// AddVideo adds a single video to a playlist
+func AddVideo(p Meta, v *video.Meta) (sql.Result, error) {
+	return utils.DB.Exec(`INSERT INTO video.playlist_items (playlist_id, video_item_id) VALUES ($1, $2);`, p.ID, v.ID)
+}
+
+// DeleteVideo deletes a single video from a playlist
+func DeleteVideo(p Meta, v video.Meta) (sql.Result, error) {
+	return utils.DB.Exec(`DELETE FROM video.playlist_items WHERE playlist_id = $1 AND video_item_id = $2;`, p.ID, v.ID)
+}
+
+// AddVideos adds multiple videos to a playlist
+func AddVideos(p Playlist) (sql.Result, error) {
+	var res sql.Result
+	txn, err := utils.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	stmt, err := txn.Prepare(pq.CopyIn("video.playlist_items", "playlist_id", "video_item_id"))
+	if err != nil {
+		return nil, err
+	}
+	for _, video := range p.Videos {
+		res, err = stmt.Exec(p.ID, video.ID)
+		if err != nil {
+			return res, err
+		}
+	}
+	res, err = stmt.Exec()
+	err = stmt.Close()
+	if err != nil {
+		return res, err
+	}
+	err = txn.Commit()
+	if err != nil {
+		return res, err
+	}
+	return res, err
 }

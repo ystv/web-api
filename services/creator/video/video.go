@@ -11,6 +11,7 @@ import (
 )
 
 // TODO update schema so duration is not null
+// TODO update structs so meta isn't repeated
 
 type (
 	// Item represents a more readable VideoItem with
