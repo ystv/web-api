@@ -62,15 +62,15 @@ func SeriesAllChildrenSeriesNoDepth(SeriesID int) ([]SeriesMeta, error) {
 		`SELECT
 			child.series_id,
 			child.url,
-			child.series_left
+			child.lft
 		FROM
 			video.series child,
 			video.series parent
 		WHERE
-			child.series_left between parent.series_left AND parent.series_right
+			child.lft between parent.lft AND parent.rgt
 			AND parent.series_id != child.series_id
 			AND parent.series_id = $1
-		ORDER BY child.series_left ASC;
+		ORDER BY child.lft ASC;
 		`, SeriesID)
 	if err != nil {
 		log.Print(err)
@@ -96,17 +96,17 @@ func SeriesImmediateChildrenSeries(SeriesID int) ([]SeriesMeta, error) {
 								video.series AS node,
 								video.series AS parent
 							WHERE
-								node.series_left between parent.series_left and parent.series_right
+								node.lft between parent.lft and parent.rgt
 								and node.series_id = $1
 							GROUP BY node.series_id
-							ORDER BY node.series_left ASC
+							ORDER BY node.lft ASC
 						) AS sub_tree
 					WHERE
-						node.series_left BETWEEN parent.series_left AND parent.series_right
-						AND node.series_left BETWEEN sub_parent.series_left AND sub_parent.series_right
+						node.lft BETWEEN parent.lft AND parent.rgt
+						AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
 						AND sub_parent.series_id = sub_tree.series_id
 					GROUP BY node.series_id, sub_tree.depth
-					ORDER BY node.series_left asc
+					ORDER BY node.lft asc
 			) as queries
 			where depth = 1;`, SeriesID)
 	if err != nil {
@@ -126,9 +126,9 @@ func SeriesAll() ([]SeriesMeta, error) {
 			video.series child,
 			video.series parent
 		WHERE
-			child.series_left BETWEEN parent.series_left AND parent.series_right
+			child.lft BETWEEN parent.lft AND parent.rgt
 		GROUP BY child.series_id
-		ORDER BY child.series_left ASC;`)
+		ORDER BY child.lft ASC;`)
 	if err != nil {
 		log.Printf("Failed SeriesAll: %+v", err)
 	}
@@ -152,17 +152,17 @@ func SeriesAllBelow(SeriesID int) ([]SeriesMeta, error) {
 					video.series AS node,
 					video.series AS parent
 				WHERE
-					node.series_left between parent.series_left and parent.series_right
+					node.lft between parent.lft and parent.rgt
 					and node.series_id = $1
 				GROUP BY node.series_id
-				ORDER BY node.series_left ASC
+				ORDER BY node.lft ASC
 			) AS sub_tree
 		WHERE
-			node.series_left BETWEEN parent.series_left AND parent.series_right
-			AND node.series_left BETWEEN sub_parent.series_left AND sub_parent.series_right
+			node.lft BETWEEN parent.lft AND parent.rgt
+			AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
 			AND sub_parent.series_id = sub_tree.series_id
 		GROUP BY node.series_id, sub_tree.depth
-		ORDER BY node.series_left asc;`, SeriesID)
+		ORDER BY node.lft asc;`, SeriesID)
 	if err != nil {
 		log.Printf("Failed SeriesAllBelow: %+v", err)
 	}
@@ -179,9 +179,9 @@ func SeriesBreadcrumb(SeriesID int) ([]Breadcrumb, error) {
 			video.series node,
 			video.series parent
 		WHERE
-			node.series_left BETWEEN parent.series_left AND parent.series_right
+			node.lft BETWEEN parent.lft AND parent.rgt
 			AND node.series_id = $1
-		ORDER BY parent.series_left;`, SeriesID)
+		ORDER BY parent.lft;`, SeriesID)
 	if err != nil {
 		log.Printf("BreadcrumbSeries failed: %+v", err)
 	}

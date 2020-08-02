@@ -31,9 +31,9 @@ func Series(SeriesID int) ([]Breadcrumb, error) {
 			video.series node,
 			video.series parent
 		WHERE
-			node.series_left BETWEEN parent.series_left AND parent.series_right
+			node.lft BETWEEN parent.lft AND parent.rgt
 			AND node.series_id = $1
-		ORDER BY parent.series_left;`, SeriesID)
+		ORDER BY parent.lft;`, SeriesID)
 	if err != nil {
 		log.Printf("BreadcrumbSeries failed: %+v", err)
 	}
@@ -62,8 +62,8 @@ func Video(VideoID int) ([]Breadcrumb, error) {
 
 // Item is either a video or a series
 type Item struct {
-	Video  *video.Item
-	Series series.Series
+	Video  *video.Item   `json:"video"`
+	Series series.Series `json:"series"`
 }
 
 // Find will returns either a series or a video for a given path
