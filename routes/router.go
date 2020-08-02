@@ -19,6 +19,8 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// TODO standarise on function names
+
 // JWTClaims represents an identifiable JWT
 type JWTClaims struct {
 	UserID   int    `json:"userID"`
@@ -67,7 +69,7 @@ func Init(version, commit string) *echo.Echo {
 				videos := creator.Group("/videos")
 				{
 					videos.GET("", creatorV1.VideoList)
-					//videos.POST("", creatorV1.VideoCreate)
+					videos.POST("", creatorV1.VideoCreate)
 					videoItem := videos.Group("/:id")
 					{
 						videoItem.GET("", creatorV1.VideoFind)
@@ -80,11 +82,16 @@ func Init(version, commit string) *echo.Echo {
 				}
 				playlists := creator.Group("/playlists")
 				{
-					playlists.GET("", notImplemented)
-					playlists.POST("", notImplemented)
+					playlists.GET("", creatorV1.PlaylistAll)
+					playlists.POST("", creatorV1.PlaylistNew)
+					playlist := playlists.Group("/:id")
+					{
+						playlist.GET("", creatorV1.PlaylistGet)
+						playlist.POST("", notImplemented)
+						playlist.PUT("", notImplemented)
+						playlist.DELETE("", notImplemented)
+					}
 				}
-				creator.POST("", notImplemented)
-				creator.GET("", creatorV1.VideoList)
 				creator.GET("/calendar/:year/:month", creatorV1.CalendarList)
 				creator.GET("/stats", creatorV1.Stats)
 			}

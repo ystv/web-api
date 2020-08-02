@@ -2,7 +2,6 @@ package playlist
 
 import (
 	"database/sql"
-	"log"
 	"time"
 
 	"github.com/lib/pq"
@@ -15,7 +14,7 @@ type (
 	// Playlist represents a playlist object including the metas of the videos
 	Playlist struct {
 		Meta
-		Videos []video.Meta `json:"videos"`
+		Videos []video.Meta `json:"videos,omitempty"`
 	}
 	// Meta represents the metadata of a playlist
 	Meta struct {
@@ -33,8 +32,8 @@ type (
 func All() ([]Playlist, error) {
 	p := []Playlist{}
 	err := utils.DB.Select(&p,
-		`SELECT id, name, description, thumbnail, status
-		FROM video.playlists`)
+		`SELECT id, name, description, thumbnail, status, created_at, created_by
+		FROM video.playlists;`)
 	return p, err
 }
 
@@ -42,17 +41,17 @@ func All() ([]Playlist, error) {
 func Get(playlistID int) (Playlist, error) {
 	p := Playlist{}
 	err := utils.DB.Get(&p,
-		`SELECT id, name, description, thumbnail, status
+		`SELECT id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists
-		WHERE id = $1`, playlistID)
+		WHERE id = $1;`, playlistID)
 	if err != nil {
 		return p, err
 	}
 	err = utils.DB.Select(&p.Videos,
-		`SELECT name, url
+		`SELECT video_id, series_id, name, url, EXTRACT(EPOCH FROM duration)::int AS duration, views, tags, broadcast_date, created_at
 		FROM video.items
-		INNER JOIN video.playlist_items ON video_id = video_item_id;`)
-	log.Print(err)
+		INNER JOIN video.playlist_items ON video_id = video_item_id
+		ORDER BY position ASC;`)
 	return p, err
 }
 
