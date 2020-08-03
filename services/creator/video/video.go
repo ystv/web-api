@@ -27,17 +27,22 @@ type (
 		Size         null.Int `db:"size" json:"size"`
 		MimeType     string   `db:"mime_type" json:"mimeType"`
 	}
+	// TODO make null's pointers, so we can omitempty them during JSON marshal
+
 	// Meta represents just the metadata of a video, used for listing.
 	Meta struct {
 		ID             int            `db:"video_id" json:"id"`
 		SeriesID       int            `db:"series_id" json:"seriesID"`
-		Name           string         `db:"name" json:"name"`
+		Name           string         `db:"video_name" json:"name"`
 		URL            string         `db:"url" json:"url"`
+		Description    null.String    `db:"description" json:"description,omitempty"`
+		Thumbnail      null.String    `db:"thumbnail" json:"thumbnail"`
 		Duration       null.Int       `db:"duration" json:"duration"`
 		Views          int            `db:"views" json:"views"`
 		Tags           pq.StringArray `db:"tags" json:"tags"`
 		SeriesPosition null.Int       `db:"series_position" json:"seriesPosition"`
 		Status         string         `db:"status" json:"status"`
+		Preset         null.String    `db:"preset_name" json:"preset"`
 		BroadcastDate  string         `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt      string         `db:"created_at" json:"createdAt"`
 	}
@@ -71,7 +76,7 @@ type (
 func FindVideoItem(ctx context.Context, id int) (*Item, error) {
 	v := Item{}
 	err := utils.DB.GetContext(ctx, &v,
-		`SELECT item.video_id, item.series_id, item.name item_name, item.url,
+		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
 		item.description, item.thumbnail, EXTRACT(EPOCH FROM item.duration)::int AS duration,
 		item.views, item.tags, item.series_position, item.status,
 		preset.name preset_name, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date, created_at 
@@ -97,7 +102,7 @@ func FindVideoItem(ctx context.Context, id int) (*Item, error) {
 func MetaList(ctx context.Context) (*[]Meta, error) {
 	v := []Meta{}
 	err := utils.DB.SelectContext(ctx, &v,
-		`SELECT video_id, series_id, name, url,
+		`SELECT video_id, series_id, name video_name, url,
 		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
 		series_position, status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		trim(both '"' from to_json(created_at)::text) AS created_at
@@ -123,7 +128,7 @@ func OfSeries(SeriesID int) ([]Meta, error) {
 	v := []Meta{}
 	//TODO Update this select to fill all fields
 	err := utils.DB.Select(&v,
-		`SELECT video_id, series_id, name, url,
+		`SELECT video_id, series_id, name video_name, url,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		views, EXTRACT(EPOCH FROM duration)::int AS duration
 		FROM video.items

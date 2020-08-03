@@ -95,7 +95,9 @@ func Find(path string) (Item, error) {
 				// Check if video name matches last path
 				if v.URL == split[len(split)-1] {
 					// Found video
-					foundVideo, _ := video.FindVideoItem(context.Background(), v.ID)
+					foundVideo, err := video.FindVideoItem(context.Background(), v.ID)
+					log.Print(foundVideo)
+					log.Print(err)
 					return Item{Video: foundVideo}, nil
 
 				}
