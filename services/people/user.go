@@ -78,6 +78,7 @@ func Get(id int) (*User, error) {
 		FirstName:   "Rhys",
 		LastName:    "Milling",
 		DisplayName: "Mr. Cool",
+		Avatar:      null.StringFrom("https://ystv.co.uk/static/images/members/thumb/3348.jpg"),
 		Permissions: []Permission{
 			{
 				ID:   45,

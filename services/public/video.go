@@ -14,16 +14,8 @@ import (
 type (
 	// VideoItem represents public info about video item.
 	VideoItem struct {
-		VideoID       int         `db:"video_id" json:"id"`
-		SeriesID      int         `db:"series_id" json:"series_id"`
-		Name          string      `db:"name" json:"name"`
-		URL           string      `db:"url" json:"url"`
-		Description   null.String `db:"description" json:"description"`
-		Thumbnail     null.String `db:"thumbnail" json:"thumbnail"`
-		BroadcastDate string      `db:"broadcast_date" json:"broadcastDate"`
-		Views         int         `db:"views" json:"views"`
-		Duration      null.Int    `db:"duration" json:"duration"`
-		Files         []VideoFile `json:"files"`
+		VideoMeta
+		Files []VideoFile `json:"files"`
 	}
 	// VideoFile represents each file that a video item has stored.
 	VideoFile struct {
@@ -35,7 +27,7 @@ type (
 	// VideoMeta represents basic information about the videoitem used for listing.
 	VideoMeta struct {
 		VideoID       int         `db:"video_id" json:"id"`
-		SeriesID      int         `db:"series_id" json:"series_id"`
+		SeriesID      int         `db:"series_id" json:"seriesID"`
 		Name          string      `db:"name" json:"name"`
 		URL           string      `db:"url" json:"url"`
 		Description   null.String `db:"description" json:"description"`

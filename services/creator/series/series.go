@@ -20,12 +20,12 @@ type (
 	}
 	// Meta is used as a children object for a series
 	Meta struct {
-		SeriesID    int         `json:"seriesID" db:"series_id"`
-		URL         string      `json:"url" db:"url"`
-		SeriesName  null.String `json:"seriesName" db:"name"`
-		Description null.String `json:"description" db:"description"`
-		Thumbnail   null.String `json:"thumbnail" db:"thumbnail"`
-		Depth       int         `json:"depth" db:"depth"`
+		SeriesID    int         `db:"series_id" json:"id"`
+		URL         string      `db:"url" json:"url"`
+		SeriesName  null.String `db:"name" json:"name"`
+		Description null.String `db:"description" json:"description"`
+		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
+		Depth       int         `db:"depth" json:"depth"`
 	}
 )
 

@@ -30,7 +30,7 @@ func ListTeams() *[]Team {
 				{
 					"Person B",
 					"Station Manager",
-					"station.manager",
+					"station.manager@ystv.co.uk",
 				},
 			},
 		},

@@ -3,7 +3,6 @@ package video
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/lib/pq"
 	"github.com/ystv/web-api/utils"
@@ -17,21 +16,8 @@ type (
 	// Item represents a more readable VideoItem with
 	// an array of associated VideoFiles.
 	Item struct {
-		ID             int            `db:"video_id" json:"videoID"`
-		SeriesID       int            `db:"series_id" json:"seriesID"`
-		Name           string         `db:"item_name" json:"name"`
-		URL            string         `db:"url" json:"url"`
-		Description    null.String    `db:"description" json:"description"`
-		Thumbnail      null.String    `db:"thumbnail" json:"thumbnail"`
-		Duration       null.Int       `db:"duration" json:"duration"`
-		Views          int            `db:"views" json:"views"`
-		Tags           pq.StringArray `db:"tags" json:"tags"`
-		SeriesPosition null.Int       `db:"series_position" json:"seriesPosition"`
-		Status         string         `db:"status" json:"status"`
-		Preset         null.String    `db:"preset_name" json:"preset"`
-		BroadcastDate  string         `db:"broadcast_date" json:"broadcastDate"`
-		CreatedAt      time.Time      `db:"created_at" json:"createdAt"`
-		Files          []File         `db:"files" json:"files"`
+		Meta
+		Files []File `db:"files" json:"files"`
 	}
 	// File represents a more readable VideoFile.
 	File struct {
@@ -43,7 +29,7 @@ type (
 	}
 	// Meta represents just the metadata of a video, used for listing.
 	Meta struct {
-		ID             int            `db:"video_id" json:"videoID"`
+		ID             int            `db:"video_id" json:"id"`
 		SeriesID       int            `db:"series_id" json:"seriesID"`
 		Name           string         `db:"name" json:"name"`
 		URL            string         `db:"url" json:"url"`
@@ -57,7 +43,7 @@ type (
 	}
 	// MetaCal represents simple metadata for a calendar
 	MetaCal struct {
-		ID            int    `db:"video_id" json:"videoID"`
+		ID            int    `db:"video_id" json:"id"`
 		Name          string `db:"name" json:"name"`
 		Status        string `db:"status" json:"status"`
 		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
