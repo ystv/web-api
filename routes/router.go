@@ -60,7 +60,9 @@ func Init(version, commit string) *echo.Echo {
 		{
 			people := internal.Group("/people")
 			{
-				people.GET("/user/:id", peopleV1.UserFind)
+				people.GET("/user/full", peopleV1.UserByTokenFull)
+				people.GET("/user/:id", peopleV1.UserByID)
+				people.GET("/user/:id/full", peopleV1.UserByIDFull)
 				people.GET("/user", peopleV1.UserByToken)
 			}
 			creator := internal.Group("/creator")
