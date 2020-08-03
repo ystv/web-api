@@ -21,6 +21,7 @@ type (
 	VideoFile struct {
 		URI      string `json:"uri"`
 		MimeType string `db:"mime_type" json:"mimeType"`
+		Mode     string `db:"mode" json:"mode"`
 		Width    int    `db:"width" json:"width"`
 		Height   int    `db:"height" json:"height"`
 	}
@@ -71,12 +72,11 @@ func VideoFind(id int) (*VideoItem, error) {
 		return nil, err
 	}
 	err = utils.DB.Select(&v.Files,
-		`SELECT uri, mime_type, width, height
+		`SELECT uri, mime_type, mode, width, height
 	FROM video.files
 	INNER JOIN video.encode_formats ON id = encode_format
 	WHERE status = 'public'
 	AND video_id = $1`, id)
-	log.Print(err)
 	if err != nil {
 		return nil, err
 	}
