@@ -37,7 +37,7 @@ type (
 	// Role represents a "group" of permissions where multiple users
 	// can have this role and they will inherit these permissions.
 	Role struct {
-		ID          int          `db:"role_id" json:"roleID"`
+		ID          int          `db:"role_id" json:"id"`
 		Name        string       `db:"name" json:"name"`
 		Description null.String  `db:"description" json:"description"`
 		Permissions []Permission `json:"permissions"`
@@ -45,7 +45,7 @@ type (
 
 	// Permission represents an individual permission. Attempting to implement some RBAC here.
 	Permission struct {
-		ID          int          `db:"permission_id" json:"permissionID"`
+		ID          int          `db:"permission_id" json:"id"`
 		Name        string       `db:"name" json:"name"`
 		Description *null.String `db:"description" json:"description,omitempty"`
 	}
@@ -106,6 +106,13 @@ func Get(id int) (*User, error) {
 		FROM people.permissions p
 		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
 		INNER JOIN people.role_members rm ON rm.role_id = rp.role_id
-		WHERE rm.user_id = $1`, id)
+		WHERE rm.user_id = $1;`, id)
+	if err != nil {
+		log.Printf("user.Get perms failed: %+v", err)
+		return &u, err
+	}
+	if u.Avatar.Valid {
+		u.Avatar = null.StringFrom("https://ystv.co.uk/static/images/members/thumb/" + u.Avatar.String)
+	}
 	return &u, nil
 }

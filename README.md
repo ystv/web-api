@@ -28,6 +28,13 @@ Generation of usable JWT's is available in web-auth currently.
     - [ ] Playlists
     - [x] Calendar
     - [x] Stats
+  - [ ] People
+    - [x] User by ID
+    - [x] User by JWT
+    - [x] Permissions
+    - [ ] Create user
+    - [ ] Create roles
+  - [ ] Calendar
   - [ ] Encoder
   - [ ] Stream auth
   - [ ] Misc internal services

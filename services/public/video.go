@@ -109,21 +109,6 @@ func isInt(number string) bool {
 	return false
 }
 
-// func PathToVideo() {
-// 	var err error
-// 	var SeriesID int
-// 	for depth := 0; depth < len(videoPath); depth++ {
-// 		// If this is not the final crumb, it is parent
-// 		if depth <= len(videoPath) {
-// 			err = utils.DB.Select(&SeriesID,
-// 				`SELECT series_id
-// 				FROM video.series
-// 				WHERE name = $1`)
-// 		}
-// 	}
-
-// }
-
 // VideoOfSeries returns all the videos belonging to a series
 func VideoOfSeries(SeriesID int) ([]VideoMeta, error) {
 	v := []VideoMeta{}
@@ -139,6 +124,18 @@ func VideoOfSeries(SeriesID int) ([]VideoMeta, error) {
 	}
 	return v, err
 }
+
+// type Credit struct {
+// 	Person string `db:"person_name" json:"person"`
+// 	Position string `db:"position_name" json:"position"`
+// }
+
+// func CreditsOfVideo(videoID int) ([]Credit, error) {
+// 	var c []Credit{}
+// 	err := utils.DB.Select(&c,
+// 		`SELECT CONCAT(person.first_name, ' ', person.last_name) person, pos.name position
+// 		FROM `, videoID)
+// }
 
 // VideoBreadcrumb returns the absolute path from a VideoID
 func VideoBreadcrumb(VideoID int) ([]Breadcrumb, error) {

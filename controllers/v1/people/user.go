@@ -11,11 +11,19 @@ import (
 	"github.com/ystv/web-api/services/people"
 )
 
-// JWTClaims represents an identifiable JWT
-type JWTClaims struct {
-	UserID int `json:"userID"`
-	jwt.StandardClaims
-}
+type (
+	// JWTClaims represents an identifiable JWT
+	JWTClaims struct {
+		UserID      int          `json:"id"`
+		Permissions []Permission `json:"perms"`
+		jwt.StandardClaims
+	}
+	// Permission represents the permissions that a user has
+	Permission struct {
+		PermissionID int    `json:"id"`
+		Name         string `json:"name"`
+	}
+)
 
 // UserByID finds a user by ID
 func UserByID(c echo.Context) error {
@@ -30,7 +38,7 @@ func UserByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-// UserByID finds a user by ID returing all info
+// UserByIDFull finds a user by ID returing all info
 func UserByIDFull(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
