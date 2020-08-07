@@ -18,11 +18,11 @@ type (
 	}
 	// Meta represents the metadata of a playlist
 	Meta struct {
-		ID          int         `db:"id" json:"id"`
+		ID          int         `db:"playlist_id" json:"id"`
 		Name        string      `db:"name" json:"name"`
 		Description null.String `db:"description" json:"description"`
 		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
-		Status      string      `db:"status"`
+		Status      string      `db:"status" json:"status"`
 		CreatedAt   time.Time   `db:"created_at" json:"createdAt"`
 		CreatedBy   int         `db:"created_by" json:"createdBy"`
 	}
@@ -32,7 +32,7 @@ type (
 func All() ([]Playlist, error) {
 	p := []Playlist{}
 	err := utils.DB.Select(&p,
-		`SELECT id, name, description, thumbnail, status, created_at, created_by
+		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists;`)
 	return p, err
 }
@@ -41,14 +41,14 @@ func All() ([]Playlist, error) {
 func Get(playlistID int) (Playlist, error) {
 	p := Playlist{}
 	err := utils.DB.Get(&p,
-		`SELECT id, name, description, thumbnail, status, created_at, created_by
+		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists
-		WHERE id = $1;`, playlistID)
+		WHERE playlist_id = $1;`, playlistID)
 	if err != nil {
 		return p, err
 	}
 	err = utils.DB.Select(&p.Videos,
-		`SELECT video_id, series_id, name, url, EXTRACT(EPOCH FROM duration)::int AS duration, views, tags, broadcast_date, created_at
+		`SELECT video_id, series_id, name video_name, url, EXTRACT(EPOCH FROM duration)::int AS duration, views, tags, broadcast_date, created_at
 		FROM video.items
 		INNER JOIN video.playlist_items ON video_id = video_item_id
 		ORDER BY position ASC;`)

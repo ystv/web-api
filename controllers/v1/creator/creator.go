@@ -116,7 +116,7 @@ func PlaylistGet(c echo.Context) error {
 // PlaylistNew handles creating a new playlist item
 func PlaylistNew(c echo.Context) error {
 	p := playlist.Playlist{}
-	err := c.Bind(p)
+	err := c.Bind(&p)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
