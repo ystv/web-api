@@ -53,19 +53,9 @@ func UserByIDFull(c echo.Context) error {
 
 // UserByToken finds a user by their JWT token
 func UserByToken(c echo.Context) error {
-	cookie, err := c.Cookie("token")
+	claims, err := GetToken(c)
 	if err != nil {
-		return echo.ErrBadRequest
-	}
-	tokenString := cookie.Value
-	claims := &JWTClaims{}
-
-	_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("signing_key")), nil
-	})
-	if err != nil {
-		log.Printf("UserByToken failed: %+v", err)
-		return echo.ErrInternalServerError
+		return c.JSON(http.StatusBadRequest, err)
 	}
 	p, err := people.Get(claims.UserID)
 	if err != nil {
@@ -76,9 +66,22 @@ func UserByToken(c echo.Context) error {
 
 // UserByTokenFull finds a user by their JWT token returning all info
 func UserByTokenFull(c echo.Context) error {
+	claims, err := GetToken(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	p, err := people.GetFull(claims.UserID)
+	if err != nil {
+		log.Printf("UserByToken failed getting: %+v", err)
+	}
+	return c.JSON(http.StatusOK, p)
+}
+
+// GetToken will return the JWT claims from a valid JWT token
+func GetToken(c echo.Context) (*JWTClaims, error) {
 	cookie, err := c.Cookie("token")
 	if err != nil {
-		return echo.ErrBadRequest
+		return nil, echo.ErrBadRequest
 	}
 	tokenString := cookie.Value
 	claims := &JWTClaims{}
@@ -88,11 +91,7 @@ func UserByTokenFull(c echo.Context) error {
 	})
 	if err != nil {
 		log.Printf("UserByToken failed: %+v", err)
-		return echo.ErrInternalServerError
+		return nil, echo.ErrInternalServerError
 	}
-	p, err := people.GetFull(claims.UserID)
-	if err != nil {
-		log.Printf("UserByToken failed getting: %+v", err)
-	}
-	return c.JSON(http.StatusOK, p)
+	return claims, nil
 }

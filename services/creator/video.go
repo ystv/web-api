@@ -1,7 +1,6 @@
 package creator
 
 import (
-	"context"
 	"log"
 	"math/rand"
 	"time"
@@ -96,19 +95,4 @@ func ListPendingUploads() ([]PendingUpload, error) {
 	}
 
 	return pus, err
-}
-
-// VideoMetaList returns a list of simplified VideoMeta
-func VideoMetaList(ctx context.Context) (*[]video.Meta, error) {
-	return video.MetaList(ctx)
-}
-
-// VideoItemFind returns the metadata for a given creation
-func VideoItemFind(ctx context.Context, id int) (*video.Item, error) {
-	return video.FindVideoItem(ctx, id)
-}
-
-// CalendarList returns simple VideoMeta for a calendar month
-func CalendarList(ctx context.Context, year int, month int) (*[]video.MetaCal, error) {
-	return video.CalendarList(ctx, year, month)
 }
