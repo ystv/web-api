@@ -72,8 +72,8 @@ type (
 // 	return nil
 // }
 
-// FindVideoItem returns a VideoItem by it's ID.
-func FindVideoItem(ctx context.Context, id int) (*Item, error) {
+// FindItem returns a VideoItem by it's ID.
+func FindItem(ctx context.Context, id int) (*Item, error) {
 	v := Item{}
 	err := utils.DB.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
@@ -104,10 +104,24 @@ func MetaList(ctx context.Context) (*[]Meta, error) {
 	err := utils.DB.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
 		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
-		series_position, status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
+		status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		trim(both '"' from to_json(created_at)::text) AS created_at
 		FROM video.items
 		ORDER BY broadcast_date DESC;`)
+	return &v, err
+}
+
+// MetaListUser returns a list of VideoMeta's for a given user
+func MetaListUser(ctx context.Context, userID int) (*[]Meta, error) {
+	v := []Meta{}
+	err := utils.DB.SelectContext(ctx, &v,
+		`SELECT video_id, series_id, name video_name, url,
+		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
+		status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
+		trim(both '"' from to_json(created_at)::text) AS created_at
+		FROM video.items
+		WHERE created_by = $1
+		ORDER BY broadcast_date DESC;`, userID)
 	return &v, err
 }
 

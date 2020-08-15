@@ -70,6 +70,7 @@ func Init(version, commit string) *echo.Echo {
 				videos := creator.Group("/videos")
 				{
 					videos.GET("", creatorV1.VideoList)
+					videos.GET("/my", creatorV1.VideosUser)
 					videos.POST("", creatorV1.VideoCreate)
 					videoItem := videos.Group("/:id")
 					{

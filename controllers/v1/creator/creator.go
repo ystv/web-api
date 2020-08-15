@@ -7,9 +7,11 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/playlist"
 	"github.com/ystv/web-api/services/creator/series"
+	"github.com/ystv/web-api/services/creator/video"
 )
 
 // VideoMetaCreate Handes uploading meta data for a creation
@@ -33,7 +35,7 @@ func VideoFind(c echo.Context) error {
 	if err != nil {
 		c.String(http.StatusBadRequest, "Number pls")
 	}
-	v, err := creator.VideoItemFind(context.Background(), id)
+	v, err := video.FindItem(c.Request().Context(), id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -47,11 +49,24 @@ func VideoCreate(c echo.Context) error {
 
 // VideoList Handles listing all creations
 func VideoList(c echo.Context) error {
-	creations, err := creator.VideoMetaList(context.Background())
+	creations, err := video.MetaList(c.Request().Context())
 	if err != nil {
 		return err
 	}
 	return c.JSON(http.StatusOK, creations)
+}
+
+// VideosUser Handles retrieving a user's videos using their userid in their token.
+func VideosUser(c echo.Context) error {
+	claims, err := people.GetToken(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	v, err := video.MetaListUser(c.Request().Context(), claims.UserID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, v)
 }
 
 // CalendarList Handles listing all videos from a calendar year/month
@@ -64,7 +79,7 @@ func CalendarList(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
-	v, err := creator.CalendarList(context.Background(), year, month)
+	v, err := video.CalendarList(context.Background(), year, month)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
