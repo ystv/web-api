@@ -93,5 +93,8 @@ func GetToken(c echo.Context) (*JWTClaims, error) {
 		log.Printf("UserByToken failed: %+v", err)
 		return nil, echo.ErrInternalServerError
 	}
+	if claims.Valid() != nil {
+		return nil, echo.ErrForbidden
+	}
 	return claims, nil
 }
