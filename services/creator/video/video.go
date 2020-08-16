@@ -2,8 +2,13 @@ package video
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
+	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/lib/pq"
 	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
@@ -40,7 +45,7 @@ type (
 		Duration       null.Int       `db:"duration" json:"duration"`
 		Views          int            `db:"views" json:"views"`
 		Tags           pq.StringArray `db:"tags" json:"tags"`
-		SeriesPosition null.Int       `db:"series_position" json:"seriesPosition"`
+		SeriesPosition null.Int       `db:"series_position" json:"seriesPosition,omitempty"`
 		Status         string         `db:"status" json:"status"`
 		Preset         null.String    `db:"preset_name" json:"preset"`
 		BroadcastDate  string         `db:"broadcast_date" json:"broadcastDate"`
@@ -151,4 +156,53 @@ func OfSeries(SeriesID int) ([]Meta, error) {
 		log.Printf("Failed to select VideoOfSeries: %+v", err)
 	}
 	return v, err
+}
+
+type NewVideo struct {
+	FileID        string      `json:"fileID"`
+	SeriesID      int         `json:"seriesID" db:"series_id"`
+	Name          string      `json:"name" db:"name"`
+	URLName       string      `json:"urlName" db:"url"`
+	Description   null.String `json:"description"`
+	Tags          string      `json:"tags" db:"tags"` // TODO make this an array
+	PublishType   string      `json:"publishType" db:"status"`
+	BroadcastDate time.Time   `json:"broadcastDate" db:"broadcast_date"`
+}
+
+func NewItem(v *NewVideo) error {
+	obj, err := utils.CDN.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String("pending"),
+		Key:    aws.String(v.FileID[:32]),
+	})
+	if err != nil {
+		log.Printf("VideoCreate object find fail: %+v", err)
+		return err
+	}
+	filename := *obj.Metadata["Filename"]
+	filenamesplit := strings.Split(filename, ".")
+	_, err = utils.CDN.CopyObject(&s3.CopyObjectInput{
+		Bucket:     aws.String("videos"),
+		CopySource: aws.String("pending/" + v.FileID[:32]),
+		Key:        aws.String(fmt.Sprintf("%d_%s_%s.%s", v.BroadcastDate.Year(), v.URLName, getSeason(v.BroadcastDate), filenamesplit[1])),
+	})
+	log.Print(obj)
+	log.Print(err)
+	// _, err = utils.DB.Exec(
+	// 	`INSERT INTO video.items (series_id, name, url, description, tags,
+	// 		status, created_at, created_by, broadcast_date)
+	// 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9`, &v)
+	// 30c19a3c5b8842fd109bd1a16c71face+2f5265c2-1de4-4006-b8d1-dacf85759982
+	return nil
+}
+
+func getSeason(t time.Time) string {
+	m := int(t.Month())
+	switch {
+	case m >= 9 && m <= 12:
+		return "aut"
+	case m >= 1 && m <= 6:
+		return "spr"
+	default:
+		return "sum"
+	}
 }

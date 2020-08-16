@@ -42,8 +42,18 @@ func VideoFind(c echo.Context) error {
 	return c.JSON(http.StatusOK, v)
 }
 
-// VideoCreate Handles creation of a creation lol
+// VideoCreate Handles creation of a video
 func VideoCreate(c echo.Context) error {
+	v := video.NewVideo{}
+	err := c.Bind(&v)
+	if err != nil {
+		log.Printf("VideoCreate bind fail: %+v", err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	err = video.NewItem(&v)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
 	return c.String(http.StatusOK, "Creation created")
 }
 

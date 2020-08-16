@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/kr/pretty"
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/controllers/v1/people"
 )
@@ -37,14 +36,15 @@ type (
 )
 
 // VideoNew handles authenticating a video upload request.
+//
 // Connects with tusd through web-hooks, so tusd POSTs here.
+// tusd's requests here does contain a lot of useful information.
+// but for this endpoint, we are just checking for the JWT.
 func VideoNew(c echo.Context) error {
 	r := Request{}
-	err := c.Bind(&r)
-	log.Printf("%# v", pretty.Formatter(r))
-	if err != nil {
-		log.Print("VideoNew failed:")
-		log.Printf("%# v", pretty.Formatter(err))
+	c.Bind(&r)
+	if r.HTTPRequest.Method != "POST" {
+		return c.NoContent(http.StatusOK)
 	}
 	cookie, err := r.HTTPRequest.Cookie("token")
 	if err != nil {
