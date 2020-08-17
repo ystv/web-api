@@ -158,40 +158,68 @@ func OfSeries(SeriesID int) ([]Meta, error) {
 	return v, err
 }
 
+// NewVideo is the basic information to create a video
 type NewVideo struct {
 	FileID        string      `json:"fileID"`
 	SeriesID      int         `json:"seriesID" db:"series_id"`
 	Name          string      `json:"name" db:"name"`
 	URLName       string      `json:"urlName" db:"url"`
-	Description   null.String `json:"description"`
-	Tags          string      `json:"tags" db:"tags"` // TODO make this an array
+	Description   null.String `json:"description" db:"description"`
+	Tags          []string    `json:"tags" db:"tags"`
 	PublishType   string      `json:"publishType" db:"status"`
+	CreatedAt     time.Time   `json:"createdAt" db:"created_by"`
+	CreatedBy     int         `json:"createdBy" db:"created_by"`
 	BroadcastDate time.Time   `json:"broadcastDate" db:"broadcast_date"`
 }
 
+// NewItem creates a new video item
 func NewItem(v *NewVideo) error {
+	// Checking if video file exists
 	obj, err := utils.CDN.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String("pending"),
 		Key:    aws.String(v.FileID[:32]),
 	})
 	if err != nil {
-		log.Printf("VideoCreate object find fail: %+v", err)
+		log.Printf("NewItem object find fail: %v", err)
 		return err
 	}
-	filename := *obj.Metadata["Filename"]
-	filenamesplit := strings.Split(filename, ".")
+
+	// Generating timestamp
+	v.CreatedAt = time.Now()
+
+	// Inserting video item record
+	itemQuery := `INSERT INTO video.items (series_id, name, url, description, tags,
+		status, created_at, created_by, broadcast_date)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+	RETURNING video_id;`
+	var videoID int
+
+	err = utils.DB.QueryRow(
+		itemQuery, &v.SeriesID, &v.Name, &v.URLName, &v.Description, pq.Array(v.Tags), &v.PublishType, &v.CreatedAt, &v.CreatedBy, &v.BroadcastDate).Scan(&videoID)
+	if err != nil {
+		log.Printf("NewItem failed to insert: %v", err)
+		return err
+	}
+	extension := strings.Split(*obj.Metadata["Filename"], ".")
+	key := fmt.Sprintf("%d_%d_%s_%s.%s", v.BroadcastDate.Year(), videoID, v.URLName, getSeason(v.BroadcastDate), extension[1])
+
+	// Copy from pending bucket to main video bucket
 	_, err = utils.CDN.CopyObject(&s3.CopyObjectInput{
 		Bucket:     aws.String("videos"),
 		CopySource: aws.String("pending/" + v.FileID[:32]),
-		Key:        aws.String(fmt.Sprintf("%d_%s_%s.%s", v.BroadcastDate.Year(), v.URLName, getSeason(v.BroadcastDate), filenamesplit[1])),
+		Key:        aws.String(key),
 	})
-	log.Print(obj)
-	log.Print(err)
-	// _, err = utils.DB.Exec(
-	// 	`INSERT INTO video.items (series_id, name, url, description, tags,
-	// 		status, created_at, created_by, broadcast_date)
-	// 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9`, &v)
-	// 30c19a3c5b8842fd109bd1a16c71face+2f5265c2-1de4-4006-b8d1-dacf85759982
+
+	// Updating DB to reflect this
+	fileQuery := `INSERT INTO video.files (video_id, uri, status, encode_format, size)
+				VALUES ($1, $2, $3, $4, $5);`
+
+	_, err = utils.DB.Exec(fileQuery, videoID, "videos/"+key, "internal", 1, *obj.ContentLength) // TODO make a original encode format
+	if err != nil {
+		log.Printf("NewItem failed to insert video file: %v", err)
+		return err
+	}
+
 	return nil
 }
 

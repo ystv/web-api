@@ -42,14 +42,20 @@ func VideoFind(c echo.Context) error {
 	return c.JSON(http.StatusOK, v)
 }
 
-// VideoCreate Handles creation of a video
-func VideoCreate(c echo.Context) error {
+// VideoNew Handles creation of a video
+func VideoNew(c echo.Context) error {
 	v := video.NewVideo{}
 	err := c.Bind(&v)
 	if err != nil {
 		log.Printf("VideoCreate bind fail: %+v", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	claims, err := people.GetToken(c)
+	if err != nil {
+		log.Printf("VideoNew failed to get user ID: %v", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	v.CreatedBy = claims.UserID
 	err = video.NewItem(&v)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)

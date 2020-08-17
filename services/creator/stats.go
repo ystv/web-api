@@ -2,7 +2,6 @@ package creator
 
 import (
 	"context"
-	"log"
 
 	"github.com/ystv/web-api/utils"
 )
@@ -20,7 +19,6 @@ func Stats(ctx context.Context) (*SQLStats, error) {
 	err := utils.DB.GetContext(ctx, &s.TotalVideos,
 		`SELECT COUNT(*)
 		FROM video.items;`)
-	log.Print(err)
 	if err != nil {
 		return nil, err
 	}

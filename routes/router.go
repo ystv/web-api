@@ -82,11 +82,11 @@ func Init(version, commit string) *echo.Echo {
 				{
 					videos.GET("", creatorV1.VideoList)
 					videos.GET("/my", creatorV1.VideosUser)
-					videos.POST("", creatorV1.VideoCreate)
+					videos.POST("", creatorV1.VideoNew)
 					videoItem := videos.Group("/:id")
 					{
 						videoItem.GET("", creatorV1.VideoFind)
-						videoItem.PUT("", creatorV1.VideoCreate)
+						videoItem.PUT("", notImplemented)
 					}
 				}
 				series := creator.Group("/series")
@@ -100,7 +100,6 @@ func Init(version, commit string) *echo.Echo {
 					playlist := playlists.Group("/:id")
 					{
 						playlist.GET("", creatorV1.PlaylistGet)
-						playlist.POST("", notImplemented)
 						playlist.PUT("", notImplemented)
 						playlist.DELETE("", notImplemented)
 					}

@@ -6,13 +6,10 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/ystv/web-api/routes"
-	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
-	"gopkg.in/guregu/null.v4"
 )
 
 // Version returns web-api's current version
@@ -39,19 +36,6 @@ func main() {
 	utils.InitDB()
 	utils.InitCDN()
 	// utils.InitMessaging()
-
-	v := &video.NewVideo{
-		FileID:        "30c19a3c5b8842fd109bd1a16c71face+2f5265c2-1de4-4006-b8d1-dacf85759982",
-		SeriesID:      695,
-		Name:          "Funny video",
-		URLName:       "funny",
-		Description:   null.NewString("Very funny video", true),
-		Tags:          "funny epic lol",
-		PublishType:   "internal",
-		BroadcastDate: time.Now(),
-	}
-
-	video.NewItem(v)
 
 	e := routes.Init(Version, Commit)
 
