@@ -9,6 +9,7 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
+// StreamMeta contains basic stream information
 type StreamMeta struct {
 	public.VideoMeta
 	Status string

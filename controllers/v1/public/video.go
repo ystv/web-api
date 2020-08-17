@@ -1,6 +1,7 @@
 package public
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -16,6 +17,7 @@ func Video(c echo.Context) error {
 	}
 	v, err := public.VideoFind(id)
 	if err != nil {
+		log.Printf("Video find failed: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	return c.JSON(http.StatusOK, v)

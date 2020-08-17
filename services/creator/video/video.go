@@ -50,6 +50,7 @@ type (
 		Preset         null.String    `db:"preset_name" json:"preset"`
 		BroadcastDate  string         `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt      string         `db:"created_at" json:"createdAt"`
+		User           `json:"createdBy"`
 	}
 	// MetaCal represents simple metadata for a calendar
 	MetaCal struct {
@@ -57,6 +58,11 @@ type (
 		Name          string `db:"name" json:"name"`
 		Status        string `db:"status" json:"status"`
 		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
+	}
+	// User represents the nickname and ID of a user
+	User struct {
+		UserID   int    `db:"user_id" json:"userID"`
+		Nickname string `db:"nickname" json:"userNickname"`
 	}
 )
 
@@ -84,11 +90,14 @@ func FindItem(ctx context.Context, id int) (*Item, error) {
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
 		item.description, item.thumbnail, EXTRACT(EPOCH FROM item.duration)::int AS duration,
 		item.views, item.tags, item.series_position, item.status,
-		preset.name preset_name, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date, created_at 
+		preset.name preset_name, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date, item.created_at,
+		users.user_id, users.nickname
 		FROM video.items item
-		LEFT JOIN video.presets preset ON item.preset = preset.id
+			LEFT JOIN video.presets preset ON item.preset = preset.id
+        	INNER JOIN people.users users ON users.user_id = item.created_by
 		WHERE video_id = $1
 		LIMIT 1;`, id)
+	log.Print(err)
 	if err != nil {
 		return nil, err
 	}
