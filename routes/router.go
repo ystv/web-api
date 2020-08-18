@@ -104,6 +104,13 @@ func Init(version, commit string) *echo.Echo {
 						playlist.DELETE("", notImplemented)
 					}
 				}
+				encodes := creator.Group("/encodes")
+				{
+					profiles := encodes.Group("/profiles")
+					{
+						profiles.GET("", creatorV1.EncodeProfileList)
+					}
+				}
 				creator.GET("/calendar/:year/:month", creatorV1.CalendarList)
 				creator.GET("/stats", creatorV1.Stats)
 			}

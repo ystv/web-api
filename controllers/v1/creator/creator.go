@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/creator"
+	"github.com/ystv/web-api/services/creator/encode"
 	"github.com/ystv/web-api/services/creator/playlist"
 	"github.com/ystv/web-api/services/creator/series"
 	"github.com/ystv/web-api/services/creator/video"
@@ -157,4 +158,14 @@ func PlaylistNew(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, res)
+}
+
+// EncodeProfileList handles listing encode formats
+func EncodeProfileList(c echo.Context) error {
+	e, err := encode.FormatList()
+	if err != nil {
+		log.Printf("EncodeProfileList failed: %v", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, e)
 }
