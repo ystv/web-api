@@ -106,6 +106,11 @@ func Init(version, commit string) *echo.Echo {
 				}
 				encodes := creator.Group("/encodes")
 				{
+					presets := encodes.Group("/presets")
+					{
+						presets.GET("", creatorV1.PresetList)
+						presets.POST("", creatorV1.PresetNew)
+					}
 					profiles := encodes.Group("/profiles")
 					{
 						profiles.GET("", creatorV1.EncodeProfileList)
@@ -113,6 +118,30 @@ func Init(version, commit string) *echo.Echo {
 				}
 				creator.GET("/calendar/:year/:month", creatorV1.CalendarList)
 				creator.GET("/stats", creatorV1.Stats)
+			}
+			clapper := internal.Group("/clapper")
+			{
+				calendar := clapper.Group("/calendar")
+				{
+					calendar.GET("/:year/:term", notImplemented)  // List all events of term
+					calendar.GET("/:year/:month", notImplemented) // List all events of month
+				}
+				event := clapper.Group("/event")
+				{
+					event.GET("/:id", notImplemented) // Get event info, returns event info and signup sheets
+					event.POST("", notImplemented)    // Create a new event
+					signup := event.Group("/signup")
+					{
+						signup.GET("/:id", notImplemented)          // Get a signup sheet, likely not to be used
+						signup.POST("", notImplemented)             // Create a new signup sheet
+						signup.PUT("/:sheet/:role", notImplemented) // Update a crew role, used to set a person
+					}
+				}
+				crew := clapper.Group("/positions")
+				{
+					crew.GET("", notImplemented)  // List crew positions
+					crew.POST("", notImplemented) // Create a new crew position
+				}
 			}
 		}
 		public := apiV1.Group("/public")
@@ -125,7 +154,7 @@ func Init(version, commit string) *echo.Echo {
 			public.GET("/series/:id", publicV1.SeriesByID)
 			public.GET("/series/:id/breadcrumb", publicV1.SeriesBreadcrumb)
 			public.GET("/teams", publicV1.ListTeams)
-			stream.GET("", publicV1.StreamList)
+			public.GET("", publicV1.StreamList)
 		}
 
 	}

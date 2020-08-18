@@ -17,3 +17,28 @@ func EncodeProfileList(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, e)
 }
+
+// PresetList handles listing presets
+func PresetList(c echo.Context) error {
+	p, err := encode.PresetList()
+	if err != nil {
+		log.Printf("PresetList failed: %+v", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, p)
+}
+
+// PresetNew handles creating a new preset
+func PresetNew(c echo.Context) error {
+	p := encode.Preset{}
+	err := c.Bind(&p)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	err = encode.PresetNew(&p)
+	if err != nil {
+		log.Printf("Playlist new failed: %+v", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusCreated)
+}
