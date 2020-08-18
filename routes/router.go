@@ -110,6 +110,7 @@ func Init(version, commit string) *echo.Echo {
 					{
 						presets.GET("", creatorV1.PresetList)
 						presets.POST("", creatorV1.PresetNew)
+						presets.PUT("", creatorV1.PresetUpdate) // We take the ID in the json request
 					}
 					profiles := encodes.Group("/profiles")
 					{

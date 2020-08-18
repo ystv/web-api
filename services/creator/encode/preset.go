@@ -47,12 +47,49 @@ func PresetNew(p *Preset) error {
 		if err != nil {
 			return err
 		}
+		// When they don't attach any formats
+		if len(p.Formats) == 0 {
+			return nil
+		}
 		stmt, err := tx.Prepare("INSERT INTO video.presets_encode_formats(preset_id, encode_format_id) VALUES ($1, $2);")
 		if err != nil {
 			return err
 		}
 		for _, format := range p.Formats {
 			_, err := stmt.Exec(presetID, format.FormatID)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+// PresetUpdate updates an existing preset
+func PresetUpdate(p *Preset) error {
+	return utils.Transact(utils.DB, func(tx *sqlx.Tx) error {
+		_, err := tx.Exec(`UPDATE video.presets SET name = $1, description = $2
+							WHERE id = $3;`, p.Name, p.Description, p.PresetID)
+		if err != nil {
+			return err
+		}
+		// Deleting old associated encode formats
+		_, err = tx.Exec(`DELETE FROM video.presets_encode_formats
+						WHERE preset_id = $1`, p.PresetID)
+		if err != nil {
+			return err
+		}
+		// When they don't attach any formats
+		if len(p.Formats) == 0 {
+			return nil
+		}
+		// Insert new formats
+		stmt, err := tx.Prepare("INSERT INTO video.presets_encode_formats(preset_id, encode_format_id) VALUES ($1, $2);")
+		if err != nil {
+			return err
+		}
+		for _, format := range p.Formats {
+			_, err := stmt.Exec(p.PresetID, format.FormatID)
 			if err != nil {
 				return err
 			}
