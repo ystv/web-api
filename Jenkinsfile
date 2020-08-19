@@ -10,7 +10,7 @@ pipeline {
                 }
             steps {
                 echo "Updating"
-                sh "docker pull golang:1.15-alpine"
+                sh "docker pull golang:1.15-alpine" // Update with current go image
             }
         }
         stage('Build') {
