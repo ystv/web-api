@@ -2,9 +2,7 @@ package public
 
 import (
 	"log"
-	"net/url"
 	"strconv"
-	"strings"
 
 	_ "github.com/lib/pq" // for DB, although likely not needed
 	"github.com/ystv/web-api/utils"
@@ -81,25 +79,6 @@ func VideoFind(id int) (*VideoItem, error) {
 		return nil, err
 	}
 	return &v, nil
-}
-
-// URLToVideo takes a user's request URL and
-// maps it to a video.
-func URLToVideo(url *url.URL) (*VideoItem, error) {
-	log.Print(url.Path)
-	// Splitting URL
-	videoPath := strings.Split(url.Path, "/")
-	// If length is 1 and it's a number might be a video
-	if len(videoPath) == 1 && isInt(videoPath[0]) {
-		videoID, _ := strconv.Atoi(videoPath[0])
-		video, err := VideoFind(videoID)
-		return video, err
-	}
-	// from, err := utils.DB.Prepare(``)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return nil, nil
 }
 
 func isInt(number string) bool {

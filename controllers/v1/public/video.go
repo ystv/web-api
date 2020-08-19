@@ -40,12 +40,6 @@ func ListVideos(c echo.Context) error {
 	return c.JSON(http.StatusOK, v)
 }
 
-// URLToVideo handles converting the URL to a video
-func URLToVideo(c echo.Context) error {
-	public.URLToVideo(c.Request().URL)
-	return c.NoContent(http.StatusOK)
-}
-
 // VideoBreadcrumb handles generating the breadcrumb of a video
 func VideoBreadcrumb(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))

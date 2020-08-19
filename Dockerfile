@@ -15,7 +15,6 @@ RUN tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags
 RUN echo -n "'" >> ./ldflags
 
 RUN CGO_ENABLED=0 go build -ldflags="$(cat ./ldflags)" -o /bin/api cmd/main.go
-RUN ls /bin
 
 FROM scratch
 LABEL site="api"
