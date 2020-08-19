@@ -34,7 +34,7 @@ pipeline {
                 echo "Uploading To Registry"
                 sh "docker push localhost:5000/ystv/web-api:$BUILD_ID" // Uploaded to registry
                 echo "Performing Cleanup"
-                sh "docker image prune --filter label=site=api --filter label=stage=builder" // Removing the local builder image
+                sh "docker image prune -f --filter label=site=api --filter label=stage=builder" // Removing the local builder image
                 sh "docker image rm localhost:5000/ystv/web-api:$BUILD_ID" // Removing the local builder image
             }
         }
