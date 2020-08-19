@@ -56,7 +56,7 @@ pipeline {
                         echo err.getMessage()
                     }
                 }
-                sh "docker run -d --rm -p 1336:80 --env-file /YSTV-ENVVARS/api.env --name ystv-dev-api localhost:5000/ystv/web-api:$BUILD_ID" // Deploying site
+                sh "docker run -d --rm -p 1336:8081 --env-file /YSTV-ENVVARS/api.env --name ystv-dev-api localhost:5000/ystv/web-api:$BUILD_ID" // Deploying site
                 sh 'docker image prune -a -f --filter "label=site=api"' // remove old image
             }
         }
