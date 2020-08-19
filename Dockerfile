@@ -3,7 +3,19 @@ LABEL site="api"
 LABEL stage="builder"
 WORKDIR /src/
 COPY . /src/
-RUN CGO_ENABLED=0 go build -o /bin/api cmd/main.go
+
+RUN apk update && apk upgrade && \
+    apk add --no-cache git
+RUN echo -n "-X 'main.Version=" > ./ldflags
+RUN git describe --abbrev=0 >> ./ldflags
+RUN tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags 
+RUN echo -n "' -X 'main.Commit=" >> ./ldflags
+RUN git log --format="%H" -n 1 >> ./ldflags
+RUN tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags
+RUN echo -n "'" >> ./ldflags
+
+RUN CGO_ENABLED=0 go build -ldflags="$(cat ./ldflags)" -o /bin/api cmd/main.go
+RUN ls /bin
 
 FROM scratch
 LABEL site="api"
