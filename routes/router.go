@@ -144,8 +144,9 @@ func Init(version, commit string) *echo.Echo {
 				}
 				crew := clapper.Group("/positions")
 				{
-					crew.GET("", clapperV1.PositionList) // List crew positions
-					crew.POST("", notImplemented)        // Create a new crew position
+					crew.GET("", clapperV1.PositionList)   // List crew positions
+					crew.POST("", clapperV1.PositionNew)   // Create a new crew position
+					crew.PUT("", clapperV1.PositionUpdate) // Update a position
 				}
 			}
 		}
