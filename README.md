@@ -19,13 +19,34 @@ Generation of usable JWT's is available in web-auth currently.
     - [x] Path to series
     - [ ] Thumbnail inheritance
   - [ ] Live
-    - [ ] Streams
+    - [x] Streams (currrently static)
   - [x] Teams
 - [ ] Internal (Secured)
   - [ ] Creator Studio
-    - [x] Videos
-    - [ ] Series
+    - [ ] Videos
+      - [x] Listing
+      - [x] Getting with files
+      - [x] Uploading
+      - [ ] Updating
+      - [ ] Deleting
+    - [x] Series (very experimental)
     - [ ] Playlists
+      - [x] List meta
+      - [x] Create meta
+      - [x] Update meta
+      - [ ] Create video list
+      - [ ] Update video list
+    - [ ] Encoding
+      - [ ] Presets
+        - [x] Get
+        - [x] Create (experimental)
+        - [x] Update (experimental)
+        - [ ] Delete
+      - [ ] Formats
+        - [x] Get
+        - [ ] Create
+        - [ ] Update
+        - [ ] Delete
     - [x] Calendar
     - [x] Stats
   - [ ] People
@@ -34,9 +55,22 @@ Generation of usable JWT's is available in web-auth currently.
     - [x] Permissions
     - [ ] Create user
     - [ ] Create roles
-  - [ ] Calendar
+  - [ ] Clapper
+    - [ ] Events
+      - [x] List by month
+      - [ ] List by term
+      - [ ] Signups
+        - [x] Listing including positions
+        - [ ] Creating
+        - [ ] Updating
+    - [ ] Postitions
+      - [x] List
+      - [x] Create
+      - [x] Update
+      - [ ] Delete
   - [ ] Encoder
-  - [ ] Stream auth
+    - [x] Video upload auth hook
+  - [x] Stream auth (experimental)
   - [ ] Misc internal services
 
 ### Services
@@ -132,5 +166,3 @@ Try to keep all "business" logic with in the `/services` and try to keep the imp
 ### Database info
 
 This is currently build using the new schema available in the planning repo, it is still lacking functionality compared to the current implementation.
-
-Schema is currently stored in the planning repo.

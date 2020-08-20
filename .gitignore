@@ -1,7 +1,3 @@
 .env.local
-/sqlboiler.toml
-/docker-compose.yml
-swag
-sqlboiler
-sqlboiler-psql
-/web-api
+docker-compose.yml
+web-api
