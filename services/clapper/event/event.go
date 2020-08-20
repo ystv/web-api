@@ -3,6 +3,7 @@ package event
 import (
 	"time"
 
+	"github.com/ystv/web-api/services/clapper/position"
 	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
 )
@@ -36,16 +37,7 @@ type (
 		User     `json:"user"`
 		Locked   bool `db:"locked" json:"locked"`
 		Ordering int  `db:"ordering" json:"ordering,omitempty"`
-		Position
-	}
-	// Position is a role people can signup too
-	Position struct {
-		PositionID   int         `db:"position_id" json:"positionID"`
-		Name         string      `db:"name" json:"name"`
-		Description  null.String `db:"description" json:"description"`
-		Admin        bool        `db:"admin" json:"admin"`
-		Credible     bool        `db:"credible" json:"credible"`
-		PermissionID null.Int    `db:"permission_id" json:"permissionID"`
+		position.Position
 	}
 	// User a basic representation of a user
 	User struct {
@@ -93,7 +85,8 @@ func Get(eventID int) (*Event, error) {
 			FROM event.crew
 			INNER JOIN event.positions ON event.positions.position_id = event.crew.position_id
 			INNER JOIN people.users ON member_id = user_id
-			WHERE signup_id = $1;`, e.Signups[i].SignupID) //TODO update crew to crews and sort out consistency
+			WHERE signup_id = $1
+			ORDER BY ordering;`, e.Signups[i].SignupID) //TODO update crew to crews and sort out consistency
 		if err != nil {
 			return nil, err
 		}
