@@ -1,6 +1,7 @@
 package creator
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -37,7 +38,7 @@ func PresetNew(c echo.Context) error {
 	}
 	err = encode.PresetNew(&p)
 	if err != nil {
-		log.Printf("PlaylistNew failed: %+v", err)
+		log.Printf("PresetNew failed: %+v", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusCreated)
@@ -52,7 +53,10 @@ func PresetUpdate(c echo.Context) error {
 	}
 	err = encode.PresetUpdate(&p)
 	if err != nil {
-		log.Printf("PlaylistUpdate failed: %v", err)
+		if err == sql.ErrNoRows {
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		log.Printf("PresetUpdate failed: %v", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)
