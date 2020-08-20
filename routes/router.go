@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	echoMw "github.com/labstack/echo/v4/middleware"
+	clapperV1 "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorV1 "github.com/ystv/web-api/controllers/v1/creator"
 	encoderV1 "github.com/ystv/web-api/controllers/v1/encoder"
 	peopleV1 "github.com/ystv/web-api/controllers/v1/people"
@@ -24,6 +25,9 @@ import (
 // TODO standarise on function names
 
 // Init initialise routes
+// @title web-api
+// @description The backend powering most things
+// @contact.url https://github.com/ystv/web-api
 func Init(version, commit string) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
@@ -124,13 +128,13 @@ func Init(version, commit string) *echo.Echo {
 			{
 				calendar := clapper.Group("/calendar")
 				{
-					calendar.GET("/:year/:term", notImplemented)  // List all events of term
-					calendar.GET("/:year/:month", notImplemented) // List all events of month
+					// calendar.GET("/:year/:term", notImplemented)       // List all events of term
+					calendar.GET("/:year/:month", clapperV1.MonthList) // List all events of month
 				}
 				event := clapper.Group("/event")
 				{
-					event.GET("/:id", notImplemented) // Get event info, returns event info and signup sheets
-					event.POST("", notImplemented)    // Create a new event
+					event.GET("/:id", clapperV1.EventGet) // Get event info, returns event info and signup sheets
+					event.POST("", notImplemented)        // Create a new event
 					signup := event.Group("/signup")
 					{
 						signup.GET("/:id", notImplemented)          // Get a signup sheet, likely not to be used

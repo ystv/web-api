@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	echoMw "github.com/labstack/echo/v4/middleware"
@@ -21,5 +22,12 @@ func Init(e *echo.Echo) {
 	e.Use(echoMw.Logger())
 	e.Use(echoMw.Recover())
 	e.Use(echoMw.CORSWithConfig(config))
-	e.Use(echoMw.Gzip())
+	e.Use(echoMw.GzipWithConfig(echoMw.GzipConfig{
+		Skipper: func(c echo.Context) bool {
+			if strings.Contains(c.Path(), "swagger") {
+				return true
+			}
+			return false
+		},
+	}))
 }
