@@ -18,7 +18,9 @@ type (
 		EndDate     time.Time   `db:"end_date" json:"endDate"`
 		Description null.String `db:"description" json:"description"`
 		Location    null.String `db:"location" json:"location"`
-		Status      string      `db:"status" json:"status"`
+		IsPrivate   bool        `db:"is_private" json:"isPrivate"`
+		IsCancelled bool        `db:"is_cancelled" json:"isCancelled"`
+		IsTentative bool        `db:"is_tentative" json:"isTentative"`
 		Signups     []Signup    `json:"signups,omitempty"`
 	}
 	// Signup represents a signup sheet which contains a group of roles
@@ -36,12 +38,13 @@ type (
 		CrewID   int `db:"crew_id" json:"crewID"`
 		User     `json:"user"`
 		Locked   bool `db:"locked" json:"locked"`
+		Credited bool `db:"credited" json:"credited"`
 		Ordering int  `db:"ordering" json:"ordering,omitempty"`
 		position.Position
 	}
 	// User a basic representation of a user
 	User struct {
-		UserID    int    `db:"member_id" json:"userID"`
+		UserID    int    `db:"user_id" json:"userID"`
 		Nickname  string `db:"nickname" json:"nickname"`
 		FirstName string `db:"first_name" json:"firstName"`
 		LastName  string `db:"last_name" json:"lastName"`
@@ -52,7 +55,8 @@ type (
 func ListMonth(year, month int) (*[]Event, error) {
 	e := []Event{}
 	err := utils.DB.Select(&e,
-		`SELECT event_id, event_type, name, start_date, end_date, description, location, status
+		`SELECT event_id, event_type, name, start_date, end_date, description,
+		location, is_private, is_cancelled, is_tentative
 		FROM event.events
 		WHERE EXTRACT(YEAR FROM start_date) = $1 AND
 		EXTRACT(MONTH FROM start_date) = $2`, year, month)
@@ -66,7 +70,8 @@ func ListMonth(year, month int) (*[]Event, error) {
 func Get(eventID int) (*Event, error) {
 	e := Event{}
 	err := utils.DB.Get(&e,
-		`SELECT event_id, event_type, name, start_date, end_date, description, location, status
+		`SELECT event_id, event_type, name, start_date, end_date, description,
+		location, is_private, is_cancelled, is_tentative
 		FROM event.events
 		WHERE event_id = $1;`, eventID)
 	if err != nil {
@@ -81,10 +86,11 @@ func Get(eventID int) (*Event, error) {
 	}
 	for i := range e.Signups {
 		err := utils.DB.Select(&e.Signups[i].Crew,
-			`SELECT crew_id, member_id, nickname, first_name, last_name, locked, event.positions.position_id, name, description, admin, credible, permission_id
-			FROM event.crew
-			INNER JOIN event.positions ON event.positions.position_id = event.crew.position_id
-			INNER JOIN people.users ON member_id = user_id
+			`SELECT crew_id, crew.user_id, nickname, first_name, last_name, locked,
+			event.positions.position_id, name, description, admin, credited, permission_id
+			FROM event.crews crew
+			INNER JOIN event.positions ON event.positions.position_id = crew.position_id
+			INNER JOIN people.users ON crew.user_id  = people.users.user_id
 			WHERE signup_id = $1
 			ORDER BY ordering;`, e.Signups[i].SignupID) //TODO update crew to crews and sort out consistency
 		if err != nil {
