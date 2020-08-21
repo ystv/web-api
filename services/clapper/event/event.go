@@ -21,7 +21,8 @@ type (
 		IsPrivate   bool        `db:"is_private" json:"isPrivate"`
 		IsCancelled bool        `db:"is_cancelled" json:"isCancelled"`
 		IsTentative bool        `db:"is_tentative" json:"isTentative"`
-		Signups     []Signup    `json:"signups,omitempty"`
+		Signups     []Signup    `json:"signups,omitempty"`   // Used for shows
+		Attendees   []Attendee  `json:"attendees,omitempty"` // Used for social, meet and other. This would be a XOR with Signups
 	}
 	// Signup represents a signup sheet which contains a group of roles
 	Signup struct {
@@ -41,6 +42,11 @@ type (
 		Credited bool `db:"credited" json:"credited"`
 		Ordering int  `db:"ordering" json:"ordering,omitempty"`
 		position.Position
+	}
+	// Attendee represents a persons attendance for a meeting, social or other
+	Attendee struct {
+		User
+		AttendStatus string `db:"attend_status" json:"attendStatus"`
 	}
 	// User a basic representation of a user
 	User struct {
@@ -76,6 +82,17 @@ func Get(eventID int) (*Event, error) {
 		WHERE event_id = $1;`, eventID)
 	if err != nil {
 		return nil, err
+	}
+	if e.EventType != "show" {
+		err := utils.DB.Select(&e.Attendees,
+			`SELECT users.user_id, nickname, first_name, last_name, attend_status
+			FROM event.attendees attendees
+			INNER JOIN people.users users ON attendees.user_id = users.user_id
+			WHERE event_id = $1;`, e.EventID)
+		if err != nil {
+			return nil, err
+		}
+		return &e, nil
 	}
 	err = utils.DB.Select(&e.Signups,
 		`SELECT signup_id, title, description, unlock_date, start_time, end_time
