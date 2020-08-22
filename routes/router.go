@@ -134,7 +134,8 @@ func Init(version, commit string) *echo.Echo {
 				event := clapper.Group("/event")
 				{
 					event.GET("/:id", clapperV1.EventGet) // Get event info, returns event info and signup sheets
-					event.POST("", notImplemented)        // Create a new event
+					event.POST("", clapperV1.EventNew)    // Create a new event
+					event.PUT("", clapperV1.EventUpdate)  // Update an event
 					signup := event.Group("/signup")
 					{
 						signup.GET("/:id", notImplemented)          // Get a signup sheet, likely not to be used

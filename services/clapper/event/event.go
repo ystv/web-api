@@ -3,6 +3,7 @@ package event
 import (
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/ystv/web-api/services/clapper/position"
 	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
@@ -30,8 +31,8 @@ type (
 		Title       string         `db:"title" json:"title"`
 		Description null.String    `db:"description" json:"description"`
 		UnlockDate  null.Time      `db:"unlock_date" json:"unlockDate"`
-		StartTime   null.Time      `db:"start_time" json:"startDate"`
-		EndTime     null.Time      `db:"end_time" json:"endDate"`
+		StartTime   null.Time      `db:"start_time" json:"startTime"`
+		EndTime     null.Time      `db:"end_time" json:"endTime"`
 		Crew        []CrewPosition `json:"crew"`
 	}
 	// CrewPosition represents a role for a signup sheet
@@ -115,4 +116,53 @@ func Get(eventID int) (*Event, error) {
 		}
 	}
 	return &e, nil
+}
+
+// New creates a new event returning the event ID
+func New(e *Event, userID int) (int, error) {
+	eventID := 0
+	err := utils.DB.QueryRow(`INSERT INTO event.events 
+	(event_type, name, start_date, end_date, description, location,
+	is_private, is_tentative, created_at, created_by)
+	VALUES ($1, $2, $3, $4, $5, $6 $7, $8, $9, $10)
+	RETURNING event_id;`,
+		&e.EventType, &e.Name, &e.StartDate, &e.EndDate, &e.Description,
+		&e.Location, &e.IsPrivate, &e.IsTentative, time.Now(), userID).Scan(&eventID)
+	if err != nil {
+		return 0, err
+	}
+	return eventID, nil
+}
+
+// Update an existing event
+func Update(e *Event, userID int) error {
+	eventType := ""
+	return utils.Transact(utils.DB, func(tx *sqlx.Tx) error {
+		err := tx.QueryRow(`UPDATE event.events
+		SET event_type = $1, name = $2, start_date = $3, end_date = $4,
+		description = $5, location = $6, is_private = $7,
+		is_tentative = $8, updated_at = $9, updated_by = $10
+		WHERE event_id = $11
+		RETURNING
+		(SELECT event_id
+		FROM event.events
+		WHERE event_id = $11);`, userID).Scan(&eventType)
+		if err != nil {
+			return err
+		}
+		// Check if the event type is changed
+		if eventType == e.EventType {
+			return nil
+		}
+		// We've had a change
+		switch e.EventType {
+		case "show":
+			// other -> show
+			tx.Exec(`DELETE FROM event.signups WHERE event_id = $1;`, e.EventID)
+		default:
+			// show -> other
+			tx.Exec(`DELETE FROM event.attendees WHERE event_id = $1;`, e.EventID)
+		}
+		return nil
+	})
 }
