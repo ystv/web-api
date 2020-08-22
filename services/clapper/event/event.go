@@ -30,8 +30,8 @@ type (
 		Title       string         `db:"title" json:"title"`
 		Description null.String    `db:"description" json:"description"`
 		UnlockDate  null.Time      `db:"unlock_date" json:"unlockDate"`
-		StartTime   null.Int       `db:"start_time" json:"startDate"`
-		EndTime     null.Int       `db:"end_time" json:"endDate"`
+		StartTime   null.Time      `db:"start_time" json:"startDate"`
+		EndTime     null.Time      `db:"end_time" json:"endDate"`
 		Crew        []CrewPosition `json:"crew"`
 	}
 	// CrewPosition represents a role for a signup sheet
