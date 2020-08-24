@@ -1,7 +1,0 @@
-[psql]
-dbname = ""
-user = ""
-pass = ""
-host = ""
-sslmode = ""
-whitelist = []

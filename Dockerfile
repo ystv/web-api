@@ -1,11 +1,18 @@
 FROM golang:1.15-alpine AS build
 LABEL site="api"
 LABEL stage="builder"
-WORKDIR /src/
-COPY . /src/
 
-# Dependencies
-RUN go get -u ./...
+WORKDIR /src/
+
+# Stores our dependencies
+COPY go.mod .
+COPY go.sum .
+
+# Download dependencies
+RUN go mod download
+
+# Copy source
+COPY . .
 
 # Set build variables
 RUN apk update && apk upgrade && \
@@ -16,7 +23,7 @@ RUN apk update && apk upgrade && \
     tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
     echo -n "'" >> ./ldflags
 
-RUN CGO_ENABLED=0 go build -ldflags="$(cat ./ldflags)" -o /bin/api cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -o /bin/api cmd/main.go
 
 FROM scratch
 LABEL site="api"
