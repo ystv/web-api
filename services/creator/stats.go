@@ -6,7 +6,8 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-type SQLStats struct {
+// VideoStats represents global video statistics
+type VideoStats struct {
 	TotalVideos        int `db:"videos" json:"totalVideos"`
 	TotalPendingVideos int `db:"pending" json:"totalPendingVideos"`
 	TotalVideoHits     int `db:"hits" json:"totalVideoHits"`
@@ -14,8 +15,8 @@ type SQLStats struct {
 }
 
 // Stats returns general information about video library
-func Stats(ctx context.Context) (*SQLStats, error) {
-	s := &SQLStats{}
+func Stats(ctx context.Context) (*VideoStats, error) {
+	s := &VideoStats{}
 	err := utils.DB.GetContext(ctx, &s.TotalVideos,
 		`SELECT COUNT(*)
 		FROM video.items;`)
