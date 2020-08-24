@@ -1,0 +1,76 @@
+package video
+
+import (
+	"time"
+
+	"github.com/lib/pq"
+	"gopkg.in/guregu/null.v4"
+)
+
+type (
+	// Item represents a more readable VideoItem with
+	// an array of associated VideoFiles.
+	Item struct {
+		Meta
+		Files []File `db:"files" json:"files"`
+	}
+	// File represents a more readable VideoFile.
+	File struct {
+		URI          string   `db:"uri" json:"uri"`
+		EncodeFormat string   `db:"name" json:"encodeFormat"`
+		Status       string   `db:"status" json:"status"`
+		Size         null.Int `db:"size" json:"size"`
+		MimeType     string   `db:"mime_type" json:"mimeType"`
+	}
+	// TODO make null's pointers, so we can omitempty them during JSON marshal
+
+	// Meta represents just the metadata of a video, used for listing.
+	Meta struct {
+		ID             int            `db:"video_id" json:"id"`
+		SeriesID       int            `db:"series_id" json:"seriesID"`
+		Name           string         `db:"video_name" json:"name"`
+		URL            string         `db:"url" json:"url"`
+		Description    null.String    `db:"description" json:"description,omitempty"`
+		Thumbnail      null.String    `db:"thumbnail" json:"thumbnail"`
+		Duration       null.Int       `db:"duration" json:"duration"`
+		Views          int            `db:"views" json:"views"`
+		Tags           pq.StringArray `db:"tags" json:"tags"`
+		SeriesPosition null.Int       `db:"series_position" json:"seriesPosition,omitempty"`
+		Status         string         `db:"status" json:"status"`
+		Preset
+		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
+		CreatedAt     string `db:"created_at" json:"createdAt"`
+		User          `json:"createdBy"`
+	}
+	// MetaCal represents simple metadata for a calendar
+	MetaCal struct {
+		ID            int    `db:"video_id" json:"id"`
+		Name          string `db:"name" json:"name"`
+		Status        string `db:"status" json:"status"`
+		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
+	}
+	// User represents the nickname and ID of a user
+	User struct {
+		UserID   int    `db:"user_id" json:"userID"`
+		Nickname string `db:"nickname" json:"userNickname"`
+	}
+	// Preset represents the name and ID of a preset
+	Preset struct {
+		PresetID   int    `db:"preset_id" json:"presetID"`
+		PresetName string `db:"preset_name" json:"name"`
+	}
+	// NewVideo is the basic information to create a video
+	NewVideo struct {
+		FileID        string      `json:"fileID"`
+		SeriesID      int         `json:"seriesID" db:"series_id"`
+		Name          string      `json:"name" db:"name"`
+		URLName       string      `json:"urlName" db:"url"`
+		Description   null.String `json:"description" db:"description"`
+		Tags          []string    `json:"tags" db:"tags"`
+		Preset        int         `json:"preset" db:"preset"`
+		PublishType   string      `json:"publishType" db:"status"`
+		CreatedAt     time.Time   `json:"createdAt" db:"created_by"`
+		CreatedBy     int         `json:"createdBy" db:"created_by"`
+		BroadcastDate time.Time   `json:"broadcastDate" db:"broadcast_date"`
+	}
+)

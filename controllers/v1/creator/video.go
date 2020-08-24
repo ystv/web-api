@@ -5,10 +5,15 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/creator/video"
 )
+
+type ContextInjector struct {
+	db *sqlx.DB
+}
 
 // VideoFind finds a video by ID
 func VideoFind(c echo.Context) error {
@@ -16,7 +21,7 @@ func VideoFind(c echo.Context) error {
 	if err != nil {
 		c.String(http.StatusBadRequest, "Number pls")
 	}
-	v, err := video.FindItem(c.Request().Context(), id)
+	v, err := video.GetItem(c.Request().Context(), id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -81,9 +86,4 @@ func CalendarList(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, v)
-}
-
-// VideoMetaCreate Handes uploading meta data for a creation
-func VideoMetaCreate(c echo.Context) error {
-	return c.String(http.StatusOK, "Meta created")
 }

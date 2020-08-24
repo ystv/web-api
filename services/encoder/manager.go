@@ -1,12 +1,14 @@
 package encoder
 
 import (
+	"context"
 	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/ystv/web-api/services/creator"
+	"github.com/ystv/web-api/services/creator/encode"
 	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 )
@@ -63,8 +65,20 @@ func ListEncodesFromPreset(p creator.Preset) ([]creator.Encode, error) {
 
 // RefreshVideoItem will run CreateEncode() on a VideoItem for any
 // encodes missing in the preset.
-func RefreshVideoItem(v video.Item) error {
+func RefreshVideoItem(v *video.Item) error {
+	_, err := encode.PresetGet(v.PresetID)
+	if err != nil {
+		return err
+	}
 	return nil
+}
+
+func RefreshVideoItemByID(videoID int) error {
+	v, err := video.FindItem(context.Background(), videoID)
+	if err != nil {
+		return err
+	}
+	return RefreshVideoItem(v)
 }
 
 // Refresh will check all existing videoitems to ensure that they

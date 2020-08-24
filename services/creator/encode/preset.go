@@ -17,6 +17,25 @@ type Preset struct {
 	Formats     []Format    `json:"formats"`
 }
 
+// PresetGet returns a preset by ID
+func PresetGet(presetID int) (*Preset, error) {
+	p := Preset{}
+	err := utils.DB.Get(&p, `SELECT id, name, description
+						FROM video.presets;`)
+	if err != nil {
+		return nil, err
+	}
+	err = utils.DB.Select(&p.Formats,
+		`SELECT format.id, name, description, mime_type, mode, width, height, watermarked
+		FROM video.encode_formats format
+		INNER JOIN video.presets_encode_formats preset ON preset.encode_format_id = format.id
+		WHERE preset.preset_id = $1;`, p.PresetID)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
 // PresetList returns all presets
 func PresetList() ([]Preset, error) {
 	p := []Preset{}
