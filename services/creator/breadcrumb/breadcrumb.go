@@ -96,10 +96,10 @@ func (c *Controller) Find(ctx context.Context, path string) (*breadcrumb.Item, e
 				if v.URL == split[len(split)-1] {
 					// Found video
 					foundVideo, err := c.video.GetItem(ctx, v.ID)
-					log.Print(foundVideo)
-					log.Print(err)
+					if err != nil {
+						return nil, err
+					}
 					return &breadcrumb.Item{Video: foundVideo}, nil
-
 				}
 			}
 		} else {

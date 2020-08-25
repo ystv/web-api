@@ -102,7 +102,8 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 				}
 				series := creator.Group("/series")
 				{
-					series.GET("", creatorV1.SeriesListAll)
+					series.GET("", creatorV1.ListSeries)
+					series.GET("/:id", creatorV1.GetSeries)
 				}
 				playlists := creator.Group("/playlists")
 				{
@@ -160,7 +161,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 		}
 		public := apiV1.Group("/public")
 		{
-			// public.GET("/find/*", publicV1.Find)
+			public.GET("/find/*", publicV1.Find)
 			public.GET("/videos/:offset/:page", publicV1.ListVideos)
 			public.GET("/video/:id", publicV1.Video)
 			public.GET("/video/:id/breadcrumb", publicV1.VideoBreadcrumb)

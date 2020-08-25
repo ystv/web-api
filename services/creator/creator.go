@@ -21,10 +21,10 @@ type (
 	}
 	// SeriesRepo defines all creator series interactions
 	SeriesRepo interface {
-		View(ctx context.Context, seriesID int) (*series.Series, error)
-		Info(ctx context.Context, seriesID int) (*series.Meta, error)
+		Get(ctx context.Context, seriesID int) (*series.Series, error)
+		GetMeta(ctx context.Context, seriesID int) (*series.Meta, error)
 		ImmediateChildrenSeries(ctx context.Context, seriesID int) (*[]series.Meta, error)
-		All(ctx context.Context) (*[]series.Meta, error)
+		List(ctx context.Context) (*[]series.Meta, error)
 		FromPath(ctx context.Context, path string) (*series.Series, error)
 	}
 	// BreadcrumbRepo defines all creator breadcrumb interactions

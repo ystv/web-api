@@ -135,12 +135,3 @@ func VideoBreadcrumb(VideoID int) ([]Breadcrumb, error) {
 
 	return sB, err
 }
-
-// Breadcrumb generic to be used for both series and video as a breadcrumb
-type Breadcrumb struct {
-	ID       int    `db:"id" json:"id"`
-	URL      string `db:"url" json:"url"`
-	UseInURL bool   `db:"use" json:"useInURL"`
-	Name     string `db:"name" json:"name"`
-	SeriesID int    `db:"series_id" json:"-"` // Here since needed
-}

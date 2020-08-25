@@ -169,21 +169,17 @@ func SeriesAllBelow(SeriesID int) ([]SeriesMeta, error) {
 	return s, err
 }
 
-// SeriesBreadcrumb will return the breadcrumb from SeriesID to root
-func SeriesBreadcrumb(SeriesID int) ([]Breadcrumb, error) {
-	s := []Breadcrumb{}
-	// TODO Need a bool to indicate if series is in URL
-	err := utils.DB.Select(&s,
-		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
-		FROM
-			video.series node,
-			video.series parent
-		WHERE
-			node.lft BETWEEN parent.lft AND parent.rgt
-			AND node.series_id = $1
-		ORDER BY parent.lft;`, SeriesID)
+// SeriesFromPath returns a series from a url path
+func SeriesFromPath(path string) (Series, error) {
+	s := Series{}
+	err := utils.DB.Get(&s.SeriesID,
+		`SELECT series_id
+	FROM video.series_paths
+	WHERE path = $1
+	AND status = 'public'`, path)
 	if err != nil {
-		log.Printf("BreadcrumbSeries failed: %+v", err)
+		return s, err
 	}
+	s, err = SeriesAndChildren(s.SeriesID)
 	return s, err
 }

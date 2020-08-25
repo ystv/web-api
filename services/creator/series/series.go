@@ -27,9 +27,9 @@ func NewController(db *sqlx.DB, cdn *s3.S3) *Controller {
 	return &Controller{db: db, video: video.NewStore(db, cdn)}
 }
 
-// View provides the immediate children of series and videos
-func (c *Controller) View(ctx context.Context, seriesID int) (*series.Series, error) {
-	s, err := c.infoInsideSeries(ctx, seriesID)
+// Get provides the immediate children of series and videos
+func (c *Controller) Get(ctx context.Context, seriesID int) (*series.Series, error) {
+	s, err := c.getMetaByPointer(ctx, seriesID)
 	s.ImmediateChildSeries, err = c.ImmediateChildrenSeries(ctx, seriesID)
 	s.ChildVideos, err = c.video.OfSeries(ctx, seriesID)
 	if err != nil {
@@ -38,13 +38,13 @@ func (c *Controller) View(ctx context.Context, seriesID int) (*series.Series, er
 	return s, err
 }
 
-func (c *Controller) infoInsideSeries(ctx context.Context, seriesID int) (*series.Series, error) {
-	m, err := c.Info(ctx, seriesID)
+func (c *Controller) getMetaByPointer(ctx context.Context, seriesID int) (*series.Series, error) {
+	m, err := c.GetMeta(ctx, seriesID)
 	return &series.Series{Meta: m}, err
 }
 
-// Info provides basic information for only the selected series
-func (c *Controller) Info(ctx context.Context, seriesID int) (*series.Meta, error) {
+// GetMeta provides basic information for only the selected series
+func (c *Controller) GetMeta(ctx context.Context, seriesID int) (*series.Meta, error) {
 	s := series.Meta{}
 	err := utils.DB.Get(&s,
 		`SELECT series_id, url, name, description, thumbnail
@@ -93,8 +93,8 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) 
 	return &s, err
 }
 
-// All returns all series in the DB including their depth
-func (c *Controller) All(ctx context.Context) (*[]series.Meta, error) {
+// List returns all series in the DB including their depth
+func (c *Controller) List(ctx context.Context) (*[]series.Meta, error) {
 	s := []series.Meta{}
 	err := utils.DB.Select(&s,
 		`SELECT
@@ -158,6 +158,6 @@ func (c *Controller) FromPath(ctx context.Context, path string) (*series.Series,
 		}
 		return s, err
 	}
-	s, err = c.View(ctx, s.SeriesID)
+	s, err = c.Get(ctx, s.SeriesID)
 	return s, err
 }
