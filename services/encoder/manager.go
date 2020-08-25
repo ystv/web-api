@@ -1,15 +1,13 @@
 package encoder
 
 import (
-	"context"
 	"log"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/encode"
-	"github.com/ystv/web-api/services/creator/video"
+	"github.com/ystv/web-api/services/creator/types/video"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -54,12 +52,12 @@ func Manager() {
 }
 
 // CreateEncode creates an encode item in the message queue.
-func CreateEncode(v video.File, e creator.Encode) error {
+func CreateEncode(v video.File, e encode.Format) error {
 	return nil
 }
 
 // ListEncodesFromPreset returns all encodes available in a preset
-func ListEncodesFromPreset(p creator.Preset) ([]creator.Encode, error) {
+func ListEncodesFromPreset(p encode.Preset) ([]encode.Format, error) {
 	return nil, nil
 }
 
@@ -71,14 +69,6 @@ func RefreshVideoItem(v *video.Item) error {
 		return err
 	}
 	return nil
-}
-
-func RefreshVideoItemByID(videoID int) error {
-	v, err := video.FindItem(context.Background(), videoID)
-	if err != nil {
-		return err
-	}
-	return RefreshVideoItem(v)
 }
 
 // Refresh will check all existing videoitems to ensure that they

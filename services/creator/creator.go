@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
+	"github.com/ystv/web-api/services/creator/types/playlist"
 	"github.com/ystv/web-api/services/creator/types/series"
 	"github.com/ystv/web-api/services/creator/types/video"
 )
@@ -31,5 +32,14 @@ type (
 		Series(ctx context.Context, seriesID int) (*[]breadcrumb.Breadcrumb, error)
 		Video(ctx context.Context, videoID int) (*[]breadcrumb.Breadcrumb, error)
 		Find(ctx context.Context, path string) (*breadcrumb.Item, error)
+	}
+	// PlaylistRepo defines all playlist interactions
+	PlaylistRepo interface {
+		All(ctx context.Context) ([]playlist.Playlist, error)
+		Get(ctx context.Context, playlistID int) (playlist.Playlist, error)
+		New(ctx context.Context, p playlist.Playlist) (int, error)
+		AddVideo(ctx context.Context, playlistID, videoID int) error
+		DeleteVideo(ctx context.Context, playlistID, videoID int) error
+		AddVideos(ctx context.Context, p playlist.Playlist) error
 	}
 )

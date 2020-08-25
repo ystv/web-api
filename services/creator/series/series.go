@@ -13,15 +13,18 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
+// Here for validation to ensure we are meeting the interface
 var _ creator.SeriesRepo = &Controller{}
 
+// Controller contains our dependencies
 type Controller struct {
 	db    *sqlx.DB
 	video creator.VideoRepo
 }
 
+// NewController creates a new controller
 func NewController(db *sqlx.DB, cdn *s3.S3) *Controller {
-	return &Controller{db: db, video: video.NewController(db, cdn)}
+	return &Controller{db: db, video: video.NewStore(db, cdn)}
 }
 
 // View provides the immediate children of series and videos

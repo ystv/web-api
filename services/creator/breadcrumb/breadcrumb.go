@@ -14,16 +14,19 @@ import (
 	"github.com/ystv/web-api/services/creator/video"
 )
 
+// Here for validation to ensure we are meeting the interface
 var _ creator.BreadcrumbRepo = &Controller{}
 
+// Controller contains our dependency
 type Controller struct {
 	db     *sqlx.DB
 	video  creator.VideoRepo
 	series creator.SeriesRepo
 }
 
+// NewController creates a new controller
 func NewController(db *sqlx.DB, cdn *s3.S3) *Controller {
-	return &Controller{db: db, video: video.NewController(db, cdn)}
+	return &Controller{db: db, video: video.NewStore(db, cdn)}
 }
 
 // Series will return the breadcrumb from SeriesID to root

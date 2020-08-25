@@ -17,21 +17,21 @@ import (
 
 // TODO update schema so duration is not null
 
-var _ creator.VideoRepo = &Controller{}
+var _ creator.VideoRepo = &Store{}
 
-type Controller struct {
+type Store struct {
 	db  *sqlx.DB
 	cdn *s3.S3
 }
 
-func NewController(db *sqlx.DB, cdn *s3.S3) *Controller {
-	return &Controller{db: db, cdn: cdn}
+func NewStore(db *sqlx.DB, cdn *s3.S3) *Store {
+	return &Store{db: db, cdn: cdn}
 }
 
 // GetItem returns a VideoItem by it's ID.
-func (c *Controller) GetItem(ctx context.Context, id int) (*video.Item, error) {
+func (s *Store) GetItem(ctx context.Context, id int) (*video.Item, error) {
 	v := video.Item{}
-	err := c.db.GetContext(ctx, &v,
+	err := s.db.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
 		item.description, item.thumbnail, EXTRACT(EPOCH FROM item.duration)::int AS duration,
 		item.views, item.tags, item.series_position, item.status,
@@ -46,7 +46,7 @@ func (c *Controller) GetItem(ctx context.Context, id int) (*video.Item, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = c.db.SelectContext(ctx, &v.Files,
+	err = s.db.SelectContext(ctx, &v.Files,
 		`SELECT uri, name, status, size, mime_type
 		FROM video.files
 		INNER JOIN video.encode_formats ON id = encode_format
@@ -58,9 +58,9 @@ func (c *Controller) GetItem(ctx context.Context, id int) (*video.Item, error) {
 }
 
 // ListMeta returns a list of VideoMeta's
-func (c *Controller) ListMeta(ctx context.Context) (*[]video.Meta, error) {
+func (s *Store) ListMeta(ctx context.Context) (*[]video.Meta, error) {
 	v := []video.Meta{}
-	err := c.db.SelectContext(ctx, &v,
+	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
 		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
 		status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
@@ -71,9 +71,9 @@ func (c *Controller) ListMeta(ctx context.Context) (*[]video.Meta, error) {
 }
 
 // ListMetaByUser returns a list of VideoMeta's for a given user
-func (c *Controller) ListMetaByUser(ctx context.Context, userID int) (*[]video.Meta, error) {
+func (s *Store) ListMetaByUser(ctx context.Context, userID int) (*[]video.Meta, error) {
 	v := []video.Meta{}
-	err := c.db.SelectContext(ctx, &v,
+	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
 		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
 		status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
@@ -85,9 +85,9 @@ func (c *Controller) ListMetaByUser(ctx context.Context, userID int) (*[]video.M
 }
 
 // ListByCalendarMonth returns a list of VideoMeta's for a given month/year
-func (c *Controller) ListByCalendarMonth(ctx context.Context, year, month int) (*[]video.MetaCal, error) {
+func (s *Store) ListByCalendarMonth(ctx context.Context, year, month int) (*[]video.MetaCal, error) {
 	v := []video.MetaCal{}
-	err := c.db.SelectContext(ctx, &v,
+	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, name, status,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date
 		FROM video.items
@@ -97,10 +97,10 @@ func (c *Controller) ListByCalendarMonth(ctx context.Context, year, month int) (
 }
 
 // OfSeries returns all the videos belonging to a series
-func (c *Controller) OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, error) {
+func (s *Store) OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, error) {
 	v := []video.Meta{}
 	//TODO Update this select to fill all fields
-	err := c.db.Select(&v,
+	err := s.db.Select(&v,
 		`SELECT video_id, series_id, name video_name, url,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		views, EXTRACT(EPOCH FROM duration)::int AS duration
@@ -113,9 +113,9 @@ func (c *Controller) OfSeries(ctx context.Context, seriesID int) (*[]video.Meta,
 }
 
 // NewItem creates a new video item
-func (c *Controller) NewItem(ctx context.Context, v *video.NewVideo) error {
+func (s *Store) NewItem(ctx context.Context, v *video.NewVideo) error {
 	// Checking if video file exists
-	obj, err := c.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
+	obj, err := s.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String("pending"),
 		Key:    aws.String(v.FileID[:32]),
 	})
@@ -134,7 +134,7 @@ func (c *Controller) NewItem(ctx context.Context, v *video.NewVideo) error {
 	RETURNING video_id;`
 	var videoID int
 
-	err = c.db.QueryRowContext(ctx,
+	err = s.db.QueryRowContext(ctx,
 		itemQuery, &v.SeriesID, &v.Name, &v.URLName, &v.Description, pq.Array(v.Tags), &v.PublishType, &v.CreatedAt, &v.CreatedBy, &v.BroadcastDate).Scan(&videoID)
 	if err != nil {
 		log.Printf("NewItem failed to insert: %v", err)
@@ -144,7 +144,7 @@ func (c *Controller) NewItem(ctx context.Context, v *video.NewVideo) error {
 	key := fmt.Sprintf("%d_%d_%s_%s.%s", v.BroadcastDate.Year(), videoID, v.URLName, getSeason(v.BroadcastDate), extension[1])
 
 	// Copy from pending bucket to main video bucket
-	_, err = c.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
+	_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
 		Bucket:     aws.String("videos"),
 		CopySource: aws.String("pending/" + v.FileID[:32]),
 		Key:        aws.String(key),
@@ -154,7 +154,7 @@ func (c *Controller) NewItem(ctx context.Context, v *video.NewVideo) error {
 	fileQuery := `INSERT INTO video.files (video_id, uri, status, encode_format, size)
 				VALUES ($1, $2, $3, $4, $5);`
 
-	_, err = c.db.ExecContext(ctx, fileQuery, videoID, "videos/"+key, "internal", 1, *obj.ContentLength) // TODO make a original encode format
+	_, err = s.db.ExecContext(ctx, fileQuery, videoID, "videos/"+key, "internal", 1, *obj.ContentLength) // TODO make a original encode format
 	if err != nil {
 		log.Printf("NewItem failed to insert video file: %v", err)
 		return err

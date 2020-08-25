@@ -1,53 +1,47 @@
 package playlist
 
 import (
-	"database/sql"
-	"time"
+	"context"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"github.com/ystv/web-api/services/creator/video"
-	"github.com/ystv/web-api/utils"
-	"gopkg.in/guregu/null.v4"
+	"github.com/ystv/web-api/services/creator"
+	"github.com/ystv/web-api/services/creator/types/playlist"
 )
 
-type (
-	// Playlist represents a playlist object including the metas of the videos
-	Playlist struct {
-		Meta
-		Videos []video.Meta `json:"videos,omitempty"`
-	}
-	// Meta represents the metadata of a playlist
-	Meta struct {
-		ID          int         `db:"playlist_id" json:"id"`
-		Name        string      `db:"name" json:"name"`
-		Description null.String `db:"description" json:"description"`
-		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
-		Status      string      `db:"status" json:"status"`
-		CreatedAt   time.Time   `db:"created_at" json:"createdAt"`
-		CreatedBy   int         `db:"created_by" json:"createdBy"`
-	}
-)
+// Here for validation to ensure we are meeting the interface
+var _ creator.PlaylistRepo = &Store{}
+
+// Store contains our dependency
+type Store struct {
+	db *sqlx.DB
+}
+
+// NewStore creates a new store
+func NewStore(db *sqlx.DB) *Store {
+	return &Store{db: db}
+}
 
 // All lists all playlists metadata
-func All() ([]Playlist, error) {
-	p := []Playlist{}
-	err := utils.DB.Select(&p,
+func (s *Store) All(ctx context.Context) ([]playlist.Playlist, error) {
+	p := []playlist.Playlist{}
+	err := s.db.SelectContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists;`)
 	return p, err
 }
 
 // Get returns a playlist and it's video's
-func Get(playlistID int) (Playlist, error) {
-	p := Playlist{}
-	err := utils.DB.Get(&p,
+func (s *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, error) {
+	p := playlist.Playlist{}
+	err := s.db.GetContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists
 		WHERE playlist_id = $1;`, playlistID)
 	if err != nil {
 		return p, err
 	}
-	err = utils.DB.Select(&p.Videos,
+	err = s.db.SelectContext(ctx, &p.Videos,
 		`SELECT video_id, series_id, name video_name, url, EXTRACT(EPOCH FROM duration)::int AS duration, views, tags, broadcast_date, created_at
 		FROM video.items
 		INNER JOIN video.playlist_items ON video_id = video_item_id
@@ -56,54 +50,55 @@ func Get(playlistID int) (Playlist, error) {
 }
 
 // New makes a playlist item
-func New(p Playlist) (sql.Result, error) {
-	res, err := utils.DB.Exec(
+func (s *Store) New(ctx context.Context, p playlist.Playlist) (int, error) {
+	_, err := s.db.ExecContext(ctx,
 		`INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
 		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, p.CreatedAt, p.CreatedBy)
 	if err != nil {
-		return res, err
+		return 0, err // Null video ID?
 	}
 	if len(p.Videos) != 0 {
-		res, err = AddVideos(p)
+		err = s.AddVideos(ctx, p)
 	}
-	return res, err
+	return 0, err // TODO return playlist ID
 }
 
 // AddVideo adds a single video to a playlist
-func AddVideo(p Meta, v *video.Meta) (sql.Result, error) {
-	return utils.DB.Exec(`INSERT INTO video.playlist_items (playlist_id, video_item_id) VALUES ($1, $2);`, p.ID, v.ID)
+func (s *Store) AddVideo(ctx context.Context, playlistID, videoID int) error {
+	_, err := s.db.ExecContext(ctx, `INSERT INTO video.playlist_items (playlist_id, video_item_id) VALUES ($1, $2);`, playlistID, videoID)
+	return err
 }
 
 // DeleteVideo deletes a single video from a playlist
-func DeleteVideo(p Meta, v video.Meta) (sql.Result, error) {
-	return utils.DB.Exec(`DELETE FROM video.playlist_items WHERE playlist_id = $1 AND video_item_id = $2;`, p.ID, v.ID)
+func (s *Store) DeleteVideo(ctx context.Context, playlistID, videoID int) error {
+	_, err := s.db.ExecContext(ctx, `DELETE FROM video.playlist_items WHERE playlist_id = $1 AND video_item_id = $2;`, playlistID, videoID)
+	return err
 }
 
 // AddVideos adds multiple videos to a playlist
-func AddVideos(p Playlist) (sql.Result, error) {
-	var res sql.Result
-	txn, err := utils.DB.Begin()
+func (s *Store) AddVideos(ctx context.Context, p playlist.Playlist) error {
+	txn, err := s.db.Begin()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	stmt, err := txn.Prepare(pq.CopyIn("video.playlist_items", "playlist_id", "video_item_id"))
+	stmt, err := txn.PrepareContext(ctx, pq.CopyIn("video.playlist_items", "playlist_id", "video_item_id"))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	for _, video := range p.Videos {
-		res, err = stmt.Exec(p.ID, video.ID)
+		_, err = stmt.ExecContext(ctx, p.ID, video.ID)
 		if err != nil {
-			return res, err
+			return err
 		}
 	}
-	res, err = stmt.Exec()
+	_, err = stmt.ExecContext(ctx)
 	err = stmt.Close()
 	if err != nil {
-		return res, err
+		return err
 	}
 	err = txn.Commit()
 	if err != nil {
-		return res, err
+		return err
 	}
-	return res, err
+	return nil
 }
