@@ -64,7 +64,7 @@ func ListEncodesFromPreset(p encode.Preset) ([]encode.Format, error) {
 // RefreshVideoItem will run CreateEncode() on a VideoItem for any
 // encodes missing in the preset.
 func RefreshVideoItem(v *video.Item) error {
-	_, err := encode.PresetGet(v.PresetID)
+	_, err := encode.PresetGet(0)
 	if err != nil {
 		return err
 	}

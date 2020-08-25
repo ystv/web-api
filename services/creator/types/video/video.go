@@ -26,18 +26,17 @@ type (
 
 	// Meta represents just the metadata of a video, used for listing.
 	Meta struct {
-		ID             int            `db:"video_id" json:"id"`
-		SeriesID       int            `db:"series_id" json:"seriesID"`
-		Name           string         `db:"video_name" json:"name"`
-		URL            string         `db:"url" json:"url"`
-		Description    null.String    `db:"description" json:"description,omitempty"`
-		Thumbnail      null.String    `db:"thumbnail" json:"thumbnail"`
-		Duration       null.Int       `db:"duration" json:"duration"`
-		Views          int            `db:"views" json:"views"`
-		Tags           pq.StringArray `db:"tags" json:"tags"`
-		SeriesPosition null.Int       `db:"series_position" json:"seriesPosition,omitempty"`
-		Status         string         `db:"status" json:"status"`
-		Preset
+		ID            int            `db:"video_id" json:"id"`
+		SeriesID      int            `db:"series_id" json:"seriesID"`
+		Name          string         `db:"video_name" json:"name"`
+		URL           string         `db:"url" json:"url"`
+		Description   string         `db:"description" json:"description,omitempty"`
+		Thumbnail     null.String    `db:"thumbnail" json:"thumbnail"`
+		Duration      null.Int       `db:"duration" json:"duration"`
+		Views         int            `db:"views" json:"views"`
+		Tags          pq.StringArray `db:"tags" json:"tags"`
+		Status        string         `db:"status" json:"status"`
+		Preset        `json:"preset"`
 		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt     string `db:"created_at" json:"createdAt"`
 		User          `json:"createdBy"`
@@ -56,21 +55,21 @@ type (
 	}
 	// Preset represents the name and ID of a preset
 	Preset struct {
-		PresetID   int    `db:"preset_id" json:"presetID"`
-		PresetName string `db:"preset_name" json:"name"`
+		PresetID   null.Int    `db:"preset_id" json:"presetID"`
+		PresetName null.String `db:"preset_name" json:"name"`
 	}
 	// NewVideo is the basic information to create a video
 	NewVideo struct {
-		FileID        string      `json:"fileID"`
-		SeriesID      int         `json:"seriesID" db:"series_id"`
-		Name          string      `json:"name" db:"name"`
-		URLName       string      `json:"urlName" db:"url"`
-		Description   null.String `json:"description" db:"description"`
-		Tags          []string    `json:"tags" db:"tags"`
-		Preset        int         `json:"preset" db:"preset"`
-		PublishType   string      `json:"publishType" db:"status"`
-		CreatedAt     time.Time   `json:"createdAt" db:"created_by"`
-		CreatedBy     int         `json:"createdBy" db:"created_by"`
-		BroadcastDate time.Time   `json:"broadcastDate" db:"broadcast_date"`
+		FileID        string    `json:"fileID"`
+		SeriesID      int       `json:"seriesID" db:"series_id"`
+		Name          string    `json:"name" db:"name"`
+		URLName       string    `json:"urlName" db:"url"`
+		Description   string    `json:"description" db:"description"`
+		Tags          []string  `json:"tags" db:"tags"`
+		Preset        int       `json:"preset" db:"preset"`
+		PublishType   string    `json:"publishType" db:"status"`
+		CreatedAt     time.Time `json:"createdAt" db:"created_by"`
+		CreatedBy     int       `json:"createdBy" db:"created_by"`
+		BroadcastDate time.Time `json:"broadcastDate" db:"broadcast_date"`
 	}
 )

@@ -7,10 +7,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	echoMw "github.com/labstack/echo/v4/middleware"
 	clapperV1 "github.com/ystv/web-api/controllers/v1/clapper"
-	creatorV1 "github.com/ystv/web-api/controllers/v1/creator"
+	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
 	encoderV1 "github.com/ystv/web-api/controllers/v1/encoder"
 	peopleV1 "github.com/ystv/web-api/controllers/v1/people"
 	publicV1 "github.com/ystv/web-api/controllers/v1/public"
@@ -28,15 +30,19 @@ import (
 // @title web-api
 // @description The backend powering most things
 // @contact.url https://github.com/ystv/web-api
-func Init(version, commit string) *echo.Echo {
+func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	debug, err := strconv.ParseBool(os.Getenv("debug"))
 	if err != nil {
 		panic(err)
 	}
+	// Enabling debugging
 	e.Debug = debug
 
+	creatorV1 := creatorPackage.NewRepos(db, cdn)
+
+	// Authentication middleware
 	middleware.Init(e)
 	config := echoMw.JWTConfig{
 		Claims:      &utils.JWTClaims{},
@@ -47,6 +53,7 @@ func Init(version, commit string) *echo.Echo {
 	// swagger
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	// List all possible routes
 	e.GET("/routes", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, e.Routes())
 	})
@@ -112,17 +119,17 @@ func Init(version, commit string) *echo.Echo {
 				{
 					presets := encodes.Group("/presets")
 					{
-						presets.GET("", creatorV1.PresetList)
-						presets.POST("", creatorV1.PresetNew)
-						presets.PUT("", creatorV1.PresetUpdate) // We take the ID in the json request
+						presets.GET("", creatorPackage.PresetList)
+						presets.POST("", creatorPackage.PresetNew)
+						presets.PUT("", creatorPackage.PresetUpdate) // We take the ID in the json request
 					}
 					profiles := encodes.Group("/profiles")
 					{
-						profiles.GET("", creatorV1.EncodeProfileList)
+						profiles.GET("", creatorPackage.EncodeProfileList)
 					}
 				}
 				creator.GET("/calendar/:year/:month", creatorV1.CalendarList)
-				creator.GET("/stats", creatorV1.Stats)
+				creator.GET("/stats", creatorPackage.Stats)
 			}
 			clapper := internal.Group("/clapper")
 			{
@@ -153,7 +160,7 @@ func Init(version, commit string) *echo.Echo {
 		}
 		public := apiV1.Group("/public")
 		{
-			public.GET("/find/*", publicV1.Find)
+			// public.GET("/find/*", publicV1.Find)
 			public.GET("/videos/:offset/:page", publicV1.ListVideos)
 			public.GET("/video/:id", publicV1.Video)
 			public.GET("/video/:id/breadcrumb", publicV1.VideoBreadcrumb)

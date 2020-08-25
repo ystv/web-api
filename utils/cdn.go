@@ -14,7 +14,7 @@ import (
 var CDN *s3.S3
 
 // InitCDN Initialise connection to CDN
-func InitCDN() {
+func InitCDN() *s3.S3 {
 	endpoint := os.Getenv("cdn_endpoint")
 	accessKeyID := os.Getenv("cdn_accessKeyID")
 	secretAccessKey := os.Getenv("cdn_secretAccessKey")
@@ -31,4 +31,5 @@ func InitCDN() {
 	CDN = s3.New(newSession)
 
 	log.Printf("Connected to CDN: %s@%s", accessKeyID, CDN.Endpoint)
+	return CDN
 }

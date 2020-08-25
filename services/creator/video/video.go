@@ -34,9 +34,8 @@ func (s *Store) GetItem(ctx context.Context, id int) (*video.Item, error) {
 	err := s.db.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
 		item.description, item.thumbnail, EXTRACT(EPOCH FROM item.duration)::int AS duration,
-		item.views, item.tags, item.series_position, item.status,
-		preset.id preset_id, preset.name preset_name, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date, item.created_at,
-		users.user_id, users.nickname
+		item.views, item.tags, item.status,	preset.id preset_id, preset.name preset_name,
+		broadcast_date, item.created_at, users.user_id, users.nickname
 		FROM video.items item
 			LEFT JOIN video.presets preset ON item.preset = preset.id
         	INNER JOIN people.users users ON users.user_id = item.created_by

@@ -15,7 +15,7 @@ import (
 var DB *sqlx.DB
 
 // InitDB Initialises the connection to the database
-func InitDB() {
+func InitDB() *sqlx.DB {
 	username := os.Getenv("db_user")
 	password := os.Getenv("db_pass")
 	dbName := os.Getenv("db_name")
@@ -37,6 +37,7 @@ func InitDB() {
 	}
 
 	log.Printf("Connected to DB: %s@%s", dbName, dbHost)
+	return DB
 }
 
 // Transact wraps transactions

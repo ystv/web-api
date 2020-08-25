@@ -5,23 +5,18 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/controllers/v1/people"
-	"github.com/ystv/web-api/services/creator/video"
+	"github.com/ystv/web-api/services/creator/types/video"
 )
 
-type ContextInjector struct {
-	db *sqlx.DB
-}
-
 // VideoFind finds a video by ID
-func VideoFind(c echo.Context) error {
+func (r *Repos) VideoFind(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, "Number pls")
 	}
-	v, err := video.GetItem(c.Request().Context(), id)
+	v, err := r.video.GetItem(c.Request().Context(), id)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -29,7 +24,7 @@ func VideoFind(c echo.Context) error {
 }
 
 // VideoNew Handles creation of a video
-func VideoNew(c echo.Context) error {
+func (r *Repos) VideoNew(c echo.Context) error {
 	v := video.NewVideo{}
 	err := c.Bind(&v)
 	if err != nil {
@@ -42,7 +37,7 @@ func VideoNew(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	v.CreatedBy = claims.UserID
-	err = video.NewItem(&v)
+	err = r.video.NewItem(c.Request().Context(), &v)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -50,8 +45,8 @@ func VideoNew(c echo.Context) error {
 }
 
 // VideoList Handles listing all creations
-func VideoList(c echo.Context) error {
-	creations, err := video.MetaList(c.Request().Context())
+func (r *Repos) VideoList(c echo.Context) error {
+	creations, err := r.video.ListMeta(c.Request().Context())
 	if err != nil {
 		return err
 	}
@@ -59,12 +54,12 @@ func VideoList(c echo.Context) error {
 }
 
 // VideosUser Handles retrieving a user's videos using their userid in their token.
-func VideosUser(c echo.Context) error {
+func (r *Repos) VideosUser(c echo.Context) error {
 	claims, err := people.GetToken(c)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	v, err := video.MetaListUser(c.Request().Context(), claims.UserID)
+	v, err := r.video.ListMetaByUser(c.Request().Context(), claims.UserID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
@@ -72,7 +67,7 @@ func VideosUser(c echo.Context) error {
 }
 
 // CalendarList Handles listing all videos from a calendar year/month
-func CalendarList(c echo.Context) error {
+func (r *Repos) CalendarList(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
@@ -81,7 +76,7 @@ func CalendarList(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
-	v, err := video.CalendarList(c.Request().Context(), year, month)
+	v, err := r.video.ListByCalendarMonth(c.Request().Context(), year, month)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}

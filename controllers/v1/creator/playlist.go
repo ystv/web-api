@@ -6,12 +6,12 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/creator/playlist"
+	"github.com/ystv/web-api/services/creator/types/playlist"
 )
 
 // PlaylistAll handles listing all playlist metadata's
-func PlaylistAll(c echo.Context) error {
-	p, err := playlist.All()
+func (r *Repos) PlaylistAll(c echo.Context) error {
+	p, err := r.playlist.All(c.Request().Context())
 	if err != nil {
 		log.Printf("Playlist all failed: %+v", err)
 		return c.JSON(http.StatusInternalServerError, p)
@@ -20,12 +20,12 @@ func PlaylistAll(c echo.Context) error {
 }
 
 // PlaylistGet handles getting a single playlist and it's following videometa's
-func PlaylistGet(c echo.Context) error {
+func (r *Repos) PlaylistGet(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.String(http.StatusBadRequest, "Number pls")
 	}
-	p, err := playlist.Get(id)
+	p, err := r.playlist.Get(c.Request().Context(), id)
 	if err != nil {
 		log.Printf("Playlist get failed: %+v", err)
 		return c.JSON(http.StatusBadRequest, err)
@@ -34,13 +34,13 @@ func PlaylistGet(c echo.Context) error {
 }
 
 // PlaylistNew handles creating a new playlist item
-func PlaylistNew(c echo.Context) error {
+func (r *Repos) PlaylistNew(c echo.Context) error {
 	p := playlist.Playlist{}
 	err := c.Bind(&p)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	res, err := playlist.New(p)
+	res, err := r.playlist.New(c.Request().Context(), p)
 	if err != nil {
 		log.Printf("Playlist new failed: %+v", err)
 		return c.JSON(http.StatusInternalServerError, err)

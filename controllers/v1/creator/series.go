@@ -4,12 +4,11 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/creator/series"
 )
 
 // SeriesListAll handles listing every series and their depth
-func SeriesListAll(c echo.Context) error {
-	s, err := series.All()
+func (r *Repos) SeriesListAll(c echo.Context) error {
+	s, err := r.series.All(c.Request().Context())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, s)
 	}
