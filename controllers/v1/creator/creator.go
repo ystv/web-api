@@ -2,6 +2,7 @@ package creator
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -39,6 +40,7 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
 func Stats(c echo.Context) error {
 	s, err := creator.Stats(context.Background())
 	if err != nil {
+		log.Printf("Stats Failed: %+v", err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, s)

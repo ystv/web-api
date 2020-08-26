@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -43,7 +43,7 @@ func (c *Controller) Series(ctx context.Context, seriesID int) (*[]breadcrumb.Br
 			AND node.series_id = $1
 		ORDER BY parent.lft;`, seriesID)
 	if err != nil {
-		log.Printf("BreadcrumbSeries failed: %+v", err)
+		return nil, err
 	}
 	return &s, err
 }
@@ -56,7 +56,6 @@ func (c *Controller) Video(ctx context.Context, videoID int) (*[]breadcrumb.Brea
 		FROM video.items
 		WHERE video_id = $1`, videoID)
 	if err != nil {
-		log.Printf("VideoBreadcrumb failed: %+v", err)
 		return nil, err
 	}
 	sB, err := c.Series(ctx, vB.SeriesID)
@@ -78,17 +77,18 @@ func (c *Controller) Find(ctx context.Context, path string) (*breadcrumb.Item, e
 			PathWithoutLast := strings.Join(split[:len(split)-1], "/")
 			s, err := c.series.FromPath(ctx, PathWithoutLast)
 			if err != nil {
-				if err == sql.ErrNoRows {
+				if errors.Is(err, sql.ErrNoRows) {
 					// No series, so there will be no videos
+					err = fmt.Errorf("No series: %w", err)
 					return nil, err
 				}
-				log.Printf("Find failed from 2nd last: %+v", err)
+				err = fmt.Errorf("Failed from back a layer: %w", err)
 				return nil, err
 			}
 			// Found series
 			if len(*s.ChildVideos) == 0 {
 				// No videos on series
-				return nil, errors.New("Series: No videos")
+				return nil, errors.New("No videos")
 			}
 			// We've got videos
 			for _, v := range *s.ChildVideos {
@@ -103,7 +103,7 @@ func (c *Controller) Find(ctx context.Context, path string) (*breadcrumb.Item, e
 				}
 			}
 		} else {
-			log.Printf("Find failed from path: %+v", err)
+			err = fmt.Errorf("From path %s: %w", path, err)
 			return nil, err
 		}
 	}

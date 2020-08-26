@@ -2,6 +2,7 @@ package playlist
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -39,6 +40,7 @@ func (s *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, err
 		FROM video.playlists
 		WHERE playlist_id = $1;`, playlistID)
 	if err != nil {
+		err = fmt.Errorf("failed to select playlist meta: %w", err)
 		return p, err
 	}
 	err = s.db.SelectContext(ctx, &p.Videos,
@@ -46,6 +48,9 @@ func (s *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, err
 		FROM video.items
 		INNER JOIN video.playlist_items ON video_id = video_item_id
 		ORDER BY position ASC;`)
+	if err != nil {
+		err = fmt.Errorf("failed to selected videos: %w", err)
+	}
 	return p, err
 }
 
@@ -55,12 +60,18 @@ func (s *Store) New(ctx context.Context, p playlist.Playlist) (int, error) {
 		`INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
 		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, p.CreatedAt, p.CreatedBy)
 	if err != nil {
+		err = fmt.Errorf("failed to insert playlist: %w", err)
 		return 0, err // Null video ID?
 	}
-	if len(p.Videos) != 0 {
-		err = s.AddVideos(ctx, p)
+	if len(p.Videos) == 0 {
+		return 0, nil
 	}
-	return 0, err // TODO return playlist ID
+	err = s.AddVideos(ctx, p)
+	if err != nil {
+		err = fmt.Errorf("failed to add videos to playlist: %w", err)
+		return 0, err
+	}
+	return 0, nil // TODO return playlist ID
 }
 
 // AddVideo adds a single video to a playlist
@@ -77,17 +88,21 @@ func (s *Store) DeleteVideo(ctx context.Context, playlistID, videoID int) error 
 
 // AddVideos adds multiple videos to a playlist
 func (s *Store) AddVideos(ctx context.Context, p playlist.Playlist) error {
+	// TODO replace this function with the utils transaction wrapper
 	txn, err := s.db.Begin()
 	if err != nil {
+		err = fmt.Errorf("failed to prepare db transaction: %w", err)
 		return err
 	}
 	stmt, err := txn.PrepareContext(ctx, pq.CopyIn("video.playlist_items", "playlist_id", "video_item_id"))
 	if err != nil {
+		err = fmt.Errorf("failed to prepare statement: %w", err)
 		return err
 	}
 	for _, video := range p.Videos {
 		_, err = stmt.ExecContext(ctx, p.ID, video.ID)
 		if err != nil {
+			err = fmt.Errorf("failed to insert link between playlist and video: %w", err)
 			return err
 		}
 	}

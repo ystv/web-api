@@ -13,7 +13,7 @@ import (
 func (r *Repos) EncodeProfileList(c echo.Context) error {
 	e, err := r.encode.ListFormat(c.Request().Context())
 	if err != nil {
-		log.Printf("EncodeProfileList failed: %v", err)
+		log.Printf("EncodeProfileList failed: %+v", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, e)
@@ -56,7 +56,7 @@ func (r *Repos) PresetUpdate(c echo.Context) error {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		log.Printf("PresetUpdate failed: %v", err)
+		log.Printf("PresetUpdate failed: %+v", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)

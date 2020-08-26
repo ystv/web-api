@@ -3,7 +3,6 @@ package video
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -19,11 +18,13 @@ import (
 
 var _ creator.VideoRepo = &Store{}
 
+// Store encapsulates our dependencies
 type Store struct {
 	db  *sqlx.DB
 	cdn *s3.S3
 }
 
+// NewStore returns a new store
 func NewStore(db *sqlx.DB, cdn *s3.S3) *Store {
 	return &Store{db: db, cdn: cdn}
 }
@@ -41,8 +42,8 @@ func (s *Store) GetItem(ctx context.Context, id int) (*video.Item, error) {
         	INNER JOIN people.users users ON users.user_id = item.created_by
 		WHERE video_id = $1
 		LIMIT 1;`, id)
-	log.Print(err)
 	if err != nil {
+		err = fmt.Errorf("failed to get video meta: %w", err)
 		return nil, err
 	}
 	err = s.db.SelectContext(ctx, &v.Files,
@@ -51,6 +52,7 @@ func (s *Store) GetItem(ctx context.Context, id int) (*video.Item, error) {
 		INNER JOIN video.encode_formats ON id = encode_format
 		WHERE video_id = $1;`, id)
 	if err != nil {
+		err = fmt.Errorf("failed to get video files: %w", err)
 		return nil, err
 	}
 	return &v, nil
@@ -91,7 +93,7 @@ func (s *Store) ListByCalendarMonth(ctx context.Context, year, month int) (*[]vi
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date
 		FROM video.items
 		WHERE EXTRACT(YEAR FROM broadcast_date) = $1 AND
-		EXTRACT(MONTH FROM broadcast_date) = $2`, year, month)
+		EXTRACT(MONTH FROM broadcast_date) = $2;`, year, month)
 	return &v, err
 }
 
@@ -104,14 +106,13 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, erro
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
 		views, EXTRACT(EPOCH FROM duration)::int AS duration
 		FROM video.items
-		WHERE series_id = $1 AND status = 'public'`, seriesID)
-	if err != nil {
-		log.Printf("Failed to select VideoOfSeries: %+v", err)
-	}
+		WHERE series_id = $1 AND status = 'public';`, seriesID)
 	return &v, err
 }
 
 // NewItem creates a new video item
+// TODO I think this needs to be redesigned more like a transaction so we can safely fail anywhere.
+// TODO return new video ID
 func (s *Store) NewItem(ctx context.Context, v *video.NewVideo) error {
 	// Checking if video file exists
 	obj, err := s.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
@@ -119,7 +120,7 @@ func (s *Store) NewItem(ctx context.Context, v *video.NewVideo) error {
 		Key:    aws.String(v.FileID[:32]),
 	})
 	if err != nil {
-		log.Printf("NewItem object find fail: %v", err)
+		err = fmt.Errorf("failed to find video object in s3: %w", err)
 		return err
 	}
 
@@ -136,7 +137,7 @@ func (s *Store) NewItem(ctx context.Context, v *video.NewVideo) error {
 	err = s.db.QueryRowContext(ctx,
 		itemQuery, &v.SeriesID, &v.Name, &v.URLName, &v.Description, pq.Array(v.Tags), &v.PublishType, &v.CreatedAt, &v.CreatedBy, &v.BroadcastDate).Scan(&videoID)
 	if err != nil {
-		log.Printf("NewItem failed to insert: %v", err)
+		err = fmt.Errorf("failed to insert video item: %w", err)
 		return err
 	}
 	extension := strings.Split(*obj.Metadata["Filename"], ".")
@@ -148,6 +149,10 @@ func (s *Store) NewItem(ctx context.Context, v *video.NewVideo) error {
 		CopySource: aws.String("pending/" + v.FileID[:32]),
 		Key:        aws.String(key),
 	})
+	if err != nil {
+		err = fmt.Errorf("failed to copy video object from pending bucket to video bucket: %w", err)
+		return err
+	}
 
 	// Updating DB to reflect this
 	fileQuery := `INSERT INTO video.files (video_id, uri, status, encode_format, size)
@@ -155,7 +160,7 @@ func (s *Store) NewItem(ctx context.Context, v *video.NewVideo) error {
 
 	_, err = s.db.ExecContext(ctx, fileQuery, videoID, "videos/"+key, "internal", 1, *obj.ContentLength) // TODO make a original encode format
 	if err != nil {
-		log.Printf("NewItem failed to insert video file: %v", err)
+		err = fmt.Errorf("failed to insert video file row: %w", err)
 		return err
 	}
 
