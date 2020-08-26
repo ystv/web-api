@@ -14,6 +14,7 @@ import (
 	clapperV1 "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
 	encoderV1 "github.com/ystv/web-api/controllers/v1/encoder"
+	miscPackage "github.com/ystv/web-api/controllers/v1/misc"
 	peopleV1 "github.com/ystv/web-api/controllers/v1/people"
 	publicV1 "github.com/ystv/web-api/controllers/v1/public"
 	streamV1 "github.com/ystv/web-api/controllers/v1/stream"
@@ -41,6 +42,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 	e.Debug = debug
 
 	creatorV1 := creatorPackage.NewRepos(db, cdn)
+	miscV1 := miscPackage.NewRepo(db)
 
 	// Authentication middleware
 	middleware.Init(e)
@@ -156,6 +158,16 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 					crew.GET("", clapperV1.PositionList)   // List crew positions
 					crew.POST("", clapperV1.PositionNew)   // Create a new crew position
 					crew.PUT("", clapperV1.PositionUpdate) // Update a position
+				}
+			}
+			misc := internal.Group("/misc")
+			{
+				quote := misc.Group("/quote")
+				{
+					quote.GET("/:amount/:page", miscV1.ListQuotes)
+					quote.POST("", miscV1.NewQuote)
+					quote.PUT("", miscV1.UpdateQuote)
+					quote.DELETE("/:id", miscV1.DeleteQuote)
 				}
 			}
 		}
