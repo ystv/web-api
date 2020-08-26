@@ -6,7 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/ystv/web-api/services/creator/encode"
+	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/services/creator/types/video"
 	"github.com/ystv/web-api/utils"
 )
@@ -64,10 +64,6 @@ func ListEncodesFromPreset(p encode.Preset) ([]encode.Format, error) {
 // RefreshVideoItem will run CreateEncode() on a VideoItem for any
 // encodes missing in the preset.
 func RefreshVideoItem(v *video.Item) error {
-	_, err := encode.PresetGet(0)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

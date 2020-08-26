@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/creator/encode"
+	"github.com/ystv/web-api/services/creator/types/encode"
 )
 
 // EncodeProfileList handles listing encode formats
-func EncodeProfileList(c echo.Context) error {
-	e, err := encode.FormatList()
+func (r *Repos) EncodeProfileList(c echo.Context) error {
+	e, err := r.encode.ListFormat(c.Request().Context())
 	if err != nil {
 		log.Printf("EncodeProfileList failed: %v", err)
 		return c.JSON(http.StatusInternalServerError, err)
@@ -20,8 +20,8 @@ func EncodeProfileList(c echo.Context) error {
 }
 
 // PresetList handles listing presets
-func PresetList(c echo.Context) error {
-	p, err := encode.PresetList()
+func (r *Repos) PresetList(c echo.Context) error {
+	p, err := r.encode.ListPreset(c.Request().Context())
 	if err != nil {
 		log.Printf("PresetList failed: %+v", err)
 		return c.JSON(http.StatusInternalServerError, err)
@@ -30,28 +30,28 @@ func PresetList(c echo.Context) error {
 }
 
 // PresetNew handles creating a new preset
-func PresetNew(c echo.Context) error {
+func (r *Repos) PresetNew(c echo.Context) error {
 	p := encode.Preset{}
 	err := c.Bind(&p)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err = encode.PresetNew(&p)
+	presetID, err := r.encode.NewPreset(c.Request().Context(), &p)
 	if err != nil {
 		log.Printf("PresetNew failed: %+v", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
-	return c.NoContent(http.StatusCreated)
+	return c.JSON(http.StatusOK, presetID)
 }
 
 // PresetUpdate handles updating a preset
-func PresetUpdate(c echo.Context) error {
+func (r *Repos) PresetUpdate(c echo.Context) error {
 	p := encode.Preset{}
 	err := c.Bind(&p)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	err = encode.PresetUpdate(&p)
+	err = r.encode.UpdatePreset(c.Request().Context(), &p)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.JSON(http.StatusBadRequest, err)

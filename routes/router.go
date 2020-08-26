@@ -120,13 +120,13 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 				{
 					presets := encodes.Group("/presets")
 					{
-						presets.GET("", creatorPackage.PresetList)
-						presets.POST("", creatorPackage.PresetNew)
-						presets.PUT("", creatorPackage.PresetUpdate) // We take the ID in the json request
+						presets.GET("", creatorV1.PresetList)
+						presets.POST("", creatorV1.PresetNew)
+						presets.PUT("", creatorV1.PresetUpdate) // We take the ID in the json request
 					}
 					profiles := encodes.Group("/profiles")
 					{
-						profiles.GET("", creatorPackage.EncodeProfileList)
+						profiles.GET("", creatorV1.EncodeProfileList)
 					}
 				}
 				creator.GET("/calendar/:year/:month", creatorV1.CalendarList)

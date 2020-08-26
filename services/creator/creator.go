@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
+	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/services/creator/types/playlist"
 	"github.com/ystv/web-api/services/creator/types/series"
 	"github.com/ystv/web-api/services/creator/types/video"
@@ -41,5 +42,13 @@ type (
 		AddVideo(ctx context.Context, playlistID, videoID int) error
 		DeleteVideo(ctx context.Context, playlistID, videoID int) error
 		AddVideos(ctx context.Context, p playlist.Playlist) error
+	}
+	// EncodeRepo defines all encode interactions
+	EncodeRepo interface {
+		GetPreset(ctx context.Context, presetID int) (*encode.Preset, error)
+		ListPreset(ctx context.Context) ([]encode.Preset, error)
+		NewPreset(ctx context.Context, p *encode.Preset) (int, error)
+		UpdatePreset(ctx context.Context, p *encode.Preset) error
+		ListFormat(ctx context.Context) ([]encode.Format, error)
 	}
 )
