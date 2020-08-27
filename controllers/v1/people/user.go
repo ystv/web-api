@@ -1,7 +1,7 @@
 package people
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -29,11 +29,12 @@ type (
 func UserByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
 	p, err := people.Get(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		err = fmt.Errorf("UserByID failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
@@ -42,11 +43,12 @@ func UserByID(c echo.Context) error {
 func UserByIDFull(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
 	p, err := people.GetFull(id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		err = fmt.Errorf("UserByIDFull failed to get user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
@@ -55,11 +57,13 @@ func UserByIDFull(c echo.Context) error {
 func UserByToken(c echo.Context) error {
 	claims, err := GetToken(c)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("UserByToken failed to get token: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	p, err := people.Get(claims.UserID)
 	if err != nil {
-		log.Printf("UserByToken failed getting: %+v", err)
+		err = fmt.Errorf("UserByToken failed getting user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
@@ -68,11 +72,13 @@ func UserByToken(c echo.Context) error {
 func UserByTokenFull(c echo.Context) error {
 	claims, err := GetToken(c)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	p, err := people.GetFull(claims.UserID)
 	if err != nil {
-		log.Printf("UserByToken failed getting: %+v", err)
+		err = fmt.Errorf("UserByTokenFull failed getting user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
@@ -90,8 +96,8 @@ func GetToken(c echo.Context) (*JWTClaims, error) {
 		return []byte(os.Getenv("signing_key")), nil
 	})
 	if err != nil {
-		log.Printf("UserByToken failed: %+v", err)
-		return nil, echo.ErrInternalServerError
+		err = fmt.Errorf("GetToken failed: %w", err)
+		return nil, err
 	}
 	if claims.Valid() != nil {
 		return nil, echo.ErrForbidden
