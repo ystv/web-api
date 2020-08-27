@@ -10,24 +10,24 @@ import (
 type (
 	// Event represents a group of signups
 	Event struct {
-		EventID     int         `db:"event_id" json:"eventID"`
-		EventType   string      `db:"event_type" json:"eventType"`
-		Name        string      `db:"name" json:"name"`
-		StartDate   time.Time   `db:"start_date" json:"startDate"`
-		EndDate     time.Time   `db:"end_date" json:"endDate"`
-		Description null.String `db:"description" json:"description"`
-		Location    null.String `db:"location" json:"location"`
-		IsPrivate   bool        `db:"is_private" json:"isPrivate"`
-		IsCancelled bool        `db:"is_cancelled" json:"isCancelled"`
-		IsTentative bool        `db:"is_tentative" json:"isTentative"`
-		Signups     []Signup    `json:"signups,omitempty"`   // Used for shows
-		Attendees   []Attendee  `json:"attendees,omitempty"` // Used for social, meet and other. This would be a XOR with Signups
+		EventID     int        `db:"event_id" json:"eventID"`
+		EventType   string     `db:"event_type" json:"eventType"`
+		Name        string     `db:"name" json:"name"`
+		StartDate   time.Time  `db:"start_date" json:"startDate"`
+		EndDate     time.Time  `db:"end_date" json:"endDate"`
+		Description string     `db:"description" json:"description"`
+		Location    string     `db:"location" json:"location"`
+		IsPrivate   bool       `db:"is_private" json:"isPrivate"`
+		IsCancelled bool       `db:"is_cancelled" json:"isCancelled"`
+		IsTentative bool       `db:"is_tentative" json:"isTentative"`
+		Signups     []Signup   `json:"signups,omitempty"`   // Used for shows
+		Attendees   []Attendee `json:"attendees,omitempty"` // Used for social, meet and other. This would be a XOR with Signups
 	}
 	// Signup represents a signup sheet which contains a group of roles
 	Signup struct {
 		SignupID    int            `db:"signup_id" json:"signupID"`
 		Title       string         `db:"title" json:"title"`
-		Description null.String    `db:"description" json:"description"`
+		Description string         `db:"description" json:"description"`
 		UnlockDate  null.Time      `db:"unlock_date" json:"unlockDate"`
 		StartTime   null.Time      `db:"start_time" json:"startTime"`
 		EndTime     null.Time      `db:"end_time" json:"endTime"`
@@ -73,6 +73,11 @@ type (
 		New(ctx context.Context, e *Event, userID int) (int, error)
 		Update(ctx context.Context, e *Event, userID int) error
 		Delete(ctx context.Context, eventID int) error
+	}
+
+	// SignupRepo defines all signup sheet interactions
+	SignupRepo interface {
+		New(ctx context.Context, eventID int, s Signup) (int, error)
 	}
 
 	// PositionRepo defines all position interactions

@@ -32,7 +32,7 @@ func (r *Repos) MonthList(c echo.Context) error {
 
 // EventGet handles getting all signups and roles for a given event
 func (r *Repos) EventGet(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
 	}

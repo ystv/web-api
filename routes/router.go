@@ -142,19 +142,23 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 					// calendar.GET("/:year/:term", notImplemented)       // List all events of term
 					calendar.GET("/:year/:month", clapperV1.MonthList) // List all events of month
 				}
-				event := clapper.Group("/event")
+				events := clapper.Group("/event")
 				{
-					event.GET("/:id", clapperV1.EventGet) // Get event info, returns event info and signup sheets
-					event.POST("", clapperV1.EventNew)    // Create a new event
-					event.PUT("", clapperV1.EventUpdate)  // Update an event
-					signup := event.Group("/signup")
+					event := events.Group("/:eventid")
 					{
-						signup.GET("/:id", notImplemented)          // Get a signup sheet, likely not to be used
-						signup.POST("", notImplemented)             // Create a new signup sheet
-						signup.PUT("/:sheet/:role", notImplemented) // Update a crew role, used to set a person
+						event.GET("", clapperV1.EventGet) // Get event info, returns event info and signup sheets
+						signup := event.Group("/signup")
+						{
+							signup.GET("/:id", notImplemented)          // Get a signup sheet, likely not to be used
+							signup.POST("", clapperV1.SignupNew)        // Create a new signup sheet
+							signup.PUT("/:sheet/:role", notImplemented) // Update a crew role, used to set a person
+						}
 					}
+					events.POST("", clapperV1.EventNew)   // Create a new event
+					events.PUT("", clapperV1.EventUpdate) // Update an event
+
 				}
-				crew := clapper.Group("/positions")
+				crew := clapper.Group("/position")
 				{
 					crew.GET("", clapperV1.PositionList)   // List crew positions
 					crew.POST("", clapperV1.PositionNew)   // Create a new crew position

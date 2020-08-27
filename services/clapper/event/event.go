@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -64,6 +65,7 @@ func (m *Store) Get(ctx context.Context, eventID int) (*clapper.Event, error) {
 		`SELECT signup_id, title, description, unlock_date, start_time, end_time
 		FROM event.signups
 		WHERE event_id = $1;`, eventID)
+	log.Printf("%+v, %+v", e.Signups, err)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get signup sheets")
 	}
