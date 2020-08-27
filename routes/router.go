@@ -11,7 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	echoMw "github.com/labstack/echo/v4/middleware"
-	clapperV1 "github.com/ystv/web-api/controllers/v1/clapper"
+	clapperPackage "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
 	encoderV1 "github.com/ystv/web-api/controllers/v1/encoder"
 	miscPackage "github.com/ystv/web-api/controllers/v1/misc"
@@ -44,6 +44,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 	creatorV1 := creatorPackage.NewRepos(db, cdn)
 	miscV1 := miscPackage.NewRepo(db)
 	publicV1 := publicPackage.NewRepos(db)
+	clapperV1 := clapperPackage.NewRepos(db)
 
 	// Authentication middleware
 	middleware.Init(e)
