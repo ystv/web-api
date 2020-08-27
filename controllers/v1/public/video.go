@@ -6,25 +6,24 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/public"
 )
 
 // Video handles a video item, providing info vfiles
-func Video(c echo.Context) error {
+func (r *Repos) Video(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Bad video ID")
 	}
-	v, err := public.VideoFind(id)
+	v, err := r.public.GetVideo(c.Request().Context(), id)
 	if err != nil {
-		log.Printf("Video find failed: %v", err)
+		log.Printf("Video find failed: %+v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	return c.JSON(http.StatusOK, v)
 }
 
 // ListVideos handles listing videos using an offset and page
-func ListVideos(c echo.Context) error {
+func (r *Repos) ListVideos(c echo.Context) error {
 	offset, err := strconv.Atoi(c.Param("offset"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Bad offset")
@@ -33,21 +32,23 @@ func ListVideos(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Bad page")
 	}
-	v, err := public.VideoList(offset, page)
+	v, err := r.public.ListVideo(c.Request().Context(), offset, page)
 	if err != nil {
+		log.Printf("Public ListVideos failed: %+v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	return c.JSON(http.StatusOK, v)
 }
 
 // VideoBreadcrumb handles generating the breadcrumb of a video
-func VideoBreadcrumb(c echo.Context) error {
+func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Bad video ID")
 	}
-	v, err := public.VideoBreadcrumb(id)
+	v, err := r.public.VideoBreadcrumb(c.Request().Context(), id)
 	if err != nil {
+		log.Printf("Public VideoBreadcrumb failed: %+v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 	return c.JSON(http.StatusOK, v)

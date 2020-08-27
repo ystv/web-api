@@ -4,10 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 	"strings"
-
-	"github.com/ystv/web-api/utils"
 )
 
 type (
@@ -26,11 +24,34 @@ type (
 	}
 )
 
+var _ BreadcrumbRepo = &Store{}
+
+// VideoBreadcrumb returns the absolute path from a VideoID
+func (m *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error) {
+	var vB Breadcrumb // Video breadcrumb
+	err := m.db.GetContext(ctx, &vB,
+		`SELECT video_id as id, series_id, COALESCE(name, url) as name, url
+		FROM video.items
+		WHERE video_id = $1`, videoID)
+	if err != nil {
+		err = fmt.Errorf("failed to get video breadcrumb: %w", err)
+		return nil, err
+	}
+	sB, err := m.SeriesBreadcrumb(ctx, vB.SeriesID)
+	if err != nil {
+		err = fmt.Errorf("failed to get series breadcrumb: %w", err)
+		return nil, err
+	}
+	sB = append(sB, vB)
+
+	return sB, err
+}
+
 // SeriesBreadcrumb will return the breadcrumb from SeriesID to root
-func SeriesBreadcrumb(seriesID int) ([]Breadcrumb, error) {
-	s := []Breadcrumb{}
+func (m *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error) {
+	b := []Breadcrumb{}
 	// TODO Need a bool to indicate if series is in URL
-	err := utils.DB.Select(&s,
+	err := m.db.SelectContext(ctx, &b,
 		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
 		FROM
 			video.series node,
@@ -39,40 +60,38 @@ func SeriesBreadcrumb(seriesID int) ([]Breadcrumb, error) {
 			node.lft BETWEEN parent.lft AND parent.rgt
 			AND node.series_id = $1
 		ORDER BY parent.lft;`, seriesID)
-	if err != nil {
-		log.Printf("BreadcrumbSeries failed: %+v", err)
-	}
-	return s, err
+	return b, err
 }
 
 // Find returns either a series or video for a given path
-func Find(ctx context.Context, path string) (*BreadcrumbItem, error) {
-	s, err := SeriesFromPath(path)
+// TODO be consistent with creator's find in terms of variables
+func (m *Store) Find(ctx context.Context, path string) (*BreadcrumbItem, error) {
+	series, err := m.GetSeriesFromPath(ctx, path)
 	if err != nil {
 		// Might be a video, so we'll go one layer back and check for series
 		if err == sql.ErrNoRows {
 			split := strings.Split(path, "/")
 			pathWithoutLast := strings.Join(split[:len(split)-1], "/")
-			s, err := SeriesFromPath(pathWithoutLast)
+			series, err := m.GetSeriesFromPath(ctx, pathWithoutLast)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					// No series, so there will be no videos
-					return nil, errors.New("Breadcrumb: No series")
+					err = fmt.Errorf("No series: %w", err)
 				}
 				// log.Print(err)
 				return nil, err
 			}
 			// Found series
-			if len(s.ChildVideos) == 0 {
+			if len(series.ChildVideos) == 0 {
 				// No videos on series
-				return nil, errors.New("Series: No videos")
+				return nil, errors.New("No videos")
 			}
 			// We've got videos
-			for _, v := range s.ChildVideos {
+			for _, v := range series.ChildVideos {
 				// Check if video  name matches last name
 				if v.URL == split[len(split)-1] {
 					// Found video
-					foundVideo, err := VideoFind(v.VideoID)
+					foundVideo, err := m.GetVideo(ctx, v.VideoID)
 					if err != nil {
 						return nil, err
 					}
@@ -80,9 +99,10 @@ func Find(ctx context.Context, path string) (*BreadcrumbItem, error) {
 				}
 			}
 		} else {
+			err = fmt.Errorf("failed to get series from path: %w", err)
 			return nil, err
 		}
 	}
 	// Found series
-	return &BreadcrumbItem{nil, &s}, nil
+	return &BreadcrumbItem{nil, &series}, nil
 }

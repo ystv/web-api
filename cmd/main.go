@@ -11,7 +11,7 @@ import (
 )
 
 // Version returns web-api's current version
-var Version = "dev (0.5.4)"
+var Version = "dev (0.5.5)"
 
 // Commit returns latest commit hash
 var Commit = "unknown"

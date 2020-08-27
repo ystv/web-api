@@ -1,13 +1,18 @@
 package public
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/public"
 )
 
 // ListTeams handles listing teams and their members and info
-func ListTeams(c echo.Context) error {
-	return c.JSON(http.StatusOK, public.ListTeams())
+func (r *Repos) ListTeams(c echo.Context) error {
+	t, err := r.public.ListTeams(c.Request().Context())
+	if err != nil {
+		log.Printf("Public ListTeams failed: %+v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	return c.JSON(http.StatusOK, t)
 }

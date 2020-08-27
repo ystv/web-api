@@ -56,10 +56,12 @@ func (c *Controller) Video(ctx context.Context, videoID int) (*[]breadcrumb.Brea
 		FROM video.items
 		WHERE video_id = $1`, videoID)
 	if err != nil {
+		err = fmt.Errorf("failed to get video breadcrumb: %w", err)
 		return nil, err
 	}
 	sB, err := c.Series(ctx, vB.SeriesID)
 	if err != nil {
+		err = fmt.Errorf("failed to get series breadcrumb: %w", err)
 		return nil, err
 	}
 	*sB = append(*sB, vB)
