@@ -39,6 +39,7 @@ type (
 		All(ctx context.Context) ([]playlist.Playlist, error)
 		Get(ctx context.Context, playlistID int) (playlist.Playlist, error)
 		New(ctx context.Context, p playlist.Playlist) (int, error)
+		Update(ctx context.Context, p playlist.Meta, videoIDs []int) error
 		AddVideo(ctx context.Context, playlistID, videoID int) error
 		DeleteVideo(ctx context.Context, playlistID, videoID int) error
 		AddVideos(ctx context.Context, p playlist.Playlist) error

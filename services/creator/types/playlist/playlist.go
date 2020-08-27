@@ -17,10 +17,12 @@ type (
 	Meta struct {
 		ID          int         `db:"playlist_id" json:"id"`
 		Name        string      `db:"name" json:"name"`
-		Description null.String `db:"description" json:"description"`
+		Description string      `db:"description" json:"description"`
 		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
 		Status      string      `db:"status" json:"status"`
 		CreatedAt   time.Time   `db:"created_at" json:"createdAt"`
 		CreatedBy   int         `db:"created_by" json:"createdBy"`
+		UpdatedAt   null.Time   `db:"updated_at" json:"updatedAt"`
+		UpdatedBy   null.Int    `db:"updated_by" json:"updatedBy"`
 	}
 )

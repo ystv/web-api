@@ -116,8 +116,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 					playlist := playlists.Group("/:id")
 					{
 						playlist.GET("", creatorV1.PlaylistGet)
-						playlist.PUT("", notImplemented)
-						playlist.DELETE("", notImplemented)
+						playlist.PUT("", creatorV1.PlaylistUpdate)
 					}
 				}
 				encodes := creator.Group("/encodes")
