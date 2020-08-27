@@ -1,7 +1,7 @@
 package public
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -11,8 +11,8 @@ import (
 func (r *Repos) ListTeams(c echo.Context) error {
 	t, err := r.public.ListTeams(c.Request().Context())
 	if err != nil {
-		log.Printf("Public ListTeams failed: %+v", err)
-		return c.NoContent(http.StatusInternalServerError)
+		err = fmt.Errorf("Public ListTeams failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, t)
 }

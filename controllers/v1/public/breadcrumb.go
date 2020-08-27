@@ -1,9 +1,10 @@
 package public
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/labstack/echo/v4"
@@ -17,16 +18,44 @@ func (r *Repos) Find(c echo.Context) error {
 	rawJoined := strings.Join(rawSplit, "/")
 
 	if len(rawJoined) == 0 {
-		return c.String(http.StatusBadRequest, "Invalid URL, format [series]/[series]/[video]")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid URL, format [series]/[series]/[video]")
 	}
 	clean, err := url.Parse(rawJoined)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid URL")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid URL")
 	}
 	b, err := r.public.Find(c.Request().Context(), clean.Path)
 	if err != nil {
-		log.Printf("PublicFind failed: %+v", err)
+		err = fmt.Errorf("Public Find failed: %w", err)
 		return c.String(http.StatusInternalServerError, "Internal Server Error")
 	}
 	return c.JSON(http.StatusOK, b)
+}
+
+// VideoBreadcrumb handles generating the breadcrumb of a video
+func (r *Repos) VideoBreadcrumb(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")
+	}
+	v, err := r.public.VideoBreadcrumb(c.Request().Context(), id)
+	if err != nil {
+		err = fmt.Errorf("Public VideoBreadcrumb failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, v)
+}
+
+// SeriesBreadcrumb returns the breadcrumb of a given series
+func (r *Repos) SeriesBreadcrumb(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad series ID")
+	}
+	v, err := r.public.SeriesBreadcrumb(c.Request().Context(), id)
+	if err != nil {
+		err = fmt.Errorf("Public SeriesBreadcrumb failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, v)
 }

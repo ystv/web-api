@@ -138,11 +138,15 @@ Then fill in the docker-compose file with your credentials.
 
 ## Developing
 
-Clone the repo and create a `.env.local` for an easy config setup. Use the `debug` flag to disable auth.  
-I recommend not using the production environment for testing and recommend running postgres and rabbitmq in Docker.  
+Developed on Go version 1.14+
+
+Clone the repo and create a `.env.local` for an easy config setup. Use the `debug` flag to disable auth.
+
+I recommend not using the production environment for testing and recommend running postgres and rabbitmq in Docker.
+
 Updating the DB schema use `goose` to migrate safely.
 
-Developed on Go version 1.14+
+When ran with the `debug` flag set to true. 500 server errors will be returned to the browser, not just logged. Otherwise it will only return the 500 code and not not the actual error.
 
 Try to keep all "business" logic with in the `/services` and try to keep the imports local to that package, but you'll probably need the `utils` package but we're trying to keep it modular so web-api can theoretically be split up and keeping it seperate would likely make it a lot easier.
 
