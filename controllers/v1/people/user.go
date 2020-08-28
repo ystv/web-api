@@ -8,7 +8,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/people"
 )
 
 type (
@@ -26,12 +25,12 @@ type (
 )
 
 // UserByID finds a user by ID
-func UserByID(c echo.Context) error {
+func (r *Repo) UserByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
-	p, err := people.Get(id)
+	p, err := r.user.Get(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("UserByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -40,12 +39,12 @@ func UserByID(c echo.Context) error {
 }
 
 // UserByIDFull finds a user by ID returing all info
-func UserByIDFull(c echo.Context) error {
+func (r *Repo) UserByIDFull(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
-	p, err := people.GetFull(id)
+	p, err := r.user.GetFull(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("UserByIDFull failed to get user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -54,13 +53,13 @@ func UserByIDFull(c echo.Context) error {
 }
 
 // UserByToken finds a user by their JWT token
-func UserByToken(c echo.Context) error {
+func (r *Repo) UserByToken(c echo.Context) error {
 	claims, err := GetToken(c)
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	p, err := people.Get(claims.UserID)
+	p, err := r.user.Get(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed getting user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -69,13 +68,13 @@ func UserByToken(c echo.Context) error {
 }
 
 // UserByTokenFull finds a user by their JWT token returning all info
-func UserByTokenFull(c echo.Context) error {
+func (r *Repo) UserByTokenFull(c echo.Context) error {
 	claims, err := GetToken(c)
 	if err != nil {
 		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	p, err := people.GetFull(claims.UserID)
+	p, err := r.user.GetFull(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("UserByTokenFull failed getting user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

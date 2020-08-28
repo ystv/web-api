@@ -10,7 +10,6 @@ import (
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/series"
 	"github.com/ystv/web-api/services/creator/video"
-	"github.com/ystv/web-api/utils"
 )
 
 // Here for validation to ensure we are meeting the interface
@@ -56,7 +55,7 @@ func (c *Controller) getMetaByPointer(ctx context.Context, seriesID int) (*serie
 // GetMeta provides basic information for only the selected series
 func (c *Controller) GetMeta(ctx context.Context, seriesID int) (*series.Meta, error) {
 	s := series.Meta{}
-	err := utils.DB.Get(&s,
+	err := c.db.GetContext(ctx, &s,
 		`SELECT series_id, url, name, description, thumbnail
 		FROM video.series
 		WHERE series_id = $1`, seriesID)
@@ -66,7 +65,7 @@ func (c *Controller) GetMeta(ctx context.Context, seriesID int) (*series.Meta, e
 // ImmediateChildrenSeries returns series directly below the chosen series
 func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) (*[]series.Meta, error) {
 	s := []series.Meta{}
-	err := utils.DB.Select(&s,
+	err := c.db.SelectContext(ctx, &s,
 		`SELECT * from (
 			SELECT 
 						node.series_id, node.url, node.name, node.description, node.thumbnail,
@@ -100,7 +99,7 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) 
 // List returns all series in the DB including their depth
 func (c *Controller) List(ctx context.Context) (*[]series.Meta, error) {
 	s := []series.Meta{}
-	err := utils.DB.Select(&s,
+	err := c.db.SelectContext(ctx, &s,
 		`SELECT
 			child.series_id, child.url, child.name, child.description, child.thumbnail,
 			(COUNT(parent.*) -1) AS depth
@@ -117,7 +116,7 @@ func (c *Controller) List(ctx context.Context) (*[]series.Meta, error) {
 // AllBelow returns all series below a certain series including depth
 func (c *Controller) AllBelow(ctx context.Context, SeriesID int) (*[]series.Meta, error) {
 	s := []series.Meta{}
-	err := utils.DB.Select(&s,
+	err := c.db.SelectContext(ctx, &s,
 		`SELECT 
 			node.series_id, node.url node.name, node.description, node.thumbnail,
 			(COUNT(parent.*) - (sub_tree.depth + 1)) AS depth
@@ -148,7 +147,7 @@ func (c *Controller) AllBelow(ctx context.Context, SeriesID int) (*[]series.Meta
 // FromPath will return a series from a given path
 func (c *Controller) FromPath(ctx context.Context, path string) (*series.Series, error) {
 	s := &series.Series{}
-	err := utils.DB.Get(s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
+	err := c.db.GetContext(ctx, s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	if err != nil {
 		// We ignore ErrNoRows since it's not a log worthy error and the path function will generate this error when used
 		if err != sql.ErrNoRows {

@@ -3,10 +3,12 @@ package creator
 import (
 	"context"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
 	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/services/creator/types/playlist"
 	"github.com/ystv/web-api/services/creator/types/series"
+	"github.com/ystv/web-api/services/creator/types/stats"
 	"github.com/ystv/web-api/services/creator/types/video"
 )
 
@@ -52,4 +54,21 @@ type (
 		UpdatePreset(ctx context.Context, p *encode.Preset) error
 		ListFormat(ctx context.Context) ([]encode.Format, error)
 	}
+	// StatRepo defines all statistical interactions
+	StatRepo interface {
+		GlobalVideo(ctx context.Context) (*stats.VideoGlobalStats, error)
+	}
 )
+
+// Here for validation to ensure we are meeting the interface
+var _ StatRepo = &Store{}
+
+// Store contains our dependency
+type Store struct {
+	db *sqlx.DB
+}
+
+// NewStore creates a new store
+func NewStore(db *sqlx.DB) *Store {
+	return &Store{db: db}
+}

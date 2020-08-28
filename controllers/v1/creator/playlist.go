@@ -2,7 +2,6 @@ package creator
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -16,8 +15,8 @@ import (
 func (r *Repos) PlaylistAll(c echo.Context) error {
 	p, err := r.playlist.All(c.Request().Context())
 	if err != nil {
-		log.Printf("Playlist all failed: %+v", err)
-		return c.JSON(http.StatusInternalServerError, p)
+		err = fmt.Errorf("PlaylistAll failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
@@ -26,12 +25,12 @@ func (r *Repos) PlaylistAll(c echo.Context) error {
 func (r *Repos) PlaylistGet(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		echo.NewHTTPError(http.StatusBadRequest, "Invalid playlist ID")
 	}
 	p, err := r.playlist.Get(c.Request().Context(), id)
 	if err != nil {
-		log.Printf("Playlist get failed: %+v", err)
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("Playlist get failed: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
@@ -41,12 +40,14 @@ func (r *Repos) PlaylistNew(c echo.Context) error {
 	p := playlist.Playlist{}
 	err := c.Bind(&p)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("PlaylistUpdate: failed to bind json: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+	// TODO sort out user ID
 	res, err := r.playlist.New(c.Request().Context(), p)
 	if err != nil {
-		log.Printf("Playlist new failed: %+v", err)
-		return c.JSON(http.StatusInternalServerError, err)
+		err = fmt.Errorf("PlaylistNew failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, res)
 }
@@ -61,8 +62,8 @@ func (r *Repos) PlaylistUpdate(c echo.Context) error {
 	}
 	claims, err := people.GetToken(c)
 	if err != nil {
-		log.Printf("VideoNew failed to get user ID: %v", err)
-		return c.JSON(http.StatusInternalServerError, err)
+		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	p.UpdatedBy = null.IntFrom(int64(claims.UserID))
 	var videoIDs []int

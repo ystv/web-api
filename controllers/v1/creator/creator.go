@@ -1,8 +1,7 @@
 package creator
 
 import (
-	"context"
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -23,6 +22,7 @@ type Repos struct {
 	playlist   creator.PlaylistRepo
 	breadcrumb creator.BreadcrumbRepo
 	encode     creator.EncodeRepo
+	creator    creator.StatRepo
 }
 
 // NewRepos creates our data repositories
@@ -33,15 +33,16 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
 		playlist.NewStore(db),
 		breadcrumb.NewController(db, cdn),
 		encode.NewStore(db),
+		creator.NewStore(db),
 	}
 }
 
 // Stats handles sending general stats about the video library
-func Stats(c echo.Context) error {
-	s, err := creator.Stats(context.Background())
+func (r *Repos) Stats(c echo.Context) error {
+	s, err := r.creator.GlobalVideo(c.Request().Context())
 	if err != nil {
-		log.Printf("Stats Failed: %+v", err)
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("stats failed: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, s)
 }

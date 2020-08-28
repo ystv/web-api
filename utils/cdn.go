@@ -10,9 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-// CDN object
-var CDN *s3.S3
-
 // InitCDN Initialise connection to CDN
 func InitCDN() *s3.S3 {
 	endpoint := os.Getenv("cdn_endpoint")
@@ -28,8 +25,8 @@ func InitCDN() *s3.S3 {
 		S3ForcePathStyle: aws.Bool(true),
 	}
 	newSession := session.New(s3Config)
-	CDN = s3.New(newSession)
+	cdn := s3.New(newSession)
 
-	log.Printf("Connected to CDN: %s@%s", accessKeyID, CDN.Endpoint)
-	return CDN
+	log.Printf("Connected to CDN: %s@%s", accessKeyID, cdn.Endpoint)
+	return cdn
 }
