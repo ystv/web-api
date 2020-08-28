@@ -27,9 +27,9 @@ func (m *Store) New(ctx context.Context, eventID int, s clapper.Signup) (int, er
 	signupID := 0
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
 		err := tx.QueryRowContext(ctx, `INSERT INTO event.signups
-		(event_id, title, description, unlock_date, start_time, end_time)
-		VALUES ($1, $2, $3, $4, $5, $6) RETURNING signup_id;`,
-			eventID, s.Title, s.Description, s.UnlockDate, s.StartTime, s.EndTime).Scan(&signupID)
+		(event_id, title, description, unlock_date, arrival_time, start_time, end_time)
+		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING signup_id;`,
+			eventID, s.Title, s.Description, s.UnlockDate, s.ArrivalTime, s.StartTime, s.EndTime).Scan(&signupID)
 		if err != nil {
 			return fmt.Errorf("failed to insert new signup shee metat: %w", err)
 		}

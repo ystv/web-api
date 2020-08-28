@@ -29,6 +29,7 @@ type (
 		Title       string         `db:"title" json:"title"`
 		Description string         `db:"description" json:"description"`
 		UnlockDate  null.Time      `db:"unlock_date" json:"unlockDate"`
+		ArrivalTime null.Time      `db:"arrival_time" json:"arrivalTime"`
 		StartTime   null.Time      `db:"start_time" json:"startTime"`
 		EndTime     null.Time      `db:"end_time" json:"endTime"`
 		Crew        []CrewPosition `json:"crew"`
