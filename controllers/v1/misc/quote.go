@@ -21,6 +21,15 @@ func NewRepo(db *sqlx.DB) *Repo {
 }
 
 // ListQuotes handles listing quotes by pagination
+// @Summary List quotes
+// @Description Lists quotes by pagination.
+// @ID get-quotes
+// @Tags quotes
+// @Produce json
+// @Param amount path int true "Amount"
+// @Param page path int true "Page"
+// @Success 200 {array} misc.QuotePage
+// @Router /v1/internal/misc/quote/{amount}/{page} [get]
 func (r *Repo) ListQuotes(c echo.Context) error {
 	amount, err := strconv.Atoi(c.Param("amount"))
 	if err != nil {
@@ -39,6 +48,14 @@ func (r *Repo) ListQuotes(c echo.Context) error {
 }
 
 // NewQuote handles creating a quote
+// @Summary New quote
+// @Description creates a new quote.
+// @ID new-quote
+// @Tags quotes
+// @Accept json
+// @Param quote body misc.Quote true "Quote object"
+// @Success 201 {object} int "Quote ID"
+// @Router /v1/internal/misc/quote [post]
 func (r *Repo) NewQuote(c echo.Context) error {
 	q := misc.Quote{}
 	err := c.Bind(&q)
@@ -54,6 +71,14 @@ func (r *Repo) NewQuote(c echo.Context) error {
 }
 
 // UpdateQuote handles updating a quote
+// @Summary Update quote
+// @Description updates a quote.
+// @ID update-quote
+// @Tags quotes
+// @Accept json
+// @Param quote body misc.Quote true "Quote object"
+// @Success 200
+// @Router /v1/internal/misc/quote [put]
 func (r *Repo) UpdateQuote(c echo.Context) error {
 	q := misc.Quote{}
 	err := c.Bind(&q)
@@ -69,6 +94,13 @@ func (r *Repo) UpdateQuote(c echo.Context) error {
 }
 
 // DeleteQuote handles deleting quotes
+// @Summary Delete quote
+// @Description deletes a quote by ID.
+// @ID delete-quote
+// @Tags quotes
+// @Param quoteid path int true "Quote ID"
+// @Success 200
+// @Router /v1/internal/misc/quote/{quoteid} [delete]
 func (r *Repo) DeleteQuote(c echo.Context) error {
 	quoteID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

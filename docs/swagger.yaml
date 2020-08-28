@@ -1,129 +1,301 @@
 definitions:
-  models.Quote:
+  clapper.Attendee:
     properties:
+      attendStatus:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      nickname:
+        type: string
+      userID:
+        type: integer
+    type: object
+  clapper.CrewPosition:
+    properties:
+      admin:
+        type: boolean
+      credited:
+        type: boolean
+      crewID:
+        type: integer
+      description:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      locked:
+        type: boolean
+      name:
+        type: string
+      nickname:
+        type: string
+      ordering:
+        type: integer
+      permissionID:
+        type: string
+      positionID:
+        type: integer
+      userID:
+        type: integer
+    type: object
+  clapper.Event:
+    properties:
+      attendees:
+        description: Used for social, meet and other. This would be a XOR with Signups
+        items:
+          $ref: '#/definitions/clapper.Attendee'
+        type: array
+      description:
+        type: string
+      endDate:
+        type: string
+      eventID:
+        type: integer
+      eventType:
+        type: string
+      isCancelled:
+        type: boolean
+      isPrivate:
+        type: boolean
+      isTentative:
+        type: boolean
+      location:
+        type: string
+      name:
+        type: string
+      signups:
+        description: Used for shows
+        items:
+          $ref: '#/definitions/clapper.Signup'
+        type: array
+      startDate:
+        type: string
+    type: object
+  clapper.Position:
+    properties:
+      admin:
+        type: boolean
+      description:
+        type: string
+      name:
+        type: string
+      permissionID:
+        type: string
+      positionID:
+        type: integer
+    type: object
+  clapper.Signup:
+    properties:
+      arrivalTime:
+        type: string
+      crew:
+        items:
+          $ref: '#/definitions/clapper.CrewPosition'
+        type: array
+      description:
+        type: string
+      endTime:
+        type: string
+      signupID:
+        type: integer
+      startTime:
+        type: string
+      title:
+        type: string
+      unlockDate:
+        type: string
+    type: object
+  misc.Quote:
+    properties:
+      createdBy:
+        type: integer
       description:
         type: string
       id:
         type: integer
-      posted_by:
-        type: string
-      posted_date:
-        type: string
       quote:
         type: string
     type: object
-  models.QuoteSlice:
-    items:
-      $ref: '#/definitions/models.Quote'
-    type: array
-  models.Video:
+  misc.QuotePage:
     properties:
-      created_by:
-        type: string
-      created_date:
-        type: string
+      lastPageIndex:
+        type: integer
+      quotes:
+        items:
+          $ref: '#/definitions/misc.Quote'
+        type: array
+    type: object
+  people.Permission:
+    properties:
       description:
-        type: string
-      display_name:
-        type: string
-      duration:
         type: string
       id:
         type: integer
-      is_enabled:
-        type: boolean
-      keywords:
+      name:
         type: string
-      ordering:
-        type: string
-      redirect_id:
-        type: string
-      search_index_data:
-        type: string
-      url_name:
-        type: string
-      video_box_id:
-        type: integer
     type: object
-  models.VideoSlice:
-    items:
-      $ref: '#/definitions/models.Video'
-    type: array
+  people.Role:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/people.Permission'
+        type: array
+    type: object
+  people.User:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      nickname:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/people.Permission'
+        type: array
+      username:
+        type: string
+    type: object
+  people.UserFull:
+    properties:
+      avatar:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      deletedAt:
+        type: string
+      deletedBy:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastLogin:
+        type: string
+      lastName:
+        type: string
+      nickname:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/people.Permission'
+        type: array
+      roles:
+        items:
+          $ref: '#/definitions/people.Role'
+        type: array
+      updatedAt:
+        type: string
+      updatedBy:
+        type: string
+      username:
+        type: string
+    type: object
 info:
-  contact: {}
+  contact:
+    email: computing@ystv.co.uk
+    name: API Support
+    url: https://github.com/ystv/web-api
+  description: The backend powering most things
   license: {}
+  title: web-api
 paths:
-  /v1/tables/quotes:
+  /v1/internal/clapper/calendar/{year}/{month}:
     get:
-      consumes:
-      - application/json
-      description: list quotes
+      description: Lists events by month. The signup section will be null.
+      operationId: get-events-month
+      parameters:
+      - description: year
+        in: path
+        name: year
+        required: true
+        type: integer
+      - description: month
+        in: path
+        name: month
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.QuoteSlice'
-      summary: Quote list API
+            items:
+              $ref: '#/definitions/clapper.Event'
+            type: array
+      summary: List events by month
+      tags:
+      - events
+  /v1/internal/clapper/event:
     post:
       consumes:
       - application/json
-      description: create new quote, there is more to quotes!
+      description: |-
+        creates a new event.
+        You do not need to include the sign-up sheets just the meta
+      operationId: new-event
       parameters:
-      - description: quote create parameter
+      - description: Event object
         in: body
-        name: body
+        name: event
         required: true
         schema:
-          $ref: '#/definitions/models.Quote'
-      produces:
-      - application/json
+          $ref: '#/definitions/clapper.Event'
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Event ID
           schema:
-            $ref: '#/definitions/models.Quote'
-      summary: Quote create API
-  /v1/tables/quotes/{quote_id}:
-    delete:
-      consumes:
-      - application/json
-      description: delete quotes
-      parameters:
-      - description: quote id parameter
-        in: path
-        name: quote_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: Quote delete API
-    get:
-      consumes:
-      - application/json
-      description: find quote
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Quote'
-      summary: Quote find API
+            type: body
+      summary: New event
+      tags:
+      - events
     put:
       consumes:
       - application/json
-      description: update quotes
+      description: |-
+        updates an event. Only uses the meta, if you change the
+        type it will delete the children.
+      operationId: update-event
       parameters:
-      - description: quote id parameter
+      - description: Event object
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/clapper.Event'
+      responses:
+        "200": {}
+      summary: New event
+      tags:
+      - events
+  /v1/internal/clapper/event/{eventid}:
+    get:
+      description: Get a event including signup-sheets and roles.
+      operationId: get-event
+      parameters:
+      - description: Event ID
         in: path
-        name: quote_id
+        name: eventid
         required: true
         type: integer
       produces:
@@ -132,79 +304,114 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
-      summary: Quote update API
-  /v1/tables/videos:
+            $ref: '#/definitions/clapper.Event'
+      summary: Get event by ID
+      tags:
+      - events
+  /v1/internal/clapper/position:
     get:
-      consumes:
-      - application/json
-      description: list videos
+      description: Lists all positions.
+      operationId: get-positions
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.VideoSlice'
-      summary: Video list API
+            items:
+              $ref: '#/definitions/clapper.Position'
+            type: array
+      summary: List positions
+      tags:
+      - positions
     post:
       consumes:
       - application/json
-      description: create new video, there is more to videos!
+      description: creates a new position.
+      operationId: new-position
       parameters:
-      - description: video create parameter
+      - description: Position object
         in: body
-        name: body
+        name: event
         required: true
         schema:
-          $ref: '#/definitions/models.Video'
-      produces:
-      - application/json
+          $ref: '#/definitions/clapper.Position'
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Position ID
           schema:
-            $ref: '#/definitions/models.Video'
-      summary: Video create API
-  /v1/tables/videos/{video_id}:
-    delete:
-      consumes:
-      - application/json
-      description: delete videos
-      parameters:
-      - description: video id parameter
-        in: path
-        name: video_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: Video delete API
-    get:
-      consumes:
-      - application/json
-      description: find video
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Video'
-      summary: Video find API
+            type: body
+      summary: New position
+      tags:
+      - positions
     put:
       consumes:
       - application/json
-      description: update videos
+      description: updates a position.
+      operationId: update-position
       parameters:
-      - description: video id parameter
+      - description: Position object
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/clapper.Position'
+      responses:
+        "200": {}
+      summary: Update position
+      tags:
+      - positions
+  /v1/internal/misc/quote:
+    post:
+      consumes:
+      - application/json
+      description: creates a new quote.
+      operationId: new-quote
+      parameters:
+      - description: Quote object
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/misc.Quote'
+      responses:
+        "201":
+          description: Quote ID
+          schema:
+            $ref: '#/definitions/int'
+      summary: New quote
+      tags:
+      - quotes
+    put:
+      consumes:
+      - application/json
+      description: updates a quote.
+      operationId: update-quote
+      parameters:
+      - description: Quote object
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/misc.Quote'
+      responses:
+        "200": {}
+      summary: Update quote
+      tags:
+      - quotes
+  /v1/internal/misc/quote/{amount}/{page}:
+    get:
+      description: Lists quotes by pagination.
+      operationId: get-quotes
+      parameters:
+      - description: Amount
         in: path
-        name: video_id
+        name: amount
+        required: true
+        type: integer
+      - description: Page
+        in: path
+        name: page
         required: true
         type: integer
       produces:
@@ -213,6 +420,93 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
-      summary: Video update API
+            items:
+              $ref: '#/definitions/misc.QuotePage'
+            type: array
+      summary: List quotes
+      tags:
+      - quotes
+  /v1/internal/misc/quote/{quoteid}:
+    delete:
+      description: deletes a quote by ID.
+      operationId: delete-quote
+      parameters:
+      - description: Quote ID
+        in: path
+        name: quoteid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete quote
+      tags:
+      - quotes
+  /v1/internal/people/user:
+    get:
+      description: Get a basic user object by JWT token generated by web-auth.
+      operationId: get-user-token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/people.User'
+      summary: Get a user by token
+      tags:
+      - users
+  /v1/internal/people/user/{userid}:
+    get:
+      description: Get a basic user object by ID.
+      operationId: get-user-id
+      parameters:
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/people.User'
+      summary: Get a user by ID
+      tags:
+      - users
+  /v1/internal/people/user/{userid}/full:
+    get:
+      description: Get a complete user object by ID.
+      operationId: get-user-id-full
+      parameters:
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/people.User'
+      summary: Get a full user by ID
+      tags:
+      - users
+  /v1/internal/people/user/full:
+    get:
+      description: Get a complete user object by JWT token generated by web-auth.
+      operationId: get-user-token-full
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/people.UserFull'
+      summary: Get a full user by token
+      tags:
+      - users
 swagger: "2.0"

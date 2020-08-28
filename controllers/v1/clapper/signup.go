@@ -11,7 +11,7 @@ import (
 	"github.com/ystv/web-api/services/clapper"
 )
 
-// SignupNew
+// SignupNew handles a creating a signup sheet
 func (r *Repos) SignupNew(c echo.Context) error {
 	// Validate event ID
 	eventID, err := strconv.Atoi(c.Param("eventID"))

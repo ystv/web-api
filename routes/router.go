@@ -30,7 +30,9 @@ import (
 // Init initialise routes
 // @title web-api
 // @description The backend powering most things
+// @contact.name API Support
 // @contact.url https://github.com/ystv/web-api
+// @contact.email computing@ystv.co.uk
 func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true

@@ -13,6 +13,15 @@ import (
 )
 
 // MonthList returns all events for a month.
+// @Summary List events by month
+// @Description Lists events by month. The signup section will be null.
+// @ID get-events-month
+// @Tags events
+// @Produce json
+// @Param year path int true "year"
+// @Param month path int true "month"
+// @Success 200 {array} clapper.Event
+// @Router /v1/internal/clapper/calendar/{year}/{month} [get]
 func (r *Repos) MonthList(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
@@ -31,6 +40,14 @@ func (r *Repos) MonthList(c echo.Context) error {
 }
 
 // EventGet handles getting all signups and roles for a given event
+// @Summary Get event by ID
+// @Description Get a event including signup-sheets and roles.
+// @ID get-event
+// @Tags events
+// @Produce json
+// @Param eventid path int true "Event ID"
+// @Success 200 {object} clapper.Event
+// @Router /v1/internal/clapper/event/{eventid} [get]
 func (r *Repos) EventGet(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
@@ -45,6 +62,15 @@ func (r *Repos) EventGet(c echo.Context) error {
 }
 
 // EventNew handles creating a new event
+// @Summary New event
+// @Description creates a new event.
+// @Description You do not need to include the sign-up sheets just the meta
+// @ID new-event
+// @Tags events
+// @Accept json
+// @Param event body clapper.Event true "Event object"
+// @Success 201 body int "Event ID"
+// @Router /v1/internal/clapper/event [post]
 func (r *Repos) EventNew(c echo.Context) error {
 	e := clapper.Event{}
 	err := c.Bind(&e)
@@ -66,6 +92,15 @@ func (r *Repos) EventNew(c echo.Context) error {
 }
 
 // EventUpdate updates an existing event
+// @Summary New event
+// @Description updates an event. Only uses the meta, if you change the
+// @Description type it will delete the children.
+// @ID update-event
+// @Tags events
+// @Accept json
+// @Param quote body clapper.Event true "Event object"
+// @Success 200
+// @Router /v1/internal/clapper/event [put]
 func (r *Repos) EventUpdate(c echo.Context) error {
 	e := clapper.Event{}
 	err := c.Bind(&e)
