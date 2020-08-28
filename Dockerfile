@@ -1,20 +1,29 @@
 FROM golang:1.15-alpine AS build
 LABEL site="api"
 LABEL stage="builder"
+
 WORKDIR /src/
-COPY . /src/
 
+# Stores our dependencies
+COPY go.mod .
+COPY go.sum .
+
+# Download dependencies
+RUN go mod download
+
+# Copy source
+COPY . .
+
+# Set build variables
 RUN apk update && apk upgrade && \
-    apk add --no-cache git
-RUN echo -n "-X 'main.Version=" > ./ldflags
-RUN git describe --abbrev=0 >> ./ldflags
-RUN tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags 
-RUN echo -n "' -X 'main.Commit=" >> ./ldflags
-RUN git log --format="%H" -n 1 >> ./ldflags
-RUN tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags
-RUN echo -n "'" >> ./ldflags
+    apk add --no-cache git && \
+    echo -n "-X 'main.Version=$(git describe --abbrev=0)" > ./ldflags && \
+    tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
+    echo -n "' -X 'main.Commit=$(git log --format="%H" -n 1)" >> ./ldflags && \
+    tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
+    echo -n "'" >> ./ldflags
 
-RUN CGO_ENABLED=0 go build -ldflags="$(cat ./ldflags)" -o /bin/api cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -o /bin/api cmd/main.go
 
 FROM scratch
 LABEL site="api"
