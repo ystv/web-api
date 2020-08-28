@@ -9,6 +9,8 @@ import (
 	"github.com/streadway/amqp"
 )
 
+// TODO remove logging and panicking
+
 // IMessagingClient defines connecting, producing, and consuming messages.
 type IMessagingClient interface {
 	ConnectToBroker(connectionString string)

@@ -1,7 +1,5 @@
 package main
 
-//go:generate ./sqlboiler --wipe psql --add-global-variants
-
 import (
 	"log"
 	"os"
@@ -13,7 +11,7 @@ import (
 )
 
 // Version returns web-api's current version
-var Version = "dev (0.5.3)"
+var Version = "dev (0.5.7)"
 
 // Commit returns latest commit hash
 var Commit = "unknown"
@@ -33,11 +31,11 @@ func main() {
 	if debug {
 		log.Println("Debug Mode - Disabled auth - pls don't run in production")
 	}
-	utils.InitDB()
-	utils.InitCDN()
+	db := utils.InitDB()
+	cdn := utils.InitCDN()
 	// utils.InitMessaging()
 
-	e := routes.Init(Version, Commit)
+	e := routes.Init(Version, Commit, db, cdn)
 
 	e.Logger.Fatal(e.Start(":8081"))
 }

@@ -1,7 +1,7 @@
 package encoder
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -11,10 +11,14 @@ import (
 )
 
 type (
+	// These structs are for binding to tusd's request
+
+	// Request represents the upload and a normal HTTP request
 	Request struct {
 		Upload      Upload
 		HTTPRequest http.Request
 	}
+	// Upload represents an object and it's status
 	Upload struct {
 		ID        string
 		Size      int
@@ -25,9 +29,12 @@ type (
 		MetaData []MetaData
 		Storage  Storage
 	}
+	// MetaData represents metadata of a file.
+	// There is more, but we just need filename
 	MetaData struct {
 		Filename string `json:"filename"`
 	}
+	// Storage represents the storage medium of the object
 	Storage struct {
 		Type   string
 		Bucket string
@@ -48,7 +55,8 @@ func VideoNew(c echo.Context) error {
 	}
 	cookie, err := r.HTTPRequest.Cookie("token")
 	if err != nil {
-		return echo.ErrBadRequest
+		err = fmt.Errorf("VideoNew failed: failed to find api token: %w", err)
+		return echo.NewHTTPError(http.StatusForbidden, err)
 	}
 	tokenString := cookie.Value
 	claims := &people.JWTClaims{}
@@ -57,11 +65,12 @@ func VideoNew(c echo.Context) error {
 		return []byte(os.Getenv("signing_key")), nil
 	})
 	if err != nil {
-		log.Printf("UserByToken failed: %+v", err)
-		return echo.ErrInternalServerError
+		err = fmt.Errorf("VideoNew failed: failed to parse jwt %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	if claims.Valid() != nil {
-		return c.JSON(http.StatusForbidden, err)
+		err = fmt.Errorf("JWT expired: %w", err)
+		return echo.NewHTTPError(http.StatusForbidden, err)
 	}
-	return c.JSON(http.StatusOK, nil)
+	return c.NoContent(http.StatusOK)
 }

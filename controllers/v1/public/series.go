@@ -1,35 +1,23 @@
 package public
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/public"
 )
 
 // SeriesByID returns a series with it's immediate children with a SeriesID
-func SeriesByID(c echo.Context) error {
+func (r *Repos) SeriesByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Bad video ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad series ID")
 	}
-	v, err := public.SeriesAndChildren(id)
+	v, err := r.public.GetSeries(c.Request().Context(), id)
 	if err != nil {
-		return c.NoContent(http.StatusInternalServerError)
-	}
-	return c.JSON(http.StatusOK, v)
-}
-
-// SeriesBreadcrumb returns the breadcrumb of a given series
-func SeriesBreadcrumb(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, "Bad video ID")
-	}
-	v, err := public.SeriesBreadcrumb(id)
-	if err != nil {
-		return c.NoContent(http.StatusInternalServerError)
+		err = fmt.Errorf("Public SeriesByID failed : %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, v)
 }

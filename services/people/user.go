@@ -1,10 +1,10 @@
 package people
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"time"
 
-	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -51,67 +51,68 @@ type (
 	}
 )
 
+// Here for validation to ensure we are meeting the interface
+var _ UserRepo = &Store{}
+
 // GetFull will return all user information to be used for profile and management.
-func GetFull(id int) (*UserFull, error) {
+func (m *Store) GetFull(ctx context.Context, userID int) (*UserFull, error) {
 	u := UserFull{}
-	err := utils.DB.Get(&u,
+	err := m.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname,
 		avatar, last_login, created_at, created_by, updated_at, updated_by,
 		deleted_at, deleted_by
 		FROM people.users
 		WHERE user_id = $1
-		LIMIT 1;`, id)
+		LIMIT 1;`, userID)
 	if err != nil {
-		log.Printf("user.GetFull failed: %+v", err)
-		return &u, err
+		return nil, fmt.Errorf("failed to get user meta: %w", err)
 	}
-	err = utils.DB.Select(&u.Roles,
+	err = m.db.SelectContext(ctx, &u.Roles,
 		`SELECT r.role_id, r.name, r.description
 	FROM people.roles r
 	INNER JOIN people.role_members rm ON rm.role_id = r.role_id
-	WHERE user_id = $1`, id)
+	WHERE user_id = $1;`, userID)
 	if err != nil {
-		log.Printf("user.GetFull roles failed: %+v", err)
-		return &u, err
+		return nil, fmt.Errorf("failed to get roles: %w", err)
 	}
 	for idx := range u.Roles {
-		err := utils.DB.Select(&u.Roles[idx].Permissions,
+		err := m.db.SelectContext(ctx, &u.Roles[idx].Permissions,
 			`SELECT p.permission_id, p.name, p.description
 		FROM people.permissions p
 		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
-		WHERE rp.role_id = $1`, u.Roles[idx].ID)
+		WHERE rp.role_id = $1;`, u.Roles[idx].ID)
 		if err != nil {
-			log.Printf("user.GetFull perms failed: %+v", err)
+			return nil, fmt.Errorf("failed to get permissions from roles: %w", err)
 		}
 	}
 	if u.Avatar.Valid {
+		// TODO sort this out
 		u.Avatar = null.StringFrom("https://ystv.co.uk/static/images/members/thumb/" + u.Avatar.String)
 	}
 	return &u, nil
 }
 
 // Get returns basic user information to be used for other services.
-func Get(id int) (*User, error) {
+func (m *Store) Get(ctx context.Context, userID int) (*User, error) {
 	u := User{}
-	err := utils.DB.Get(&u,
+	err := m.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname, avatar
 		FROM people.users
-		WHERE user_id = $1`, id)
+		WHERE user_id = $1;`, userID)
 	if err != nil {
-		log.Printf("user.Get failed: %+v", err)
-		return &u, err
+		return nil, fmt.Errorf("failed to get user meta: %w", err)
 	}
-	err = utils.DB.Select(&u.Permissions,
+	err = m.db.SelectContext(ctx, &u.Permissions,
 		`SELECT p.permission_id, p.name
 		FROM people.permissions p
 		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
 		INNER JOIN people.role_members rm ON rm.role_id = rp.role_id
-		WHERE rm.user_id = $1;`, id)
+		WHERE rm.user_id = $1;`, userID)
 	if err != nil {
-		log.Printf("user.Get perms failed: %+v", err)
-		return &u, err
+		return nil, fmt.Errorf("failed to get permissions: %w", err)
 	}
 	if u.Avatar.Valid {
+		// TODO sort this out
 		u.Avatar = null.StringFrom("https://ystv.co.uk/static/images/members/thumb/" + u.Avatar.String)
 	}
 	return &u, nil

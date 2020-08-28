@@ -1,14 +1,13 @@
 package people
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/services/people"
 )
 
 type (
@@ -26,53 +25,59 @@ type (
 )
 
 // UserByID finds a user by ID
-func UserByID(c echo.Context) error {
+func (r *Repo) UserByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
-	p, err := people.Get(id)
+	p, err := r.user.Get(c.Request().Context(), id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		err = fmt.Errorf("UserByID failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
 
 // UserByIDFull finds a user by ID returing all info
-func UserByIDFull(c echo.Context) error {
+func (r *Repo) UserByIDFull(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
-	p, err := people.GetFull(id)
+	p, err := r.user.GetFull(c.Request().Context(), id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		err = fmt.Errorf("UserByIDFull failed to get user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
 
 // UserByToken finds a user by their JWT token
-func UserByToken(c echo.Context) error {
+func (r *Repo) UserByToken(c echo.Context) error {
 	claims, err := GetToken(c)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("UserByToken failed to get token: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	p, err := people.Get(claims.UserID)
+	p, err := r.user.Get(c.Request().Context(), claims.UserID)
 	if err != nil {
-		log.Printf("UserByToken failed getting: %+v", err)
+		err = fmt.Errorf("UserByToken failed getting user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
 
 // UserByTokenFull finds a user by their JWT token returning all info
-func UserByTokenFull(c echo.Context) error {
+func (r *Repo) UserByTokenFull(c echo.Context) error {
 	claims, err := GetToken(c)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	p, err := people.GetFull(claims.UserID)
+	p, err := r.user.GetFull(c.Request().Context(), claims.UserID)
 	if err != nil {
-		log.Printf("UserByToken failed getting: %+v", err)
+		err = fmt.Errorf("UserByTokenFull failed getting user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
 }
@@ -90,8 +95,8 @@ func GetToken(c echo.Context) (*JWTClaims, error) {
 		return []byte(os.Getenv("signing_key")), nil
 	})
 	if err != nil {
-		log.Printf("UserByToken failed: %+v", err)
-		return nil, echo.ErrInternalServerError
+		err = fmt.Errorf("GetToken failed: %w", err)
+		return nil, err
 	}
 	if claims.Valid() != nil {
 		return nil, echo.ErrForbidden

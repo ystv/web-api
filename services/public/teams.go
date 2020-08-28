@@ -1,5 +1,7 @@
 package public
 
+import "context"
+
 type (
 	//Team a group in ystv
 	Team struct {
@@ -15,8 +17,10 @@ type (
 	}
 )
 
+var _ TeamRepo = &Store{}
+
 // ListTeams returns a list of the ystv teams and their current members.
-func ListTeams() *[]Team {
+func (s *Store) ListTeams(ctx context.Context) (*[]Team, error) {
 	t := []Team{
 		{
 			"Admin Team",
@@ -46,5 +50,5 @@ func ListTeams() *[]Team {
 			},
 		},
 	}
-	return &t
+	return &t, nil
 }

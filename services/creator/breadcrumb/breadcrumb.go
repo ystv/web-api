@@ -4,28 +4,36 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
+	"fmt"
 	"strings"
 
-	"github.com/ystv/web-api/services/creator/series"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/jmoiron/sqlx"
+	"github.com/ystv/web-api/services/creator"
+	"github.com/ystv/web-api/services/creator/types/breadcrumb"
 	"github.com/ystv/web-api/services/creator/video"
-	"github.com/ystv/web-api/utils"
 )
 
-// Breadcrumb generic to be used for both series and video as a breadcrumb
-type Breadcrumb struct {
-	ID       int    `db:"id" json:"id"`
-	URL      string `db:"url" json:"url"`
-	UseInURL bool   `db:"use" json:"useInURL"`
-	Name     string `db:"name" json:"name"`
-	SeriesID int    `db:"series_id" json:"-"` // Here since needed
+// Here for validation to ensure we are meeting the interface
+var _ creator.BreadcrumbRepo = &Controller{}
+
+// Controller contains our dependency
+type Controller struct {
+	db     *sqlx.DB
+	video  creator.VideoRepo
+	series creator.SeriesRepo
+}
+
+// NewController creates a new controller
+func NewController(db *sqlx.DB, cdn *s3.S3) *Controller {
+	return &Controller{db: db, video: video.NewStore(db, cdn)}
 }
 
 // Series will return the breadcrumb from SeriesID to root
-func Series(SeriesID int) ([]Breadcrumb, error) {
-	s := []Breadcrumb{}
+func (c *Controller) Series(ctx context.Context, seriesID int) (*[]breadcrumb.Breadcrumb, error) {
+	s := []breadcrumb.Breadcrumb{}
 	// TODO Need a bool to indicate if series is in URL
-	err := utils.DB.Select(&s,
+	err := c.db.SelectContext(ctx, &s,
 		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
 		FROM
 			video.series node,
@@ -33,80 +41,74 @@ func Series(SeriesID int) ([]Breadcrumb, error) {
 		WHERE
 			node.lft BETWEEN parent.lft AND parent.rgt
 			AND node.series_id = $1
-		ORDER BY parent.lft;`, SeriesID)
+		ORDER BY parent.lft;`, seriesID)
 	if err != nil {
-		log.Printf("BreadcrumbSeries failed: %+v", err)
+		return nil, err
 	}
-	return s, err
+	return &s, err
 }
 
 // Video returns the absolute path from a VideoID
-func Video(VideoID int) ([]Breadcrumb, error) {
-	var vB Breadcrumb // Video breadcrumb
-	err := utils.DB.Get(&vB,
+func (c *Controller) Video(ctx context.Context, videoID int) (*[]breadcrumb.Breadcrumb, error) {
+	vB := breadcrumb.Breadcrumb{} // Video breadcrumb
+	err := c.db.GetContext(ctx, &vB,
 		`SELECT video_id as id, series_id, COALESCE(name, url) as name, url
 		FROM video.items
-		WHERE video_id = $1`, VideoID)
+		WHERE video_id = $1`, videoID)
 	if err != nil {
-		log.Printf("VideoBreadcrumb failed: %+v", err)
+		err = fmt.Errorf("failed to get video breadcrumb: %w", err)
 		return nil, err
 	}
-	sB, err := Series(vB.SeriesID)
+	sB, err := c.Series(ctx, vB.SeriesID)
 	if err != nil {
+		err = fmt.Errorf("failed to get series breadcrumb: %w", err)
 		return nil, err
 	}
-	sB = append(sB, vB)
+	*sB = append(*sB, vB)
 
 	return sB, err
 }
 
-// Item is either a video or a series
-type Item struct {
-	Video  *video.Item   `json:"video"`
-	Series series.Series `json:"series"`
-}
-
 // Find will returns either a series or a video for a given path
-func Find(path string) (Item, error) {
-	blank := Item{}
-
-	Series, err := series.FromPath(path)
+func (c *Controller) Find(ctx context.Context, path string) (*breadcrumb.Item, error) {
+	s, err := c.series.FromPath(ctx, path)
 	if err != nil {
 		// Might be a video, so we'll go back a crumb and check for a series
 		if err == sql.ErrNoRows {
 			split := strings.Split(path, "/")
 			PathWithoutLast := strings.Join(split[:len(split)-1], "/")
-			Series, err := series.FromPath(PathWithoutLast)
+			s, err := c.series.FromPath(ctx, PathWithoutLast)
 			if err != nil {
-				if err == sql.ErrNoRows {
+				if errors.Is(err, sql.ErrNoRows) {
 					// No series, so there will be no videos
-					return blank, err
+					err = fmt.Errorf("No series: %w", err)
+					return nil, err
 				}
-				log.Printf("Find failed from 2nd last: %+v", err)
-				return blank, err
+				err = fmt.Errorf("Failed from back a layer: %w", err)
+				return nil, err
 			}
 			// Found series
-			if len(Series.ChildVideos) == 0 {
+			if len(*s.ChildVideos) == 0 {
 				// No videos on series
-				return blank, errors.New("Series: No videos")
+				return nil, errors.New("No videos")
 			}
 			// We've got videos
-			for _, v := range Series.ChildVideos {
+			for _, v := range *s.ChildVideos {
 				// Check if video name matches last path
 				if v.URL == split[len(split)-1] {
 					// Found video
-					foundVideo, err := video.FindItem(context.Background(), v.ID)
-					log.Print(foundVideo)
-					log.Print(err)
-					return Item{Video: foundVideo}, nil
-
+					foundVideo, err := c.video.GetItem(ctx, v.ID)
+					if err != nil {
+						return nil, err
+					}
+					return &breadcrumb.Item{Video: foundVideo}, nil
 				}
 			}
 		} else {
-			log.Printf("Find failed from path: %+v", err)
-			return blank, err
+			err = fmt.Errorf("From path %s: %w", path, err)
+			return nil, err
 		}
 	}
 	// Found series
-	return Item{Series: Series}, nil
+	return &breadcrumb.Item{Series: s}, nil
 }

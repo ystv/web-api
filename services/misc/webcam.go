@@ -1,4 +1,4 @@
-package internal
+package misc
 
 type (
 	// WebcamStatistic represents general watch statistics
