@@ -38,6 +38,13 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
 }
 
 // Stats handles sending general stats about the video library
+// @Summary Get global video library information
+// @Description Gets the statistics about the global video library.
+// @ID get-creator-glob-stats
+// @Tags creator, stats
+// @Produce json
+// @Success 200 {object} stats.VideoGlobalStats
+// @Router /v1/internal/creator/stats [get]
 func (r *Repos) Stats(c echo.Context) error {
 	s, err := r.creator.GlobalVideo(c.Request().Context())
 	if err != nil {

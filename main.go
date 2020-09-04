@@ -10,6 +10,8 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
+//go:generate swag init -g routes/router.go
+
 // Version returns web-api's current version
 var Version = "dev (0.5.7)"
 

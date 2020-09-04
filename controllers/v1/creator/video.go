@@ -10,8 +10,16 @@ import (
 	"github.com/ystv/web-api/services/creator/types/video"
 )
 
-// VideoFind finds a video by ID
-func (r *Repos) VideoFind(c echo.Context) error {
+// GetVideo finds a video by ID
+// @Summary Get video by ID
+// @Description Get a playlist including it's children files.
+// @ID get-creator-video
+// @Tags creator, videos
+// @Produce json
+// @Param videoid path int true "Video ID"
+// @Success 200 {object} video.Item
+// @Router /v1/internal/creator/videos/{videoid} [get]
+func (r *Repos) GetVideo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		echo.NewHTTPError(http.StatusBadRequest, "Invalid video ID")
@@ -24,9 +32,17 @@ func (r *Repos) VideoFind(c echo.Context) error {
 	return c.JSON(http.StatusOK, v)
 }
 
-// VideoNew Handles creation of a video
-func (r *Repos) VideoNew(c echo.Context) error {
-	v := video.NewVideo{}
+// NewVideo Handles creation of a video
+// @Summary New video
+// @Description creates a new video, requires the file ID/name to find it in CDN.
+// @ID new-creator-video
+// @Tags creator, videos
+// @Accept json
+// @Param event body video.New true "NewVideo object"
+// @Success 201 body int "Video ID"
+// @Router /v1/internal/creator/videos [post]
+func (r *Repos) NewVideo(c echo.Context) error {
+	v := video.New{}
 	err := c.Bind(&v)
 	if err != nil {
 		err = fmt.Errorf("VideoCreate bind fail: %w", err)
@@ -48,6 +64,13 @@ func (r *Repos) VideoNew(c echo.Context) error {
 }
 
 // VideoList Handles listing all creations
+// @Summary List all videos
+// @Description Lists all videos, doesn't include files inside.
+// @ID get-creator-videos-all
+// @Tags creator, videos
+// @Produce json
+// @Success 200 {array} video.Meta
+// @Router /v1/internal/creator/videos [get]
 func (r *Repos) VideoList(c echo.Context) error {
 	v, err := r.video.ListMeta(c.Request().Context())
 	if err != nil {
@@ -57,8 +80,15 @@ func (r *Repos) VideoList(c echo.Context) error {
 	return c.JSON(http.StatusOK, v)
 }
 
-// VideosUser Handles retrieving a user's videos using their userid in their token.
-func (r *Repos) VideosUser(c echo.Context) error {
+// ListVideosByUser Handles retrieving a user's videos using their userid in their token.
+// @Summary List all videos created by user ID
+// @Description Lists all videos, doesn't include files inside. Uses the createdBy user ID.
+// @ID get-creator-videos-user
+// @Tags creator, videos
+// @Produce json
+// @Success 200 {array} video.Meta
+// @Router /v1/internal/creator/videos/my [get]
+func (r *Repos) ListVideosByUser(c echo.Context) error {
 	claims, err := people.GetToken(c)
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
@@ -72,8 +102,17 @@ func (r *Repos) VideosUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, v)
 }
 
-// CalendarList Handles listing all videos from a calendar year/month
-func (r *Repos) CalendarList(c echo.Context) error {
+// ListVideosByMonth Handles listing all videos from a calendar year/month
+// @Summary List videos by month
+// @Description Lists videos by month.
+// @ID get-creator-videos-calendar
+// @Tags creator, videos
+// @Produce json
+// @Param year path int true "year"
+// @Param month path int true "month"
+// @Success 200 {array} video.MetaCal
+// @Router /v1/internal/creator/calendar/{year}/{month} [get]
+func (r *Repos) ListVideosByMonth(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")

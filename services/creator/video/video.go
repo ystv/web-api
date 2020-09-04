@@ -113,7 +113,7 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, erro
 // NewItem creates a new video item
 // TODO I think this needs to be redesigned more like a transaction so we can safely fail anywhere.
 // TODO return new video ID
-func (s *Store) NewItem(ctx context.Context, v *video.NewVideo) error {
+func (s *Store) NewItem(ctx context.Context, v *video.New) error {
 	// Checking if video file exists
 	obj, err := s.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String("pending"),

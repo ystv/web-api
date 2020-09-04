@@ -99,11 +99,11 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 				videos := creator.Group("/videos")
 				{
 					videos.GET("", creatorV1.VideoList)
-					videos.GET("/my", creatorV1.VideosUser)
-					videos.POST("", creatorV1.VideoNew)
+					videos.GET("/my", creatorV1.ListVideosByUser)
+					videos.POST("", creatorV1.NewVideo)
 					videoItem := videos.Group("/:id")
 					{
-						videoItem.GET("", creatorV1.VideoFind)
+						videoItem.GET("", creatorV1.GetVideo)
 						videoItem.PUT("", notImplemented)
 					}
 				}
@@ -114,28 +114,28 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 				}
 				playlists := creator.Group("/playlists")
 				{
-					playlists.GET("", creatorV1.PlaylistAll)
-					playlists.POST("", creatorV1.PlaylistNew)
+					playlists.GET("", creatorV1.ListPlaylist)
+					playlists.POST("", creatorV1.NewPlaylist)
 					playlist := playlists.Group("/:id")
 					{
-						playlist.GET("", creatorV1.PlaylistGet)
-						playlist.PUT("", creatorV1.PlaylistUpdate)
+						playlist.GET("", creatorV1.GetPlaylist)
+						playlist.PUT("", creatorV1.UpdatePlaylist)
 					}
 				}
 				encodes := creator.Group("/encodes")
 				{
 					presets := encodes.Group("/presets")
 					{
-						presets.GET("", creatorV1.PresetList)
-						presets.POST("", creatorV1.PresetNew)
-						presets.PUT("", creatorV1.PresetUpdate) // We take the ID in the json request
+						presets.GET("", creatorV1.ListPreset)
+						presets.POST("", creatorV1.NewPreset)
+						presets.PUT("", creatorV1.UpdatePreset) // We take the ID in the json request
 					}
 					profiles := encodes.Group("/profiles")
 					{
-						profiles.GET("", creatorV1.EncodeProfileList)
+						profiles.GET("", creatorV1.ListEncodeProfile)
 					}
 				}
-				creator.GET("/calendar/:year/:month", creatorV1.CalendarList)
+				creator.GET("/calendar/:year/:month", creatorV1.ListVideosByMonth)
 				creator.GET("/stats", creatorV1.Stats)
 			}
 			clapper := internal.Group("/clapper")
@@ -157,11 +157,11 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 							signup.PUT("/:sheet/:role", notImplemented) // Update a crew role, used to set a person
 						}
 					}
-					events.POST("", clapperV1.EventNew)   // Create a new event
-					events.PUT("", clapperV1.EventUpdate) // Update an event
+					events.POST("", clapperV1.NewEvent)   // Create a new event
+					events.PUT("", clapperV1.UpdateEvent) // Update an event
 
 				}
-				crew := clapper.Group("/position")
+				crew := clapper.Group("/positions")
 				{
 					crew.GET("", clapperV1.PositionList)   // List crew positions
 					crew.POST("", clapperV1.PositionNew)   // Create a new crew position

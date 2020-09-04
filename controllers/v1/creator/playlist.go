@@ -11,8 +11,15 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-// PlaylistAll handles listing all playlist metadata's
-func (r *Repos) PlaylistAll(c echo.Context) error {
+// ListPlaylist handles listing all playlist metadata's
+// @Summary List all playlists
+// @Description Lists all playlists, doesn't include videos inside.
+// @ID get-creator-playlists-all
+// @Tags creator, playlists
+// @Produce json
+// @Success 200 {array} playlist.Playlist
+// @Router /v1/internal/creator/playlists [get]
+func (r *Repos) ListPlaylist(c echo.Context) error {
 	p, err := r.playlist.All(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("PlaylistAll failed: %w", err)
@@ -21,8 +28,16 @@ func (r *Repos) PlaylistAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-// PlaylistGet handles getting a single playlist and it's following videometa's
-func (r *Repos) PlaylistGet(c echo.Context) error {
+// GetPlaylist handles getting a single playlist and it's following videometa's
+// @Summary Get playlist by ID
+// @Description Get a playlist including it's children videos.
+// @ID get-creator-playlist
+// @Tags creator, playlists
+// @Produce json
+// @Param playlistid path int true "Playlist ID"
+// @Success 200 {object} playlist.Playlist
+// @Router /v1/internal/creator/playlists/{playlistid} [get]
+func (r *Repos) GetPlaylist(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		echo.NewHTTPError(http.StatusBadRequest, "Invalid playlist ID")
@@ -35,15 +50,30 @@ func (r *Repos) PlaylistGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-// PlaylistNew handles creating a new playlist item
-func (r *Repos) PlaylistNew(c echo.Context) error {
+// NewPlaylist handles creating a new playlist item
+// @Summary New playlist
+// @Description creates a new playlist with optional video ID's.
+// @ID new-creator-playlist
+// @Tags creator, playlists
+// @Accept json
+// @Param event body playlist.Playlist true "Playlist object"
+// @Success 201 body int "Playlist ID"
+// @Router /v1/internal/creator/playlists [post]
+func (r *Repos) NewPlaylist(c echo.Context) error {
 	p := playlist.Playlist{}
 	err := c.Bind(&p)
 	if err != nil {
-		err = fmt.Errorf("PlaylistUpdate: failed to bind json: %w", err)
+		err = fmt.Errorf("failed to bind json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	// TODO sort out user ID
+
+	claims, err := people.GetToken(c)
+	if err != nil {
+		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	p.UpdatedBy = null.IntFrom(int64(claims.UserID))
+
 	res, err := r.playlist.New(c.Request().Context(), p)
 	if err != nil {
 		err = fmt.Errorf("PlaylistNew failed: %w", err)
@@ -52,8 +82,16 @@ func (r *Repos) PlaylistNew(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-// PlaylistUpdate handles updating a playlist
-func (r *Repos) PlaylistUpdate(c echo.Context) error {
+// UpdatePlaylist handles updating a playlist
+// @Summary Update playlist
+// @Description Update a playlist, video ID's required otherwise it will remove all videos.
+// @ID update-creator-playlist
+// @Tags creator, playlists
+// @Accept json
+// @Param quote body playlist.Playlist true "Playlist object"
+// @Success 200
+// @Router /v1/internal/creator/playlists [put]
+func (r *Repos) UpdatePlaylist(c echo.Context) error {
 	p := playlist.Playlist{}
 	err := c.Bind(&p)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/controllers/v1/people"
@@ -61,38 +62,49 @@ func (r *Repos) EventGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, e)
 }
 
-// EventNew handles creating a new event
+type NewEvent struct {
+	EventType   string    `json:"eventType"`
+	Name        string    `json:"name"`
+	StartDate   time.Time `json:"startDate"`
+	EndDate     time.Time `json:"endDate"`
+	Description string    `json:"description"`
+	Location    string    `json:"location"`
+	IsPrivate   bool      `json:"isPrivate"`
+	IsCancelled bool      `json:"isCancelled"`
+}
+
+// NewEvent handles creating a new event
 // @Summary New event
 // @Description creates a new event.
 // @Description You do not need to include the sign-up sheets just the meta
 // @ID new-event
 // @Tags events
 // @Accept json
-// @Param event body clapper.Event true "Event object"
+// @Param event body NewEvent true "Event object"
 // @Success 201 body int "Event ID"
 // @Router /v1/internal/clapper/event [post]
-func (r *Repos) EventNew(c echo.Context) error {
+func (r *Repos) NewEvent(c echo.Context) error {
 	e := clapper.Event{}
 	err := c.Bind(&e)
 	if err != nil {
-		err = fmt.Errorf("EventNew: failed to bind to request json: %w", err)
+		err = fmt.Errorf("NewEvent: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	p, err := people.GetToken(c)
 	if err != nil {
-		err = fmt.Errorf("EventNew: failed to get token: %w", err)
+		err = fmt.Errorf("NewEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	eventID, err := r.event.New(c.Request().Context(), &e, p.UserID)
 	if err != nil {
-		err = fmt.Errorf("EventNew: failed to insert event: %w", err)
+		err = fmt.Errorf("NewEvent: failed to insert event: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusCreated, eventID)
 }
 
-// EventUpdate updates an existing event
-// @Summary New event
+// UpdateEvent updates an existing event
+// @Summary Update event
 // @Description updates an event. Only uses the meta, if you change the
 // @Description type it will delete the children.
 // @ID update-event
@@ -101,16 +113,16 @@ func (r *Repos) EventNew(c echo.Context) error {
 // @Param quote body clapper.Event true "Event object"
 // @Success 200
 // @Router /v1/internal/clapper/event [put]
-func (r *Repos) EventUpdate(c echo.Context) error {
+func (r *Repos) UpdateEvent(c echo.Context) error {
 	e := clapper.Event{}
 	err := c.Bind(&e)
 	if err != nil {
-		err = fmt.Errorf("EventUpdate: failed to bind to request json: %w", err)
+		err = fmt.Errorf("UpdateEvent: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	p, err := people.GetToken(c)
 	if err != nil {
-		err = fmt.Errorf("EventUpdate: failed to get token: %w", err)
+		err = fmt.Errorf("UpdateEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	err = r.event.Update(c.Request().Context(), &e, p.UserID)
@@ -118,7 +130,7 @@ func (r *Repos) EventUpdate(c echo.Context) error {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
-		err = fmt.Errorf("EventUpdate:  failed to update: %w", err)
+		err = fmt.Errorf("UpdateEvent:  failed to update: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)

@@ -58,8 +58,8 @@ type (
 		PresetID   null.Int    `db:"preset_id" json:"presetID"`
 		PresetName null.String `db:"preset_name" json:"name"`
 	}
-	// NewVideo is the basic information to create a video
-	NewVideo struct {
+	// New is the basic information to create a video
+	New struct {
 		FileID        string    `json:"fileID"`
 		SeriesID      int       `json:"seriesID" db:"series_id"`
 		Name          string    `json:"name" db:"name"`

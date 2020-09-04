@@ -20,7 +20,7 @@ type (
 		ListMetaByUser(ctx context.Context, userID int) (*[]video.Meta, error)
 		ListByCalendarMonth(ctx context.Context, year, month int) (*[]video.MetaCal, error)
 		OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, error)
-		NewItem(ctx context.Context, v *video.NewVideo) error
+		NewItem(ctx context.Context, v *video.New) error
 	}
 	// SeriesRepo defines all creator series interactions
 	SeriesRepo interface {

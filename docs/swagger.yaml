@@ -74,6 +74,25 @@ definitions:
       startDate:
         type: string
     type: object
+  clapper.NewEvent:
+    properties:
+      description:
+        type: string
+      endDate:
+        type: string
+      eventType:
+        type: string
+      isCancelled:
+        type: boolean
+      isPrivate:
+        type: boolean
+      location:
+        type: string
+      name:
+        type: string
+      startDate:
+        type: string
+    type: object
   clapper.Position:
     properties:
       admin:
@@ -108,6 +127,38 @@ definitions:
       unlockDate:
         type: string
     type: object
+  encode.Format:
+    properties:
+      description:
+        type: string
+      height:
+        type: integer
+      id:
+        type: integer
+      mimeType:
+        type: string
+      mode:
+        type: string
+      name:
+        type: string
+      watermarked:
+        type: boolean
+      width:
+        type: integer
+    type: object
+  encode.Preset:
+    properties:
+      description:
+        type: string
+      formats:
+        items:
+          $ref: '#/definitions/encode.Format'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   misc.Quote:
     properties:
       createdBy:
@@ -130,8 +181,6 @@ definitions:
     type: object
   people.Permission:
     properties:
-      description:
-        type: string
       id:
         type: integer
       name:
@@ -210,6 +259,201 @@ definitions:
       username:
         type: string
     type: object
+  playlist.Playlist:
+    properties:
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: string
+      thumbnail:
+        type: string
+      updatedAt:
+        type: string
+      updatedBy:
+        type: string
+      videos:
+        items:
+          $ref: '#/definitions/video.Meta'
+        type: array
+    type: object
+  series.Meta:
+    properties:
+      depth:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      thumbnail:
+        type: string
+      url:
+        type: string
+    type: object
+  series.Series:
+    properties:
+      childSeries:
+        items:
+          $ref: '#/definitions/series.Meta'
+        type: array
+      depth:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      thumbnail:
+        type: string
+      url:
+        type: string
+      videos:
+        items:
+          $ref: '#/definitions/video.Meta'
+        type: array
+    type: object
+  stats.VideoGlobalStats:
+    properties:
+      totalPendingVideos:
+        type: integer
+      totalStorageUsed:
+        type: integer
+      totalVideoHits:
+        type: integer
+      totalVideos:
+        type: integer
+    type: object
+  video.File:
+    properties:
+      encodeFormat:
+        type: string
+      mimeType:
+        type: string
+      size:
+        type: string
+      status:
+        type: string
+      uri:
+        type: string
+    type: object
+  video.Item:
+    properties:
+      broadcastDate:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/video.File'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      presetID:
+        type: string
+      seriesID:
+        type: integer
+      status:
+        type: string
+      tags:
+        type: string
+      thumbnail:
+        type: string
+      url:
+        type: string
+      userID:
+        type: integer
+      userNickname:
+        type: string
+      views:
+        type: integer
+    type: object
+  video.Meta:
+    properties:
+      broadcastDate:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      presetID:
+        type: string
+      seriesID:
+        type: integer
+      status:
+        type: string
+      tags:
+        type: string
+      thumbnail:
+        type: string
+      url:
+        type: string
+      userID:
+        type: integer
+      userNickname:
+        type: string
+      views:
+        type: integer
+    type: object
+  video.MetaCal:
+    properties:
+      broadcastDate:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+  video.New:
+    properties:
+      broadcastDate:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: integer
+      description:
+        type: string
+      fileID:
+        type: string
+      name:
+        type: string
+      preset:
+        type: integer
+      publishType:
+        type: string
+      seriesID:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      urlName:
+        type: string
+    type: object
 info:
   contact:
     email: computing@ystv.co.uk
@@ -260,7 +504,7 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/clapper.Event'
+          $ref: '#/definitions/clapper.NewEvent'
       responses:
         "201":
           description: Event ID
@@ -285,7 +529,7 @@ paths:
           $ref: '#/definitions/clapper.Event'
       responses:
         "200": {}
-      summary: New event
+      summary: Update event
       tags:
       - events
   /v1/internal/clapper/event/{eventid}:
@@ -308,7 +552,7 @@ paths:
       summary: Get event by ID
       tags:
       - events
-  /v1/internal/clapper/position:
+  /v1/internal/clapper/positions:
     get:
       description: Lists all positions.
       operationId: get-positions
@@ -361,6 +605,317 @@ paths:
       summary: Update position
       tags:
       - positions
+  /v1/internal/creator/calendar/{year}/{month}:
+    get:
+      description: Lists videos by month.
+      operationId: get-creator-videos-calendar
+      parameters:
+      - description: year
+        in: path
+        name: year
+        required: true
+        type: integer
+      - description: month
+        in: path
+        name: month
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/video.MetaCal'
+            type: array
+      summary: List videos by month
+      tags:
+      - creator
+      - videos
+  /v1/internal/creator/encodes/presets:
+    get:
+      description: Lists all encode presets, these are groups of instructions (formats)
+        for the encoder to create the video
+      operationId: get-creator-encodes-presets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/encode.Preset'
+            type: array
+      summary: List all encode presets
+      tags:
+      - creator
+      - encodes
+    post:
+      consumes:
+      - application/json
+      description: creates a new preset.
+      operationId: new-creator-encodes-preset
+      parameters:
+      - description: Preset object
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/encode.Preset'
+      responses:
+        "201":
+          description: Preset ID
+          schema:
+            type: body
+      summary: New preset
+      tags:
+      - creator
+      - encodes
+    put:
+      consumes:
+      - application/json
+      description: updates an preset
+      operationId: update-creator-encodes-preset
+      parameters:
+      - description: Preset object
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/encode.Preset'
+      responses:
+        "200": {}
+      summary: Update a preset
+      tags:
+      - creator
+      - encodes
+  /v1/internal/creator/encodes/profiles:
+    get:
+      description: Lists all encode formats, these are instructions for the encoder
+        to create the video
+      operationId: get-creator-encodes-formats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/encode.Format'
+            type: array
+      summary: List all encode formats
+      tags:
+      - creator
+      - encodes
+  /v1/internal/creator/playlists:
+    get:
+      description: Lists all playlists, doesn't include videos inside.
+      operationId: get-creator-playlists-all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/playlist.Playlist'
+            type: array
+      summary: List all playlists
+      tags:
+      - creator
+      - playlists
+    post:
+      consumes:
+      - application/json
+      description: creates a new playlist with optional video ID's.
+      operationId: new-creator-playlist
+      parameters:
+      - description: Playlist object
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/playlist.Playlist'
+      responses:
+        "201":
+          description: Playlist ID
+          schema:
+            type: body
+      summary: New playlist
+      tags:
+      - creator
+      - playlists
+    put:
+      consumes:
+      - application/json
+      description: Update a playlist, video ID's required otherwise it will remove
+        all videos.
+      operationId: update-creator-playlist
+      parameters:
+      - description: Playlist object
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/playlist.Playlist'
+      responses:
+        "200": {}
+      summary: Update playlist
+      tags:
+      - creator
+      - playlists
+  /v1/internal/creator/playlists/{playlistid}:
+    get:
+      description: Get a playlist including it's children videos.
+      operationId: get-creator-playlist
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: playlistid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/playlist.Playlist'
+      summary: Get playlist by ID
+      tags:
+      - creator
+      - playlists
+  /v1/internal/creator/series:
+    get:
+      description: Lists all series, doesn't include videos inside.
+      operationId: get-creator-series-all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/series.Meta'
+            type: array
+      summary: List all series
+      tags:
+      - creator
+      - series
+  /v1/internal/creator/series/{seriesid}:
+    get:
+      description: Get a series including it's children videos.
+      operationId: get-creator-series
+      parameters:
+      - description: Series ID
+        in: path
+        name: seriesid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/series.Series'
+      summary: Get series by ID
+      tags:
+      - creator
+      - series
+  /v1/internal/creator/stats:
+    get:
+      description: Gets the statistics about the global video library.
+      operationId: get-creator-glob-stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/stats.VideoGlobalStats'
+      summary: Get global video library information
+      tags:
+      - creator
+      - stats
+  /v1/internal/creator/videos:
+    get:
+      description: Lists all videos, doesn't include files inside.
+      operationId: get-creator-videos-all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/video.Meta'
+            type: array
+      summary: List all videos
+      tags:
+      - creator
+      - videos
+    post:
+      consumes:
+      - application/json
+      description: creates a new video, requires the file ID/name to find it in CDN.
+      operationId: new-creator-video
+      parameters:
+      - description: NewVideo object
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/video.New'
+      responses:
+        "201":
+          description: Video ID
+          schema:
+            type: body
+      summary: New video
+      tags:
+      - creator
+      - videos
+  /v1/internal/creator/videos/{videoid}:
+    get:
+      description: Get a playlist including it's children files.
+      operationId: get-creator-video
+      parameters:
+      - description: Video ID
+        in: path
+        name: videoid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/video.Item'
+      summary: Get video by ID
+      tags:
+      - creator
+      - videos
+  /v1/internal/creator/videos/my:
+    get:
+      description: Lists all videos, doesn't include files inside. Uses the createdBy
+        user ID.
+      operationId: get-creator-videos-user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/video.Meta'
+            type: array
+      summary: List all videos created by user ID
+      tags:
+      - creator
+      - videos
   /v1/internal/misc/quote:
     post:
       consumes:
