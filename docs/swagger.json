@@ -407,7 +407,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/playlist.Playlist"
+                            "$ref": "#/definitions/playlist.New"
                         }
                     }
                 ],
@@ -1168,6 +1168,9 @@
         "people.Permission": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1284,6 +1287,32 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "playlist.New": {
+            "type": "object",
+            "properties": {
+                "createdBy": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "videoIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },

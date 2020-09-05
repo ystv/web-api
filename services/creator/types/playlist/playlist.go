@@ -25,4 +25,13 @@ type (
 		UpdatedAt   null.Time   `db:"updated_at" json:"updatedAt"`
 		UpdatedBy   null.Int    `db:"updated_by" json:"updatedBy"`
 	}
+	// New represents data required to create a new playlist
+	New struct {
+		Name        string      `db:"name" json:"name"`
+		Description string      `db:"description" json:"description"`
+		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
+		Status      string      `db:"status" json:"status"`
+		CreatedBy   int         `db:"created_by" json:"createdBy"`
+		VideoIDs    []int       `db:"video_id" json:"videoIDs"`
+	}
 )

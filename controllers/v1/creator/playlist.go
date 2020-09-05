@@ -60,7 +60,7 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 // @Success 201 body int "Playlist ID"
 // @Router /v1/internal/creator/playlists [post]
 func (r *Repos) NewPlaylist(c echo.Context) error {
-	p := playlist.Playlist{}
+	p := playlist.New{}
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind json: %w", err)
@@ -72,7 +72,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	p.UpdatedBy = null.IntFrom(int64(claims.UserID))
+	p.CreatedBy = claims.UserID
 
 	res, err := r.playlist.New(c.Request().Context(), p)
 	if err != nil {
@@ -88,7 +88,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 // @ID update-creator-playlist
 // @Tags creator, playlists
 // @Accept json
-// @Param quote body playlist.Playlist true "Playlist object"
+// @Param quote body playlist.New true "Playlist object"
 // @Success 200
 // @Router /v1/internal/creator/playlists [put]
 func (r *Repos) UpdatePlaylist(c echo.Context) error {

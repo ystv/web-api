@@ -58,19 +58,19 @@ func (m *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, err
 }
 
 // New makes a playlist item
-func (m *Store) New(ctx context.Context, p playlist.Playlist) (int, error) {
+func (m *Store) New(ctx context.Context, p playlist.New) (int, error) {
 	_, err := m.db.ExecContext(ctx,
 		`INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
-		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, p.CreatedAt, p.CreatedBy)
+		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, time.Now(), p.CreatedBy)
 	// TODO do we want to use the time here, or what is passed?
 	if err != nil {
 		err = fmt.Errorf("failed to insert playlist: %w", err)
 		return 0, err // Null video ID?
 	}
-	if len(p.Videos) == 0 {
+	if len(p.VideoIDs) == 0 {
 		return 0, nil
 	}
-	err = m.AddVideos(ctx, p)
+	err = m.AddVideos(ctx, 0, p.VideoIDs)
 	if err != nil {
 		err = fmt.Errorf("failed to add videos to playlist: %w", err)
 		return 0, err
@@ -91,35 +91,24 @@ func (m *Store) DeleteVideo(ctx context.Context, playlistID, videoID int) error 
 }
 
 // AddVideos adds multiple videos to a playlist
-func (m *Store) AddVideos(ctx context.Context, p playlist.Playlist) error {
-	// TODO replace this function with the utils transaction wrapper
-	txn, err := m.db.Begin()
-	if err != nil {
-		err = fmt.Errorf("failed to prepare db transaction: %w", err)
-		return err
-	}
-	stmt, err := txn.PrepareContext(ctx, pq.CopyIn("video.playlist_items", "playlist_id", "video_item_id"))
-	if err != nil {
-		err = fmt.Errorf("failed to prepare statement: %w", err)
-		return err
-	}
-	for _, video := range p.Videos {
-		_, err = stmt.ExecContext(ctx, p.ID, video.ID)
+func (m *Store) AddVideos(ctx context.Context, playlistID int, videoIDs []int) error {
+	return utils.Transact(m.db, func(tx *sqlx.Tx) error {
+		// Preparing insert statement
+		stmt, err := tx.PrepareContext(ctx, pq.CopyIn("video.playlist_items", "playlist_id", "video_item_id"))
 		if err != nil {
-			err = fmt.Errorf("failed to insert link between playlist and video: %w", err)
+			err = fmt.Errorf("failed to prepare statement: %w", err)
 			return err
 		}
-	}
-	_, err = stmt.ExecContext(ctx)
-	err = stmt.Close()
-	if err != nil {
-		return err
-	}
-	err = txn.Commit()
-	if err != nil {
-		return err
-	}
-	return nil
+		// Creating association between playlist and video
+		for _, videoID := range videoIDs {
+			_, err = stmt.ExecContext(ctx, playlistID, videoID)
+			if err != nil {
+				err = fmt.Errorf("failed to insert link between playlist and video: %w", err)
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // Update will update a playlist
