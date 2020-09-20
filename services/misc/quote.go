@@ -3,8 +3,6 @@ package misc
 import (
 	"context"
 	"time"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type (
@@ -22,31 +20,13 @@ type (
 	}
 )
 
-// Repo defines all misc interactions
-type Repo interface {
-	ListQuotes(ctx context.Context, amount, page int) (QuotePage, error)
-	NewQuote(ctx context.Context, q Quote) error
-	UpdateQuote(ctx context.Context, q Quote) error
-	DeleteQuote(ctx context.Context, quoteID int) error
-}
-
 // Here for validation to ensure we are meeting the interface
-var _ Repo = &Store{}
-
-// Store contains our dependency
-type Store struct {
-	db *sqlx.DB
-}
-
-// NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
-	return &Store{db: db}
-}
+var _ QuoteRepo = &Store{}
 
 // ListQuotes returns a section of quotes
-func (s *Store) ListQuotes(ctx context.Context, amount, page int) (QuotePage, error) {
+func (m *Store) ListQuotes(ctx context.Context, amount, page int) (QuotePage, error) {
 	q := QuotePage{LastPageIndex: 20}
-	err := s.db.SelectContext(ctx, &q.Quotes,
+	err := m.db.SelectContext(ctx, &q.Quotes,
 		`SELECT quote_id, quote, description, created_by
 		FROM misc.quotes
 		ORDER BY created_at DESC
@@ -55,24 +35,24 @@ func (s *Store) ListQuotes(ctx context.Context, amount, page int) (QuotePage, er
 }
 
 // NewQuote creates a new quote
-func (s *Store) NewQuote(ctx context.Context, q Quote) error {
-	_, err := s.db.ExecContext(ctx,
+func (m *Store) NewQuote(ctx context.Context, q Quote) error {
+	_, err := m.db.ExecContext(ctx,
 		`INSERT INTO misc.quotes(quote, description, created_at, created_by)
 		VALUES ($1, $2, $3, $4);`, q.Quote, q.Description, q.CreatedBy, time.Now())
 	return err
 }
 
 // UpdateQuote updates a quote
-func (s *Store) UpdateQuote(ctx context.Context, q Quote) error {
-	_, err := s.db.ExecContext(ctx,
+func (m *Store) UpdateQuote(ctx context.Context, q Quote) error {
+	_, err := m.db.ExecContext(ctx,
 		`UPDATE misc.quotes SET quote = $1, description = $2
 	WHERE quote_id = $3;`, q.Quote, q.Description, q.QuoteID)
 	return err
 }
 
 // DeleteQuote deletes a quote
-func (s *Store) DeleteQuote(ctx context.Context, quoteID int) error {
-	_, err := s.db.ExecContext(ctx,
+func (m *Store) DeleteQuote(ctx context.Context, quoteID int) error {
+	_, err := m.db.ExecContext(ctx,
 		`DELETE FROM misc.quotes WHERE quote_id = $1;`, quoteID)
 	return err
 }

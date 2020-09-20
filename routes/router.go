@@ -44,7 +44,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 	e.Debug = debug
 
 	creatorV1 := creatorPackage.NewRepos(db, cdn)
-	miscV1 := miscPackage.NewRepo(db)
+	miscV1 := miscPackage.NewRepos(db)
 	publicV1 := publicPackage.NewRepos(db)
 	peopleV1 := peoplePackage.NewRepo(db)
 	clapperV1 := clapperPackage.NewRepos(db)
@@ -170,12 +170,17 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 			}
 			misc := internal.Group("/misc")
 			{
-				quote := misc.Group("/quote")
+				quotes := misc.Group("/quotes")
 				{
-					quote.GET("/:amount/:page", miscV1.ListQuotes)
-					quote.POST("", miscV1.NewQuote)
-					quote.PUT("", miscV1.UpdateQuote)
-					quote.DELETE("/:id", miscV1.DeleteQuote)
+					quotes.GET("/:amount/:page", miscV1.ListQuotes)
+					quotes.POST("", miscV1.NewQuote)
+					quotes.PUT("", miscV1.UpdateQuote)
+					quotes.DELETE("/:id", miscV1.DeleteQuote)
+				}
+				webcams := misc.Group("/webcams")
+				{
+					webcams.GET("/:id", miscV1.GetWebcam)
+					webcams.GET("", miscV1.ListWebcams)
 				}
 			}
 		}

@@ -668,13 +668,14 @@
                 }
             }
         },
-        "/v1/internal/misc/quote": {
+        "/v1/internal/misc/quotes": {
             "put": {
                 "description": "updates a quote.",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
+                    "misc",
                     "quotes"
                 ],
                 "summary": "Update quote",
@@ -700,6 +701,7 @@
                     "application/json"
                 ],
                 "tags": [
+                    "misc",
                     "quotes"
                 ],
                 "summary": "New quote",
@@ -725,13 +727,14 @@
                 }
             }
         },
-        "/v1/internal/misc/quote/{amount}/{page}": {
+        "/v1/internal/misc/quotes/{amount}/{page}": {
             "get": {
                 "description": "Lists quotes by pagination.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
+                    "misc",
                     "quotes"
                 ],
                 "summary": "List quotes",
@@ -765,10 +768,11 @@
                 }
             }
         },
-        "/v1/internal/misc/quote/{quoteid}": {
+        "/v1/internal/misc/quotes/{quoteid}": {
             "delete": {
                 "description": "deletes a quote by ID.",
                 "tags": [
+                    "misc",
                     "quotes"
                 ],
                 "summary": "Delete quote",
@@ -785,6 +789,48 @@
                 "responses": {
                     "200": {}
                 }
+            }
+        },
+        "/v1/internal/misc/webcams": {
+            "get": {
+                "description": "List webcams available to user by using the permission ID",
+                "tags": [
+                    "misc",
+                    "webcams"
+                ],
+                "summary": "List webcams",
+                "operationId": "list-webcams",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/misc.Webcam"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/misc/webcams{cameraid}": {
+            "get": {
+                "description": "Reverse proxies the selected webcam returns the jpeg feed as a result.",
+                "tags": [
+                    "misc",
+                    "webcams"
+                ],
+                "summary": "Get webcam",
+                "operationId": "get-webcam",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Camera ID",
+                        "name": "cameraid",
+                        "in": "path",
+                        "required": true
+                    }
+                ]
             }
         },
         "/v1/internal/people/user": {
@@ -1162,6 +1208,17 @@
                     "items": {
                         "$ref": "#/definitions/misc.Quote"
                     }
+                }
+            }
+        },
+        "misc.Webcam": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         },

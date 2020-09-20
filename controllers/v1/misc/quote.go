@@ -5,32 +5,21 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/misc"
 )
-
-// Repo stores our dependencies
-type Repo struct {
-	misc misc.Repo
-}
-
-// NewRepo creates our data store
-func NewRepo(db *sqlx.DB) *Repo {
-	return &Repo{misc.NewStore(db)}
-}
 
 // ListQuotes handles listing quotes by pagination
 // @Summary List quotes
 // @Description Lists quotes by pagination.
 // @ID get-quotes
-// @Tags quotes
+// @Tags misc, quotes
 // @Produce json
 // @Param amount path int true "Amount"
 // @Param page path int true "Page"
 // @Success 200 {array} misc.QuotePage
-// @Router /v1/internal/misc/quote/{amount}/{page} [get]
-func (r *Repo) ListQuotes(c echo.Context) error {
+// @Router /v1/internal/misc/quotes/{amount}/{page} [get]
+func (r *Repos) ListQuotes(c echo.Context) error {
 	amount, err := strconv.Atoi(c.Param("amount"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad offset")
@@ -51,12 +40,12 @@ func (r *Repo) ListQuotes(c echo.Context) error {
 // @Summary New quote
 // @Description creates a new quote.
 // @ID new-quote
-// @Tags quotes
+// @Tags misc, quotes
 // @Accept json
 // @Param quote body misc.Quote true "Quote object"
 // @Success 201 {object} int "Quote ID"
-// @Router /v1/internal/misc/quote [post]
-func (r *Repo) NewQuote(c echo.Context) error {
+// @Router /v1/internal/misc/quotes [post]
+func (r *Repos) NewQuote(c echo.Context) error {
 	q := misc.Quote{}
 	err := c.Bind(&q)
 	if err != nil {
@@ -74,12 +63,12 @@ func (r *Repo) NewQuote(c echo.Context) error {
 // @Summary Update quote
 // @Description updates a quote.
 // @ID update-quote
-// @Tags quotes
+// @Tags misc, quotes
 // @Accept json
 // @Param quote body misc.Quote true "Quote object"
 // @Success 200
-// @Router /v1/internal/misc/quote [put]
-func (r *Repo) UpdateQuote(c echo.Context) error {
+// @Router /v1/internal/misc/quotes [put]
+func (r *Repos) UpdateQuote(c echo.Context) error {
 	q := misc.Quote{}
 	err := c.Bind(&q)
 	if err != nil {
@@ -97,11 +86,11 @@ func (r *Repo) UpdateQuote(c echo.Context) error {
 // @Summary Delete quote
 // @Description deletes a quote by ID.
 // @ID delete-quote
-// @Tags quotes
+// @Tags misc, quotes
 // @Param quoteid path int true "Quote ID"
 // @Success 200
-// @Router /v1/internal/misc/quote/{quoteid} [delete]
-func (r *Repo) DeleteQuote(c echo.Context) error {
+// @Router /v1/internal/misc/quotes/{quoteid} [delete]
+func (r *Repos) DeleteQuote(c echo.Context) error {
 	quoteID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")

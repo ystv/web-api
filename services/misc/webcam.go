@@ -1,49 +1,80 @@
 package misc
 
+import (
+	"context"
+	"fmt"
+)
+
 type (
-	// WebcamStatistic represents general watch statistics
-	WebcamStatistic struct {
-		TopWatchersAllTime []WebcamUser
-		TopWatchersMonth   []WebcamUser
-		TopWatchersWeek    []WebcamUser
-		LongestWatcher     WebcamUser
+	// Webcam represents a watchable webcam
+	Webcam struct {
+		CameraID int    `db:"camera_id" json:"id"`
+		URL      string `db:"url" json:"url"`
 	}
-	// WebcamUser represents a person and a duration of time in seconds.
-	WebcamUser struct {
-		Name      string `json:"name"`
-		WatchTime int    `json:"watchTime"`
+	// AdminWebcam represents extra options to configure the webcam
+	AdminWebcam struct {
+		Webcam
+		Enabled      bool `db:"enabled" json:"enabled"`
+		PermissionID int  `db:"permission_id" json:"permissionID"`
 	}
 )
 
-// WebcamCurrentViewers returns who is currently watching the webcamms
-// and how long their session currently is.
-func WebcamCurrentViewers() ([]WebcamUser, error) {
-	return []WebcamUser{
-		{
-			Name:      "Rhys",
-			WatchTime: 600,
-		},
-		{
-			Name:      "Cow",
-			WatchTime: 1600,
-		},
-	}, nil
+// Here for validation to ensure we are meeting the interface
+var _ WebcamRepo = &Store{}
+
+// ListWebcams returns all webcams a user can access
+func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam, error) {
+	w := []AdminWebcam{}
+	publicWebcams := []Webcam{}
+	// Fetch all enabled webcams from DB
+	err := m.db.SelectContext(ctx, &w,
+		`SELECT	camera_id, url, permission_id
+		FROM misc.webcams
+		WHERE ENABLED;`)
+	if err != nil {
+		err = fmt.Errorf("failed to select webcams: %w", err)
+		return publicWebcams, err
+	}
+
+	// Check if user has permission to view it
+	publicWebcam := Webcam{}
+	for _, webcam := range w {
+		for _, id := range permissionIDs {
+			if id == webcam.PermissionID {
+				publicWebcam = Webcam{
+					webcam.CameraID,
+					webcam.URL,
+				}
+				publicWebcams = append(publicWebcams, publicWebcam)
+			}
+		}
+
+	}
+
+	return publicWebcams, nil
 }
 
-// WebcamStatistics returns users watch statistics on webcams.
-func WebcamStatistics() (WebcamStatistic, error) {
-	return WebcamStatistic{
-		TopWatchersAllTime: []WebcamUser{
-			{
-				Name:      "Rhys",
-				WatchTime: 200,
-			},
-		},
-		TopWatchersMonth: []WebcamUser{
-			{
-				Name:      "Rhys",
-				WatchTime: 200,
-			},
-		},
-	}, nil
+// GetWebcam returns a single webcam
+func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissionIDs []int) (Webcam, error) {
+	w := AdminWebcam{}
+	publicWebcam := Webcam{}
+	err := m.db.GetContext(ctx, &w,
+		`SELECT	camera_id, url, permission_id
+		FROM misc.webcams
+		WHERE ENABLED;`)
+	if err != nil {
+		err = fmt.Errorf("failed to select webcams: %w", err)
+		return publicWebcam, err
+	}
+
+	// Check if user has permission to view it
+	for _, id := range permissionIDs {
+		if id == w.PermissionID {
+			publicWebcam = Webcam{
+				w.CameraID,
+				w.URL,
+			}
+		}
+	}
+	return publicWebcam, nil
 }
