@@ -61,7 +61,8 @@ func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissionIDs []int
 	err := m.db.GetContext(ctx, &w,
 		`SELECT	camera_id, url, permission_id
 		FROM misc.webcams
-		WHERE ENABLED;`)
+		WHERE ENABLED AND
+		camera_id = $1;`, cameraID)
 	if err != nil {
 		err = fmt.Errorf("failed to select webcams: %w", err)
 		return publicWebcam, err

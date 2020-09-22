@@ -179,7 +179,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 				}
 				webcams := misc.Group("/webcams")
 				{
-					webcams.GET("/:id", miscV1.GetWebcam)
+					webcams.GET("/:id/*", miscV1.GetWebcam)
 					webcams.GET("", miscV1.ListWebcams)
 				}
 			}
