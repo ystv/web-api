@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	echoMw "github.com/labstack/echo/v4/middleware"
 )
@@ -36,4 +37,8 @@ func Init(e *echo.Echo) {
 			return false
 		},
 	}))
+	// TODO secure this
+	// /metrics, view using curl
+	p := prometheus.NewPrometheus("echo", nil)
+	p.Use(e)
 }
