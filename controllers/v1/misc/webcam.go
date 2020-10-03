@@ -46,7 +46,7 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 // @ID get-webcam
 // @Tags misc, webcams
 // @Param cameraid path int true "Camera ID"
-// @Router /v1/internal/misc/webcams{cameraid} [get]
+// @Router /v1/internal/misc/webcams/{cameraid} [get]
 func (r *Repos) GetWebcam(c echo.Context) error {
 	cameraID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

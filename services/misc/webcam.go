@@ -3,19 +3,25 @@ package misc
 import (
 	"context"
 	"fmt"
+	"log"
+
+	"gopkg.in/guregu/null.v4"
 )
 
 type (
 	// Webcam represents a watchable webcam
 	Webcam struct {
 		CameraID int    `db:"camera_id" json:"id"`
-		URL      string `db:"url" json:"url"`
+		Name     string `db:"name" json:"name"`
+		URL      string `db:"url" json:"-"`
+		File     string `db:"file" json:"file"`
+		MIMEType string `db:"mime_type" json:"mimeType"`
 	}
 	// AdminWebcam represents extra options to configure the webcam
 	AdminWebcam struct {
 		Webcam
-		Enabled      bool `db:"enabled" json:"enabled"`
-		PermissionID int  `db:"permission_id" json:"permissionID"`
+		Enabled      bool     `db:"enabled" json:"enabled"`
+		PermissionID null.Int `db:"permission_id" json:"permissionID"`
 	}
 )
 
@@ -28,22 +34,26 @@ func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam,
 	publicWebcams := []Webcam{}
 	// Fetch all enabled webcams from DB
 	err := m.db.SelectContext(ctx, &w,
-		`SELECT	camera_id, url, permission_id
+		`SELECT	camera_id, name, file, mime_type, permission_id
 		FROM misc.webcams
 		WHERE ENABLED;`)
 	if err != nil {
 		err = fmt.Errorf("failed to select webcams: %w", err)
 		return publicWebcams, err
 	}
+	log.Printf("%+v", w)
 
 	// Check if user has permission to view it
 	publicWebcam := Webcam{}
 	for _, webcam := range w {
 		for _, id := range permissionIDs {
-			if id == webcam.PermissionID {
+			if webcam.PermissionID.Valid && int64(id) == webcam.PermissionID.Int64 || !webcam.PermissionID.Valid {
 				publicWebcam = Webcam{
 					webcam.CameraID,
+					webcam.Name,
 					webcam.URL,
+					webcam.File,
+					webcam.MIMEType,
 				}
 				publicWebcams = append(publicWebcams, publicWebcam)
 			}
@@ -59,7 +69,7 @@ func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissionIDs []int
 	w := AdminWebcam{}
 	publicWebcam := Webcam{}
 	err := m.db.GetContext(ctx, &w,
-		`SELECT	camera_id, url, permission_id
+		`SELECT	camera_id, name, url, file, mime_type, permission_id
 		FROM misc.webcams
 		WHERE ENABLED AND
 		camera_id = $1;`, cameraID)
@@ -70,10 +80,13 @@ func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissionIDs []int
 
 	// Check if user has permission to view it
 	for _, id := range permissionIDs {
-		if id == w.PermissionID {
+		if w.PermissionID.Valid && int64(id) == w.PermissionID.Int64 || !w.PermissionID.Valid {
 			publicWebcam = Webcam{
 				w.CameraID,
+				w.Name,
 				w.URL,
+				w.File,
+				w.MIMEType,
 			}
 		}
 	}
