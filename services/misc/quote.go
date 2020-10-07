@@ -38,7 +38,7 @@ func (m *Store) ListQuotes(ctx context.Context, amount, page int) (QuotePage, er
 func (m *Store) NewQuote(ctx context.Context, q Quote) error {
 	_, err := m.db.ExecContext(ctx,
 		`INSERT INTO misc.quotes(quote, description, created_at, created_by)
-		VALUES ($1, $2, $3, $4);`, q.Quote, q.Description, q.CreatedBy, time.Now())
+		VALUES ($1, $2, $3, $4);`, q.Quote, q.Description, time.Now(), q.CreatedBy)
 	return err
 }
 

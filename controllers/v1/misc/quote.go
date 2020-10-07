@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/misc"
 )
 
@@ -51,6 +52,12 @@ func (r *Repos) NewQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+	claims, err := people.GetToken(c)
+	if err != nil {
+		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	q.CreatedBy = claims.UserID
 	err = r.misc.NewQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed: %w", err)
