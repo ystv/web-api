@@ -34,6 +34,14 @@ type (
 		EndTime     null.Time      `db:"end_time" json:"endTime"`
 		Crew        []CrewPosition `json:"crew"`
 	}
+	// Position is a role people can signup too
+	Position struct {
+		PositionID   int      `db:"position_id" json:"positionID"`
+		Name         string   `db:"name" json:"name"`
+		Description  string   `db:"description" json:"description"`
+		Admin        bool     `db:"admin" json:"admin"`
+		PermissionID null.Int `db:"permission_id" json:"permissionID"`
+	}
 	// CrewPosition represents a role for a signup sheet
 	CrewPosition struct {
 		CrewID   int `db:"crew_id" json:"crewID"`
@@ -57,15 +65,6 @@ type (
 	}
 )
 
-// Position is a role people can signup too
-type Position struct {
-	PositionID   int      `db:"position_id" json:"positionID"`
-	Name         string   `db:"name" json:"name"`
-	Description  string   `db:"description" json:"description"`
-	Admin        bool     `db:"admin" json:"admin"`
-	PermissionID null.Int `db:"permission_id" json:"permissionID"`
-}
-
 type (
 	// EventRepo defines all event interactions
 	EventRepo interface {
@@ -81,11 +80,26 @@ type (
 		New(ctx context.Context, eventID int, s Signup) (int, error)
 	}
 
-	// PositionRepo defines all position interactions
+	// PositionRepo defines all position interactions.
+	//
+	// This repo is for managing the positions, where it
+	// feeds the system where the producer makes the signup sheet
+	// but not the doesn't interact with an event directly.
 	PositionRepo interface {
 		List(ctx context.Context) (*[]Position, error)
 		New(ctx context.Context, p *Position) (int, error)
 		Update(ctx context.Context, p *Position) error
 		Delete(ctx context.Context, positionID int) error
+	}
+
+	// CrewRepo defines all crew interactions.
+	//
+	// This repo is similar to the position one except it deals
+	// with each unique role on a signup sheet. Providing the
+	// facilities for users to use the signup sheet.
+	CrewRepo interface {
+		Get(ctx context.Context, crewID int) (*CrewPosition, error)
+		UpdateUser(ctx context.Context, crewID, userID int) error
+		DeleteUser(ctx context.Context, crewID int) error
 	}
 )

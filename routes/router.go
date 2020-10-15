@@ -152,20 +152,25 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 						event.GET("", clapperV1.EventGet) // Get event info, returns event info and signup sheets
 						signup := event.Group("/signup")
 						{
-							signup.GET("/:id", notImplemented)          // Get a signup sheet, likely not to be used
-							signup.POST("", clapperV1.SignupNew)        // Create a new signup sheet
-							signup.PUT("/:sheet/:role", notImplemented) // Update a crew role, used to set a person
+							signup.GET("/:id", notImplemented)   // Get a signup sheet, likely not to be used
+							signup.POST("", clapperV1.SignupNew) // Create a new signup sheet
+							signup.PUT("/:sheet/:role", notImplemented)
 						}
 					}
 					events.POST("", clapperV1.NewEvent)   // Create a new event
 					events.PUT("", clapperV1.UpdateEvent) // Update an event
 
 				}
-				crew := clapper.Group("/positions")
+				crews := clapper.Group("/crews")
 				{
-					crew.GET("", clapperV1.PositionList)   // List crew positions
-					crew.POST("", clapperV1.PositionNew)   // Create a new crew position
-					crew.PUT("", clapperV1.PositionUpdate) // Update a position
+					crews.PUT(":/crewid", clapperV1.SetCrew)      // Update a crew role to the requesting user
+					crews.DELETE(":/crewid", clapperV1.ResetCrew) // Set the role back to unassigned
+				}
+				positions := clapper.Group("/positions")
+				{
+					positions.GET("", clapperV1.PositionList)   // List crew positions
+					positions.POST("", clapperV1.PositionNew)   // Create a new crew position
+					positions.PUT("", clapperV1.PositionUpdate) // Update a position
 				}
 			}
 			misc := internal.Group("/misc")

@@ -181,9 +181,13 @@ definitions:
     type: object
   misc.Webcam:
     properties:
+      file:
+        type: string
       id:
         type: integer
-      url:
+      mimeType:
+        type: string
+      name:
         type: string
     type: object
   people.Permission:
@@ -516,6 +520,37 @@ paths:
       summary: List events by month
       tags:
       - events
+  /v1/internal/clapper/crews/{crewid}:
+    delete:
+      description: Uses JWT to set who is doing the crew position to empty
+      operationId: delete-crew-user-token
+      parameters:
+      - description: Crew ID
+        in: path
+        name: crewid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Set crew user by user token
+      tags:
+      - clapper
+      - crews
+    put:
+      description: Uses JWT to set who is doing the crew position
+      operationId: set-crew-user-token
+      parameters:
+      - description: Crew ID
+        in: path
+        name: crewid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Set crew user by user token
+      tags:
+      - clapper
+      - crews
   /v1/internal/clapper/event:
     post:
       consumes:
@@ -1041,7 +1076,7 @@ paths:
       tags:
       - misc
       - webcams
-  /v1/internal/misc/webcams{cameraid}:
+  /v1/internal/misc/webcams/{cameraid}:
     get:
       description: Reverse proxies the selected webcam returns the jpeg feed as a
         result.

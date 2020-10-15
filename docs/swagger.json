@@ -51,6 +51,50 @@
                 }
             }
         },
+        "/v1/internal/clapper/crews/{crewid}": {
+            "put": {
+                "description": "Uses JWT to set who is doing the crew position",
+                "tags": [
+                    "clapper",
+                    "crews"
+                ],
+                "summary": "Set crew user by user token",
+                "operationId": "set-crew-user-token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Crew ID",
+                        "name": "crewid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            },
+            "delete": {
+                "description": "Uses JWT to set who is doing the crew position to empty",
+                "tags": [
+                    "clapper",
+                    "crews"
+                ],
+                "summary": "Set crew user by user token",
+                "operationId": "delete-crew-user-token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Crew ID",
+                        "name": "crewid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/v1/internal/clapper/event": {
             "put": {
                 "description": "updates an event. Only uses the meta, if you change the\ntype it will delete the children.",
@@ -813,7 +857,7 @@
                 }
             }
         },
-        "/v1/internal/misc/webcams{cameraid}": {
+        "/v1/internal/misc/webcams/{cameraid}": {
             "get": {
                 "description": "Reverse proxies the selected webcam returns the jpeg feed as a result.",
                 "tags": [
@@ -1214,10 +1258,16 @@
         "misc.Webcam": {
             "type": "object",
             "properties": {
+                "file": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "url": {
+                "mimeType": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }
