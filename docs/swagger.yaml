@@ -181,15 +181,17 @@ definitions:
     type: object
   misc.Webcam:
     properties:
+      file:
+        type: string
       id:
         type: integer
-      url:
+      mimeType:
+        type: string
+      name:
         type: string
     type: object
   people.Permission:
     properties:
-      description:
-        type: string
       id:
         type: integer
       name:
@@ -309,6 +311,139 @@ definitions:
         items:
           $ref: '#/definitions/video.Meta'
         type: array
+    type: object
+  public.Breadcrumb:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      url:
+        type: string
+      useInURL:
+        type: boolean
+    type: object
+  public.BreadcrumbItem:
+    properties:
+      series:
+        $ref: '#/definitions/public.Series'
+        type: object
+      video:
+        $ref: '#/definitions/public.VideoItem'
+        type: object
+    type: object
+  public.Series:
+    properties:
+      childSeries:
+        items:
+          $ref: '#/definitions/public.SeriesMeta'
+        type: array
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      thumbnail:
+        type: string
+      url:
+        type: string
+      videos:
+        items:
+          $ref: '#/definitions/public.VideoMeta'
+        type: array
+    type: object
+  public.SeriesMeta:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      thumbnail:
+        type: string
+      url:
+        type: string
+    type: object
+  public.Team:
+    properties:
+      description:
+        type: string
+      members:
+        items:
+          $ref: '#/definitions/public.TeamMember'
+        type: array
+      name:
+        type: string
+    type: object
+  public.TeamMember:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      position:
+        type: string
+    type: object
+  public.VideoFile:
+    properties:
+      height:
+        type: integer
+      mimeType:
+        type: string
+      mode:
+        type: string
+      uri:
+        type: string
+      width:
+        type: integer
+    type: object
+  public.VideoItem:
+    properties:
+      broadcastDate:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/public.VideoFile'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+      seriesID:
+        type: integer
+      thumbnail:
+        type: string
+      url:
+        type: string
+      views:
+        type: integer
+    type: object
+  public.VideoMeta:
+    properties:
+      broadcastDate:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      seriesID:
+        type: integer
+      thumbnail:
+        type: string
+      url:
+        type: string
+      views:
+        type: integer
     type: object
   series.Meta:
     properties:
@@ -1041,7 +1176,7 @@ paths:
       tags:
       - misc
       - webcams
-  /v1/internal/misc/webcams{cameraid}:
+  /v1/internal/misc/webcams/{cameraid}:
     get:
       description: Reverse proxies the selected webcam returns the jpeg feed as a
         result.
@@ -1124,4 +1259,153 @@ paths:
       summary: Get a full user by token
       tags:
       - users
+  /v1/public/find/{url}:
+    get:
+      description: Allows us to remain backwards compatible with the existing URLs
+      operationId: get-public-breadcrumb-find
+      parameters:
+      - description: URL Path
+        in: path
+        name: url
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.BreadcrumbItem'
+      summary: Converts a VOD url to either a series or video
+      tags:
+      - public
+      - breadcrumb
+  /v1/public/series/{seriesid}:
+    get:
+      description: Returns a series object, including the children videos and series.
+      operationId: get-public-series
+      parameters:
+      - description: Series ID
+        in: path
+        name: seriesid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Series'
+      summary: Provides a series
+      tags:
+      - public
+      - series
+  /v1/public/series/{seriesid}/breadcrumb:
+    get:
+      description: Returns a path of series to a series
+      operationId: get-public-breadcrumb-series
+      parameters:
+      - description: Series ID
+        in: path
+        name: seriesid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Breadcrumb'
+      summary: Provides a breadcrumb for a series
+      tags:
+      - public
+      - breadcrumb
+  /v1/public/teams:
+    get:
+      description: Returns a path of series to a series
+      operationId: get-public-teams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/public.Team'
+            type: array
+      summary: Provides the current teams
+      tags:
+      - public
+  /v1/public/video/{videoid}:
+    get:
+      description: Returns a video item. Including the video files.
+      operationId: get-public-video
+      parameters:
+      - description: Video ID
+        in: path
+        name: videoid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.VideoItem'
+      summary: Provides a video item
+      tags:
+      - public
+      - video
+  /v1/public/video/{videoid}/breadcrumb:
+    get:
+      description: Returns a path of series to a video
+      operationId: get-public-breadcrumb-video
+      parameters:
+      - description: Video ID
+        in: path
+        name: videoid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Breadcrumb'
+      summary: Provides a breadcrumb for a video
+      tags:
+      - public
+      - breadcrumb
+  /v1/public/videos/{offset}/{page}:
+    get:
+      description: List of video meta's in order of broadcast date.
+      operationId: get-public-videos
+      parameters:
+      - description: Offset
+        in: path
+        name: offset
+        required: true
+        type: integer
+      - description: Page
+        in: path
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/public.VideoMeta'
+            type: array
+      summary: Provides a list of videos
+      tags:
+      - public
+      - video
 swagger: "2.0"

@@ -79,6 +79,7 @@ func StreamFind(c echo.Context) error {
 }
 
 // StreamHome handles returning stream information for the homepage
+// This could be absorbed by stream find but always selecting the first item?
 func StreamHome(c echo.Context) error {
 	s := StreamMeta{VideoMeta: public.VideoMeta{
 		VideoID:       4550,

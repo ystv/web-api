@@ -62,6 +62,9 @@ func (r *Repos) EventGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, e)
 }
 
+// NewEvent represents necessary fields to create a new event.
+//
+// Here for making the documentation look more clean.
 type NewEvent struct {
 	EventType   string    `json:"eventType"`
 	Name        string    `json:"name"`
