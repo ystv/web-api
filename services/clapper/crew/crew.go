@@ -26,8 +26,9 @@ var _ clapper.CrewRepo = &Store{}
 func (m *Store) Get(ctx context.Context, crewID int) (*clapper.CrewPosition, error) {
 	cp := clapper.CrewPosition{}
 	err := m.db.GetContext(ctx, &cp,
-		`SELECT crew_id, signup_id, user_id, locked, admin, permission_id
+		`SELECT crew_id, user_id, locked, admin, permission_id
 		FROM event.crews
+		INNER JOIN event.positions ON crews.position_id = positions.position_id
 		WHERE crew_id = $1;`, crewID)
 	if err != nil {
 		err = fmt.Errorf("failed to get crew from crewID: %w", err)
@@ -62,7 +63,7 @@ func (m *Store) DeleteUser(ctx context.Context, crewID int) error {
 		stmt, err := tx.PrepareContext(ctx,
 			`UPDATE event.crews
 			SET user_id = NULL
-			WHERE crew_id = $2;`)
+			WHERE crew_id = $1;`)
 		if err != nil {
 			err = fmt.Errorf("failed to prepare statement to delete crew user: %w", err)
 			return err

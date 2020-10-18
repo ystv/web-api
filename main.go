@@ -13,7 +13,7 @@ import (
 //go:generate swag init -g routes/router.go
 
 // Version returns web-api's current version
-var Version = "dev (0.6.1)"
+var Version = "dev (0.6.2)"
 
 // Commit returns latest commit hash
 var Commit = "unknown"

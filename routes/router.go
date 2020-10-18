@@ -163,8 +163,8 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 				}
 				crews := clapper.Group("/crews")
 				{
-					crews.PUT(":/crewid", clapperV1.SetCrew)      // Update a crew role to the requesting user
-					crews.DELETE(":/crewid", clapperV1.ResetCrew) // Set the role back to unassigned
+					crews.PUT("/:crewid", clapperV1.SetCrew)      // Update a crew role to the requesting user
+					crews.DELETE("/:crewid", clapperV1.ResetCrew) // Set the role back to unassigned
 				}
 				positions := clapper.Group("/positions")
 				{
