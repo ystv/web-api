@@ -85,7 +85,7 @@ func (s *Store) NewPreset(ctx context.Context, p *encode.Preset) (int, error) {
 		for _, format := range p.Formats {
 			_, err := stmt.ExecContext(ctx, presetID, format.FormatID)
 			if err != nil {
-				err = fmt.Errorf("failed to inset link between preset and formats: %w", err)
+				err = fmt.Errorf("failed to insert link between preset and formats: %w", err)
 				return err
 			}
 		}

@@ -978,6 +978,226 @@
                     }
                 }
             }
+        },
+        "/v1/public/find/{url}": {
+            "get": {
+                "description": "Allows us to remain backwards compatible with the existing URLs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "breadcrumb"
+                ],
+                "summary": "Converts a VOD url to either a series or video",
+                "operationId": "get-public-breadcrumb-find",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "URL Path",
+                        "name": "url",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.BreadcrumbItem"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/series/{seriesid}": {
+            "get": {
+                "description": "Returns a series object, including the children videos and series.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "series"
+                ],
+                "summary": "Provides a series",
+                "operationId": "get-public-series",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Series ID",
+                        "name": "seriesid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Series"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/series/{seriesid}/breadcrumb": {
+            "get": {
+                "description": "Returns a path of series to a series",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "breadcrumb"
+                ],
+                "summary": "Provides a breadcrumb for a series",
+                "operationId": "get-public-breadcrumb-series",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Series ID",
+                        "name": "seriesid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Breadcrumb"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/teams": {
+            "get": {
+                "description": "Returns a path of series to a series",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Provides the current teams",
+                "operationId": "get-public-teams",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/public.Team"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/video/{videoid}": {
+            "get": {
+                "description": "Returns a video item. Including the video files.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "video"
+                ],
+                "summary": "Provides a video item",
+                "operationId": "get-public-video",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Video ID",
+                        "name": "videoid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.VideoItem"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/video/{videoid}/breadcrumb": {
+            "get": {
+                "description": "Returns a path of series to a video",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "breadcrumb"
+                ],
+                "summary": "Provides a breadcrumb for a video",
+                "operationId": "get-public-breadcrumb-video",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Video ID",
+                        "name": "videoid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Breadcrumb"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/videos/{offset}/{page}": {
+            "get": {
+                "description": "List of video meta's in order of broadcast date.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "video"
+                ],
+                "summary": "Provides a list of videos",
+                "operationId": "get-public-videos",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Offset",
+                        "name": "offset",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/public.VideoMeta"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1275,9 +1495,6 @@
         "people.Permission": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1458,6 +1675,209 @@
                     "items": {
                         "$ref": "#/definitions/video.Meta"
                     }
+                }
+            }
+        },
+        "public.Breadcrumb": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "useInURL": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "public.BreadcrumbItem": {
+            "type": "object",
+            "properties": {
+                "series": {
+                    "type": "object",
+                    "$ref": "#/definitions/public.Series"
+                },
+                "video": {
+                    "type": "object",
+                    "$ref": "#/definitions/public.VideoItem"
+                }
+            }
+        },
+        "public.Series": {
+            "type": "object",
+            "properties": {
+                "childSeries": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/public.SeriesMeta"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "videos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/public.VideoMeta"
+                    }
+                }
+            }
+        },
+        "public.SeriesMeta": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "public.Team": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/public.TeamMember"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "public.TeamMember": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "string"
+                }
+            }
+        },
+        "public.VideoFile": {
+            "type": "object",
+            "properties": {
+                "height": {
+                    "type": "integer"
+                },
+                "mimeType": {
+                    "type": "string"
+                },
+                "mode": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                }
+            }
+        },
+        "public.VideoItem": {
+            "type": "object",
+            "properties": {
+                "broadcastDate": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/public.VideoFile"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seriesID": {
+                    "type": "integer"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "views": {
+                    "type": "integer"
+                }
+            }
+        },
+        "public.VideoMeta": {
+            "type": "object",
+            "properties": {
+                "broadcastDate": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "seriesID": {
+                    "type": "integer"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "views": {
+                    "type": "integer"
                 }
             }
         },
