@@ -92,7 +92,7 @@ func (m *Store) UpdateUser(ctx context.Context, crewID, userID int) error {
 
 // UpdateUserAndVerify will update a crew object to the specified user ID,
 // it will also perform additional checks to ensure they have enough permission
-func (m *Store) UpdateUserAndVerify(ctx context.Context, eventID, crewID, userID int) error {
+func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) error {
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
 		// we're just checking if a user has already signed up, otherwise go for it
 		crew, err := m.checkSameUser(ctx, tx, crewID, userID)
@@ -116,7 +116,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, eventID, crewID, userID
 		}
 		// they are kicking someone off, so lets check they have consent from the government (authorization)
 		// check if they are an admin of the event
-		err = m.checkEventAdmin(ctx, tx, eventID, userID)
+		err = m.checkEventAdmin(ctx, tx, crewID, userID)
 		if err != nil {
 			return err
 		}
@@ -156,8 +156,21 @@ func (m *Store) checkSuperUser(ctx context.Context, tx *sqlx.Tx, userID int) err
 	return nil
 }
 
-func (m *Store) checkEventAdmin(ctx context.Context, tx *sqlx.Tx, eventID, userID int) error {
+func (m *Store) checkEventAdmin(ctx context.Context, tx *sqlx.Tx, crewID, userID int) error {
 	stmt, err := tx.PrepareContext(ctx,
+		`SELECT signup.event_id
+		FROM event.crews crew
+		INNER JOIN event.signups signup ON crew.signup_id = signup.signup_id
+		WHERE crew.crew_id = $1;`)
+	if err != nil {
+		return fmt.Errorf("failed to prepare getting event from crew: %w", err)
+	}
+	eventID := null.Int{}
+	err = stmt.QueryRowContext(ctx, crewID).Scan(&eventID)
+	if err != nil {
+		return fmt.Errorf("failed to query event from crew: %w", err)
+	}
+	stmt, err = tx.PrepareContext(ctx,
 		`SELECT bool_or(position.admin) AS has_admin
 		FROM event.crews crew
 		INNER JOIN event.positions position ON crew.position_id = position.position_id
@@ -168,7 +181,7 @@ func (m *Store) checkEventAdmin(ctx context.Context, tx *sqlx.Tx, eventID, userI
 		return fmt.Errorf("failed to prepare event admin check: %w", err)
 	}
 	hasAdmin := false
-	err = stmt.QueryRowContext(ctx, eventID, userID).Scan(&hasAdmin)
+	err = stmt.QueryRowContext(ctx, eventID.ValueOrZero, userID).Scan(&hasAdmin)
 	if err != nil {
 		return fmt.Errorf("failed to query event admin check: %w", err)
 	}

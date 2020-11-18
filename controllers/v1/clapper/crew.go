@@ -31,7 +31,6 @@ func (r *Repos) SetCrew(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid crew ID")
 	}
-	ce, err := r.crew.Get(c.Request().Context(), crewID)
 	err = r.crew.UpdateUserAndVerify(c.Request().Context(), crewID, p.UserID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

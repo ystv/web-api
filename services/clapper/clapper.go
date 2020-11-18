@@ -100,7 +100,7 @@ type (
 	CrewRepo interface {
 		Get(ctx context.Context, crewID int) (*CrewPosition, error)
 		UpdateUser(ctx context.Context, crewID, userID int) error
-		UpdateUserAndVerify(ctx context.Context, eventID, crewID, userID int) error
+		UpdateUserAndVerify(ctx context.Context, crewID, userID int) error
 		DeleteUser(ctx context.Context, crewID int) error
 	}
 )
