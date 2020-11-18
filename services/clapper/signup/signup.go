@@ -60,6 +60,7 @@ func (m *Store) addCrew(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) erro
 		return fmt.Errorf("failed to prepare statement to insert crew: %w", err)
 	}
 	for _, position := range s.Crew {
+		// we might want to handle the signup ID if it does exist, just an if statement will do
 		_, err = stmt.ExecContext(ctx,
 			s.SignupID, position.PositionID, position.Locked, position.Ordering)
 		if err != nil {
@@ -123,6 +124,23 @@ func (m *Store) updateCrew(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) e
 	err = m.addCrew(ctx, tx, s)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+// Delete will remove the signup sheet and it's children crew
+// (The database should cascade to delete children)
+func (m *Store) Delete(ctx context.Context, signupID int) error {
+	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
+		_, err := tx.ExecContext(ctx,
+			`DELETE FROM events.signups WHERE signup_id = $1`, signupID)
+		if err != nil {
+			return fmt.Errorf("failed to exec deleting signup sheet: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to delete signup sheet: %w", err)
 	}
 	return nil
 }
