@@ -192,6 +192,8 @@ definitions:
     type: object
   people.Permission:
     properties:
+      description:
+        type: string
       id:
         type: integer
       name:
@@ -624,6 +626,53 @@ info:
   license: {}
   title: web-api
 paths:
+  /v1/internal/clapper/{eventid}/{signupid}:
+    delete:
+      description: deletes a signup by ID.
+      operationId: delete-signup
+      parameters:
+      - description: Event ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      - description: Signup ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete signup
+      tags:
+      - clapper
+      - signups
+  /v1/internal/clapper/{eventid}/{signupid}/{crewid}:
+    delete:
+      description: deletes a crew position by ID.
+      operationId: delete-signup
+      parameters:
+      - description: Event ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      - description: Signup ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      - description: Crew ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete crew
+      tags:
+      - clapper
+      - signups
   /v1/internal/clapper/calendar/{year}/{month}:
     get:
       description: Lists events by month. The signup section will be null.
@@ -650,6 +699,7 @@ paths:
             type: array
       summary: List events by month
       tags:
+      - clapper
       - events
   /v1/internal/clapper/crews/{crewid}:
     delete:
@@ -743,7 +793,89 @@ paths:
             $ref: '#/definitions/clapper.Event'
       summary: Get event by ID
       tags:
+      - clapper
       - events
+  /v1/internal/clapper/event/{eventid}/{signupid}:
+    put:
+      consumes:
+      - application/json
+      description: updates a signup sheet, to the body.
+      operationId: update-signup
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventid
+        required: true
+        type: integer
+      - description: Signup ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      - description: Signup object
+        in: body
+        name: quote
+        required: true
+        schema:
+          $ref: '#/definitions/clapper.Signup'
+      responses:
+        "200": {}
+      summary: Update signup
+      tags:
+      - clapper
+      - signups
+  /v1/internal/clapper/event/{eventid}/{signupid}/{positionid}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new crew object, that being a single person.
+      operationId: new-crew
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventid
+        required: true
+        type: integer
+      - description: Signup ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      - description: Position ID
+        in: path
+        name: crewid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: NewCrew
+      tags:
+      - clapper
+      - crews
+  /v1/internal/clapper/event/{eventid}/signup:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        Creates a new signup sheet, this is the sub part of an event
+        containing the list of crew, with a little metadata on top.
+      operationId: new-signup
+      parameters:
+      - description: Signup object
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/clapper.Signup'
+      responses:
+        "201":
+          description: Event ID
+          schema:
+            type: body
+      summary: New signup sheet
+      tags:
+      - clapper
+      - signups
   /v1/internal/clapper/positions:
     get:
       description: Lists all positions.

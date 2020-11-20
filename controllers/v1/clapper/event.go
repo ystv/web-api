@@ -13,17 +13,17 @@ import (
 	"github.com/ystv/web-api/services/clapper"
 )
 
-// MonthList returns all events for a month.
+// ListMonth returns all events for a month.
 // @Summary List events by month
 // @Description Lists events by month. The signup section will be null.
 // @ID get-events-month
-// @Tags events
+// @Tags clapper, events
 // @Produce json
 // @Param year path int true "year"
 // @Param month path int true "month"
 // @Success 200 {array} clapper.Event
 // @Router /v1/internal/clapper/calendar/{year}/{month} [get]
-func (r *Repos) MonthList(c echo.Context) error {
+func (r *Repos) ListMonth(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
@@ -40,23 +40,23 @@ func (r *Repos) MonthList(c echo.Context) error {
 	return c.JSON(http.StatusOK, e)
 }
 
-// EventGet handles getting all signups and roles for a given event
+// GetEvent handles getting all signups and roles for a given event
 // @Summary Get event by ID
 // @Description Get a event including signup-sheets and roles.
 // @ID get-event
-// @Tags events
+// @Tags clapper, events
 // @Produce json
 // @Param eventid path int true "Event ID"
 // @Success 200 {object} clapper.Event
 // @Router /v1/internal/clapper/event/{eventid} [get]
-func (r *Repos) EventGet(c echo.Context) error {
+func (r *Repos) GetEvent(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
 	}
 	e, err := r.event.Get(c.Request().Context(), id)
 	if err != nil {
-		err = fmt.Errorf("EventGet failed: %w", err)
+		err = fmt.Errorf("GetEvent failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, e)
