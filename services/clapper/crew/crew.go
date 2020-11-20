@@ -94,13 +94,35 @@ func (m *Store) UpdateUser(ctx context.Context, crewID, userID int) error {
 // it will also perform additional checks to ensure they have enough permission
 func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) error {
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
+		// check if they are super user
+		err := m.checkSuperUser(ctx, tx, userID)
+		if err != nil {
+			return m.updateUser(ctx, tx, crewID, userID)
+		} else if !errors.Is(err, errors.New("user doesn't have super-user permission")) {
+			return err
+		}
 		// we're just checking if a user has already signed up, otherwise go for it
 		crew, err := m.checkSameUser(ctx, tx, crewID, userID)
 		if err != nil {
 			return err
 		}
 		if !crew.userID.Valid {
-			// no-one has signed-up, check if they have permission
+			// no-one has signed-up, check if locked
+			isLocked, err := m.checkRoleLocked(ctx, tx, crewID)
+			if err != nil {
+				return err
+			}
+			if isLocked {
+				// is locked, only an admin can change this
+				err = m.checkEventAdmin(ctx, tx, crewID, userID)
+				if err != nil {
+					return err
+				}
+				// since they are an admin, will have enough permission
+				return m.updateUser(ctx, tx, crewID, userID)
+			}
+
+			// check if role has permission
 			if crew.PermissionID.Valid {
 				// role does require permission
 				err = m.checkUserRole(ctx, tx, crewID, userID)
@@ -108,10 +130,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 					return err
 				}
 				// they do have permission, carry on with updating
-				err = m.updateUser(ctx, tx, crewID, userID)
-				if err != nil {
-					return err
-				}
+				return m.updateUser(ctx, tx, crewID, userID)
 			}
 		}
 		// they are kicking someone off, so lets check they have consent from the government (authorization)
@@ -236,4 +255,17 @@ func (m *Store) checkSameUser(ctx context.Context, tx *sqlx.Tx, crewID, userID i
 		return crew, fmt.Errorf("failed to query crew user and perm: %w", err)
 	}
 	return crew, nil
+}
+
+// checkRoleLocked returns isLocked and error
+func (m *Store) checkRoleLocked(ctx context.Context, tx *sqlx.Tx, crewID int) (bool, error) {
+	isLocked := true
+	err := tx.QueryRowContext(ctx,
+		`SELECT locked
+		FROM event.crews
+		WHERE crew.crew_id = $1;`, crewID).Scan(&isLocked)
+	if err != nil {
+		return false, fmt.Errorf("failed to check if crew is locked: %w", err)
+	}
+	return isLocked, nil
 }
