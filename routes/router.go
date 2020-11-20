@@ -142,30 +142,35 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 			{
 				calendar := clapper.Group("/calendar")
 				{
-					// calendar.GET("/:year/:term", notImplemented)       // List all events of term
-					calendar.GET("/:year/:month", clapperV1.MonthList) // List all events of month
+					calendar.GET("/:year/:term", notImplemented)       // List all events of term
+					calendar.GET("/:year/:month", clapperV1.ListMonth) // List all events of month
 				}
 				events := clapper.Group("/event")
 				{
-					event := events.Group("/:eventid")
-					{
-						event.GET("", clapperV1.EventGet) // Get event info, returns event info and signup sheets
-						signup := event.Group("/signup")
-						{
-							signup.GET("/:id", notImplemented)          // Get a signup sheet, likely not to be used
-							signup.POST("", clapperV1.SignupNew)        // Create a new signup sheet
-							signup.PUT("/:sheet/:role", notImplemented) // Update a crew role, used to set a person
-						}
-					}
 					events.POST("", clapperV1.NewEvent)   // Create a new event
 					events.PUT("", clapperV1.UpdateEvent) // Update an event
-
+					event := events.Group("/:eventid")
+					{
+						event.GET("", clapperV1.GetEvent) // Get event info, returns event info and signup sheets
+						event.POST("/signup", clapperV1.NewSignup)
+						signup := event.Group("/:signupid")
+						{
+							signup.PUT("", clapperV1.UpdateSignup)         // Create a new signup sheet
+							signup.POST("/:positionid", clapperV1.NewCrew) // Add position to signup
+							crew := event.Group("/:crewid")
+							{
+								crew.PUT("/reset", clapperV1.ResetCrew) // Set the role back to unassigned
+								crew.PUT("", clapperV1.SetCrew)         // Update a crew role to the requesting user
+								crew.DELETE("", clapperV1.DeleteCrew)   // Delete the crew role from signup
+							}
+						}
+					}
 				}
-				crew := clapper.Group("/positions")
+				positions := clapper.Group("/positions")
 				{
-					crew.GET("", clapperV1.PositionList)   // List crew positions
-					crew.POST("", clapperV1.PositionNew)   // Create a new crew position
-					crew.PUT("", clapperV1.PositionUpdate) // Update a position
+					positions.GET("", clapperV1.ListPosition)   // List crew positions
+					positions.POST("", clapperV1.NewPosition)   // Create a new crew position
+					positions.PUT("", clapperV1.UpdatePosition) // Update a position
 				}
 			}
 			misc := internal.Group("/misc")

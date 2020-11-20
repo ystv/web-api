@@ -54,7 +54,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 	}
 	claims, err := people.GetToken(c)
 	if err != nil {
-		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
+		err = fmt.Errorf("NewQupte failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	q.CreatedBy = claims.UserID

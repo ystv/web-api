@@ -18,6 +18,7 @@
                     "application/json"
                 ],
                 "tags": [
+                    "clapper",
                     "events"
                 ],
                 "summary": "List events by month",
@@ -48,6 +49,50 @@
                             }
                         }
                     }
+                }
+            }
+        },
+        "/v1/internal/clapper/crews/{crewid}": {
+            "put": {
+                "description": "Uses JWT to set who is doing the crew position",
+                "tags": [
+                    "clapper",
+                    "crews"
+                ],
+                "summary": "Set crew user by user token",
+                "operationId": "set-crew-user-token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Crew ID",
+                        "name": "crewid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            },
+            "delete": {
+                "description": "Uses JWT to set who is doing the crew position to empty",
+                "tags": [
+                    "clapper",
+                    "crews"
+                ],
+                "summary": "Set crew user by user token",
+                "operationId": "delete-crew-user-token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Crew ID",
+                        "name": "crewid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -115,6 +160,7 @@
                     "application/json"
                 ],
                 "tags": [
+                    "clapper",
                     "events"
                 ],
                 "summary": "Get event by ID",
@@ -135,6 +181,121 @@
                             "$ref": "#/definitions/clapper.Event"
                         }
                     }
+                }
+            }
+        },
+        "/v1/internal/clapper/event/{eventid}/signup": {
+            "post": {
+                "description": "Creates a new signup sheet, this is the sub part of an event\ncontaining the list of crew, with a little metadata on top.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clapper",
+                    "signups"
+                ],
+                "summary": "New signup sheet",
+                "operationId": "new-signup",
+                "parameters": [
+                    {
+                        "description": "Signup object",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/clapper.Signup"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Event ID",
+                        "schema": {
+                            "type": "body"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/clapper/event/{eventid}/{signupid}": {
+            "put": {
+                "description": "updates a signup sheet, to the body.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clapper",
+                    "signups"
+                ],
+                "summary": "Update signup",
+                "operationId": "update-signup",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "eventid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Signup ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Signup object",
+                        "name": "quote",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/clapper.Signup"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/clapper/event/{eventid}/{signupid}/{positionid}": {
+            "post": {
+                "description": "Creates a new crew object, that being a single person.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clapper",
+                    "crews"
+                ],
+                "summary": "NewCrew",
+                "operationId": "new-crew",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "eventid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Signup ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Position ID",
+                        "name": "crewid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -214,6 +375,73 @@
                             "type": "body"
                         }
                     }
+                }
+            }
+        },
+        "/v1/internal/clapper/{eventid}/{signupid}": {
+            "delete": {
+                "description": "deletes a signup by ID.",
+                "tags": [
+                    "clapper",
+                    "signups"
+                ],
+                "summary": "Delete signup",
+                "operationId": "delete-signup",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Signup ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/clapper/{eventid}/{signupid}/{crewid}": {
+            "delete": {
+                "description": "deletes a crew position by ID.",
+                "tags": [
+                    "clapper",
+                    "signups"
+                ],
+                "summary": "Delete crew",
+                "operationId": "delete-signup",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Signup ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Crew ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -1451,6 +1679,9 @@
         "people.Permission": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

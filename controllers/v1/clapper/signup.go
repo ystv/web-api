@@ -11,18 +11,28 @@ import (
 	"github.com/ystv/web-api/services/clapper"
 )
 
-// SignupNew handles a creating a signup sheet
-func (r *Repos) SignupNew(c echo.Context) error {
+// NewSignup handles a creating a signup sheet
+//
+// @Summary New signup sheet
+// @Description Creates a new signup sheet, this is the sub part of an event
+// @Description containing the list of crew, with a little metadata on top.
+// @ID new-signup
+// @Tags clapper, signups
+// @Accept json
+// @Param event body clapper.Signup true "Signup object"
+// @Success 201 body int "Event ID"
+// @Router /v1/internal/clapper/event/{eventid}/signup [post]
+func (r *Repos) NewSignup(c echo.Context) error {
 	// Validate event ID
-	eventID, err := strconv.Atoi(c.Param("eventID"))
+	eventID, err := strconv.Atoi(c.Param("signupid"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Bad event ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad signup ID")
 	}
 	// Bind request json to signup
 	s := clapper.Signup{}
 	err = c.Bind(&s)
 	if err != nil {
-		err = fmt.Errorf("SignupNew: failed to bind to request json: %w", err)
+		err = fmt.Errorf("NewSignup: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
@@ -39,8 +49,66 @@ func (r *Repos) SignupNew(c echo.Context) error {
 	// Insert new signup sheet
 	signupID, err := r.signup.New(c.Request().Context(), e.EventID, s)
 	if err != nil {
-		err = fmt.Errorf("SignupNew: failed to insert new signup: %w", err)
+		err = fmt.Errorf("NewSignup: failed to insert new signup: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusCreated, signupID)
+}
+
+// UpdateSignup updates an existing signup
+//
+// @Summary Update signup
+// @Description updates a signup sheet, to the body.
+// @ID update-signup
+// @Tags clapper, signups
+// @Param eventid path int true "Event ID"
+// @Param signupid path int true "Signup ID"
+// @Accept json
+// @Param quote body clapper.Signup true "Signup object"
+// @Success 200
+// @Router /v1/internal/clapper/event/{eventid}/{signupid} [put]
+func (r *Repos) UpdateSignup(c echo.Context) error {
+	s := clapper.Signup{}
+	err := c.Bind(&s)
+	if err != nil {
+		err = fmt.Errorf("UpdateSignup: failed to bind to request json: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	signupID, err := strconv.Atoi(c.Param("signupid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
+	}
+	s.SignupID = signupID
+	err = r.signup.Update(c.Request().Context(), s)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusBadRequest, err)
+		}
+		err = fmt.Errorf("UpdateSignup failed: %w", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+// DeleteSignup handles deleting signup
+//
+// @Summary Delete signup
+// @Description deletes a signup by ID.
+// @ID delete-signup
+// @Tags clapper, signups
+// @Param signupid path int true "Event ID"
+// @Param signupid path int true "Signup ID"
+// @Success 200
+// @Router /v1/internal/clapper/{eventid}/{signupid} [delete]
+func (r *Repos) DeleteSignup(c echo.Context) error {
+	signupID, err := strconv.Atoi(c.Param("signupid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
+	}
+	err = r.signup.Delete(c.Request().Context(), signupID)
+	if err != nil {
+		err = fmt.Errorf("DeleteSignup failed: %w", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusOK)
 }
