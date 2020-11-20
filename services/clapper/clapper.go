@@ -78,6 +78,8 @@ type (
 	// SignupRepo defines all signup sheet interactions
 	SignupRepo interface {
 		New(ctx context.Context, eventID int, s Signup) (int, error)
+		Update(ctx context.Context, s Signup) error
+		Delete(ctx context.Context, signupID int) error
 	}
 
 	// PositionRepo defines all position interactions.
@@ -98,9 +100,11 @@ type (
 	// with each unique role on a signup sheet. Providing the
 	// facilities for users to use the signup sheet.
 	CrewRepo interface {
+		New(ctx context.Context, signupID, positionID int) error
 		Get(ctx context.Context, crewID int) (*CrewPosition, error)
 		UpdateUser(ctx context.Context, crewID, userID int) error
 		UpdateUserAndVerify(ctx context.Context, crewID, userID int) error
 		DeleteUser(ctx context.Context, crewID int) error
+		Delete(ctx context.Context, crewID int) error
 	}
 )
