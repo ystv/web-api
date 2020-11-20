@@ -25,9 +25,21 @@ func NewStore(db *sqlx.DB) *Store {
 // Here to verify we are meeting the interface
 var _ clapper.CrewRepo = &Store{}
 
+// crew a basic crew reprensentations temporary for processing
 type crew struct {
 	userID       null.Int `db:"user_id"`
 	PermissionID null.Int `db:"permission_id"`
+}
+
+// New creates a new crew position, with default settings
+func (m *Store) New(ctx context.Context, signupID, positionID int) error {
+	_, err := m.db.ExecContext(ctx,
+		`INSERT INTO event.crews(signup_id, position_id)
+		VALUES ($1, $2);`, signupID, positionID)
+	if err != nil {
+		return fmt.Errorf("failed to exec new crew position: %w", err)
+	}
+	return nil
 }
 
 // Get returns a crew position object
@@ -63,6 +75,17 @@ func (m *Store) DeleteUser(ctx context.Context, crewID int) error {
 		}
 		return nil
 	})
+}
+
+// Delete will completely remove the crew position
+func (m *Store) Delete(ctx context.Context, crewID int) error {
+	_, err := m.db.ExecContext(ctx,
+		`DELETE FROM event.crews
+		WHERE crew_id = $1;`, crewID)
+	if err != nil {
+		return fmt.Errorf("failed to exec delete crew position: %w", err)
+	}
+	return nil
 }
 
 // updateUser updates userID in a crew object

@@ -24,7 +24,7 @@ import (
 func (r *Repos) SetCrew(c echo.Context) error {
 	p, err := people.GetToken(c)
 	if err != nil {
-		err = fmt.Errorf("NewEvent: failed to get token: %w", err)
+		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	crewID, err := strconv.Atoi(c.Param("crewid"))
@@ -51,7 +51,7 @@ func (r *Repos) SetCrew(c echo.Context) error {
 func (r *Repos) ResetCrew(c echo.Context) error {
 	_, err := people.GetToken(c)
 	if err != nil {
-		err = fmt.Errorf("NewEvent: failed to get token: %w", err)
+		err = fmt.Errorf("ResetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	crewID, err := strconv.Atoi(c.Param("crewid"))
@@ -71,6 +71,55 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 	err = r.crew.DeleteUser(c.Request().Context(), crewID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+// NewCrew handles creating a new crew, this being a single person
+//
+// @Summary NewCrew
+// @Description Creates a new crew object, that being a single person.
+// @ID new-crew
+// @Tags clapper, crews
+// @Accept json
+// @Param eventid path int true "Event ID"
+// @Param signupid path int true "Signup ID"
+// @Param crewid path int true "Position ID"
+// @Success 200
+// @Router /v1/internal/clapper/event/{eventid}/{signupid}/{positionid} [post]
+func (r *Repos) NewCrew(c echo.Context) error {
+	signupID, err := strconv.Atoi(c.Param("signupid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
+	}
+	positionID, err := strconv.Atoi(c.Param("positionid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
+	}
+	err = r.crew.New(c.Request().Context(), signupID, positionID)
+	return c.NoContent(http.StatusOK)
+}
+
+// DeleteCrew handles deleting crew position
+//
+// @Summary Delete crew
+// @Description deletes a crew position by ID.
+// @ID delete-signup
+// @Tags clapper, signups
+// @Param signupid path int true "Event ID"
+// @Param signupid path int true "Signup ID"
+// @Param signupid path int true "Crew ID"
+// @Success 200
+// @Router /v1/internal/clapper/{eventid}/{signupid}/{crewid} [delete]
+func (r *Repos) DeleteCrew(c echo.Context) error {
+	signupID, err := strconv.Atoi(c.Param("crewid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid crew ID")
+	}
+	err = r.crew.Delete(c.Request().Context(), signupID)
+	if err != nil {
+		err = fmt.Errorf("DeleteCrew failed: %w", err)
+		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)
 }
