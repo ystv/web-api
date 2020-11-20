@@ -142,8 +142,8 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 			{
 				calendar := clapper.Group("/calendar")
 				{
-					calendar.GET("/:year/:term", notImplemented)       // List all events of term
-					calendar.GET("/:year/:month", clapperV1.ListMonth) // List all events of month
+					calendar.GET("/termly/:year/:term", notImplemented)        // List all events of term
+					calendar.GET("/monthly/:year/:month", clapperV1.ListMonth) // List all events of month
 				}
 				events := clapper.Group("/event")
 				{
