@@ -99,3 +99,36 @@ func (m *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, e
 	}
 	return v, err
 }
+
+// Search performs a full-text search on video library
+//
+// Uses postgres' full-text search, video and series tables to try to make some sense
+func (m *Store) Search(ctx context.Context, search string) ([]VideoMeta, error) {
+	v := []VideoMeta{}
+	res, err := m.db.QueryContext(ctx,
+		`SELECT id, title, description, tags, broadcast_date
+	FROM (SELECT	video.video_id id,
+		  video.name title,
+		  video.description description,
+		  video.tags tags,
+		  video.broadcast_date broadcast_date,
+		  to_tsvector(video.name) || ' ' ||
+			to_tsvector(video.description) || ' ' ||
+			to_tsvector(unnest(video.tags)) || ' ' ||
+			  to_tsvector(CAST(video.broadcast_date AS text)) || ' ' ||
+			  to_tsvector(unnest(array_agg(series.name))) || ' ' ||
+			  to_tsvector(unnest(array_agg(series.description)))
+		  AS document
+	FROM video.items video
+	INNER JOIN video.series series ON video.series_id = series.series_id
+	GROUP BY video.video_id) p_search
+	WHERE p_search.document @@ replace(plainto_tsquery('$1')::text, '&', '|')::tsquery;`, search)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search videos: %w", err)
+	}
+	err = res.Scan(&v)
+	if err != nil {
+		return nil, fmt.Errorf("failed to scan search struct: %w", err)
+	}
+	return v, nil
+}
