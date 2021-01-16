@@ -89,10 +89,19 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 		{
 			people := internal.Group("/people")
 			{
-				people.GET("/user/full", peopleV1.UserByTokenFull)
-				people.GET("/user/:id", peopleV1.UserByID)
-				people.GET("/user/:id/full", peopleV1.UserByIDFull)
-				people.GET("/user", peopleV1.UserByToken)
+				user := people.Group("/user")
+				{
+					user.GET("/full", peopleV1.UserByTokenFull)
+					user.GET("/:id", peopleV1.UserByID)
+					user.GET("/:id/full", peopleV1.UserByIDFull)
+					user.GET("", peopleV1.UserByToken)
+				}
+				users := people.Group("/users")
+				{
+					users.GET("", peopleV1.ListAllPeople)
+					users.GET("/:id", peopleV1.ListRoleMembers)
+				}
+
 			}
 			creator := internal.Group("/creator")
 			{

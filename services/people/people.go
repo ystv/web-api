@@ -10,6 +10,8 @@ import (
 type UserRepo interface {
 	Get(ctx context.Context, userID int) (*User, error)
 	GetFull(ctx context.Context, userID int) (*UserFull, error)
+	ListAll(ctx context.Context) (*[]User, error)
+	ListRole(ctx context.Context, roleID int) (*[]User, error)
 }
 
 // PermissionRepo defines all permission interactions
@@ -25,3 +27,6 @@ type Store struct {
 func NewStore(db *sqlx.DB) *Store {
 	return &Store{db: db}
 }
+
+// Here for validation to ensure we are meeting the interface
+var _ UserRepo = &Store{}

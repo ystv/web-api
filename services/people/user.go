@@ -51,9 +51,6 @@ type (
 	}
 )
 
-// Here for validation to ensure we are meeting the interface
-var _ UserRepo = &Store{}
-
 // GetFull will return all user information to be used for profile and management.
 func (m *Store) GetFull(ctx context.Context, userID int) (*UserFull, error) {
 	u := UserFull{}
