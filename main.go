@@ -35,9 +35,19 @@ func main() {
 	}
 	db := utils.InitDB()
 	cdn := utils.InitCDN()
+	m, err := utils.NewMailer(utils.Config{
+		Host:     os.Getenv("WAPI_MAIL_HOST"),
+		Port:     587,
+		Username: os.Getenv("WAPI_MAIL_USER"),
+		Password: os.Getenv("WAPI_MAIL_PASS"),
+	})
+	if err != nil {
+		log.Fatalf("failed to start mailer: %+v", err)
+	}
+	log.Printf("Connected to mail: %s@%s", os.Getenv("WAPI_MAIL_USER"), os.Getenv("WAPI_MAIL_HOST"))
 	// utils.InitMessaging()
 
-	e := routes.Init(Version, Commit, db, cdn)
+	e := routes.Init(Version, Commit, db, cdn, m)
 
 	e.Logger.Fatal(e.Start(":8081"))
 }

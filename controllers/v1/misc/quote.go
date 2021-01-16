@@ -40,6 +40,7 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 // NewQuote handles creating a quote
 // @Summary New quote
 // @Description creates a new quote.
+// @Description web-api will overwrite created by User ID with the token's user ID.
 // @ID new-quote
 // @Tags misc, quotes
 // @Accept json
@@ -68,7 +69,8 @@ func (r *Repos) NewQuote(c echo.Context) error {
 
 // UpdateQuote handles updating a quote
 // @Summary Update quote
-// @Description updates a quote.
+// @Description updates a quote. Still need to provide the whole Quote object,
+// @Description web-api will overwrite created by User ID to keep with existing record.
 // @ID update-quote
 // @Tags misc, quotes
 // @Accept json
@@ -81,7 +83,7 @@ func (r *Repos) UpdateQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	err = r.misc.NewQuote(c.Request().Context(), q)
+	err = r.misc.UpdateQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("UpdateQuote failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)

@@ -22,7 +22,7 @@ import (
 // @Param year path int true "year"
 // @Param month path int true "month"
 // @Success 200 {array} clapper.Event
-// @Router /v1/internal/clapper/calendar/{year}/{month} [get]
+// @Router /v1/internal/clapper/calendar/monthly/{year}/{month} [get]
 func (r *Repos) ListMonth(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {

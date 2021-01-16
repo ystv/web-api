@@ -33,7 +33,7 @@ import (
 // @contact.name API Support
 // @contact.url https://github.com/ystv/web-api
 // @contact.email computing@ystv.co.uk
-func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
+func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, m *utils.Mailer) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	debug, err := strconv.ParseBool(os.Getenv("debug"))
@@ -151,8 +151,8 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3) *echo.Echo {
 			{
 				calendar := clapper.Group("/calendar")
 				{
-					calendar.GET("/:year/:term", notImplemented)       // List all events of term
-					calendar.GET("/:year/:month", clapperV1.ListMonth) // List all events of month
+					calendar.GET("/termly/:year/:term", notImplemented)        // List all events of term
+					calendar.GET("/monthly/:year/:month", clapperV1.ListMonth) // List all events of month
 				}
 				events := clapper.Group("/event")
 				{
