@@ -122,7 +122,7 @@ func GetToken(c echo.Context) (*JWTClaims, error) {
 	claims := &JWTClaims{}
 
 	_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("signing_key")), nil
+		return []byte(os.Getenv("WAPI_SIGNING_KEY")), nil
 	})
 	if err != nil {
 		err = fmt.Errorf("GetToken failed: %w", err)
