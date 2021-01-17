@@ -206,8 +206,10 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) *
 			public.GET("/video/:id/breadcrumb", publicV1.VideoBreadcrumb)
 			public.GET("/series/:id", publicV1.SeriesByID)
 			public.GET("/series/:id/breadcrumb", publicV1.SeriesBreadcrumb)
-			// public.GET("/teams", publicV1.ListTeams)
-			// public.GET("/teams/{:year}", publicV1.ListTeamsByYear)
+			public.GET("/teams", publicV1.ListTeams)
+			public.GET("/teams/officers", publicV1.ListOfficers)
+			public.GET("/teams/:teamid", publicV1.GetTeam)
+			public.GET("/teams/:teamid/:year", publicV1.GetTeamByYear)
 			public.GET("/streams", publicPackage.StreamList)
 			public.GET("/stream/:id", publicPackage.StreamFind)
 			public.GET("/streams/home", publicPackage.StreamHome) // isLive null

@@ -28,7 +28,11 @@ type (
 	}
 	// TeamRepo represents all team interactions
 	TeamRepo interface {
-		ListTeams(ctx context.Context) (*[]Team, error)
+		ListTeams(ctx context.Context) ([]Team, error)
+		GetTeam(ctx context.Context, teamID int) (Team, error)
+		GetTeamByYear(ctx context.Context, teamID, year int) (Team, error)
+		ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, error)
+		ListOfficers(ctx context.Context) ([]TeamMember, error)
 	}
 	// Store encapsulates our dependency
 	Store struct {
