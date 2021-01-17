@@ -12,6 +12,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/video"
+	"github.com/ystv/web-api/utils"
 )
 
 // TODO update schema so duration is not null
@@ -20,13 +21,14 @@ var _ creator.VideoRepo = &Store{}
 
 // Store encapsulates our dependencies
 type Store struct {
-	db  *sqlx.DB
-	cdn *s3.S3
+	db   *sqlx.DB
+	cdn  *s3.S3
+	conf *creator.Config
 }
 
 // NewStore returns a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3) *Store {
-	return &Store{db: db, cdn: cdn}
+func NewStore(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Store {
+	return &Store{db: db, cdn: cdn, conf: conf}
 }
 
 // GetItem returns a VideoItem by it's ID.
@@ -116,7 +118,7 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, erro
 func (s *Store) NewItem(ctx context.Context, v *video.New) error {
 	// Checking if video file exists
 	obj, err := s.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
-		Bucket: aws.String("pending"),
+		Bucket: aws.String(s.conf.IngestBucket),
 		Key:    aws.String(v.FileID[:32]),
 	})
 	if err != nil {
@@ -145,8 +147,8 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) error {
 
 	// Copy from pending bucket to main video bucket
 	_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
-		Bucket:     aws.String("videos"),
-		CopySource: aws.String("pending/" + v.FileID[:32]),
+		Bucket:     aws.String(s.conf.ServeBucket),
+		CopySource: aws.String(s.conf.IngestBucket + "/" + v.FileID[:32]),
 		Key:        aws.String(key),
 	})
 	if err != nil {
@@ -164,6 +166,71 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) error {
 		return err
 	}
 
+	return nil
+}
+
+// DeleteItem Removes a video. The video will still be present in the database, files
+// and visible to users with high enough access
+func (s *Store) DeleteItem(ctx context.Context, videoID, userID int) error {
+	_, err := s.db.ExecContext(ctx, `
+		UPDATE video.items SET
+			deleted_at = NOW()
+			deleted_by = $2
+		WHERE video_id = $1;`, videoID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete video item: %w", err)
+	}
+	return nil
+}
+
+// DeleteItemPermanently removes a video entirely, including the associated video files
+func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
+	// To delete a video we will need to delete all child objects database first
+	// * Video hits
+	// * Video files
+	// Then we will need to delete the object files
+	// * VOD files
+	// * Original master
+	fileURLs := []string{}
+	// Wrapped in transaction so we can rollback if it fails, however
+	// S3 doesn't support transactions so only database is protected
+	err := utils.Transact(s.db, func(tx *sqlx.Tx) error {
+		// Get child files
+		err := tx.SelectContext(ctx, &fileURLs, `
+			SELECT  uri
+			FROM video.files
+			WHERE video_id = $1;`, videoID)
+		if err != nil {
+			return fmt.Errorf("failed to find video file URLs: %w", err)
+		}
+
+		// First delete from database
+		_, err = tx.ExecContext(ctx, `DELETE FROM video.files WHERE video_id = $1;`, videoID)
+		if err != nil {
+			return fmt.Errorf("failed to delete video file from database: %w", err)
+		}
+
+		// Then deleting from object store
+		for _, file := range fileURLs {
+			_, err := s.cdn.DeleteObject(&s3.DeleteObjectInput{
+				Bucket: aws.String(s.conf.ServeBucket),
+				Key:    aws.String(file),
+			})
+			if err != nil {
+				return fmt.Errorf("failed to delete video file object: %w", err)
+			}
+
+			// Finally removing the video item / meta from the database
+			_, err = tx.ExecContext(ctx, `DELETE FROM video.items WHERE video_id = $1`, videoID)
+			if err != nil {
+				return fmt.Errorf("failed to delete video item from database: %w", err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to permanently delete video \"%d\": %w", videoID, err)
+	}
 	return nil
 }
 
