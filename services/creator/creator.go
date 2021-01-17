@@ -13,6 +13,11 @@ import (
 )
 
 type (
+	// Config configures where creator will use as its bucket sources
+	Config struct {
+		IngestBucket string
+		ServeBucket  string
+	}
 	// VideoRepo defines all creator video interactions
 	VideoRepo interface {
 		GetItem(ctx context.Context, id int) (*video.Item, error)

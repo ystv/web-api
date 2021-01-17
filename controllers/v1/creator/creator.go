@@ -3,6 +3,7 @@ package creator
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
@@ -27,11 +28,15 @@ type Repos struct {
 
 // NewRepos creates our data repositories
 func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
+	config := &creator.Config{
+		IngestBucket: os.Getenv("WAPI_CDN_BUCKET_INGEST"),
+		ServeBucket:  os.Getenv("WAPI_CDN_BUKCET_SERVE"),
+	}
 	return &Repos{
-		video.NewStore(db, cdn),
-		series.NewController(db, cdn),
+		video.NewStore(db, cdn, config),
+		series.NewController(db, cdn, config),
 		playlist.NewStore(db),
-		breadcrumb.NewController(db, cdn),
+		breadcrumb.NewController(db, cdn, config),
 		encode.NewStore(db),
 		creator.NewStore(db),
 	}

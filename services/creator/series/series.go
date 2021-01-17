@@ -22,8 +22,8 @@ type Controller struct {
 }
 
 // NewController creates a new controller
-func NewController(db *sqlx.DB, cdn *s3.S3) *Controller {
-	return &Controller{db: db, video: video.NewStore(db, cdn)}
+func NewController(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Controller {
+	return &Controller{db: db, video: video.NewStore(db, cdn, conf)}
 }
 
 // Get provides the immediate children of series and videos

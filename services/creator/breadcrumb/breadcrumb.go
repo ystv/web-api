@@ -25,8 +25,8 @@ type Controller struct {
 }
 
 // NewController creates a new controller
-func NewController(db *sqlx.DB, cdn *s3.S3) *Controller {
-	return &Controller{db: db, video: video.NewStore(db, cdn)}
+func NewController(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Controller {
+	return &Controller{db: db, video: video.NewStore(db, cdn, conf)}
 }
 
 // Series will return the breadcrumb from SeriesID to root
