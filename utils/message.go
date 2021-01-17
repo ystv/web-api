@@ -3,13 +3,9 @@ package utils
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/streadway/amqp"
 )
-
-// TODO remove logging and panicking
 
 // IMessagingClient defines connecting, producing, and consuming messages.
 type IMessagingClient interface {
@@ -28,16 +24,41 @@ type MessagingClient struct {
 	conn *amqp.Connection
 }
 
+// MQConfig configuration required to create a MQ connection
+type MQConfig struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+}
+
+// NewMQ initialising the AMQP broker
+func NewMQ(conf MQConfig) (*MessagingClient, error) {
+	mqString := fmt.Sprintf("amqp://%s:%s@%s:%s", conf.Username, conf.Password, conf.Host, conf.Port)
+	mq := &MessagingClient{}
+	err := mq.ConnectToBroker(mqString)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to mq: %w", err)
+	}
+	return mq, nil
+}
+
+// Info returns AMQP info
+func (m *MessagingClient) Info() string {
+	return fmt.Sprintf("%s (%s)", m.conn.Properties["product"], m.conn.Properties["version"])
+}
+
 // ConnectToBroker connects to a broker i.e. RabbitMQ
-func (m *MessagingClient) ConnectToBroker(connectionString string) {
+func (m *MessagingClient) ConnectToBroker(connectionString string) error {
 	if connectionString == "" {
-		panic("Cannot connect to broker, connectionString not set")
+		return fmt.Errorf("Cannot connect to broker, connectionString not set")
 	}
 	var err error
 	m.conn, err = amqp.Dial(fmt.Sprintf("%s/", connectionString))
 	if err != nil {
-		panic("Failed to connect to AMQP compatible broker at: " + connectionString)
+		return fmt.Errorf("Failed to connect to AMQP compatible broker at: %s", connectionString)
 	}
+	return nil
 }
 
 // Publish publishes a message to the named exchange.
@@ -57,7 +78,7 @@ func (m *MessagingClient) Publish(body []byte, exchangeName string, exchangeType
 		nil,   // Arguments
 	)
 	if err != nil {
-		log.Panicf("Failed to register exchange: %s", err.Error())
+		return fmt.Errorf("Failed to register exchange: %w", err)
 	}
 
 	q, err := ch.QueueDeclare(
@@ -70,7 +91,7 @@ func (m *MessagingClient) Publish(body []byte, exchangeName string, exchangeType
 	)
 
 	if err != nil {
-		log.Panicf("Failed to declare queue: %s", err.Error())
+		return fmt.Errorf("Failed to declare queue: %w", err)
 	}
 	err = ch.QueueBind(
 		q.Name,       // Queue name
@@ -88,7 +109,6 @@ func (m *MessagingClient) Publish(body []byte, exchangeName string, exchangeType
 		amqp.Publishing{
 			Body: body,
 		})
-	log.Printf("Message sent to exchange: %v", string(body))
 	return err
 }
 
@@ -117,7 +137,6 @@ func (m *MessagingClient) PublishOnQueueWithContext(ctx context.Context, body []
 		false,  // Immediate
 		buildMessage(ctx, body),
 	)
-	log.Printf("A message was sent to queue %v: %v", queueName, string(body))
 	return err
 }
 
@@ -138,7 +157,7 @@ func (m *MessagingClient) PublishOnQueue(body []byte, queueName string) error {
 func (m *MessagingClient) Subscribe(exchangeName string, exchangeType string, consumerName string, handlerFunc func(amqp.Delivery)) error {
 	ch, err := m.conn.Channel()
 	if err != nil {
-		log.Fatalf("Failed to open channel: %v", err)
+		return fmt.Errorf("Failed to open channel: %w", err)
 	}
 	ch.Close()
 
@@ -152,9 +171,8 @@ func (m *MessagingClient) Subscribe(exchangeName string, exchangeType string, co
 		nil,          // Arguments
 	)
 	if err != nil {
-		log.Fatalf("Failed to register an exchange: %v", err)
+		return fmt.Errorf("Failed to register an exchange: %w", err)
 	}
-	log.Printf("Declared exchange, declaring queue (%s)", "")
 	q, err := ch.QueueDeclare(
 		"",    // Queue name
 		false, // Durable
@@ -164,10 +182,8 @@ func (m *MessagingClient) Subscribe(exchangeName string, exchangeType string, co
 		nil,   // Arguments
 	)
 	if err != nil {
-		log.Fatalf("Failed to register a queue")
+		return fmt.Errorf("Failed to register a queue: %w", err)
 	}
-	log.Printf("Declared queue (%d messages, %d consumers), binding to exchange (key '%s')",
-		q.Messages, q.Consumers, exchangeName)
 
 	err = ch.QueueBind(
 		q.Name,       // Queue name
@@ -191,7 +207,7 @@ func (m *MessagingClient) Subscribe(exchangeName string, exchangeType string, co
 	)
 
 	if err != nil {
-		log.Fatalf("Failed to register a consumer: %v", err)
+		return fmt.Errorf("Failed to register a consumer: %w", err)
 	}
 
 	go consumeLoop(msgs, handlerFunc)
@@ -202,10 +218,9 @@ func (m *MessagingClient) Subscribe(exchangeName string, exchangeType string, co
 func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string, handlerFunc func(amqp.Delivery)) error {
 	ch, err := m.conn.Channel()
 	if err != nil {
-		log.Fatalf("Failed to open a channel: %v", err)
+		return fmt.Errorf("Failed to open a channel: %w", err)
 	}
 
-	log.Printf("Declaring Queue (%s)", queueName)
 	q, err := ch.QueueDeclare(
 		queueName, // Queue name
 		false,     // Durable
@@ -215,7 +230,7 @@ func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string
 		nil,       // Arguments
 	)
 	if err != nil {
-		log.Printf("Failed to register a queue: %v", err)
+		return fmt.Errorf("Failed to register a queue: %w", err)
 	}
 	msgs, err := ch.Consume(
 		q.Name,       // Queue name
@@ -227,7 +242,7 @@ func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string
 		nil,          // Arguments
 	)
 	if err != nil {
-		log.Printf("Failed to register a consumer: %v", err)
+		return fmt.Errorf("Failed to register a consumer: %w", err)
 	}
 
 	go consumeLoop(msgs, handlerFunc)
@@ -237,7 +252,6 @@ func (m *MessagingClient) SubscribeToQueue(queueName string, consumerName string
 // Close closes the connection to the AMQP-broker
 func (m *MessagingClient) Close() {
 	if m.conn != nil {
-		log.Printf("Closing connection to AMQP broker")
 		m.conn.Close()
 	}
 }
@@ -246,25 +260,4 @@ func consumeLoop(deliveries <-chan amqp.Delivery, handlerFunc func(d amqp.Delive
 	for d := range deliveries {
 		handlerFunc(d)
 	}
-}
-
-// Info returns AMQP info
-func (m *MessagingClient) Info() string {
-	return fmt.Sprintf("%s (%s)", m.conn.Properties["product"], m.conn.Properties["version"])
-}
-
-// MQ global mq
-var MQ IMessagingClient
-
-// InitMessaging initialising the AMQP broker
-func InitMessaging() {
-	mqUsername := os.Getenv("mq_user")
-	mqPassword := os.Getenv("mq_pass")
-	mqHost := os.Getenv("mq_host")
-	mqPort := os.Getenv("mq_port")
-
-	mqString := fmt.Sprintf("amqp://%s:%s@%s:%s", mqUsername, mqPassword, mqHost, mqPort)
-	MQ = &MessagingClient{}
-	MQ.ConnectToBroker(mqString)
-	log.Printf("Connected to MQ: %s@%s - %s", mqUsername, mqHost, MQ.Info())
 }
