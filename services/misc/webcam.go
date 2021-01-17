@@ -3,7 +3,6 @@ package misc
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"gopkg.in/guregu/null.v4"
 )
@@ -41,7 +40,6 @@ func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam,
 		err = fmt.Errorf("failed to select webcams: %w", err)
 		return publicWebcams, err
 	}
-	log.Printf("%+v", w)
 
 	// Check if user has permission to view it
 	publicWebcam := Webcam{}

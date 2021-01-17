@@ -7,7 +7,3 @@ type JWTClaims struct {
 	UserID int `json:"userID"`
 	jwt.StandardClaims
 }
-
-func ValidateToken() {
-
-}

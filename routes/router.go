@@ -3,12 +3,8 @@ package routes
 import (
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 	echoMw "github.com/labstack/echo/v4/middleware"
 	clapperPackage "github.com/ystv/web-api/controllers/v1/clapper"
@@ -27,50 +23,88 @@ import (
 
 // TODO standarise on function names
 
-// Init initialise routes
+// Router provides a HTTP server for web-api
+type Router struct {
+	version   string
+	commit    string
+	router    *echo.Echo
+	jwtConfig *echoMw.JWTConfig
+	clapper   *clapperPackage.Repos
+	creator   *creatorPackage.Repos
+	misc      *miscPackage.Repos
+	people    *peoplePackage.Repo
+	public    *publicPackage.Repos
+}
+
+// NewRouter is the required dependencies
+type NewRouter struct {
+	Version       string
+	Commit        string
+	JWTSigningKey string
+	Debug         bool
+	Clapper       *clapperPackage.Repos
+	Creator       *creatorPackage.Repos
+	Misc          *miscPackage.Repos
+	People        *peoplePackage.Repo
+	Public        *publicPackage.Repos
+}
+
+// New creates a new router instance
+func New(conf *NewRouter) *Router {
+	r := &Router{
+		version: conf.Version,
+		commit:  conf.Commit,
+		router:  echo.New(),
+		jwtConfig: &echoMw.JWTConfig{
+			Claims:      &utils.JWTClaims{},
+			TokenLookup: "cookie:token",
+			SigningKey:  []byte(conf.JWTSigningKey),
+		},
+		clapper: conf.Clapper,
+		creator: conf.Creator,
+		misc:    conf.Misc,
+		people:  conf.People,
+		public:  conf.Public,
+	}
+	r.router.HideBanner = true
+
+	// Enabling debugging
+	r.router.Debug = conf.Debug
+
+	// Authentication middleware
+	middleware.Init(r.router)
+
+	r.loadRoutes()
+
+	return r
+}
+
+// Start the HTTP Server
+func (r *Router) Start() {
+	r.router.Logger.Fatal(r.router.Start(":8081"))
+}
+
+// loadRoutes initialise routes
 // @title web-api
 // @description The backend powering most things
 // @contact.name API Support
 // @contact.url https://github.com/ystv/web-api
 // @contact.email computing@ystv.co.uk
-func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) (*echo.Echo, error) {
-	e := echo.New()
-	e.HideBanner = true
-	debug, err := strconv.ParseBool(os.Getenv("WAPI_DEBUG"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse DEBUG environment variable: %w", err)
-	}
-	// Enabling debugging
-	e.Debug = debug
-
-	creatorV1 := creatorPackage.NewRepos(db, cdn)
-	miscV1 := miscPackage.NewRepos(db)
-	publicV1 := publicPackage.NewRepos(db)
-	peopleV1 := peoplePackage.NewRepo(db)
-	clapperV1 := clapperPackage.NewRepos(db)
-
-	// Authentication middleware
-	middleware.Init(e)
-	config := echoMw.JWTConfig{
-		Claims:      &utils.JWTClaims{},
-		TokenLookup: "cookie:token",
-		SigningKey:  []byte(os.Getenv("WAPI_SIGNING_KEY")),
-	}
-
+func (r *Router) loadRoutes() {
 	// swagger
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	r.router.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// List all possible routes
-	e.GET("/routes", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, e.Routes())
+	r.router.GET("/routes", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, r.router.Routes())
 	})
 	// ping
-	e.GET("/ping", func(c echo.Context) error {
+	r.router.GET("/ping", func(c echo.Context) error {
 		resp := map[string]time.Time{"pong": time.Now()}
 		return c.JSON(http.StatusOK, resp)
 	})
 
-	apiV1 := e.Group("v1")
+	apiV1 := r.router.Group("v1")
 	{
 		internal := apiV1.Group("/internal")
 		// Service web endpoints
@@ -83,23 +117,23 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) (
 			stream.POST("/auth", streamV1.CheckAuth)
 		}
 		// Internal user endpoints
-		if !debug {
-			internal.Use(echoMw.JWTWithConfig(config))
+		if !r.router.Debug {
+			internal.Use(echoMw.JWTWithConfig(*r.jwtConfig))
 		}
 		{
 			people := internal.Group("/people")
 			{
 				user := people.Group("/user")
 				{
-					user.GET("/full", peopleV1.UserByTokenFull)
-					user.GET("/:id", peopleV1.UserByID)
-					user.GET("/:id/full", peopleV1.UserByIDFull)
-					user.GET("", peopleV1.UserByToken)
+					user.GET("/full", r.people.UserByTokenFull)
+					user.GET("/:id", r.people.UserByID)
+					user.GET("/:id/full", r.people.UserByIDFull)
+					user.GET("", r.people.UserByToken)
 				}
 				users := people.Group("/users")
 				{
-					users.GET("", peopleV1.ListAllPeople)
-					users.GET("/:id", peopleV1.ListRoleMembers)
+					users.GET("", r.people.ListAllPeople)
+					users.GET("/:id", r.people.ListRoleMembers)
 				}
 
 			}
@@ -107,123 +141,123 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) (
 			{
 				videos := creator.Group("/videos")
 				{
-					videos.GET("", creatorV1.VideoList)
-					videos.GET("/my", creatorV1.ListVideosByUser)
-					videos.POST("", creatorV1.NewVideo)
+					videos.GET("", r.creator.VideoList)
+					videos.GET("/my", r.creator.ListVideosByUser)
+					videos.POST("", r.creator.NewVideo)
 					videoItem := videos.Group("/:id")
 					{
-						videoItem.GET("", creatorV1.GetVideo)
+						videoItem.GET("", r.creator.GetVideo)
 						videoItem.PUT("", notImplemented)
-						// videoItem.DELETE("", creatorV1.DeleteVideo)
+						// videoItem.DELETE("", r.creator.DeleteVideo)
 					}
 				}
 				series := creator.Group("/series")
 				{
-					series.GET("", creatorV1.ListSeries)
+					series.GET("", r.creator.ListSeries)
 					seriesItem := series.Group("/:seriesid")
 					{
-						seriesItem.GET("", creatorV1.GetSeries)
-						// seriesItem.PUT("", creatorV1.UpdateSeries)
-						// seriesItem.DELETE("", creatorV1.DeleteSeries)
+						seriesItem.GET("", r.creator.GetSeries)
+						// seriesItem.PUT("", r.creator.UpdateSeries)
+						// seriesItem.DELETE("", r.creator.DeleteSeries)
 					}
 				}
 				playlists := creator.Group("/playlists")
 				{
-					playlists.GET("", creatorV1.ListPlaylist)
-					playlists.POST("", creatorV1.NewPlaylist)
+					playlists.GET("", r.creator.ListPlaylist)
+					playlists.POST("", r.creator.NewPlaylist)
 					playlist := playlists.Group("/:id")
 					{
-						playlist.GET("", creatorV1.GetPlaylist)
-						playlist.PUT("", creatorV1.UpdatePlaylist)
-						// playlist.DELETE("", creatorV1.DeletePlaylist)
+						playlist.GET("", r.creator.GetPlaylist)
+						playlist.PUT("", r.creator.UpdatePlaylist)
+						// playlist.DELETE("", r.creator.DeletePlaylist)
 					}
 				}
 				encodes := creator.Group("/encodes")
 				{
 					presets := encodes.Group("/presets")
 					{
-						presets.GET("", creatorV1.ListPreset)
-						presets.POST("", creatorV1.NewPreset)
-						presets.PUT("", creatorV1.UpdatePreset) // We take the ID in the json request
+						presets.GET("", r.creator.ListPreset)
+						presets.POST("", r.creator.NewPreset)
+						presets.PUT("", r.creator.UpdatePreset) // We take the ID in the json request
 					}
 					profiles := encodes.Group("/profiles")
 					{
-						profiles.GET("", creatorV1.ListEncodeProfile)
+						profiles.GET("", r.creator.ListEncodeProfile)
 					}
 				}
-				creator.GET("/calendar/:year/:month", creatorV1.ListVideosByMonth)
-				creator.GET("/stats", creatorV1.Stats)
+				creator.GET("/calendar/:year/:month", r.creator.ListVideosByMonth)
+				creator.GET("/stats", r.creator.Stats)
 			}
 			clapper := internal.Group("/clapper")
 			{
 				calendar := clapper.Group("/calendar")
 				{
 					calendar.GET("/termly/:year/:term", notImplemented)        // List all events of term
-					calendar.GET("/monthly/:year/:month", clapperV1.ListMonth) // List all events of month
+					calendar.GET("/monthly/:year/:month", r.clapper.ListMonth) // List all events of month
 				}
 				events := clapper.Group("/event")
 				{
-					events.POST("", clapperV1.NewEvent)   // Create a new event
-					events.PUT("", clapperV1.UpdateEvent) // Update an event
+					events.POST("", r.clapper.NewEvent)   // Create a new event
+					events.PUT("", r.clapper.UpdateEvent) // Update an event
 					event := events.Group("/:eventid")
 					{
-						event.GET("", clapperV1.GetEvent) // Get event info, returns event info and signup sheets
-						event.POST("/signup", clapperV1.NewSignup)
+						event.GET("", r.clapper.GetEvent) // Get event info, returns event info and signup sheets
+						event.POST("/signup", r.clapper.NewSignup)
 						signup := event.Group("/:signupid")
 						{
-							signup.PUT("", clapperV1.UpdateSignup)         // Create a new signup sheet
-							signup.POST("/:positionid", clapperV1.NewCrew) // Add position to signup
+							signup.PUT("", r.clapper.UpdateSignup)         // Create a new signup sheet
+							signup.POST("/:positionid", r.clapper.NewCrew) // Add position to signup
 							crew := event.Group("/:crewid")
 							{
-								crew.PUT("/reset", clapperV1.ResetCrew) // Set the role back to unassigned
-								crew.PUT("", clapperV1.SetCrew)         // Update a crew role to the requesting user
-								crew.DELETE("", clapperV1.DeleteCrew)   // Delete the crew role from signup
+								crew.PUT("/reset", r.clapper.ResetCrew) // Set the role back to unassigned
+								crew.PUT("", r.clapper.SetCrew)         // Update a crew role to the requesting user
+								crew.DELETE("", r.clapper.DeleteCrew)   // Delete the crew role from signup
 							}
 						}
 					}
 				}
 				positions := clapper.Group("/positions")
 				{
-					positions.GET("", clapperV1.ListPosition)   // List crew positions
-					positions.POST("", clapperV1.NewPosition)   // Create a new crew position
-					positions.PUT("", clapperV1.UpdatePosition) // Update a position
+					positions.GET("", r.clapper.ListPosition)   // List crew positions
+					positions.POST("", r.clapper.NewPosition)   // Create a new crew position
+					positions.PUT("", r.clapper.UpdatePosition) // Update a position
 				}
 			}
 			misc := internal.Group("/misc")
 			{
 				quotes := misc.Group("/quotes")
 				{
-					quotes.GET("/:amount/:page", miscV1.ListQuotes)
-					quotes.POST("", miscV1.NewQuote)
-					quotes.PUT("", miscV1.UpdateQuote)
-					quotes.DELETE("/:id", miscV1.DeleteQuote)
+					quotes.GET("/:amount/:page", r.misc.ListQuotes)
+					quotes.POST("", r.misc.NewQuote)
+					quotes.PUT("", r.misc.UpdateQuote)
+					quotes.DELETE("/:id", r.misc.DeleteQuote)
 				}
 				webcams := misc.Group("/webcams")
 				{
-					webcams.GET("/:id/*", miscV1.GetWebcam)
-					webcams.GET("", miscV1.ListWebcams)
+					webcams.GET("/:id/*", r.misc.GetWebcam)
+					webcams.GET("", r.misc.ListWebcams)
 				}
 			}
 		}
 		public := apiV1.Group("/public")
 		{
-			public.GET("/find/*", publicV1.Find)
-			public.GET("/videos/:offset/:page", publicV1.ListVideos)
-			public.GET("/video/:id", publicV1.Video)
-			public.GET("/video/:id/breadcrumb", publicV1.VideoBreadcrumb)
-			public.GET("/series/:id", publicV1.SeriesByID)
-			public.GET("/series/:id/breadcrumb", publicV1.SeriesBreadcrumb)
-			public.GET("/teams", publicV1.ListTeams)
-			public.GET("/teams/officers", publicV1.ListOfficers)
-			public.GET("/teams/:teamid", publicV1.GetTeam)
-			public.GET("/teams/:teamid/:year", publicV1.GetTeamByYear)
+			public.GET("/find/*", r.public.Find)
+			public.GET("/videos/:offset/:page", r.public.ListVideos)
+			public.GET("/video/:id", r.public.Video)
+			public.GET("/video/:id/breadcrumb", r.public.VideoBreadcrumb)
+			public.GET("/series/:id", r.public.SeriesByID)
+			public.GET("/series/:id/breadcrumb", r.public.SeriesBreadcrumb)
+			public.GET("/teams", r.public.ListTeams)
+			public.GET("/teams/officers", r.public.ListOfficers)
+			public.GET("/teams/:teamid", r.public.GetTeam)
+			public.GET("/teams/:teamid/:year", r.public.GetTeamByYear)
 			public.GET("/streams", publicPackage.StreamList)
 			public.GET("/stream/:id", publicPackage.StreamFind)
 			public.GET("/streams/home", publicPackage.StreamHome) // isLive null
 		}
 
 	}
-	e.GET("/", func(c echo.Context) error {
+	r.router.GET("/", func(c echo.Context) error {
 		text := fmt.Sprintf(`                                                                                
                                                               @@@@@             
                                                                      @@@@       
@@ -241,10 +275,9 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) (
      @@@         @@@@@          web-api                                         
         @@@@    @@@@@           Version: %s                                     
               @@@@@             Commit ID: %s                                                
-`, version, commit)
+`, r.version, r.commit)
 		return c.String(http.StatusOK, text)
 	})
-	return e, nil
 }
 
 func notImplemented(c echo.Context) error {

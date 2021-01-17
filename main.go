@@ -6,6 +6,11 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+	"github.com/ystv/web-api/controllers/v1/clapper"
+	"github.com/ystv/web-api/controllers/v1/creator"
+	"github.com/ystv/web-api/controllers/v1/misc"
+	"github.com/ystv/web-api/controllers/v1/people"
+	"github.com/ystv/web-api/controllers/v1/public"
 	"github.com/ystv/web-api/routes"
 	"github.com/ystv/web-api/utils"
 )
@@ -63,29 +68,34 @@ func main() {
 	log.Printf("Connected to CDN: %s@%s", cdnConfig.AccessKeyID, cdnConfig.Endpoint)
 
 	// Mail
-	mailPort, err := strconv.Atoi(os.Getenv("WAPI_MAIL_PORT"))
-	if err != nil {
-		log.Fatalf("bad mail port: %+v", err)
-	}
-	mailConfig := utils.MailConfig{
-		Host:     os.Getenv("WAPI_MAIL_HOST"),
-		Port:     mailPort,
-		Username: os.Getenv("WAPI_MAIL_USER"),
-		Password: os.Getenv("WAPI_MAIL_PASS"),
-	}
-	m, err := utils.NewMailer(mailConfig)
-	if err != nil {
-		log.Fatalf("failed to start mailer: %+v", err)
-	}
-	log.Printf("Connected to mail: %s@%s", mailConfig.Username, mailConfig.Host)
+	// mailPort, err := strconv.Atoi(os.Getenv("WAPI_MAIL_PORT"))
+	// if err != nil {
+	// 	log.Fatalf("bad mail port: %+v", err)
+	// }
+	// mailConfig := utils.MailConfig{
+	// 	Host:     os.Getenv("WAPI_MAIL_HOST"),
+	// 	Port:     mailPort,
+	// 	Username: os.Getenv("WAPI_MAIL_USER"),
+	// 	Password: os.Getenv("WAPI_MAIL_PASS"),
+	// }
+	// m, err := utils.NewMailer(mailConfig)
+	// if err != nil {
+	// 	log.Fatalf("failed to start mailer: %+v", err)
+	// }
+	// log.Printf("Connected to mail: %s@%s", mailConfig.Username, mailConfig.Host)
 
 	// Messaging
 	// utils.InitMessaging()
 
-	e, err := routes.Init(Version, Commit, db, cdn, m)
-	if err != nil {
-		log.Fatalf("failed to start router: %+v", err)
-	}
-
-	e.Logger.Fatal(e.Start(":8081"))
+	routes.New(&routes.NewRouter{
+		Version:       Version,
+		Commit:        Commit,
+		Debug:         debug,
+		JWTSigningKey: os.Getenv("WAPI_SIGNING_KEY"),
+		Clapper:       clapper.NewRepos(db),
+		Creator:       creator.NewRepos(db, cdn),
+		Misc:          misc.NewRepos(db),
+		People:        people.NewRepo(db),
+		Public:        public.NewRepos(db),
+	}).Start()
 }
