@@ -33,7 +33,7 @@ import (
 // @contact.name API Support
 // @contact.url https://github.com/ystv/web-api
 // @contact.email computing@ystv.co.uk
-func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, m *utils.Mailer) *echo.Echo {
+func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	debug, err := strconv.ParseBool(os.Getenv("debug"))
@@ -206,7 +206,8 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, m *utils.Mailer) *ech
 			public.GET("/video/:id/breadcrumb", publicV1.VideoBreadcrumb)
 			public.GET("/series/:id", publicV1.SeriesByID)
 			public.GET("/series/:id/breadcrumb", publicV1.SeriesBreadcrumb)
-			public.GET("/teams", publicV1.ListTeams)
+			// public.GET("/teams", publicV1.ListTeams)
+			// public.GET("/teams/{:year}", publicV1.ListTeamsByYear)
 			public.GET("/streams", publicPackage.StreamList)
 			public.GET("/stream/:id", publicPackage.StreamFind)
 			public.GET("/streams/home", publicPackage.StreamHome) // isLive null

@@ -20,7 +20,7 @@ func (m *Store) ListAll(ctx context.Context) (*[]User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fialed to list all users: %w", err)
 	}
-	return nil, nil
+	return &u, nil
 }
 
 // ListRole returns all users who have a certain role
@@ -40,5 +40,5 @@ func (m *Store) ListRole(ctx context.Context, roleID int) (*[]User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list role users: %w", err)
 	}
-	return nil, nil
+	return &u, nil
 }

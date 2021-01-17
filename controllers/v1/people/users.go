@@ -12,7 +12,7 @@ import (
 func (r *Repo) ListAllPeople(c echo.Context) error {
 	p, err := r.user.ListAll(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("UserByIDFull failed to get all users: %w", err)
+		err = fmt.Errorf("ListAllPeople failed to get all users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
@@ -26,7 +26,7 @@ func (r *Repo) ListRoleMembers(c echo.Context) error {
 	}
 	p, err := r.user.ListRole(c.Request().Context(), roleID)
 	if err != nil {
-		err = fmt.Errorf("UserByIDFull failed to get all users: %w", err)
+		err = fmt.Errorf("ListRoleMembers failed to get users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
