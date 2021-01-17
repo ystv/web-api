@@ -242,18 +242,31 @@ func (r *Router) loadRoutes() {
 		public := apiV1.Group("/public")
 		{
 			public.GET("/find/*", r.public.Find)
-			public.GET("/videos/:offset/:page", r.public.ListVideos)
-			public.GET("/video/:id", r.public.Video)
-			public.GET("/video/:id/breadcrumb", r.public.VideoBreadcrumb)
-			public.GET("/series/:id", r.public.SeriesByID)
-			public.GET("/series/:id/breadcrumb", r.public.SeriesBreadcrumb)
-			public.GET("/teams", r.public.ListTeams)
-			public.GET("/teams/officers", r.public.ListOfficers)
-			public.GET("/teams/:teamid", r.public.GetTeam)
-			public.GET("/teams/:teamid/:year", r.public.GetTeamByYear)
-			public.GET("/streams", publicPackage.StreamList)
-			public.GET("/stream/:id", publicPackage.StreamFind)
-			public.GET("/streams/home", publicPackage.StreamHome) // isLive null
+			video := public.Group("/video")
+			{
+				video.GET("s/:offset/:page", r.public.ListVideos)
+				video.GET("/:id", r.public.Video)
+				video.GET("/:id/breadcrumb", r.public.VideoBreadcrumb)
+			}
+			series := public.Group("/series")
+			{
+				series.GET("/series/:id", r.public.SeriesByID)
+				series.GET("/series/:id/breadcrumb", r.public.SeriesBreadcrumb)
+			}
+			teams := public.Group("/teams")
+			{
+				teams.GET("/teams", r.public.ListTeams)
+				teams.GET("/teams/officers", r.public.ListOfficers)
+				teams.GET("/teams/:teamid", r.public.GetTeam)
+				teams.GET("/teams/:teamid/:year", r.public.GetTeamByYear)
+			}
+			streams := public.Group("/streams")
+			{
+				streams.GET("/streams", publicPackage.StreamList)
+				streams.GET("/stream/:id", publicPackage.StreamFind)
+				streams.GET("/streams/home", publicPackage.StreamHome) // isLive null
+			}
+
 		}
 
 	}
