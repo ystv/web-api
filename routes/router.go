@@ -33,12 +33,12 @@ import (
 // @contact.name API Support
 // @contact.url https://github.com/ystv/web-api
 // @contact.email computing@ystv.co.uk
-func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) *echo.Echo {
+func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) (*echo.Echo, error) {
 	e := echo.New()
 	e.HideBanner = true
-	debug, err := strconv.ParseBool(os.Getenv("debug"))
+	debug, err := strconv.ParseBool(os.Getenv("WAPI_DEBUG"))
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to parse DEBUG environment variable: %w", err)
 	}
 	// Enabling debugging
 	e.Debug = debug
@@ -54,7 +54,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) *
 	config := echoMw.JWTConfig{
 		Claims:      &utils.JWTClaims{},
 		TokenLookup: "cookie:token",
-		SigningKey:  []byte(os.Getenv("signing_key")),
+		SigningKey:  []byte(os.Getenv("WAPI_SIGNING_KEY")),
 	}
 
 	// swagger
@@ -114,12 +114,18 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) *
 					{
 						videoItem.GET("", creatorV1.GetVideo)
 						videoItem.PUT("", notImplemented)
+						// videoItem.DELETE("", creatorV1.DeleteVideo)
 					}
 				}
 				series := creator.Group("/series")
 				{
 					series.GET("", creatorV1.ListSeries)
-					series.GET("/:id", creatorV1.GetSeries)
+					seriesItem := series.Group("/:seriesid")
+					{
+						seriesItem.GET("", creatorV1.GetSeries)
+						// seriesItem.PUT("", creatorV1.UpdateSeries)
+						// seriesItem.DELETE("", creatorV1.DeleteSeries)
+					}
 				}
 				playlists := creator.Group("/playlists")
 				{
@@ -129,6 +135,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) *
 					{
 						playlist.GET("", creatorV1.GetPlaylist)
 						playlist.PUT("", creatorV1.UpdatePlaylist)
+						// playlist.DELETE("", creatorV1.DeletePlaylist)
 					}
 				}
 				encodes := creator.Group("/encodes")
@@ -237,7 +244,7 @@ func Init(version, commit string, db *sqlx.DB, cdn *s3.S3, mail *utils.Mailer) *
 `, version, commit)
 		return c.String(http.StatusOK, text)
 	})
-	return e
+	return e, nil
 }
 
 func notImplemented(c echo.Context) error {

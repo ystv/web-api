@@ -13,7 +13,7 @@ import (
 //go:generate swag init -g routes/router.go
 
 // Version returns web-api's current version
-var Version = "dev (0.6.3)"
+var Version = "dev (0.6.4)"
 
 // Commit returns latest commit hash
 var Commit = "unknown"
@@ -25,29 +25,67 @@ func main() {
 	if err != nil {
 		log.Print("Failed to load env file, using global env")
 	}
-	debug, err := strconv.ParseBool(os.Getenv("debug"))
+
+	// Check if debugging
+	debug, err := strconv.ParseBool(os.Getenv("DEBUG"))
 	if err != nil {
 		debug = false
-		os.Setenv("debug", "false")
+		os.Setenv("DEBUG", "false")
 	}
 	if debug {
 		log.Println("Debug Mode - Disabled auth - pls don't run in production")
 	}
-	db := utils.InitDB()
-	cdn := utils.InitCDN()
-	m, err := utils.NewMailer(utils.Config{
+
+	// Initialise backend connections
+	// Database
+	dbConfig := utils.DatabaseConfig{
+		Host:     os.Getenv("WAPI_DB_HOST"),
+		Port:     os.Getenv("WAPI_DB_PORT"),
+		SSLMode:  os.Getenv("WAPI_DB_SSLMODE"),
+		Name:     os.Getenv("WAPI_DB_NAME"),
+		Username: os.Getenv("WAPI_DB_USER"),
+		Password: os.Getenv("WAPI_DB_PASS"),
+	}
+	db, err := utils.NewDB(dbConfig)
+	if err != nil {
+		log.Fatalf("failed to start DB: %+v", err)
+	}
+	log.Printf("Connected to DB: %s@%s", dbConfig.Username, dbConfig.Host)
+
+	// CDN
+	cdnConfig := utils.CDNConfig{
+		Endpoint:        os.Getenv("WAPI_CDN_ENDPOINT"),
+		Region:          os.Getenv("WAPI_CDN_REGION"),
+		AccessKeyID:     os.Getenv("WAPI_CDN_ACCESSKEYID"),
+		SecretAccessKey: os.Getenv("WAPI_CDN_SECRETACCESSKEY"),
+	}
+	cdn := utils.NewCDN(cdnConfig)
+	log.Printf("Connected to CDN: %s@%s", cdnConfig.AccessKeyID, cdnConfig.Endpoint)
+
+	// Mail
+	mailPort, err := strconv.Atoi(os.Getenv("WAPI_MAIL_PORT"))
+	if err != nil {
+		log.Fatalf("bad mail port: %+v", err)
+	}
+	mailConfig := utils.MailConfig{
 		Host:     os.Getenv("WAPI_MAIL_HOST"),
-		Port:     587,
+		Port:     mailPort,
 		Username: os.Getenv("WAPI_MAIL_USER"),
 		Password: os.Getenv("WAPI_MAIL_PASS"),
-	})
+	}
+	m, err := utils.NewMailer(mailConfig)
 	if err != nil {
 		log.Fatalf("failed to start mailer: %+v", err)
 	}
-	log.Printf("Connected to mail: %s@%s", os.Getenv("WAPI_MAIL_USER"), os.Getenv("WAPI_MAIL_HOST"))
+	log.Printf("Connected to mail: %s@%s", mailConfig.Username, mailConfig.Host)
+
+	// Messaging
 	// utils.InitMessaging()
 
-	e := routes.Init(Version, Commit, db, cdn, m)
+	e, err := routes.Init(Version, Commit, db, cdn, m)
+	if err != nil {
+		log.Fatalf("failed to start router: %+v", err)
+	}
 
 	e.Logger.Fatal(e.Start(":8081"))
 }

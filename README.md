@@ -20,7 +20,11 @@ Generation of usable JWT's is available in web-auth currently.
     - [ ] Thumbnail inheritance
   - [ ] Live
     - [x] Streams (currrently static)
-  - [x] Teams
+  - [ ] Teams
+    - [x] Get current team
+    - [x] List teams
+    - [ ] Get a team by year
+    - [x] List all officers
 - [ ] Internal (Secured)
   - [ ] Creator Studio
     - [ ] Videos
@@ -55,14 +59,16 @@ Generation of usable JWT's is available in web-auth currently.
     - [x] Permissions
     - [ ] Create user
     - [ ] Create roles
+    - [x] List all users
+    - [x] List all users by role
   - [ ] Clapper
     - [ ] Events
       - [x] List by month
       - [ ] List by term
       - [ ] Signups
         - [x] Listing including positions
-        - [ ] Creating
-        - [ ] Updating
+        - [x] Creating
+        - [x] Updating
     - [ ] Postitions
       - [x] List
       - [x] Create
@@ -76,7 +82,7 @@ Generation of usable JWT's is available in web-auth currently.
 ### Services
 
 - [ ] Encode management
-- [ ] Mailer
+- [x] Mailer
 
 ### Connections
 

@@ -1,32 +1,29 @@
 package utils
 
 import (
-	"log"
-	"os"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-// InitCDN Initialise connection to CDN
-func InitCDN() *s3.S3 {
-	endpoint := os.Getenv("cdn_endpoint")
-	accessKeyID := os.Getenv("cdn_accessKeyID")
-	secretAccessKey := os.Getenv("cdn_secretAccessKey")
+// CDNConfig represents a configuration to connect to a CDN / S3 instance
+type CDNConfig struct {
+	Endpoint        string
+	Region          string
+	AccessKeyID     string
+	SecretAccessKey string
+}
 
-	// Configure to use CDN Server
-
+// NewCDN Initialise connection to CDN
+func NewCDN(config CDNConfig) *s3.S3 {
 	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
-		Endpoint:         aws.String(endpoint),
-		Region:           aws.String("ystv-wales-1"),
+		Credentials:      credentials.NewStaticCredentials(config.AccessKeyID, config.SecretAccessKey, ""),
+		Endpoint:         aws.String(config.Endpoint),
+		Region:           aws.String(config.Region),
 		S3ForcePathStyle: aws.Bool(true),
 	}
 	newSession := session.New(s3Config)
 	cdn := s3.New(newSession)
-
-	log.Printf("Connected to CDN: %s@%s", accessKeyID, cdn.Endpoint)
 	return cdn
 }

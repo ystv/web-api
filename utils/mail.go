@@ -16,8 +16,8 @@ type Mailer struct {
 	Enabled bool
 }
 
-// Config represents a configuration to connect to an SMTP server
-type Config struct {
+// MailConfig represents a configuration to connect to an SMTP server
+type MailConfig struct {
 	Host     string
 	Port     int
 	Username string
@@ -36,7 +36,7 @@ type Mail struct {
 }
 
 // NewMailer creates a new SMTP client
-func NewMailer(config Config) (*Mailer, error) {
+func NewMailer(config MailConfig) (*Mailer, error) {
 	smtpServer := mail.SMTPServer{
 		Host:           config.Host,
 		Port:           config.Port,

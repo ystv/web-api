@@ -78,7 +78,6 @@ func (m *Store) Find(ctx context.Context, path string) (*BreadcrumbItem, error) 
 					// No series, so there will be no videos
 					err = fmt.Errorf("No series: %w", err)
 				}
-				// log.Print(err)
 				return nil, err
 			}
 			// Found series

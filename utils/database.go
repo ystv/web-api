@@ -2,8 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
-	"os"
 
 	// PostgreSQL driver
 	_ "github.com/lib/pq"
@@ -11,29 +9,30 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// InitDB Initialises the connection to the database
-func InitDB() *sqlx.DB {
-	username := os.Getenv("db_user")
-	password := os.Getenv("db_pass")
-	dbName := os.Getenv("db_name")
-	dbHost := os.Getenv("db_host")
-	dbPort := os.Getenv("db_port")
+// DatabaseConfig represents a configuration to connect to an SQL database
+type DatabaseConfig struct {
+	Host     string
+	Port     string
+	SSLMode  string
+	Name     string
+	Username string
+	Password string
+}
 
-	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=disable", dbName, dbHost, username, password, dbPort) // Build connection string
+// NewDB Initialises the connection to the database
+func NewDB(config DatabaseConfig) (*sqlx.DB, error) {
+	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=%s",
+		config.Name, config.Host, config.Username, config.Password, config.Port, config.SSLMode) // Build connection string
 
-	// Declared err since DB would be nil reference for when it is used outside, the := needed to be = essentially
-	var err error
 	db, err := sqlx.Open("postgres", dbURI)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
-
-	log.Printf("Connected to DB: %s@%s", dbName, dbHost)
-	return db
+	return db, nil
 }
 
 // Transact wraps transactions
