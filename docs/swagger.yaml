@@ -192,8 +192,6 @@ definitions:
     type: object
   people.Permission:
     properties:
-      description:
-        type: string
       id:
         type: integer
       name:
@@ -370,7 +368,11 @@ definitions:
     type: object
   public.Team:
     properties:
-      description:
+      emailAlias:
+        type: string
+      id:
+        type: integer
+      longDescription:
         type: string
       members:
         items:
@@ -378,14 +380,26 @@ definitions:
         type: array
       name:
         type: string
+      shortDescription:
+        type: string
     type: object
   public.TeamMember:
     properties:
-      email:
+      avatar:
         type: string
-      name:
+      emailAlias:
         type: string
-      position:
+      historywikiURL:
+        type: string
+      officerDescription:
+        type: string
+      officerID:
+        type: integer
+      officerName:
+        type: string
+      userID:
+        type: integer
+      userName:
         type: string
     type: object
   public.VideoFile:
@@ -673,7 +687,7 @@ paths:
       tags:
       - clapper
       - signups
-  /v1/internal/clapper/calendar/{year}/{month}:
+  /v1/internal/clapper/calendar/monthly/{year}/{month}:
     get:
       description: Lists events by month. The signup section will be null.
       operationId: get-events-month
@@ -1244,7 +1258,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: creates a new quote.
+      description: |-
+        creates a new quote.
+        web-api will overwrite created by User ID with the token's user ID.
       operationId: new-quote
       parameters:
       - description: Quote object
@@ -1265,7 +1281,9 @@ paths:
     put:
       consumes:
       - application/json
-      description: updates a quote.
+      description: |-
+        updates a quote. Still need to provide the whole Quote object,
+        web-api will overwrite created by User ID to keep with existing record.
       operationId: update-quote
       parameters:
       - description: Quote object
@@ -1487,7 +1505,7 @@ paths:
       - breadcrumb
   /v1/public/teams:
     get:
-      description: Returns a path of series to a series
+      description: Lists the teams, their members, and info
       operationId: get-public-teams
       produces:
       - application/json
@@ -1501,6 +1519,71 @@ paths:
       summary: Provides the current teams
       tags:
       - public
+      - teams
+  /v1/public/teams/{teamid}:
+    get:
+      description: Contains members and a range of descriptions
+      operationId: get-public-team
+      parameters:
+      - description: teamid
+        in: path
+        name: teamid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Team'
+      summary: Provides the team of that year
+      tags:
+      - public
+      - teams
+  /v1/public/teams/{teamid}/{year}:
+    get:
+      description: Get the team and their members of that year
+      operationId: get-public-team-year
+      parameters:
+      - description: teamid
+        in: path
+        name: teamid
+        required: true
+        type: integer
+      - description: year
+        in: path
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Team'
+      summary: Provides the team of a selected year
+      tags:
+      - public
+      - teams
+  /v1/public/teams/officers:
+    get:
+      description: Lists the current officers, including their info
+      operationId: get-public-teams-officers-all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/public.TeamMember'
+            type: array
+      summary: Provides the current officers
+      tags:
+      - public
+      - teams
   /v1/public/video/{videoid}:
     get:
       description: Returns a video item. Including the video files.

@@ -84,7 +84,7 @@ func (r *Repos) GetTeamByYear(c echo.Context) error {
 // @ID get-public-teams-officers-all
 // @Tags public, teams
 // @Produce json
-// @Success 200 {array} public.TeamMembers
+// @Success 200 {array} public.TeamMember
 // @Router /v1/public/teams/officers [get]
 func (r *Repos) ListOfficers(c echo.Context) error {
 	o, err := r.public.ListOfficers(c.Request().Context())

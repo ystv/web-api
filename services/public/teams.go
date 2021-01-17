@@ -8,23 +8,23 @@ import (
 type (
 	// Team an organisational group
 	Team struct {
-		TeamID           int          `json:"teamID" db:"team_id"`
+		TeamID           int          `json:"id" db:"team_id"`
 		Name             string       `json:"name" db:"name"`
 		EmailAlias       string       `json:"emailAlias" db:"email_alias"`
 		ShortDescription string       `json:"shortDescription" db:"short_description"`
-		LongDescripton   string       `json:"longDescription" db:"full_description"`
+		LongDescripton   string       `json:"longDescription,omitempty" db:"full_description"`
 		Members          []TeamMember `json:"members,omitempty"`
 	}
 	// TeamMember a position within a group
 	TeamMember struct {
 		UserID             int    `json:"userID" db:"user_id"`
-		UserName           string `json:"name" db:"user_name"`
+		UserName           string `json:"userName" db:"user_name"`
 		Avatar             string `json:"avatar" db:"avatar"`
 		OfficerID          int    `json:"officerID" db:"officer_id"`
-		EmailAlias         string `json:"email_alias" db:"email_alias"`
+		EmailAlias         string `json:"emailAlias" db:"email_alias"`
 		OfficerName        string `json:"officerName" db:"officer_name"`
 		OfficerDescription string `json:"officerDescription" db:"officer_description"`
-		HistoryWikiURL     string `json:"historywiki_url" db:"historywiki_url"`
+		HistoryWikiURL     string `json:"historywikiURL" db:"historywiki_url"`
 	}
 )
 

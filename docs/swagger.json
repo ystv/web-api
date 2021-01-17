@@ -11,7 +11,7 @@
         "license": {}
     },
     "paths": {
-        "/v1/internal/clapper/calendar/{year}/{month}": {
+        "/v1/internal/clapper/calendar/monthly/{year}/{month}": {
             "get": {
                 "description": "Lists events by month. The signup section will be null.",
                 "produces": [
@@ -898,7 +898,7 @@
         },
         "/v1/internal/misc/quotes": {
             "put": {
-                "description": "updates a quote.",
+                "description": "updates a quote. Still need to provide the whole Quote object,\nweb-api will overwrite created by User ID to keep with existing record.",
                 "consumes": [
                     "application/json"
                 ],
@@ -924,7 +924,7 @@
                 }
             },
             "post": {
-                "description": "creates a new quote.",
+                "description": "creates a new quote.\nweb-api will overwrite created by User ID with the token's user ID.",
                 "consumes": [
                     "application/json"
                 ],
@@ -1258,12 +1258,13 @@
         },
         "/v1/public/teams": {
             "get": {
-                "description": "Returns a path of series to a series",
+                "description": "Lists the teams, their members, and info",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "public"
+                    "public",
+                    "teams"
                 ],
                 "summary": "Provides the current teams",
                 "operationId": "get-public-teams",
@@ -1275,6 +1276,100 @@
                             "items": {
                                 "$ref": "#/definitions/public.Team"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/teams/officers": {
+            "get": {
+                "description": "Lists the current officers, including their info",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "teams"
+                ],
+                "summary": "Provides the current officers",
+                "operationId": "get-public-teams-officers-all",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/public.TeamMember"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/teams/{teamid}": {
+            "get": {
+                "description": "Contains members and a range of descriptions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "teams"
+                ],
+                "summary": "Provides the team of that year",
+                "operationId": "get-public-team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "teamid",
+                        "name": "teamid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Team"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/teams/{teamid}/{year}": {
+            "get": {
+                "description": "Get the team and their members of that year",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "teams"
+                ],
+                "summary": "Provides the team of a selected year",
+                "operationId": "get-public-team-year",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "teamid",
+                        "name": "teamid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "year",
+                        "name": "year",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Team"
                         }
                     }
                 }
@@ -1679,9 +1774,6 @@
         "people.Permission": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
@@ -1950,7 +2042,13 @@
         "public.Team": {
             "type": "object",
             "properties": {
-                "description": {
+                "emailAlias": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "longDescription": {
                     "type": "string"
                 },
                 "members": {
@@ -1961,19 +2059,37 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "shortDescription": {
+                    "type": "string"
                 }
             }
         },
         "public.TeamMember": {
             "type": "object",
             "properties": {
-                "email": {
+                "avatar": {
                     "type": "string"
                 },
-                "name": {
+                "emailAlias": {
                     "type": "string"
                 },
-                "position": {
+                "historywikiURL": {
+                    "type": "string"
+                },
+                "officerDescription": {
+                    "type": "string"
+                },
+                "officerID": {
+                    "type": "integer"
+                },
+                "officerName": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                },
+                "userName": {
                     "type": "string"
                 }
             }
