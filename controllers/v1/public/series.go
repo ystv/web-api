@@ -30,3 +30,27 @@ func (r *Repos) SeriesByID(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, s)
 }
+
+// SeriesByYear returns a virtual series containing series / videos made in that year
+//
+// @Summary Series of a year
+// @Description Returns a series array, virtual series that contains child series / videos
+// @Description that were made in that year.
+// @ID get-public-series-year
+// @Tags public, series
+// @Param year path int true "Year"
+// @Produce json
+// @Success 200 {array} public.Series
+// @Router /v1/public/series/yearly/{year} [get]
+func (r *Repos) SeriesByYear(c echo.Context) error {
+	year, err := strconv.Atoi(c.Param("year"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad year")
+	}
+	s, err := r.public.SeriesByYear(c.Request().Context(), year)
+	if err != nil {
+		err = fmt.Errorf("Public ListSeriesByYear failed : %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, s)
+}

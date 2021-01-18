@@ -244,7 +244,9 @@ func (r *Router) loadRoutes() {
 			public.GET("/find/*", r.public.Find)
 			video := public.Group("/video")
 			{
+				// /videos
 				video.GET("s/:offset/:page", r.public.ListVideos)
+				// /video
 				video.GET("/:id", r.public.Video)
 				video.GET("/:id/breadcrumb", r.public.VideoBreadcrumb)
 			}
@@ -252,6 +254,7 @@ func (r *Router) loadRoutes() {
 			{
 				series.GET("/:id", r.public.SeriesByID)
 				series.GET("/:id/breadcrumb", r.public.SeriesBreadcrumb)
+				series.GET("/yearly/:year", r.public.SeriesByYear)
 			}
 			public.GET("/playlist/:playlistid", r.public.GetPlaylist)
 			teams := public.Group("/teams")

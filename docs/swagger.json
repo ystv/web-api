@@ -1225,6 +1225,40 @@
                 }
             }
         },
+        "/v1/public/series/yearly/{year}": {
+            "get": {
+                "description": "Returns a series array, virtual series that contains child series / videos\nthat were made in that year.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "series"
+                ],
+                "summary": "Series of a year",
+                "operationId": "get-public-series-year",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Year",
+                        "name": "year",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/public.Series"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/public/series/{seriesid}": {
             "get": {
                 "description": "Returns a series object, including the children videos and series.",
@@ -1805,9 +1839,6 @@
         "people.Permission": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },

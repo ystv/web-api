@@ -111,3 +111,29 @@ func (m *Store) GetSeriesFromPath(ctx context.Context, path string) (Series, err
 	s, err = m.GetSeries(ctx, s.SeriesID)
 	return s, err
 }
+
+// SeriesByYear a virtual series containing child series / videos of content uploaded in that year
+func (m *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
+	s := Series{}
+	// Putting the child series on pause since it looks like we didn't historically store the
+	// the created date of video_boxes, we will need to generate the created_at field at some point
+	// based on the child videos upload date
+	//
+	// err := m.db.SelectContext(ctx, &s.ImmediateChildSeries, `
+	// 	SELECT series_id, url, name, description, thumbnail
+	// 	FROM video.series
+	// 	WHERE EXTRACT(year FROM created_at) = $1;`, year)
+	// if err != nil {
+	// 	return s, fmt.Errorf("failed to get list of series meta by year: %w", err)
+	// }
+	err := m.db.SelectContext(ctx, &s.ChildVideos, `
+		SELECT video_id, series_id, name, url, description, thumbnail,
+		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
+		views, EXTRACT(EPOCH FROM duration)::int AS duration
+		FROM video.items
+		WHERE EXTRACT(year FROM broadcast_date) = $1;`, year)
+	if err != nil {
+		return s, fmt.Errorf("failed to get list of video metas by year: %w", err)
+	}
+	return s, nil
+}
