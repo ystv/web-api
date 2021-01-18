@@ -253,10 +253,7 @@ func (r *Router) loadRoutes() {
 				series.GET("/:id", r.public.SeriesByID)
 				series.GET("/:id/breadcrumb", r.public.SeriesBreadcrumb)
 			}
-			// playlist := public.Group("/playlists")
-			// {
-			// 	playlist.GET("")
-			// }
+			public.GET("/playlist/:playlistid", r.public.GetPlaylist)
 			teams := public.Group("/teams")
 			{
 				teams.GET("", r.public.ListTeams)

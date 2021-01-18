@@ -334,6 +334,21 @@ definitions:
         $ref: '#/definitions/public.VideoItem'
         type: object
     type: object
+  public.Playlist:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      thumbnail:
+        type: string
+      videos:
+        items:
+          $ref: '#/definitions/public.VideoItem'
+        type: array
+    type: object
   public.Series:
     properties:
       childSeries:
@@ -1463,6 +1478,28 @@ paths:
       tags:
       - public
       - breadcrumb
+  /v1/public/playlist/{seriesid}:
+    get:
+      description: Returns a playlist object, includes videos (not videofiles) and
+        metadata.
+      operationId: get-public-playlist
+      parameters:
+      - description: Playlist ID
+        in: path
+        name: playlistid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Playlist'
+      summary: Provides a playlist
+      tags:
+      - public
+      - playlist
   /v1/public/series/{seriesid}:
     get:
       description: Returns a series object, including the children videos and series.

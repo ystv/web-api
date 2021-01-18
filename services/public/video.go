@@ -42,6 +42,7 @@ var _ VideoRepo = &Store{}
 func (m *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
 	v := []VideoMeta{}
 	// TODO Change pagination method
+	// TODO Do a double check on if we need to convert broadcast date
 	err := m.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,

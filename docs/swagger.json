@@ -1194,6 +1194,37 @@
                 }
             }
         },
+        "/v1/public/playlist/{seriesid}": {
+            "get": {
+                "description": "Returns a playlist object, includes videos (not videofiles) and metadata.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public",
+                    "playlist"
+                ],
+                "summary": "Provides a playlist",
+                "operationId": "get-public-playlist",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Playlist ID",
+                        "name": "playlistid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Playlist"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/public/series/{seriesid}": {
             "get": {
                 "description": "Returns a series object, including the children videos and series.",
@@ -1987,6 +2018,29 @@
                 "video": {
                     "type": "object",
                     "$ref": "#/definitions/public.VideoItem"
+                }
+            }
+        },
+        "public.Playlist": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "videos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/public.VideoItem"
+                    }
                 }
             }
         },

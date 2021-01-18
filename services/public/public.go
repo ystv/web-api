@@ -20,6 +20,9 @@ type (
 		GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID int) ([]SeriesMeta, error)
 		GetSeriesFromPath(ctx context.Context, path string) (Series, error)
 	}
+	PlaylistRepo interface {
+		GetPlaylist(ctx context.Context, playlistID int) (Playlist, error)
+	}
 	// BreadcrumbRepo represents all breadcrumb interactions
 	BreadcrumbRepo interface {
 		VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error)
