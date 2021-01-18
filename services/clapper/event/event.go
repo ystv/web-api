@@ -89,7 +89,7 @@ func (m *Store) New(ctx context.Context, e *clapper.Event, userID int) (int, err
 	err := m.db.QueryRowContext(ctx, `INSERT INTO event.events 
 	(event_type, name, start_date, end_date, description, location,
 	is_private, is_tentative, created_at, created_by)
-	VALUES ($1, $2, $3, $4, $5, $6 $7, $8, $9, $10)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	RETURNING event_id;`,
 		&e.EventType, &e.Name, &e.StartDate, &e.EndDate, &e.Description,
 		&e.Location, &e.IsPrivate, &e.IsTentative, time.Now(), userID).Scan(&eventID)
