@@ -250,21 +250,25 @@ func (r *Router) loadRoutes() {
 			}
 			series := public.Group("/series")
 			{
-				series.GET("/series/:id", r.public.SeriesByID)
-				series.GET("/series/:id/breadcrumb", r.public.SeriesBreadcrumb)
+				series.GET("/:id", r.public.SeriesByID)
+				series.GET("/:id/breadcrumb", r.public.SeriesBreadcrumb)
 			}
+			// playlist := public.Group("/playlists")
+			// {
+			// 	playlist.GET("")
+			// }
 			teams := public.Group("/teams")
 			{
-				teams.GET("/teams", r.public.ListTeams)
-				teams.GET("/teams/officers", r.public.ListOfficers)
-				teams.GET("/teams/:teamid", r.public.GetTeam)
-				teams.GET("/teams/:teamid/:year", r.public.GetTeamByYear)
+				teams.GET("", r.public.ListTeams)
+				teams.GET("/officers", r.public.ListOfficers)
+				teams.GET("/:teamid", r.public.GetTeam)
+				teams.GET("/:teamid/:year", r.public.GetTeamByYear)
 			}
 			streams := public.Group("/streams")
 			{
-				streams.GET("/streams", publicPackage.StreamList)
-				streams.GET("/stream/:id", publicPackage.StreamFind)
-				streams.GET("/streams/home", publicPackage.StreamHome) // isLive null
+				streams.GET("", publicPackage.StreamList)
+				streams.GET("/:id", publicPackage.StreamFind)
+				streams.GET("/home", publicPackage.StreamHome) // isLive null
 			}
 
 		}
@@ -296,3 +300,12 @@ func (r *Router) loadRoutes() {
 func notImplemented(c echo.Context) error {
 	return c.NoContent(http.StatusNotImplemented)
 }
+
+/*
+- by year
+- popular
+- recent
+- genre per
+- featured playlist
+-
+*/
