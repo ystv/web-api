@@ -159,6 +159,25 @@ definitions:
       name:
         type: string
     type: object
+  misc.List:
+    properties:
+      alias:
+        type: string
+      description:
+        type: string
+      isSubscribed:
+        type: boolean
+      listID:
+        type: integer
+      name:
+        type: string
+      permissionID:
+        type: string
+      subscribers:
+        items:
+          $ref: '#/definitions/misc.Subscriber'
+        type: array
+    type: object
   misc.Quote:
     properties:
       createdBy:
@@ -178,6 +197,29 @@ definitions:
         items:
           $ref: '#/definitions/misc.Quote'
         type: array
+    type: object
+  misc.Subscriber:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      nickname:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/people.Permission'
+        type: array
+      subscribeID:
+        type: string
+      username:
+        type: string
     type: object
   misc.Webcam:
     properties:
@@ -1269,6 +1311,165 @@ paths:
       tags:
       - creator
       - videos
+  /v1/internal/misc/list/{listid}:
+    get:
+      description: Get a mailing list. Provides list subscribers also
+      operationId: get-mailing-list-id
+      parameters:
+      - description: List ID
+        in: path
+        name: listid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/misc.List'
+      summary: Get Mailing list
+      tags:
+      - misc
+      - list
+  /v1/internal/misc/list/{listid}/subscribe:
+    post:
+      consumes:
+      - application/json
+      description: Subscribe to a mailing list by a JWT
+      operationId: new-mailing-list-subscriber-token
+      parameters:
+      - description: List ID
+        in: path
+        name: listid
+        required: true
+        type: integer
+      responses:
+        "201": {}
+      summary: Subscribe to mailing list by token
+      tags:
+      - misc
+      - list
+  /v1/internal/misc/list/{listid}/subscribe/{userid}:
+    post:
+      consumes:
+      - application/json
+      description: Subscribe to a mailing list by a user ID
+      operationId: new-mailing-list-subscriber-id
+      parameters:
+      - description: List ID
+        in: path
+        name: listid
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      responses:
+        "201": {}
+      summary: Subscribe to mailing list by user ID
+      tags:
+      - misc
+      - list
+  /v1/internal/misc/list/{listid}/subscribers:
+    get:
+      description: Get a mailing list's subscribers
+      operationId: get-mailing-list-subscribers-id
+      parameters:
+      - description: List ID
+        in: path
+        name: listid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/misc.List'
+      summary: Get subscribers
+      tags:
+      - misc
+      - list
+  /v1/internal/misc/list/{listid}/unsubscribe:
+    delete:
+      consumes:
+      - application/json
+      description: Unsubscribe to a mailing list by a JWT
+      operationId: delete-mailing-list-subscriber-token
+      parameters:
+      - description: List ID
+        in: path
+        name: listid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Unsubscribe to mailing list by token
+      tags:
+      - misc
+      - list
+  /v1/internal/misc/list/{listid}/unsubscribe/{userid}:
+    delete:
+      consumes:
+      - application/json
+      description: Unsubscribe to a mailing list by a user ID
+      operationId: delete-mailing-list-subscriber-id
+      parameters:
+      - description: List ID
+        in: path
+        name: listid
+        required: true
+        type: integer
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Unsubscribe to mailing list by user ID
+      tags:
+      - misc
+      - list
+  /v1/internal/misc/lists:
+    get:
+      description: Lists all mailing lists.
+      operationId: get-mailing-lists
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/misc.List'
+            type: array
+      summary: Get Mailing lists
+      tags:
+      - misc
+      - list
+  /v1/internal/misc/lists/my:
+    get:
+      description: Lists all mailing lists. Provides extra context for what the user
+        has subscribed too
+      operationId: get-mailing-lists-token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/misc.List'
+            type: array
+      summary: Get Mailing lists by token
+      tags:
+      - misc
+      - list
   /v1/internal/misc/quotes:
     post:
       consumes:
@@ -1455,6 +1656,24 @@ paths:
       summary: Get a full user by token
       tags:
       - users
+  /v1/list_unsubscribe/{uuid}:
+    get:
+      consumes:
+      - application/json
+      description: Unsubscribe to a mailing list by a subscriber UUID
+      operationId: delete-mailing-list-subscriber-uuid
+      parameters:
+      - description: Subscriber UUID
+        in: path
+        name: uuid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Unsubscribe to mailing list by subscriber UUID
+      tags:
+      - misc
+      - list
   /v1/public/find/{url}:
     get:
       description: Allows us to remain backwards compatible with the existing URLs

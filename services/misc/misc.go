@@ -20,6 +20,18 @@ type (
 		ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam, error)
 		GetWebcam(ctx context.Context, cameraID int, permissionIDs []int) (Webcam, error)
 	}
+	// ListRepo represents all mailing list interactions
+	//
+	// Send emails to roles and other groups
+	ListRepo interface {
+		GetLists(ctx context.Context) ([]List, error)
+		GetListsByUserID(ctx context.Context, userID int) ([]List, error)
+		GetList(ctx context.Context, listID int) (List, error)
+		GetSubscribers(ctx context.Context, listID int) ([]Subscriber, error)
+		Subscribe(ctx context.Context, userID, listID int) error
+		UnsubscribeByID(ctx context.Context, userID, listID int) error
+		UnsubscribeByUUID(ctx context.Context, uuid string) error
+	}
 )
 
 // Store contains our dependency

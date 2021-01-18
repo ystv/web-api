@@ -896,6 +896,236 @@
                 }
             }
         },
+        "/v1/internal/misc/list/{listid}": {
+            "get": {
+                "description": "Get a mailing list. Provides list subscribers also",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Get Mailing list",
+                "operationId": "get-mailing-list-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "List ID",
+                        "name": "listid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/misc.List"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/misc/list/{listid}/subscribe": {
+            "post": {
+                "description": "Subscribe to a mailing list by a JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Subscribe to mailing list by token",
+                "operationId": "new-mailing-list-subscriber-token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "List ID",
+                        "name": "listid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {}
+                }
+            }
+        },
+        "/v1/internal/misc/list/{listid}/subscribe/{userid}": {
+            "post": {
+                "description": "Subscribe to a mailing list by a user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Subscribe to mailing list by user ID",
+                "operationId": "new-mailing-list-subscriber-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "List ID",
+                        "name": "listid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {}
+                }
+            }
+        },
+        "/v1/internal/misc/list/{listid}/subscribers": {
+            "get": {
+                "description": "Get a mailing list's subscribers",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Get subscribers",
+                "operationId": "get-mailing-list-subscribers-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "List ID",
+                        "name": "listid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/misc.List"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/misc/list/{listid}/unsubscribe": {
+            "delete": {
+                "description": "Unsubscribe to a mailing list by a JWT",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Unsubscribe to mailing list by token",
+                "operationId": "delete-mailing-list-subscriber-token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "List ID",
+                        "name": "listid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/misc/list/{listid}/unsubscribe/{userid}": {
+            "delete": {
+                "description": "Unsubscribe to a mailing list by a user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Unsubscribe to mailing list by user ID",
+                "operationId": "delete-mailing-list-subscriber-id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "List ID",
+                        "name": "listid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "User ID",
+                        "name": "userid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/misc/lists": {
+            "get": {
+                "description": "Lists all mailing lists.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Get Mailing lists",
+                "operationId": "get-mailing-lists",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/misc.List"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/misc/lists/my": {
+            "get": {
+                "description": "Lists all mailing lists. Provides extra context for what the user has subscribed too",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Get Mailing lists by token",
+                "operationId": "get-mailing-lists-token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/misc.List"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/misc/quotes": {
             "put": {
                 "description": "updates a quote. Still need to provide the whole Quote object,\nweb-api will overwrite created by User ID to keep with existing record.",
@@ -1160,6 +1390,32 @@
                             "$ref": "#/definitions/people.User"
                         }
                     }
+                }
+            }
+        },
+        "/v1/list_unsubscribe/{uuid}": {
+            "get": {
+                "description": "Unsubscribe to a mailing list by a subscriber UUID",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc",
+                    "list"
+                ],
+                "summary": "Unsubscribe to mailing list by subscriber UUID",
+                "operationId": "delete-mailing-list-subscriber-uuid",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subscriber UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -1788,6 +2044,35 @@
                 }
             }
         },
+        "misc.List": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "isSubscribed": {
+                    "type": "boolean"
+                },
+                "listID": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permissionID": {
+                    "type": "string"
+                },
+                "subscribers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/misc.Subscriber"
+                    }
+                }
+            }
+        },
         "misc.Quote": {
             "type": "object",
             "properties": {
@@ -1816,6 +2101,41 @@
                     "items": {
                         "$ref": "#/definitions/misc.Quote"
                     }
+                }
+            }
+        },
+        "misc.Subscriber": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "nickname": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/people.Permission"
+                    }
+                },
+                "subscribeID": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

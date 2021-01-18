@@ -237,8 +237,21 @@ func (r *Router) loadRoutes() {
 					webcams.GET("/:id/*", r.misc.GetWebcam)
 					webcams.GET("", r.misc.ListWebcams)
 				}
+				list := misc.Group("/list")
+				{
+					list.GET("s", r.misc.GetLists)
+					list.GET("s/my", r.misc.GetListsByToken)
+					list.GET("/:listid", r.misc.GetList)
+					list.GET("/:listid/subscribers", r.misc.GetSubscribers)
+					list.POST("/:listid/subscribe", r.misc.SubscribeByToken)
+					list.POST("/:listid/subscribe/:userid", r.misc.SubscribeByID)
+					list.DELETE("/:listid/unsubscribe", r.misc.UnsubscribeByToken)
+					list.DELETE("/:listid/unsubscribe/:userid", r.misc.UnsubscribeByID)
+				}
 			}
 		}
+		apiV1.GET("/list_unsubscribe/:uuid", r.misc.UnsubscribeByUUID)
+
 		public := apiV1.Group("/public")
 		{
 			public.GET("/find/*", r.public.Find)

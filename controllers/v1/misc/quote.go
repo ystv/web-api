@@ -31,7 +31,7 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 	}
 	q, err := r.misc.ListQuotes(c.Request().Context(), amount, page)
 	if err != nil {
-		err = fmt.Errorf("ListQuotes failed: %+v", err)
+		err = fmt.Errorf("ListQuotes failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, q)
@@ -55,7 +55,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 	}
 	claims, err := people.GetToken(c)
 	if err != nil {
-		err = fmt.Errorf("NewQupte failed to get user ID: %w", err)
+		err = fmt.Errorf("NewQuote failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	q.CreatedBy = claims.UserID
