@@ -32,7 +32,7 @@ func main() {
 	}
 
 	// Check if debugging
-	debug, err := strconv.ParseBool(os.Getenv("DEBUG"))
+	debug, err := strconv.ParseBool(os.Getenv("WAPI_DEBUG"))
 	if err != nil {
 		debug = false
 		os.Setenv("DEBUG", "false")
