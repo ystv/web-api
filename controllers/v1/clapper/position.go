@@ -14,7 +14,7 @@ import (
 // @Summary List positions
 // @Description Lists all positions.
 // @ID get-positions
-// @Tags positions
+// @Tags clapper-positions
 // @Produce json
 // @Success 200 {array} clapper.Position
 // @Router /v1/internal/clapper/positions [get]
@@ -31,7 +31,7 @@ func (r *Repos) ListPosition(c echo.Context) error {
 // @Summary New position
 // @Description creates a new position.
 // @ID new-position
-// @Tags positions
+// @Tags clapper-positions
 // @Accept json
 // @Param event body clapper.Position true "Position object"
 // @Success 201 body int "Position ID"
@@ -55,7 +55,7 @@ func (r *Repos) NewPosition(c echo.Context) error {
 // @Summary Update position
 // @Description updates a position.
 // @ID update-position
-// @Tags positions
+// @Tags clapper-positions
 // @Accept json
 // @Param quote body clapper.Position true "Position object"
 // @Success 200

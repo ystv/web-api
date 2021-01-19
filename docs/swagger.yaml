@@ -234,6 +234,8 @@ definitions:
     type: object
   people.Permission:
     properties:
+      description:
+        type: string
       id:
         type: integer
       name:
@@ -716,8 +718,7 @@ paths:
         "200": {}
       summary: Delete signup
       tags:
-      - clapper
-      - signups
+      - clapper-signups
   /v1/internal/clapper/{eventid}/{signupid}/{crewid}:
     delete:
       description: deletes a crew position by ID.
@@ -742,8 +743,7 @@ paths:
         "200": {}
       summary: Delete crew
       tags:
-      - clapper
-      - signups
+      - clapper-signups
   /v1/internal/clapper/calendar/monthly/{year}/{month}:
     get:
       description: Lists events by month. The signup section will be null.
@@ -770,39 +770,7 @@ paths:
             type: array
       summary: List events by month
       tags:
-      - clapper
-      - events
-  /v1/internal/clapper/crews/{crewid}:
-    delete:
-      description: Uses JWT to set who is doing the crew position to empty
-      operationId: delete-crew-user-token
-      parameters:
-      - description: Crew ID
-        in: path
-        name: crewid
-        required: true
-        type: integer
-      responses:
-        "200": {}
-      summary: Set crew user by user token
-      tags:
-      - clapper
-      - crews
-    put:
-      description: Uses JWT to set who is doing the crew position
-      operationId: set-crew-user-token
-      parameters:
-      - description: Crew ID
-        in: path
-        name: crewid
-        required: true
-        type: integer
-      responses:
-        "200": {}
-      summary: Set crew user by user token
-      tags:
-      - clapper
-      - crews
+      - clapper-events
   /v1/internal/clapper/event:
     post:
       consumes:
@@ -825,7 +793,7 @@ paths:
             type: body
       summary: New event
       tags:
-      - events
+      - clapper-events
     put:
       consumes:
       - application/json
@@ -844,8 +812,24 @@ paths:
         "200": {}
       summary: Update event
       tags:
-      - events
+      - clapper-events
   /v1/internal/clapper/event/{eventid}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes an event including its children
+      operationId: update-event
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete event
+      tags:
+      - clapper-events
     get:
       description: Get a event including signup-sheets and roles.
       operationId: get-event
@@ -864,8 +848,7 @@ paths:
             $ref: '#/definitions/clapper.Event'
       summary: Get event by ID
       tags:
-      - clapper
-      - events
+      - clapper-events
   /v1/internal/clapper/event/{eventid}/{signupid}:
     put:
       consumes:
@@ -893,8 +876,32 @@ paths:
         "200": {}
       summary: Update signup
       tags:
-      - clapper
-      - signups
+      - clapper-signups
+  /v1/internal/clapper/event/{eventid}/{signupid}/{crewid}:
+    put:
+      description: Uses JWT to set who is doing the crew position
+      operationId: set-crew-user-token
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventid
+        required: true
+        type: integer
+      - description: Signup ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      - description: Position ID
+        in: path
+        name: crewid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Set crew user by user token
+      tags:
+      - clapper-crews
   /v1/internal/clapper/event/{eventid}/{signupid}/{positionid}:
     post:
       consumes:
@@ -921,8 +928,7 @@ paths:
         "200": {}
       summary: NewCrew
       tags:
-      - clapper
-      - crews
+      - clapper-crews
   /v1/internal/clapper/event/{eventid}/signup:
     post:
       consumes:
@@ -945,8 +951,32 @@ paths:
             type: body
       summary: New signup sheet
       tags:
-      - clapper
-      - signups
+      - clapper-signups
+  /v1/internal/clapper/event/{signupid}/{crewid}:
+    delete:
+      description: Uses JWT to set who is doing the crew position to empty
+      operationId: delete-crew-user-token
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventid
+        required: true
+        type: integer
+      - description: Signup ID
+        in: path
+        name: signupid
+        required: true
+        type: integer
+      - description: Position ID
+        in: path
+        name: crewid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Set crew user by user token
+      tags:
+      - clapper-crews
   /v1/internal/clapper/positions:
     get:
       description: Lists all positions.
@@ -962,7 +992,7 @@ paths:
             type: array
       summary: List positions
       tags:
-      - positions
+      - clapper-positions
     post:
       consumes:
       - application/json
@@ -982,7 +1012,7 @@ paths:
             type: body
       summary: New position
       tags:
-      - positions
+      - clapper-positions
     put:
       consumes:
       - application/json
@@ -999,7 +1029,7 @@ paths:
         "200": {}
       summary: Update position
       tags:
-      - positions
+      - clapper-positions
   /v1/internal/creator/calendar/{year}/{month}:
     get:
       description: Lists videos by month.

@@ -17,7 +17,7 @@ import (
 // @Summary List events by month
 // @Description Lists events by month. The signup section will be null.
 // @ID get-events-month
-// @Tags clapper, events
+// @Tags clapper-events
 // @Produce json
 // @Param year path int true "year"
 // @Param month path int true "month"
@@ -44,7 +44,7 @@ func (r *Repos) ListMonth(c echo.Context) error {
 // @Summary Get event by ID
 // @Description Get a event including signup-sheets and roles.
 // @ID get-event
-// @Tags clapper, events
+// @Tags clapper-events
 // @Produce json
 // @Param eventid path int true "Event ID"
 // @Success 200 {object} clapper.Event
@@ -81,7 +81,7 @@ type NewEvent struct {
 // @Description creates a new event.
 // @Description You do not need to include the sign-up sheets just the meta
 // @ID new-event
-// @Tags events
+// @Tags clapper-events
 // @Accept json
 // @Param event body NewEvent true "Event object"
 // @Success 201 body int "Event ID"
@@ -111,7 +111,7 @@ func (r *Repos) NewEvent(c echo.Context) error {
 // @Description updates an event. Only uses the meta, if you change the
 // @Description type it will delete the children.
 // @ID update-event
-// @Tags events
+// @Tags clapper-events
 // @Accept json
 // @Param quote body clapper.Event true "Event object"
 // @Success 200
@@ -144,7 +144,7 @@ func (r *Repos) UpdateEvent(c echo.Context) error {
 // @Summary Delete event
 // @Description Removes an event including its children
 // @ID update-event
-// @Tags events
+// @Tags clapper-events
 // @Accept json
 // @Param eventid path int true "Event ID"
 // @Success 200

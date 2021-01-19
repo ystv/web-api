@@ -18,8 +18,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "clapper",
-                    "events"
+                    "clapper-events"
                 ],
                 "summary": "List events by month",
                 "operationId": "get-events-month",
@@ -52,50 +51,6 @@
                 }
             }
         },
-        "/v1/internal/clapper/crews/{crewid}": {
-            "put": {
-                "description": "Uses JWT to set who is doing the crew position",
-                "tags": [
-                    "clapper",
-                    "crews"
-                ],
-                "summary": "Set crew user by user token",
-                "operationId": "set-crew-user-token",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Crew ID",
-                        "name": "crewid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {}
-                }
-            },
-            "delete": {
-                "description": "Uses JWT to set who is doing the crew position to empty",
-                "tags": [
-                    "clapper",
-                    "crews"
-                ],
-                "summary": "Set crew user by user token",
-                "operationId": "delete-crew-user-token",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Crew ID",
-                        "name": "crewid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {}
-                }
-            }
-        },
         "/v1/internal/clapper/event": {
             "put": {
                 "description": "updates an event. Only uses the meta, if you change the\ntype it will delete the children.",
@@ -103,7 +58,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "events"
+                    "clapper-events"
                 ],
                 "summary": "Update event",
                 "operationId": "update-event",
@@ -128,7 +83,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "events"
+                    "clapper-events"
                 ],
                 "summary": "New event",
                 "operationId": "new-event",
@@ -160,8 +115,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "clapper",
-                    "events"
+                    "clapper-events"
                 ],
                 "summary": "Get event by ID",
                 "operationId": "get-event",
@@ -182,6 +136,29 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Removes an event including its children",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clapper-events"
+                ],
+                "summary": "Delete event",
+                "operationId": "update-event",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "eventid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
             }
         },
         "/v1/internal/clapper/event/{eventid}/signup": {
@@ -191,8 +168,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "clapper",
-                    "signups"
+                    "clapper-signups"
                 ],
                 "summary": "New signup sheet",
                 "operationId": "new-signup",
@@ -224,8 +200,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "clapper",
-                    "signups"
+                    "clapper-signups"
                 ],
                 "summary": "Update signup",
                 "operationId": "update-signup",
@@ -259,6 +234,42 @@
                 }
             }
         },
+        "/v1/internal/clapper/event/{eventid}/{signupid}/{crewid}": {
+            "put": {
+                "description": "Uses JWT to set who is doing the crew position",
+                "tags": [
+                    "clapper-crews"
+                ],
+                "summary": "Set crew user by user token",
+                "operationId": "set-crew-user-token",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "eventid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Signup ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Position ID",
+                        "name": "crewid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
         "/v1/internal/clapper/event/{eventid}/{signupid}/{positionid}": {
             "post": {
                 "description": "Creates a new crew object, that being a single person.",
@@ -266,11 +277,46 @@
                     "application/json"
                 ],
                 "tags": [
-                    "clapper",
-                    "crews"
+                    "clapper-crews"
                 ],
                 "summary": "NewCrew",
                 "operationId": "new-crew",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Event ID",
+                        "name": "eventid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Signup ID",
+                        "name": "signupid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Position ID",
+                        "name": "crewid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/clapper/event/{signupid}/{crewid}": {
+            "delete": {
+                "description": "Uses JWT to set who is doing the crew position to empty",
+                "tags": [
+                    "clapper-crews"
+                ],
+                "summary": "Set crew user by user token",
+                "operationId": "delete-crew-user-token",
                 "parameters": [
                     {
                         "type": "integer",
@@ -306,7 +352,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "positions"
+                    "clapper-positions"
                 ],
                 "summary": "List positions",
                 "operationId": "get-positions",
@@ -328,7 +374,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "positions"
+                    "clapper-positions"
                 ],
                 "summary": "Update position",
                 "operationId": "update-position",
@@ -353,7 +399,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "positions"
+                    "clapper-positions"
                 ],
                 "summary": "New position",
                 "operationId": "new-position",
@@ -382,8 +428,7 @@
             "delete": {
                 "description": "deletes a signup by ID.",
                 "tags": [
-                    "clapper",
-                    "signups"
+                    "clapper-signups"
                 ],
                 "summary": "Delete signup",
                 "operationId": "delete-signup",
@@ -412,8 +457,7 @@
             "delete": {
                 "description": "deletes a crew position by ID.",
                 "tags": [
-                    "clapper",
-                    "signups"
+                    "clapper-signups"
                 ],
                 "summary": "Delete crew",
                 "operationId": "delete-signup",
@@ -2159,6 +2203,9 @@
         "people.Permission": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

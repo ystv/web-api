@@ -17,7 +17,7 @@ import (
 // @Description Creates a new signup sheet, this is the sub part of an event
 // @Description containing the list of crew, with a little metadata on top.
 // @ID new-signup
-// @Tags clapper, signups
+// @Tags clapper-signups
 // @Accept json
 // @Param event body clapper.Signup true "Signup object"
 // @Success 201 body int "Event ID"
@@ -60,7 +60,7 @@ func (r *Repos) NewSignup(c echo.Context) error {
 // @Summary Update signup
 // @Description updates a signup sheet, to the body.
 // @ID update-signup
-// @Tags clapper, signups
+// @Tags clapper-signups
 // @Param eventid path int true "Event ID"
 // @Param signupid path int true "Signup ID"
 // @Accept json
@@ -95,7 +95,7 @@ func (r *Repos) UpdateSignup(c echo.Context) error {
 // @Summary Delete signup
 // @Description deletes a signup by ID.
 // @ID delete-signup
-// @Tags clapper, signups
+// @Tags clapper-signups
 // @Param signupid path int true "Event ID"
 // @Param signupid path int true "Signup ID"
 // @Success 200

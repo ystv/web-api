@@ -17,10 +17,12 @@ import (
 // @Summary Set crew user by user token
 // @Description Uses JWT to set who is doing the crew position
 // @ID set-crew-user-token
-// @Tags clapper, crews
-// @Param crewid path int true "Crew ID"
+// @Tags clapper-crews
+// @Param eventid path int true "Event ID"
+// @Param signupid path int true "Signup ID"
+// @Param crewid path int true "Position ID"
 // @Success 200
-// @Router /v1/internal/clapper/crews/{crewid} [put]
+// @Router /v1/internal/clapper/event/{eventid}/{signupid}/{crewid} [put]
 func (r *Repos) SetCrew(c echo.Context) error {
 	p, err := people.GetToken(c)
 	if err != nil {
@@ -44,10 +46,12 @@ func (r *Repos) SetCrew(c echo.Context) error {
 // @Summary Set crew user by user token
 // @Description Uses JWT to set who is doing the crew position to empty
 // @ID delete-crew-user-token
-// @Tags clapper, crews
-// @Param crewid path int true "Crew ID"
+// @Tags clapper-crews
+// @Param eventid path int true "Event ID"
+// @Param signupid path int true "Signup ID"
+// @Param crewid path int true "Position ID"
 // @Success 200
-// @Router /v1/internal/clapper/crews/{crewid} [delete]
+// @Router /v1/internal/clapper/event/{signupid}/{crewid} [delete]
 func (r *Repos) ResetCrew(c echo.Context) error {
 	_, err := people.GetToken(c)
 	if err != nil {
@@ -80,7 +84,7 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 // @Summary NewCrew
 // @Description Creates a new crew object, that being a single person.
 // @ID new-crew
-// @Tags clapper, crews
+// @Tags clapper-crews
 // @Accept json
 // @Param eventid path int true "Event ID"
 // @Param signupid path int true "Signup ID"
@@ -105,7 +109,7 @@ func (r *Repos) NewCrew(c echo.Context) error {
 // @Summary Delete crew
 // @Description deletes a crew position by ID.
 // @ID delete-signup
-// @Tags clapper, signups
+// @Tags clapper-signups
 // @Param signupid path int true "Event ID"
 // @Param signupid path int true "Signup ID"
 // @Param signupid path int true "Crew ID"
