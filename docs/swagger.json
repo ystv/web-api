@@ -146,7 +146,7 @@
                     "clapper-events"
                 ],
                 "summary": "Delete event",
-                "operationId": "update-event",
+                "operationId": "delete-event",
                 "parameters": [
                     {
                         "type": "integer",
@@ -179,7 +179,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/clapper.Signup"
+                            "$ref": "#/definitions/clapper.NewSignup"
                         }
                     }
                 ],
@@ -279,7 +279,7 @@
                 "tags": [
                     "clapper-crews"
                 ],
-                "summary": "NewCrew",
+                "summary": "Add a position to a signup sheet as crew",
                 "operationId": "new-crew",
                 "parameters": [
                     {
@@ -309,13 +309,13 @@
                 }
             }
         },
-        "/v1/internal/clapper/event/{signupid}/{crewid}": {
-            "delete": {
+        "/v1/internal/clapper/event/{signupid}/{crewid}/reset": {
+            "put": {
                 "description": "Uses JWT to set who is doing the crew position to empty",
                 "tags": [
                     "clapper-crews"
                 ],
-                "summary": "Set crew user by user token",
+                "summary": "Reset crew user to blank",
                 "operationId": "delete-crew-user-token",
                 "parameters": [
                     {
@@ -457,7 +457,7 @@
             "delete": {
                 "description": "deletes a crew position by ID.",
                 "tags": [
-                    "clapper-signups"
+                    "clapper-crews"
                 ],
                 "summary": "Delete crew",
                 "operationId": "delete-signup",
@@ -1958,6 +1958,23 @@
                 }
             }
         },
+        "clapper.NewCrew": {
+            "type": "object",
+            "properties": {
+                "credited": {
+                    "type": "boolean"
+                },
+                "locked": {
+                    "type": "boolean"
+                },
+                "ordering": {
+                    "type": "integer"
+                },
+                "positionID": {
+                    "type": "integer"
+                }
+            }
+        },
         "clapper.NewEvent": {
             "type": "object",
             "properties": {
@@ -1976,6 +1993,9 @@
                 "isPrivate": {
                     "type": "boolean"
                 },
+                "isTentative": {
+                    "type": "boolean"
+                },
                 "location": {
                     "type": "string"
                 },
@@ -1983,6 +2003,38 @@
                     "type": "string"
                 },
                 "startDate": {
+                    "type": "string"
+                }
+            }
+        },
+        "clapper.NewSignup": {
+            "type": "object",
+            "properties": {
+                "arrivalTime": {
+                    "type": "string"
+                },
+                "crew": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/clapper.NewCrew"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "eventID": {
+                    "type": "integer"
+                },
+                "startTime": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "unlockDate": {
                     "type": "string"
                 }
             }
@@ -2203,9 +2255,6 @@
         "people.Permission": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },

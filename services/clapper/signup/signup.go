@@ -23,7 +23,7 @@ func NewStore(db *sqlx.DB) *Store {
 var _ clapper.SignupRepo = &Store{}
 
 // New creates a new signup sheet
-func (m *Store) New(ctx context.Context, eventID int, s clapper.Signup) (int, error) {
+func (m *Store) New(ctx context.Context, eventID int, s clapper.NewSignup) (int, error) {
 	signupID := 0
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
 		err := tx.QueryRowContext(ctx, `INSERT INTO event.signups
@@ -39,8 +39,7 @@ func (m *Store) New(ctx context.Context, eventID int, s clapper.Signup) (int, er
 		if len(s.Crew) == 0 {
 			return nil
 		}
-		s.SignupID = signupID
-		err = m.addCrew(ctx, tx, s)
+		err = m.addCrew(ctx, tx, signupID, s.Crew)
 		if err != nil {
 			return err
 		}
@@ -52,17 +51,17 @@ func (m *Store) New(ctx context.Context, eventID int, s clapper.Signup) (int, er
 	return signupID, nil
 }
 
-func (m *Store) addCrew(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) error {
+func (m *Store) addCrew(ctx context.Context, tx *sqlx.Tx, signupID int, crew []clapper.NewCrew) error {
 	stmt, err := tx.PrepareContext(ctx,
-		`INSERT INTO event.crews(signup_id, position_id, locked, ordering)
+		`INSERT INTO event.crews(signup_id, position_id, locked, credited, ordering)
 		VALUES ($1, $2, $3 $4);`)
 	if err != nil {
 		return fmt.Errorf("failed to prepare statement to insert crew: %w", err)
 	}
-	for _, position := range s.Crew {
+	for _, position := range crew {
 		// we might want to handle the signup ID if it does exist, just an if statement will do
 		_, err = stmt.ExecContext(ctx,
-			s.SignupID, position.PositionID, position.Locked, position.Ordering)
+			signupID, position.PositionID, position.Locked, position.Credited, position.Ordering)
 		if err != nil {
 			return fmt.Errorf("failed to insert crew for signup sheet: %w", err)
 		}
@@ -121,11 +120,23 @@ func (m *Store) updateCrew(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) e
 		}
 	}
 	// Add the updated crew
-	err = m.addCrew(ctx, tx, s)
+	err = m.addCrew(ctx, tx, s.SignupID, m.crewPositionToNewCrew(s.Crew))
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (m *Store) crewPositionToNewCrew(crewPosition []clapper.CrewPosition) []clapper.NewCrew {
+	newCrew := []clapper.NewCrew{}
+	for _, crew := range crewPosition {
+		newCrew = append(newCrew, clapper.NewCrew{
+			PositionID: crew.PositionID,
+			Locked:     crew.Locked,
+			Credited:   crew.Credited,
+		})
+	}
+	return newCrew
 }
 
 // Delete will remove the signup sheet and it's children crew

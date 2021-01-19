@@ -74,6 +74,17 @@ definitions:
       startDate:
         type: string
     type: object
+  clapper.NewCrew:
+    properties:
+      credited:
+        type: boolean
+      locked:
+        type: boolean
+      ordering:
+        type: integer
+      positionID:
+        type: integer
+    type: object
   clapper.NewEvent:
     properties:
       description:
@@ -86,11 +97,34 @@ definitions:
         type: boolean
       isPrivate:
         type: boolean
+      isTentative:
+        type: boolean
       location:
         type: string
       name:
         type: string
       startDate:
+        type: string
+    type: object
+  clapper.NewSignup:
+    properties:
+      arrivalTime:
+        type: string
+      crew:
+        items:
+          $ref: '#/definitions/clapper.NewCrew'
+        type: array
+      description:
+        type: string
+      endTime:
+        type: string
+      eventID:
+        type: integer
+      startTime:
+        type: string
+      title:
+        type: string
+      unlockDate:
         type: string
     type: object
   clapper.Position:
@@ -234,8 +268,6 @@ definitions:
     type: object
   people.Permission:
     properties:
-      description:
-        type: string
       id:
         type: integer
       name:
@@ -743,7 +775,7 @@ paths:
         "200": {}
       summary: Delete crew
       tags:
-      - clapper-signups
+      - clapper-crews
   /v1/internal/clapper/calendar/monthly/{year}/{month}:
     get:
       description: Lists events by month. The signup section will be null.
@@ -818,7 +850,7 @@ paths:
       consumes:
       - application/json
       description: Removes an event including its children
-      operationId: update-event
+      operationId: delete-event
       parameters:
       - description: Event ID
         in: path
@@ -926,7 +958,7 @@ paths:
         type: integer
       responses:
         "200": {}
-      summary: NewCrew
+      summary: Add a position to a signup sheet as crew
       tags:
       - clapper-crews
   /v1/internal/clapper/event/{eventid}/signup:
@@ -943,7 +975,7 @@ paths:
         name: event
         required: true
         schema:
-          $ref: '#/definitions/clapper.Signup'
+          $ref: '#/definitions/clapper.NewSignup'
       responses:
         "201":
           description: Event ID
@@ -952,8 +984,8 @@ paths:
       summary: New signup sheet
       tags:
       - clapper-signups
-  /v1/internal/clapper/event/{signupid}/{crewid}:
-    delete:
+  /v1/internal/clapper/event/{signupid}/{crewid}/reset:
+    put:
       description: Uses JWT to set who is doing the crew position to empty
       operationId: delete-crew-user-token
       parameters:
@@ -974,7 +1006,7 @@ paths:
         type: integer
       responses:
         "200": {}
-      summary: Set crew user by user token
+      summary: Reset crew user to blank
       tags:
       - clapper-crews
   /v1/internal/clapper/positions:

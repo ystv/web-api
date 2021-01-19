@@ -8,6 +8,42 @@ import (
 )
 
 type (
+	// New objects
+
+	// NewEvent represents necessary fields to create a new event.
+	NewEvent struct {
+		EventType   string    `db:"event_type" json:"eventType"`
+		Name        string    `db:"name" json:"name"`
+		StartDate   time.Time `db:"start_date" json:"startDate"`
+		EndDate     time.Time `db:"end_date" json:"endDate"`
+		Description string    `db:"description" json:"description"`
+		Location    string    `db:"location" json:"location"`
+		IsPrivate   bool      `db:"is_private" json:"isPrivate"`
+		IsCancelled bool      `db:"is_cancelled" json:"isCancelled"`
+		IsTentative bool      `db:"is_tentative" json:"isTentative"`
+	}
+
+	// NewSignup required fields to add
+	NewSignup struct {
+		EventID     int       `db:"event_id" json:"eventID"`
+		Title       string    `db:"title" json:"title"`
+		Description string    `db:"description" json:"description"`
+		UnlockDate  null.Time `db:"unlock_date" json:"unlockDate"`
+		ArrivalTime null.Time `db:"arrival_time" json:"arrivalTime"`
+		StartTime   null.Time `db:"start_time" json:"startTime"`
+		EndTime     null.Time `db:"end_time" json:"endTime"`
+		Crew        []NewCrew `json:"crew"`
+	}
+	// NewCrew required fields to add crew to to a signup sheet
+	NewCrew struct {
+		PositionID int  `db:"position_id" json:"positionID"`
+		Locked     bool `db:"locked" json:"locked"`
+		Credited   bool `db:"credited" json:"credited"`
+		Ordering   int  `db:"ordering" json:"ordering,omitempty"`
+	}
+
+	// Normal objects
+
 	// Event represents a group of signups
 	Event struct {
 		EventID     int        `db:"event_id" json:"eventID"`
@@ -34,6 +70,7 @@ type (
 		EndTime     null.Time      `db:"end_time" json:"endTime"`
 		Crew        []CrewPosition `json:"crew"`
 	}
+
 	// Position is a role people can signup too
 	Position struct {
 		PositionID   int      `db:"position_id" json:"positionID"`
@@ -70,14 +107,14 @@ type (
 	EventRepo interface {
 		ListMonth(ctx context.Context, year, month int) (*[]Event, error)
 		Get(ctx context.Context, eventID int) (*Event, error)
-		New(ctx context.Context, e *Event, userID int) (int, error)
+		New(ctx context.Context, e *NewEvent, userID int) (int, error)
 		Update(ctx context.Context, e *Event, userID int) error
 		Delete(ctx context.Context, eventID int) error
 	}
 
 	// SignupRepo defines all signup sheet interactions
 	SignupRepo interface {
-		New(ctx context.Context, eventID int, s Signup) (int, error)
+		New(ctx context.Context, eventID int, s NewSignup) (int, error)
 		Update(ctx context.Context, s Signup) error
 		Delete(ctx context.Context, signupID int) error
 	}

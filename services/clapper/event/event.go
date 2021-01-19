@@ -84,7 +84,7 @@ func (m *Store) Get(ctx context.Context, eventID int) (*clapper.Event, error) {
 }
 
 // New creates a new event returning the event ID
-func (m *Store) New(ctx context.Context, e *clapper.Event, userID int) (int, error) {
+func (m *Store) New(ctx context.Context, e *clapper.NewEvent, userID int) (int, error) {
 	eventID := 0
 	err := m.db.QueryRowContext(ctx, `INSERT INTO event.events 
 	(event_type, name, start_date, end_date, description, location,

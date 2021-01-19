@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/clapper"
@@ -78,4 +79,24 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// TODO add delete
+// DeletePosition removes a position
+//
+// @Summary Delete event
+// @Description Removes an event including its children
+// @ID delete-event
+// @Tags clapper-events
+// @Accept json
+// @Param eventid path int true "Event ID"
+// @Success 200
+// @Router /v1/internal/clapper/event/{eventid} [delete]
+func (r *Repos) DeletePosition(c echo.Context) error {
+	positionID, err := strconv.Atoi(c.Param("positionid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid posiiton ID")
+	}
+	err = r.position.Delete(c.Request().Context(), positionID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to delete event: %w", err))
+	}
+	return c.NoContent(http.StatusOK)
+}

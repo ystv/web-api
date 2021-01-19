@@ -43,7 +43,7 @@ func (r *Repos) SetCrew(c echo.Context) error {
 // ResetCrew handles setting the crew position back to empty for
 // when a user changes their mind.
 //
-// @Summary Set crew user by user token
+// @Summary Reset crew user to blank
 // @Description Uses JWT to set who is doing the crew position to empty
 // @ID delete-crew-user-token
 // @Tags clapper-crews
@@ -51,7 +51,7 @@ func (r *Repos) SetCrew(c echo.Context) error {
 // @Param signupid path int true "Signup ID"
 // @Param crewid path int true "Position ID"
 // @Success 200
-// @Router /v1/internal/clapper/event/{signupid}/{crewid} [delete]
+// @Router /v1/internal/clapper/event/{signupid}/{crewid}/reset [put]
 func (r *Repos) ResetCrew(c echo.Context) error {
 	_, err := people.GetToken(c)
 	if err != nil {
@@ -81,7 +81,7 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 
 // NewCrew handles creating a new crew, this being a single person
 //
-// @Summary NewCrew
+// @Summary Add a position to a signup sheet as crew
 // @Description Creates a new crew object, that being a single person.
 // @ID new-crew
 // @Tags clapper-crews
@@ -109,7 +109,7 @@ func (r *Repos) NewCrew(c echo.Context) error {
 // @Summary Delete crew
 // @Description deletes a crew position by ID.
 // @ID delete-signup
-// @Tags clapper-signups
+// @Tags clapper-crews
 // @Param signupid path int true "Event ID"
 // @Param signupid path int true "Signup ID"
 // @Param signupid path int true "Crew ID"

@@ -202,8 +202,8 @@ func (r *Router) loadRoutes() {
 					event := events.Group("/:eventid")
 					{
 						event.GET("", r.clapper.GetEvent) // Get event info, returns event info and signup sheets
-						event.POST("/signup", r.clapper.NewSignup)
 						event.DELETE("", r.clapper.DeleteEvent)
+						event.POST("/signup", r.clapper.NewSignup)
 						signup := event.Group("/:signupid")
 						{
 							signup.PUT("", r.clapper.UpdateSignup)         // Create a new signup sheet

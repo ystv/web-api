@@ -19,7 +19,7 @@ import (
 // @ID new-signup
 // @Tags clapper-signups
 // @Accept json
-// @Param event body clapper.Signup true "Signup object"
+// @Param event body clapper.NewSignup true "Signup object"
 // @Success 201 body int "Event ID"
 // @Router /v1/internal/clapper/event/{eventid}/signup [post]
 func (r *Repos) NewSignup(c echo.Context) error {
@@ -29,7 +29,7 @@ func (r *Repos) NewSignup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad event ID")
 	}
 	// Bind request json to signup
-	s := clapper.Signup{}
+	s := clapper.NewSignup{}
 	err = c.Bind(&s)
 	if err != nil {
 		err = fmt.Errorf("NewSignup: failed to bind to request json: %w", err)
