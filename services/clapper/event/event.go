@@ -148,7 +148,7 @@ func (m *Store) Update(ctx context.Context, e *clapper.Event, userID int) error 
 func (m *Store) Delete(ctx context.Context, eventID int) error {
 	// The cascade should delete either the attendees or signups
 	_, err := m.db.ExecContext(ctx, `DELETE FROM event.events
-							WHERE event_id = $1`, eventID)
+							WHERE event_id = $1;`, eventID)
 	if err != nil {
 		return fmt.Errorf("failed to delete event: %w", err)
 	}

@@ -50,11 +50,11 @@ func (r *Repos) ListMonth(c echo.Context) error {
 // @Success 200 {object} clapper.Event
 // @Router /v1/internal/clapper/event/{eventid} [get]
 func (r *Repos) GetEvent(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("eventid"))
+	eventID, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
 	}
-	e, err := r.event.Get(c.Request().Context(), id)
+	e, err := r.event.Get(c.Request().Context(), eventID)
 	if err != nil {
 		err = fmt.Errorf("GetEvent failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -139,4 +139,21 @@ func (r *Repos) UpdateEvent(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// TODO add delete
+// DeleteEvent removes an event including child objects
+//
+// @Summary Delete event
+// @Description Removes an event including its children
+// @ID update-event
+// @Tags events
+// @Accept json
+// @Param eventid path int true "Event ID"
+// @Success 200
+// @Router /v1/internal/clapper/event/{eventid} [delete]
+func (r *Repos) DeleteEvent(c echo.Context) error {
+	eventID, err := strconv.Atoi(c.Param("eventid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
+	}
+	err = r.event.Delete(c.Request().Context(), eventID)
+	return c.NoContent(http.StatusOK)
+}

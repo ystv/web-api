@@ -24,9 +24,9 @@ import (
 // @Router /v1/internal/clapper/event/{eventid}/signup [post]
 func (r *Repos) NewSignup(c echo.Context) error {
 	// Validate event ID
-	eventID, err := strconv.Atoi(c.Param("signupid"))
+	eventID, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Bad signup ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad event ID")
 	}
 	// Bind request json to signup
 	s := clapper.Signup{}
