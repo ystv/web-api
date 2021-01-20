@@ -30,16 +30,20 @@ type (
 		SeriesID      int            `db:"series_id" json:"seriesID"`
 		Name          string         `db:"video_name" json:"name"`
 		URL           string         `db:"url" json:"url"`
-		Description   string         `db:"description" json:"description,omitempty"`
-		Thumbnail     null.String    `db:"thumbnail" json:"thumbnail"`
-		Duration      null.Int       `db:"duration" json:"duration"`
+		Description   string         `db:"description" json:"description,omitempty"` // when listing description isn't included
+		Thumbnail     string         `db:"thumbnail" json:"thumbnail"`
+		Duration      string         `db:"duration" json:"duration"`
 		Views         int            `db:"views" json:"views"`
 		Tags          pq.StringArray `db:"tags" json:"tags"`
 		Status        string         `db:"status" json:"status"`
 		Preset        `json:"preset"`
-		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
-		CreatedAt     string `db:"created_at" json:"createdAt"`
-		User          `json:"createdBy"`
+		BroadcastDate time.Time `db:"broadcast_date" json:"broadcastDate"`
+		CreatedAt     time.Time `db:"created_at" json:"createdAt"`
+		CreatedBy     User      `json:"createdBy"`
+		UpdatedAt     null.Time `db:"updated_at" json:"updatedAt"`
+		UpdatedBy     *User     `json:"updatedBy"`
+		DeletedAt     null.Time `db:"deleted_at" json:"deletedAt"`
+		DeletedBy     *User     `json:"deletedBy"`
 	}
 	// MetaCal represents simple metadata for a calendar
 	MetaCal struct {

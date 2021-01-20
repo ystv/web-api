@@ -147,8 +147,8 @@ func (r *Router) loadRoutes() {
 					videoItem := videos.Group("/:id")
 					{
 						videoItem.GET("", r.creator.GetVideo)
-						videoItem.PUT("", notImplemented)
-						// videoItem.DELETE("", r.creator.DeleteVideo)
+						videoItem.PUT("", r.creator.UpdateVideo)
+						videoItem.DELETE("", r.creator.DeleteVideo)
 					}
 				}
 				series := creator.Group("/series")

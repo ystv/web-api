@@ -620,7 +620,16 @@ definitions:
         type: string
       createdAt:
         type: string
+      createdBy:
+        $ref: '#/definitions/video.User'
+        type: object
+      deletedAt:
+        type: string
+      deletedBy:
+        $ref: '#/definitions/video.User'
+        type: object
       description:
+        description: when listing description isn't included
         type: string
       duration:
         type: string
@@ -642,11 +651,12 @@ definitions:
         type: string
       thumbnail:
         type: string
-      url:
+      updatedAt:
         type: string
-      userID:
-        type: integer
-      userNickname:
+      updatedBy:
+        $ref: '#/definitions/video.User'
+        type: object
+      url:
         type: string
       views:
         type: integer
@@ -657,7 +667,16 @@ definitions:
         type: string
       createdAt:
         type: string
+      createdBy:
+        $ref: '#/definitions/video.User'
+        type: object
+      deletedAt:
+        type: string
+      deletedBy:
+        $ref: '#/definitions/video.User'
+        type: object
       description:
+        description: when listing description isn't included
         type: string
       duration:
         type: string
@@ -675,11 +694,12 @@ definitions:
         type: string
       thumbnail:
         type: string
-      url:
+      updatedAt:
         type: string
-      userID:
-        type: integer
-      userNickname:
+      updatedBy:
+        $ref: '#/definitions/video.User'
+        type: object
+      url:
         type: string
       views:
         type: integer
@@ -720,6 +740,13 @@ definitions:
           type: string
         type: array
       urlName:
+        type: string
+    type: object
+  video.User:
+    properties:
+      userID:
+        type: integer
+      userNickname:
         type: string
     type: object
 info:

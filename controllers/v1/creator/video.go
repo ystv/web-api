@@ -11,6 +11,7 @@ import (
 )
 
 // GetVideo finds a video by ID
+//
 // @Summary Get video by ID
 // @Description Get a playlist including it's children files.
 // @ID get-creator-video
@@ -33,6 +34,7 @@ func (r *Repos) GetVideo(c echo.Context) error {
 }
 
 // NewVideo Handles creation of a video
+//
 // @Summary New video
 // @Description creates a new video, requires the file ID/name to find it in CDN.
 // @ID new-creator-video
@@ -63,7 +65,22 @@ func (r *Repos) NewVideo(c echo.Context) error {
 	return c.String(http.StatusCreated, "Creation created")
 }
 
+// UpdateVideo updates a video's metadata not files
+func (r *Repos) UpdateVideo(c echo.Context) error {
+	v := video.Item{}
+	err := c.Bind(&v)
+	if err != nil {
+		return fmt.Errorf("failed to update video: %w", err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+func (r *Repos) DeleteVideo(c echo.Context) error {
+	return c.NoContent(http.StatusOK)
+}
+
 // VideoList Handles listing all creations
+//
 // @Summary List all videos
 // @Description Lists all videos, doesn't include files inside.
 // @ID get-creator-videos-all
@@ -81,6 +98,7 @@ func (r *Repos) VideoList(c echo.Context) error {
 }
 
 // ListVideosByUser Handles retrieving a user's videos using their userid in their token.
+//
 // @Summary List all videos created by user ID
 // @Description Lists all videos, doesn't include files inside. Uses the createdBy user ID.
 // @ID get-creator-videos-user
@@ -103,6 +121,7 @@ func (r *Repos) ListVideosByUser(c echo.Context) error {
 }
 
 // ListVideosByMonth Handles listing all videos from a calendar year/month
+//
 // @Summary List videos by month
 // @Description Lists videos by month.
 // @ID get-creator-videos-calendar

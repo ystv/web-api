@@ -2826,7 +2826,19 @@
                 "createdAt": {
                     "type": "string"
                 },
+                "createdBy": {
+                    "type": "object",
+                    "$ref": "#/definitions/video.User"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deletedBy": {
+                    "type": "object",
+                    "$ref": "#/definitions/video.User"
+                },
                 "description": {
+                    "description": "when listing description isn't included",
                     "type": "string"
                 },
                 "duration": {
@@ -2859,13 +2871,14 @@
                 "thumbnail": {
                     "type": "string"
                 },
-                "url": {
+                "updatedAt": {
                     "type": "string"
                 },
-                "userID": {
-                    "type": "integer"
+                "updatedBy": {
+                    "type": "object",
+                    "$ref": "#/definitions/video.User"
                 },
-                "userNickname": {
+                "url": {
                     "type": "string"
                 },
                 "views": {
@@ -2882,7 +2895,19 @@
                 "createdAt": {
                     "type": "string"
                 },
+                "createdBy": {
+                    "type": "object",
+                    "$ref": "#/definitions/video.User"
+                },
+                "deletedAt": {
+                    "type": "string"
+                },
+                "deletedBy": {
+                    "type": "object",
+                    "$ref": "#/definitions/video.User"
+                },
                 "description": {
+                    "description": "when listing description isn't included",
                     "type": "string"
                 },
                 "duration": {
@@ -2909,13 +2934,14 @@
                 "thumbnail": {
                     "type": "string"
                 },
-                "url": {
+                "updatedAt": {
                     "type": "string"
                 },
-                "userID": {
-                    "type": "integer"
+                "updatedBy": {
+                    "type": "object",
+                    "$ref": "#/definitions/video.User"
                 },
-                "userNickname": {
+                "url": {
                     "type": "string"
                 },
                 "views": {
@@ -2977,6 +3003,17 @@
                     }
                 },
                 "urlName": {
+                    "type": "string"
+                }
+            }
+        },
+        "video.User": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "integer"
+                },
+                "userNickname": {
                     "type": "string"
                 }
             }
