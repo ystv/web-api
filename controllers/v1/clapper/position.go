@@ -30,7 +30,6 @@ func (r *Repos) ListPosition(c echo.Context) error {
 
 // NewPosition handles creating a new position
 // @Summary New position
-// @Description creates a new position.
 // @ID new-position
 // @Tags clapper-positions
 // @Accept json
@@ -54,7 +53,6 @@ func (r *Repos) NewPosition(c echo.Context) error {
 
 // UpdatePosition updates an existing position
 // @Summary Update position
-// @Description updates a position.
 // @ID update-position
 // @Tags clapper-positions
 // @Accept json
@@ -81,14 +79,13 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 
 // DeletePosition removes a position
 //
-// @Summary Delete event
-// @Description Removes an event including its children
-// @ID delete-event
-// @Tags clapper-events
+// @Summary Delete position
+// @ID delete-position
+// @Tags clapper-positions
 // @Accept json
-// @Param eventid path int true "Event ID"
+// @Param positionid path int true "Position ID"
 // @Success 200
-// @Router /v1/internal/clapper/event/{eventid} [delete]
+// @Router /v1/internal/clapper/positions/{positionid} [delete]
 func (r *Repos) DeletePosition(c echo.Context) error {
 	positionID, err := strconv.Atoi(c.Param("positionid"))
 	if err != nil {

@@ -369,7 +369,6 @@
                 }
             },
             "put": {
-                "description": "updates a position.",
                 "consumes": [
                     "application/json"
                 ],
@@ -394,7 +393,6 @@
                 }
             },
             "post": {
-                "description": "creates a new position.",
                 "consumes": [
                     "application/json"
                 ],
@@ -421,6 +419,30 @@
                             "type": "body"
                         }
                     }
+                }
+            }
+        },
+        "/v1/internal/clapper/positions/{positionid}": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "clapper-positions"
+                ],
+                "summary": "Delete position",
+                "operationId": "delete-position",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Position ID",
+                        "name": "positionid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -2267,9 +2289,6 @@
         "people.Permission": {
             "type": "object",
             "properties": {
-                "description": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },

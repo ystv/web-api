@@ -219,9 +219,10 @@ func (r *Router) loadRoutes() {
 				}
 				positions := clapper.Group("/positions")
 				{
-					positions.GET("", r.clapper.ListPosition)   // List crew positions
-					positions.POST("", r.clapper.NewPosition)   // Create a new crew position
-					positions.PUT("", r.clapper.UpdatePosition) // Update a position
+					positions.GET("", r.clapper.ListPosition)                  // List crew positions
+					positions.POST("", r.clapper.NewPosition)                  // Create a new crew position
+					positions.PUT("", r.clapper.UpdatePosition)                // Update a position
+					positions.DELETE("/:positionid", r.clapper.DeletePosition) // Delete a position
 				}
 			}
 			misc := internal.Group("/misc")
