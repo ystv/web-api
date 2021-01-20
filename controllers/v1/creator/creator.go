@@ -46,7 +46,7 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
 // @Summary Get global video library information
 // @Description Gets the statistics about the global video library.
 // @ID get-creator-glob-stats
-// @Tags creator, stats
+// @Tags creator
 // @Produce json
 // @Success 200 {object} stats.VideoGlobalStats
 // @Router /v1/internal/creator/stats [get]

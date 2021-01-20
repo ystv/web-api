@@ -14,7 +14,7 @@ import (
 // @Summary List quotes
 // @Description Lists quotes by pagination.
 // @ID get-quotes
-// @Tags misc, quotes
+// @Tags misc-quotes
 // @Produce json
 // @Param amount path int true "Amount"
 // @Param page path int true "Page"
@@ -42,7 +42,7 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 // @Description creates a new quote.
 // @Description web-api will overwrite created by User ID with the token's user ID.
 // @ID new-quote
-// @Tags misc, quotes
+// @Tags misc-quotes
 // @Accept json
 // @Param quote body misc.Quote true "Quote object"
 // @Success 201 {object} int "Quote ID"
@@ -72,7 +72,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 // @Description updates a quote. Still need to provide the whole Quote object,
 // @Description web-api will overwrite created by User ID to keep with existing record.
 // @ID update-quote
-// @Tags misc, quotes
+// @Tags misc-quotes
 // @Accept json
 // @Param quote body misc.Quote true "Quote object"
 // @Success 200
@@ -95,7 +95,7 @@ func (r *Repos) UpdateQuote(c echo.Context) error {
 // @Summary Delete quote
 // @Description deletes a quote by ID.
 // @ID delete-quote
-// @Tags misc, quotes
+// @Tags misc-quotes
 // @Param quoteid path int true "Quote ID"
 // @Success 200
 // @Router /v1/internal/misc/quotes/{quoteid} [delete]

@@ -15,7 +15,7 @@ import (
 // @Summary List all playlists
 // @Description Lists all playlists, doesn't include videos inside.
 // @ID get-creator-playlists-all
-// @Tags creator, playlists
+// @Tags creator-playlists
 // @Produce json
 // @Success 200 {array} playlist.Playlist
 // @Router /v1/internal/creator/playlists [get]
@@ -32,7 +32,7 @@ func (r *Repos) ListPlaylist(c echo.Context) error {
 // @Summary Get playlist by ID
 // @Description Get a playlist including it's children videos.
 // @ID get-creator-playlist
-// @Tags creator, playlists
+// @Tags creator-playlists
 // @Produce json
 // @Param playlistid path int true "Playlist ID"
 // @Success 200 {object} playlist.Playlist
@@ -54,7 +54,7 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 // @Summary New playlist
 // @Description creates a new playlist with optional video ID's.
 // @ID new-creator-playlist
-// @Tags creator, playlists
+// @Tags creator-playlists
 // @Accept json
 // @Param event body playlist.Playlist true "Playlist object"
 // @Success 201 body int "Playlist ID"
@@ -86,7 +86,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 // @Summary Update playlist
 // @Description Update a playlist, video ID's required otherwise it will remove all videos.
 // @ID update-creator-playlist
-// @Tags creator, playlists
+// @Tags creator-playlists
 // @Accept json
 // @Param quote body playlist.New true "Playlist object"
 // @Success 200

@@ -14,7 +14,7 @@ import (
 // @Summary Get video by ID
 // @Description Get a playlist including it's children files.
 // @ID get-creator-video
-// @Tags creator, videos
+// @Tags creator-videos
 // @Produce json
 // @Param videoid path int true "Video ID"
 // @Success 200 {object} video.Item
@@ -36,7 +36,7 @@ func (r *Repos) GetVideo(c echo.Context) error {
 // @Summary New video
 // @Description creates a new video, requires the file ID/name to find it in CDN.
 // @ID new-creator-video
-// @Tags creator, videos
+// @Tags creator-videos
 // @Accept json
 // @Param event body video.New true "NewVideo object"
 // @Success 201 body int "Video ID"
@@ -67,7 +67,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 // @Summary List all videos
 // @Description Lists all videos, doesn't include files inside.
 // @ID get-creator-videos-all
-// @Tags creator, videos
+// @Tags creator-videos
 // @Produce json
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/videos [get]
@@ -84,7 +84,7 @@ func (r *Repos) VideoList(c echo.Context) error {
 // @Summary List all videos created by user ID
 // @Description Lists all videos, doesn't include files inside. Uses the createdBy user ID.
 // @ID get-creator-videos-user
-// @Tags creator, videos
+// @Tags creator-videos
 // @Produce json
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/videos/my [get]
@@ -106,7 +106,7 @@ func (r *Repos) ListVideosByUser(c echo.Context) error {
 // @Summary List videos by month
 // @Description Lists videos by month.
 // @ID get-creator-videos-calendar
-// @Tags creator, videos
+// @Tags creator-videos
 // @Produce json
 // @Param year path int true "year"
 // @Param month path int true "month"

@@ -13,7 +13,7 @@ import (
 // @Summary Provides the current teams
 // @Description Lists the teams, their members, and info
 // @ID get-public-teams
-// @Tags public, teams
+// @Tags public-teams
 // @Produce json
 // @Success 200 {array} public.Team
 // @Router /v1/public/teams [get]
@@ -31,7 +31,7 @@ func (r *Repos) ListTeams(c echo.Context) error {
 // @Summary Provides the team of that year
 // @Description Contains members and a range of descriptions
 // @ID get-public-team
-// @Tags public, teams
+// @Tags public-teams
 // @Param teamid path int true "teamid"
 // @Produce json
 // @Success 200 {object} public.Team
@@ -54,7 +54,7 @@ func (r *Repos) GetTeam(c echo.Context) error {
 // @Summary Provides the team of a selected year
 // @Description Get the team and their members of that year
 // @ID get-public-team-year
-// @Tags public, teams
+// @Tags public-teams
 // @Param teamid path int true "teamid"
 // @Param year path int true "year"
 // @Produce json
@@ -82,7 +82,7 @@ func (r *Repos) GetTeamByYear(c echo.Context) error {
 // @Summary Provides the current officers
 // @Description Lists the current officers, including their info
 // @ID get-public-teams-officers-all
-// @Tags public, teams
+// @Tags public-teams
 // @Produce json
 // @Success 200 {array} public.TeamMember
 // @Router /v1/public/teams/officers [get]

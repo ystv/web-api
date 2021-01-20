@@ -17,7 +17,7 @@ import (
 // @Summary List webcams
 // @Description List webcams available to user by using the permission ID
 // @ID list-webcams
-// @Tags misc, webcams
+// @Tags misc-webcams
 // @Success 200 {array} misc.Webcam
 // @Router /v1/internal/misc/webcams [get]
 func (r *Repos) ListWebcams(c echo.Context) error {
@@ -44,7 +44,7 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 // @Summary Get webcam
 // @Description Reverse proxies the selected webcam returns the jpeg feed as a result.
 // @ID get-webcam
-// @Tags misc, webcams
+// @Tags misc-webcams
 // @Param cameraid path int true "Camera ID"
 // @Router /v1/internal/misc/webcams/{cameraid} [get]
 func (r *Repos) GetWebcam(c echo.Context) error {

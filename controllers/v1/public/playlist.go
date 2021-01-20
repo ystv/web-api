@@ -13,7 +13,7 @@ import (
 // @Summary Provides a playlist
 // @Description Returns a playlist object, includes videos (not videofiles) and metadata.
 // @ID get-public-playlist
-// @Tags public, playlist
+// @Tags public-playlist
 // @Param playlistid path int true "Playlist ID"
 // @Produce json
 // @Success 200 {object} public.Playlist

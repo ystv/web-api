@@ -13,7 +13,7 @@ import (
 // @Summary Provides a series
 // @Description Returns a series object, including the children videos and series.
 // @ID get-public-series
-// @Tags public, series
+// @Tags public-series
 // @Param seriesid path int true "Series ID"
 // @Produce json
 // @Success 200 {object} public.Series
@@ -37,7 +37,7 @@ func (r *Repos) SeriesByID(c echo.Context) error {
 // @Description Returns a series array, virtual series that contains child series / videos
 // @Description that were made in that year.
 // @ID get-public-series-year
-// @Tags public, series
+// @Tags public-series
 // @Param year path int true "Year"
 // @Produce json
 // @Success 200 {array} public.Series

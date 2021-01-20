@@ -11,7 +11,7 @@ import (
 // @Summary List all series
 // @Description Lists all series, doesn't include videos inside.
 // @ID get-creator-series-all
-// @Tags creator, series
+// @Tags creator-series
 // @Produce json
 // @Success 200 {array} series.Meta
 // @Router /v1/internal/creator/series [get]
@@ -27,7 +27,7 @@ func (r *Repos) ListSeries(c echo.Context) error {
 // @Summary Get series by ID
 // @Description Get a series including it's children videos.
 // @ID get-creator-series
-// @Tags creator, series
+// @Tags creator-series
 // @Produce json
 // @Param seriesid path int true "Series ID"
 // @Success 200 {object} series.Series

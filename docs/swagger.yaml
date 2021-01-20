@@ -268,6 +268,8 @@ definitions:
     type: object
   people.Permission:
     properties:
+      description:
+        type: string
       id:
         type: integer
       name:
@@ -1088,8 +1090,7 @@ paths:
             type: array
       summary: List videos by month
       tags:
-      - creator
-      - videos
+      - creator-videos
   /v1/internal/creator/encodes/presets:
     get:
       description: Lists all encode presets, these are groups of instructions (formats)
@@ -1106,8 +1107,7 @@ paths:
             type: array
       summary: List all encode presets
       tags:
-      - creator
-      - encodes
+      - creator-encodes
     post:
       consumes:
       - application/json
@@ -1127,8 +1127,7 @@ paths:
             type: body
       summary: New preset
       tags:
-      - creator
-      - encodes
+      - creator-encodes
     put:
       consumes:
       - application/json
@@ -1145,8 +1144,7 @@ paths:
         "200": {}
       summary: Update a preset
       tags:
-      - creator
-      - encodes
+      - creator-encodes
   /v1/internal/creator/encodes/profiles:
     get:
       description: Lists all encode formats, these are instructions for the encoder
@@ -1163,8 +1161,7 @@ paths:
             type: array
       summary: List all encode formats
       tags:
-      - creator
-      - encodes
+      - creator-encodes
   /v1/internal/creator/playlists:
     get:
       description: Lists all playlists, doesn't include videos inside.
@@ -1180,8 +1177,7 @@ paths:
             type: array
       summary: List all playlists
       tags:
-      - creator
-      - playlists
+      - creator-playlists
     post:
       consumes:
       - application/json
@@ -1201,8 +1197,7 @@ paths:
             type: body
       summary: New playlist
       tags:
-      - creator
-      - playlists
+      - creator-playlists
     put:
       consumes:
       - application/json
@@ -1220,8 +1215,7 @@ paths:
         "200": {}
       summary: Update playlist
       tags:
-      - creator
-      - playlists
+      - creator-playlists
   /v1/internal/creator/playlists/{playlistid}:
     get:
       description: Get a playlist including it's children videos.
@@ -1241,8 +1235,7 @@ paths:
             $ref: '#/definitions/playlist.Playlist'
       summary: Get playlist by ID
       tags:
-      - creator
-      - playlists
+      - creator-playlists
   /v1/internal/creator/series:
     get:
       description: Lists all series, doesn't include videos inside.
@@ -1258,8 +1251,7 @@ paths:
             type: array
       summary: List all series
       tags:
-      - creator
-      - series
+      - creator-series
   /v1/internal/creator/series/{seriesid}:
     get:
       description: Get a series including it's children videos.
@@ -1279,8 +1271,7 @@ paths:
             $ref: '#/definitions/series.Series'
       summary: Get series by ID
       tags:
-      - creator
-      - series
+      - creator-series
   /v1/internal/creator/stats:
     get:
       description: Gets the statistics about the global video library.
@@ -1295,7 +1286,6 @@ paths:
       summary: Get global video library information
       tags:
       - creator
-      - stats
   /v1/internal/creator/videos:
     get:
       description: Lists all videos, doesn't include files inside.
@@ -1311,8 +1301,7 @@ paths:
             type: array
       summary: List all videos
       tags:
-      - creator
-      - videos
+      - creator-videos
     post:
       consumes:
       - application/json
@@ -1332,8 +1321,7 @@ paths:
             type: body
       summary: New video
       tags:
-      - creator
-      - videos
+      - creator-videos
   /v1/internal/creator/videos/{videoid}:
     get:
       description: Get a playlist including it's children files.
@@ -1353,8 +1341,7 @@ paths:
             $ref: '#/definitions/video.Item'
       summary: Get video by ID
       tags:
-      - creator
-      - videos
+      - creator-videos
   /v1/internal/creator/videos/my:
     get:
       description: Lists all videos, doesn't include files inside. Uses the createdBy
@@ -1371,8 +1358,7 @@ paths:
             type: array
       summary: List all videos created by user ID
       tags:
-      - creator
-      - videos
+      - creator-videos
   /v1/internal/misc/list/{listid}:
     get:
       description: Get a mailing list. Provides list subscribers also
@@ -1392,8 +1378,7 @@ paths:
             $ref: '#/definitions/misc.List'
       summary: Get Mailing list
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/list/{listid}/subscribe:
     post:
       consumes:
@@ -1410,8 +1395,7 @@ paths:
         "201": {}
       summary: Subscribe to mailing list by token
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/list/{listid}/subscribe/{userid}:
     post:
       consumes:
@@ -1433,8 +1417,7 @@ paths:
         "201": {}
       summary: Subscribe to mailing list by user ID
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/list/{listid}/subscribers:
     get:
       description: Get a mailing list's subscribers
@@ -1454,8 +1437,7 @@ paths:
             $ref: '#/definitions/misc.List'
       summary: Get subscribers
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/list/{listid}/unsubscribe:
     delete:
       consumes:
@@ -1472,8 +1454,7 @@ paths:
         "200": {}
       summary: Unsubscribe to mailing list by token
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/list/{listid}/unsubscribe/{userid}:
     delete:
       consumes:
@@ -1495,8 +1476,7 @@ paths:
         "200": {}
       summary: Unsubscribe to mailing list by user ID
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/lists:
     get:
       description: Lists all mailing lists.
@@ -1512,8 +1492,7 @@ paths:
             type: array
       summary: Get Mailing lists
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/lists/my:
     get:
       description: Lists all mailing lists. Provides extra context for what the user
@@ -1530,8 +1509,7 @@ paths:
             type: array
       summary: Get Mailing lists by token
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/internal/misc/quotes:
     post:
       consumes:
@@ -1554,8 +1532,7 @@ paths:
             $ref: '#/definitions/int'
       summary: New quote
       tags:
-      - misc
-      - quotes
+      - misc-quotes
     put:
       consumes:
       - application/json
@@ -1574,8 +1551,7 @@ paths:
         "200": {}
       summary: Update quote
       tags:
-      - misc
-      - quotes
+      - misc-quotes
   /v1/internal/misc/quotes/{amount}/{page}:
     get:
       description: Lists quotes by pagination.
@@ -1602,8 +1578,7 @@ paths:
             type: array
       summary: List quotes
       tags:
-      - misc
-      - quotes
+      - misc-quotes
   /v1/internal/misc/quotes/{quoteid}:
     delete:
       description: deletes a quote by ID.
@@ -1618,8 +1593,7 @@ paths:
         "200": {}
       summary: Delete quote
       tags:
-      - misc
-      - quotes
+      - misc-quotes
   /v1/internal/misc/webcams:
     get:
       description: List webcams available to user by using the permission ID
@@ -1633,8 +1607,7 @@ paths:
             type: array
       summary: List webcams
       tags:
-      - misc
-      - webcams
+      - misc-webcams
   /v1/internal/misc/webcams/{cameraid}:
     get:
       description: Reverse proxies the selected webcam returns the jpeg feed as a
@@ -1648,8 +1621,7 @@ paths:
         type: integer
       summary: Get webcam
       tags:
-      - misc
-      - webcams
+      - misc-webcams
   /v1/internal/people/user:
     get:
       description: Get a basic user object by JWT token generated by web-auth.
@@ -1663,7 +1635,7 @@ paths:
             $ref: '#/definitions/people.User'
       summary: Get a user by token
       tags:
-      - users
+      - people-user
   /v1/internal/people/user/{userid}:
     get:
       description: Get a basic user object by ID.
@@ -1683,7 +1655,7 @@ paths:
             $ref: '#/definitions/people.User'
       summary: Get a user by ID
       tags:
-      - users
+      - people-user
   /v1/internal/people/user/{userid}/full:
     get:
       description: Get a complete user object by ID.
@@ -1703,7 +1675,7 @@ paths:
             $ref: '#/definitions/people.User'
       summary: Get a full user by ID
       tags:
-      - users
+      - people-user
   /v1/internal/people/user/full:
     get:
       description: Get a complete user object by JWT token generated by web-auth.
@@ -1717,7 +1689,43 @@ paths:
             $ref: '#/definitions/people.UserFull'
       summary: Get a full user by token
       tags:
-      - users
+      - people-user
+  /v1/internal/people/users:
+    get:
+      operationId: get-people-users-all
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/misc.List'
+            type: array
+      summary: List all users
+      tags:
+      - people-users
+  /v1/internal/people/users/{roleid}:
+    get:
+      operationId: get-people-users-roles-members
+      parameters:
+      - description: Role ID
+        in: path
+        name: roleid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/misc.List'
+            type: array
+      summary: List all users of a given role
+      tags:
+      - people-users
   /v1/list_unsubscribe/{uuid}:
     get:
       consumes:
@@ -1734,8 +1742,7 @@ paths:
         "200": {}
       summary: Unsubscribe to mailing list by subscriber UUID
       tags:
-      - misc
-      - list
+      - misc-list
   /v1/public/find/{url}:
     get:
       description: Allows us to remain backwards compatible with the existing URLs
@@ -1755,8 +1762,7 @@ paths:
             $ref: '#/definitions/public.BreadcrumbItem'
       summary: Converts a VOD url to either a series or video
       tags:
-      - public
-      - breadcrumb
+      - public-breadcrumb
   /v1/public/playlist/{seriesid}:
     get:
       description: Returns a playlist object, includes videos (not videofiles) and
@@ -1777,8 +1783,7 @@ paths:
             $ref: '#/definitions/public.Playlist'
       summary: Provides a playlist
       tags:
-      - public
-      - playlist
+      - public-playlist
   /v1/public/series/{seriesid}:
     get:
       description: Returns a series object, including the children videos and series.
@@ -1798,8 +1803,7 @@ paths:
             $ref: '#/definitions/public.Series'
       summary: Provides a series
       tags:
-      - public
-      - series
+      - public-series
   /v1/public/series/{seriesid}/breadcrumb:
     get:
       description: Returns a path of series to a series
@@ -1819,8 +1823,7 @@ paths:
             $ref: '#/definitions/public.Breadcrumb'
       summary: Provides a breadcrumb for a series
       tags:
-      - public
-      - breadcrumb
+      - public-breadcrumb
   /v1/public/series/yearly/{year}:
     get:
       description: |-
@@ -1844,8 +1847,7 @@ paths:
             type: array
       summary: Series of a year
       tags:
-      - public
-      - series
+      - public-series
   /v1/public/teams:
     get:
       description: Lists the teams, their members, and info
@@ -1861,8 +1863,7 @@ paths:
             type: array
       summary: Provides the current teams
       tags:
-      - public
-      - teams
+      - public-teams
   /v1/public/teams/{teamid}:
     get:
       description: Contains members and a range of descriptions
@@ -1882,8 +1883,7 @@ paths:
             $ref: '#/definitions/public.Team'
       summary: Provides the team of that year
       tags:
-      - public
-      - teams
+      - public-teams
   /v1/public/teams/{teamid}/{year}:
     get:
       description: Get the team and their members of that year
@@ -1908,8 +1908,7 @@ paths:
             $ref: '#/definitions/public.Team'
       summary: Provides the team of a selected year
       tags:
-      - public
-      - teams
+      - public-teams
   /v1/public/teams/officers:
     get:
       description: Lists the current officers, including their info
@@ -1925,8 +1924,7 @@ paths:
             type: array
       summary: Provides the current officers
       tags:
-      - public
-      - teams
+      - public-teams
   /v1/public/video/{videoid}:
     get:
       description: Returns a video item. Including the video files.
@@ -1946,8 +1944,7 @@ paths:
             $ref: '#/definitions/public.VideoItem'
       summary: Provides a video item
       tags:
-      - public
-      - video
+      - public-video
   /v1/public/video/{videoid}/breadcrumb:
     get:
       description: Returns a path of series to a video
@@ -1967,8 +1964,7 @@ paths:
             $ref: '#/definitions/public.Breadcrumb'
       summary: Provides a breadcrumb for a video
       tags:
-      - public
-      - breadcrumb
+      - public-breadcrumb
   /v1/public/videos/{offset}/{page}:
     get:
       description: List of video meta's in order of broadcast date.
@@ -1995,6 +1991,5 @@ paths:
             type: array
       summary: Provides a list of videos
       tags:
-      - public
-      - video
+      - public-video
 swagger: "2.0"

@@ -14,7 +14,7 @@ import (
 // @Summary Get Mailing lists
 // @Description Lists all mailing lists.
 // @ID get-mailing-lists
-// @Tags misc, list
+// @Tags misc-list
 // @Produce json
 // @Success 200 {array} misc.List
 // @Router /v1/internal/misc/lists [get]
@@ -33,7 +33,7 @@ func (r *Repos) GetLists(c echo.Context) error {
 // @Summary Get Mailing lists by token
 // @Description Lists all mailing lists. Provides extra context for what the user has subscribed too
 // @ID get-mailing-lists-token
-// @Tags misc, list
+// @Tags misc-list
 // @Produce json
 // @Success 200 {array} misc.List
 // @Router /v1/internal/misc/lists/my [get]
@@ -56,7 +56,7 @@ func (r *Repos) GetListsByToken(c echo.Context) error {
 // @Summary Get Mailing list
 // @Description Get a mailing list. Provides list subscribers also
 // @ID get-mailing-list-id
-// @Tags misc, list
+// @Tags misc-list
 // @Produce json
 // @Param listid path int true "List ID"
 // @Success 200 {object} misc.List
@@ -79,7 +79,7 @@ func (r *Repos) GetList(c echo.Context) error {
 // @Summary Get subscribers
 // @Description Get a mailing list's subscribers
 // @ID get-mailing-list-subscribers-id
-// @Tags misc, list
+// @Tags misc-list
 // @Produce json
 // @Param listid path int true "List ID"
 // @Success 200 {object} misc.List
@@ -102,7 +102,7 @@ func (r *Repos) GetSubscribers(c echo.Context) error {
 // @Summary Subscribe to mailing list by token
 // @Description Subscribe to a mailing list by a JWT
 // @ID new-mailing-list-subscriber-token
-// @Tags misc, list
+// @Tags misc-list
 // @Accept json
 // @Param listid path int true "List ID"
 // @Success 201
@@ -130,7 +130,7 @@ func (r *Repos) SubscribeByToken(c echo.Context) error {
 // @Summary Subscribe to mailing list by user ID
 // @Description Subscribe to a mailing list by a user ID
 // @ID new-mailing-list-subscriber-id
-// @Tags misc, list
+// @Tags misc-list
 // @Accept json
 // @Param listid path int true "List ID"
 // @Param userid path int true "User ID"
@@ -158,7 +158,7 @@ func (r *Repos) SubscribeByID(c echo.Context) error {
 // @Summary Unsubscribe to mailing list by token
 // @Description Unsubscribe to a mailing list by a JWT
 // @ID delete-mailing-list-subscriber-token
-// @Tags misc, list
+// @Tags misc-list
 // @Accept json
 // @Param listid path int true "List ID"
 // @Success 200
@@ -186,7 +186,7 @@ func (r *Repos) UnsubscribeByToken(c echo.Context) error {
 // @Summary Unsubscribe to mailing list by user ID
 // @Description Unsubscribe to a mailing list by a user ID
 // @ID delete-mailing-list-subscriber-id
-// @Tags misc, list
+// @Tags misc-list
 // @Accept json
 // @Param listid path int true "List ID"
 // @Param userid path int true "User ID"
@@ -214,7 +214,7 @@ func (r *Repos) UnsubscribeByID(c echo.Context) error {
 // @Summary Unsubscribe to mailing list by subscriber UUID
 // @Description Unsubscribe to a mailing list by a subscriber UUID
 // @ID delete-mailing-list-subscriber-uuid
-// @Tags misc, list
+// @Tags misc-list
 // @Accept json
 // @Param uuid path int true "Subscriber UUID"
 // @Success 200

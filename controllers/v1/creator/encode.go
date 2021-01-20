@@ -14,7 +14,7 @@ import (
 // @Summary List all encode formats
 // @Description Lists all encode formats, these are instructions for the encoder to create the video
 // @ID get-creator-encodes-formats
-// @Tags creator, encodes
+// @Tags creator-encodes
 // @Produce json
 // @Success 200 {array} encode.Format
 // @Router /v1/internal/creator/encodes/profiles [get]
@@ -31,7 +31,7 @@ func (r *Repos) ListEncodeProfile(c echo.Context) error {
 // @Summary List all encode presets
 // @Description Lists all encode presets, these are groups of instructions (formats) for the encoder to create the video
 // @ID get-creator-encodes-presets
-// @Tags creator, encodes
+// @Tags creator-encodes
 // @Produce json
 // @Success 200 {array} encode.Preset
 // @Router /v1/internal/creator/encodes/presets [get]
@@ -48,7 +48,7 @@ func (r *Repos) ListPreset(c echo.Context) error {
 // @Summary New preset
 // @Description creates a new preset.
 // @ID new-creator-encodes-preset
-// @Tags creator, encodes
+// @Tags creator-encodes
 // @Accept json
 // @Param event body encode.Preset true "Preset object"
 // @Success 201 body int "Preset ID"
@@ -72,7 +72,7 @@ func (r *Repos) NewPreset(c echo.Context) error {
 // @Summary Update a preset
 // @Description updates an preset
 // @ID update-creator-encodes-preset
-// @Tags creator, encodes
+// @Tags creator-encodes
 // @Accept json
 // @Param quote body encode.Preset true "Preset object"
 // @Success 200

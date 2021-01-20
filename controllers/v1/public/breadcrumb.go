@@ -15,7 +15,7 @@ import (
 // @Summary Converts a VOD url to either a series or video
 // @Description Allows us to remain backwards compatible with the existing URLs
 // @ID get-public-breadcrumb-find
-// @Tags public, breadcrumb
+// @Tags public-breadcrumb
 // @Param url path string true "URL Path"
 // @Produce json
 // @Success 200 {object} public.BreadcrumbItem
@@ -46,7 +46,7 @@ func (r *Repos) Find(c echo.Context) error {
 // @Summary Provides a breadcrumb for a video
 // @Description Returns a path of series to a video
 // @ID get-public-breadcrumb-video
-// @Tags public, breadcrumb
+// @Tags public-breadcrumb
 // @Param videoid path int true "Video ID"
 // @Produce json
 // @Success 200 {object} public.Breadcrumb
@@ -69,7 +69,7 @@ func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 // @Summary Provides a breadcrumb for a series
 // @Description Returns a path of series to a series
 // @ID get-public-breadcrumb-series
-// @Tags public, breadcrumb
+// @Tags public-breadcrumb
 // @Param seriesid path int true "Series ID"
 // @Produce json
 // @Success 200 {object} public.Breadcrumb

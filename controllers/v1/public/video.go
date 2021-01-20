@@ -13,7 +13,7 @@ import (
 // @Summary Provides a video item
 // @Description Returns a video item. Including the video files.
 // @ID get-public-video
-// @Tags public, video
+// @Tags public-video
 // @Param videoid path int true "Video ID"
 // @Produce json
 // @Success 200 {object} public.VideoItem
@@ -36,7 +36,7 @@ func (r *Repos) Video(c echo.Context) error {
 // @Summary Provides a list of videos
 // @Description List of video meta's in order of broadcast date.
 // @ID get-public-videos
-// @Tags public, video
+// @Tags public-video
 // @Param offset path int true "Offset"
 // @Param page path int true "Page"
 // @Produce json

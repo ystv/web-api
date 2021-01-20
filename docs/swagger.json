@@ -496,8 +496,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "videos"
+                    "creator-videos"
                 ],
                 "summary": "List videos by month",
                 "operationId": "get-creator-videos-calendar",
@@ -537,8 +536,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "encodes"
+                    "creator-encodes"
                 ],
                 "summary": "List all encode presets",
                 "operationId": "get-creator-encodes-presets",
@@ -560,8 +558,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "encodes"
+                    "creator-encodes"
                 ],
                 "summary": "Update a preset",
                 "operationId": "update-creator-encodes-preset",
@@ -586,8 +583,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "encodes"
+                    "creator-encodes"
                 ],
                 "summary": "New preset",
                 "operationId": "new-creator-encodes-preset",
@@ -619,8 +615,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "encodes"
+                    "creator-encodes"
                 ],
                 "summary": "List all encode formats",
                 "operationId": "get-creator-encodes-formats",
@@ -644,8 +639,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "playlists"
+                    "creator-playlists"
                 ],
                 "summary": "List all playlists",
                 "operationId": "get-creator-playlists-all",
@@ -667,8 +661,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "playlists"
+                    "creator-playlists"
                 ],
                 "summary": "Update playlist",
                 "operationId": "update-creator-playlist",
@@ -693,8 +686,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "playlists"
+                    "creator-playlists"
                 ],
                 "summary": "New playlist",
                 "operationId": "new-creator-playlist",
@@ -726,8 +718,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "playlists"
+                    "creator-playlists"
                 ],
                 "summary": "Get playlist by ID",
                 "operationId": "get-creator-playlist",
@@ -757,8 +748,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "series"
+                    "creator-series"
                 ],
                 "summary": "List all series",
                 "operationId": "get-creator-series-all",
@@ -782,8 +772,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "series"
+                    "creator-series"
                 ],
                 "summary": "Get series by ID",
                 "operationId": "get-creator-series",
@@ -813,8 +802,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "stats"
+                    "creator"
                 ],
                 "summary": "Get global video library information",
                 "operationId": "get-creator-glob-stats",
@@ -835,8 +823,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "videos"
+                    "creator-videos"
                 ],
                 "summary": "List all videos",
                 "operationId": "get-creator-videos-all",
@@ -858,8 +845,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "videos"
+                    "creator-videos"
                 ],
                 "summary": "New video",
                 "operationId": "new-creator-video",
@@ -891,8 +877,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "videos"
+                    "creator-videos"
                 ],
                 "summary": "List all videos created by user ID",
                 "operationId": "get-creator-videos-user",
@@ -916,8 +901,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "creator",
-                    "videos"
+                    "creator-videos"
                 ],
                 "summary": "Get video by ID",
                 "operationId": "get-creator-video",
@@ -947,8 +931,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Get Mailing list",
                 "operationId": "get-mailing-list-id",
@@ -978,8 +961,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Subscribe to mailing list by token",
                 "operationId": "new-mailing-list-subscriber-token",
@@ -1004,8 +986,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Subscribe to mailing list by user ID",
                 "operationId": "new-mailing-list-subscriber-id",
@@ -1037,8 +1018,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Get subscribers",
                 "operationId": "get-mailing-list-subscribers-id",
@@ -1068,8 +1048,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Unsubscribe to mailing list by token",
                 "operationId": "delete-mailing-list-subscriber-token",
@@ -1094,8 +1073,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Unsubscribe to mailing list by user ID",
                 "operationId": "delete-mailing-list-subscriber-id",
@@ -1127,8 +1105,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Get Mailing lists",
                 "operationId": "get-mailing-lists",
@@ -1152,8 +1129,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Get Mailing lists by token",
                 "operationId": "get-mailing-lists-token",
@@ -1177,8 +1153,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "quotes"
+                    "misc-quotes"
                 ],
                 "summary": "Update quote",
                 "operationId": "update-quote",
@@ -1203,8 +1178,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "quotes"
+                    "misc-quotes"
                 ],
                 "summary": "New quote",
                 "operationId": "new-quote",
@@ -1236,8 +1210,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "quotes"
+                    "misc-quotes"
                 ],
                 "summary": "List quotes",
                 "operationId": "get-quotes",
@@ -1274,8 +1247,7 @@
             "delete": {
                 "description": "deletes a quote by ID.",
                 "tags": [
-                    "misc",
-                    "quotes"
+                    "misc-quotes"
                 ],
                 "summary": "Delete quote",
                 "operationId": "delete-quote",
@@ -1297,8 +1269,7 @@
             "get": {
                 "description": "List webcams available to user by using the permission ID",
                 "tags": [
-                    "misc",
-                    "webcams"
+                    "misc-webcams"
                 ],
                 "summary": "List webcams",
                 "operationId": "list-webcams",
@@ -1319,8 +1290,7 @@
             "get": {
                 "description": "Reverse proxies the selected webcam returns the jpeg feed as a result.",
                 "tags": [
-                    "misc",
-                    "webcams"
+                    "misc-webcams"
                 ],
                 "summary": "Get webcam",
                 "operationId": "get-webcam",
@@ -1342,7 +1312,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "people-user"
                 ],
                 "summary": "Get a user by token",
                 "operationId": "get-user-token",
@@ -1363,7 +1333,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "people-user"
                 ],
                 "summary": "Get a full user by token",
                 "operationId": "get-user-token-full",
@@ -1384,7 +1354,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "people-user"
                 ],
                 "summary": "Get a user by ID",
                 "operationId": "get-user-id",
@@ -1414,7 +1384,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "people-user"
                 ],
                 "summary": "Get a full user by ID",
                 "operationId": "get-user-id-full",
@@ -1437,6 +1407,61 @@
                 }
             }
         },
+        "/v1/internal/people/users": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-users"
+                ],
+                "summary": "List all users",
+                "operationId": "get-people-users-all",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/misc.List"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/users/{roleid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-users"
+                ],
+                "summary": "List all users of a given role",
+                "operationId": "get-people-users-roles-members",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/misc.List"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/list_unsubscribe/{uuid}": {
             "get": {
                 "description": "Unsubscribe to a mailing list by a subscriber UUID",
@@ -1444,8 +1469,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "misc",
-                    "list"
+                    "misc-list"
                 ],
                 "summary": "Unsubscribe to mailing list by subscriber UUID",
                 "operationId": "delete-mailing-list-subscriber-uuid",
@@ -1470,8 +1494,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "breadcrumb"
+                    "public-breadcrumb"
                 ],
                 "summary": "Converts a VOD url to either a series or video",
                 "operationId": "get-public-breadcrumb-find",
@@ -1501,8 +1524,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "playlist"
+                    "public-playlist"
                 ],
                 "summary": "Provides a playlist",
                 "operationId": "get-public-playlist",
@@ -1532,8 +1554,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "series"
+                    "public-series"
                 ],
                 "summary": "Series of a year",
                 "operationId": "get-public-series-year",
@@ -1566,8 +1587,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "series"
+                    "public-series"
                 ],
                 "summary": "Provides a series",
                 "operationId": "get-public-series",
@@ -1597,8 +1617,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "breadcrumb"
+                    "public-breadcrumb"
                 ],
                 "summary": "Provides a breadcrumb for a series",
                 "operationId": "get-public-breadcrumb-series",
@@ -1628,8 +1647,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "teams"
+                    "public-teams"
                 ],
                 "summary": "Provides the current teams",
                 "operationId": "get-public-teams",
@@ -1653,8 +1671,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "teams"
+                    "public-teams"
                 ],
                 "summary": "Provides the current officers",
                 "operationId": "get-public-teams-officers-all",
@@ -1678,8 +1695,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "teams"
+                    "public-teams"
                 ],
                 "summary": "Provides the team of that year",
                 "operationId": "get-public-team",
@@ -1709,8 +1725,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "teams"
+                    "public-teams"
                 ],
                 "summary": "Provides the team of a selected year",
                 "operationId": "get-public-team-year",
@@ -1747,8 +1762,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "video"
+                    "public-video"
                 ],
                 "summary": "Provides a video item",
                 "operationId": "get-public-video",
@@ -1778,8 +1792,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "breadcrumb"
+                    "public-breadcrumb"
                 ],
                 "summary": "Provides a breadcrumb for a video",
                 "operationId": "get-public-breadcrumb-video",
@@ -1809,8 +1822,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "public",
-                    "video"
+                    "public-video"
                 ],
                 "summary": "Provides a list of videos",
                 "operationId": "get-public-videos",
@@ -2255,6 +2267,9 @@
         "people.Permission": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
