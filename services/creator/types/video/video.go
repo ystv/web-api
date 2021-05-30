@@ -32,18 +32,21 @@ type (
 		URL           string         `db:"url" json:"url"`
 		Description   string         `db:"description" json:"description,omitempty"` // when listing description isn't included
 		Thumbnail     string         `db:"thumbnail" json:"thumbnail"`
-		Duration      string         `db:"duration" json:"duration"`
+		Duration      int            `db:"duration" json:"duration"`
 		Views         int            `db:"views" json:"views"`
 		Tags          pq.StringArray `db:"tags" json:"tags"`
 		Status        string         `db:"status" json:"status"`
 		Preset        `json:"preset"`
-		BroadcastDate time.Time `db:"broadcast_date" json:"broadcastDate"`
-		CreatedAt     time.Time `db:"created_at" json:"createdAt"`
-		CreatedBy     User      `json:"createdBy"`
-		UpdatedAt     null.Time `db:"updated_at" json:"updatedAt"`
-		UpdatedBy     *User     `json:"updatedBy"`
-		DeletedAt     null.Time `db:"deleted_at" json:"deletedAt"`
-		DeletedBy     *User     `json:"deletedBy"`
+		BroadcastDate time.Time   `db:"broadcast_date" json:"broadcastDate"`
+		CreatedAt     time.Time   `db:"created_at" json:"createdAt"`
+		CreatedByID   int         `db:"created_by_id" json:"createdByID"`
+		CreatedByNick string      `db:"created_by_nick" json:"createdByNick"`
+		UpdatedAt     null.Time   `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedByID   null.Int    `db:"updated_by_nick" json:"updatedByID,omitempty"`
+		UpdatedByNick null.String `db:"updated_by_nick" json:"updatedByNick,omitempty"`
+		DeletedAt     null.Time   `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedByID   null.Int    `db:"deleted_by_id" json:"deleteByID,omitempty"`
+		DeletedByNick null.String `db:"deleted_by_nick" json:"deleteByNick,omitempty"`
 	}
 	// MetaCal represents simple metadata for a calendar
 	MetaCal struct {

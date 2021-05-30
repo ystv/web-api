@@ -3,9 +3,9 @@ package public
 import (
 	"context"
 	"fmt"
+	"time"
 
 	_ "github.com/lib/pq" // for DB, although likely not needed
-	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -24,15 +24,15 @@ type (
 	}
 	// VideoMeta represents basic information about the videoitem used for listing.
 	VideoMeta struct {
-		VideoID       int         `db:"video_id" json:"id"`
-		SeriesID      int         `db:"series_id" json:"seriesID"`
-		Name          string      `db:"name" json:"name"`
-		URL           string      `db:"url" json:"url"`
-		Description   string      `db:"description" json:"description"`
-		Thumbnail     null.String `db:"thumbnail" json:"thumbnail"`
-		BroadcastDate string      `db:"broadcast_date" json:"broadcastDate"`
-		Views         int         `db:"views" json:"views"`
-		Duration      null.Int    `db:"duration" json:"duration"`
+		VideoID       int       `db:"video_id" json:"id"`
+		SeriesID      int       `db:"series_id" json:"seriesID"`
+		Name          string    `db:"name" json:"name"`
+		URL           string    `db:"url" json:"url"`
+		Description   string    `db:"description" json:"description"`
+		Thumbnail     string    `db:"thumbnail" json:"thumbnail"`
+		BroadcastDate time.Time `db:"broadcast_date" json:"broadcastDate"`
+		Views         int       `db:"views" json:"views"`
+		Duration      int       `db:"duration" json:"duration"`
 	}
 )
 
@@ -45,8 +45,7 @@ func (m *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMe
 	// TODO Do a double check on if we need to convert broadcast date
 	err := m.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
-		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
-		views, EXTRACT(EPOCH FROM duration)::int AS duration
+		broadcast_date,	views, duration
 		FROM video.items
 		WHERE status = 'public'
 		ORDER BY broadcast_date DESC
@@ -62,8 +61,7 @@ func (m *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
 	v := VideoItem{}
 	err := m.db.GetContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
-	views, EXTRACT(EPOCH FROM duration)::int AS duration,
-	trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date
+	views, duration, broadcast_date
 	FROM video.items
 	WHERE video_id = $1
 	AND status = 'public'
@@ -90,8 +88,7 @@ func (m *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, e
 	v := []VideoMeta{}
 	err := m.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
-		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
-		views, EXTRACT(EPOCH FROM duration)::int AS duration
+		broadcast_date,	views, duration
 		FROM video.items
 		WHERE series_id = $1 AND status = 'public'
 		ORDER BY series_position ASC;`, seriesID)

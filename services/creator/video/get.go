@@ -12,9 +12,9 @@ func (s *Store) GetItem(ctx context.Context, id int) (*video.Item, error) {
 	v := video.Item{}
 	err := s.db.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
-		item.description, item.thumbnail, EXTRACT(EPOCH FROM item.duration)::int AS duration,
-		item.views, item.tags, item.status,	preset.id preset_id, preset.name preset_name,
-		broadcast_date, item.created_at, users.user_id, users.nickname
+		item.description, item.thumbnail, duration,	item.views, item.tags,
+		item.status, preset.id preset_id, preset.name preset_name, broadcast_date,
+		item.created_at, users.user_id AS created_by_id, users.nickname AS created_by_nick
 		FROM video.items item
 			LEFT JOIN video.presets preset ON item.preset = preset.id
         	INNER JOIN people.users users ON users.user_id = item.created_by
@@ -41,9 +41,7 @@ func (s *Store) ListMeta(ctx context.Context) (*[]video.Meta, error) {
 	v := []video.Meta{}
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
-		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
-		status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
-		trim(both '"' from to_json(created_at)::text) AS created_at
+		duration, views, tags, status, broadcast_date,	created_at
 		FROM video.items
 		ORDER BY broadcast_date DESC;`)
 	return &v, err
@@ -54,9 +52,7 @@ func (s *Store) ListMetaByUser(ctx context.Context, userID int) (*[]video.Meta, 
 	v := []video.Meta{}
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
-		EXTRACT(EPOCH FROM duration)::int AS duration, views, tags,
-		status, trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
-		trim(both '"' from to_json(created_at)::text) AS created_at
+		duration, views, tags, status, broadcast_date, created_at
 		FROM video.items
 		WHERE created_by = $1
 		ORDER BY broadcast_date DESC;`, userID)
@@ -67,8 +63,7 @@ func (s *Store) ListMetaByUser(ctx context.Context, userID int) (*[]video.Meta, 
 func (s *Store) ListByCalendarMonth(ctx context.Context, year, month int) (*[]video.MetaCal, error) {
 	v := []video.MetaCal{}
 	err := s.db.SelectContext(ctx, &v,
-		`SELECT video_id, name, status,
-		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date
+		`SELECT video_id, name, status, broadcast_date
 		FROM video.items
 		WHERE EXTRACT(YEAR FROM broadcast_date) = $1 AND
 		EXTRACT(MONTH FROM broadcast_date) = $2;`, year, month)
@@ -80,9 +75,8 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, erro
 	v := []video.Meta{}
 	//TODO Update this select to fill all fields
 	err := s.db.Select(&v,
-		`SELECT video_id, series_id, name video_name, url,
-		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
-		views, EXTRACT(EPOCH FROM duration)::int AS duration
+		`SELECT video_id, series_id, name video_name, url, broadcast_date,
+		views, duration
 		FROM video.items
 		WHERE series_id = $1 AND status = 'public';`, seriesID)
 	return &v, err

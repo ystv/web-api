@@ -6,7 +6,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/public"
-	"gopkg.in/guregu/null.v4"
 )
 
 // StreamMeta contains basic stream information
@@ -26,8 +25,8 @@ func StreamList(c echo.Context) error {
 				Name:          "Comedy Night Live",
 				URL:           "cnl",
 				Description:   "ComedySoc does the most funny comedy!",
-				Thumbnail:     null.NewString("https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg", true),
-				BroadcastDate: time.Now().String(),
+				Thumbnail:     "https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg",
+				BroadcastDate: time.Now(),
 				Views:         58,
 			},
 			Status: "live",
@@ -39,8 +38,8 @@ func StreamList(c echo.Context) error {
 				Name:          "Comedy Night Live: After party",
 				URL:           "cnl-after",
 				Description:   "Join us for a lovely after-party!",
-				Thumbnail:     null.NewString("https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg", true),
-				BroadcastDate: time.Now().String(),
+				Thumbnail:     "https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg",
+				BroadcastDate: time.Now(),
 				Views:         58,
 			},
 			Status: "scheduled",
@@ -52,8 +51,8 @@ func StreamList(c echo.Context) error {
 				Name:          "SwimSoc",
 				Description:   "Get them in the pool!",
 				URL:           "swim",
-				Thumbnail:     null.NewString("https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg", true),
-				BroadcastDate: time.Now().String(),
+				Thumbnail:     "https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg",
+				BroadcastDate: time.Now(),
 				Views:         235,
 			},
 			Status: "recent",
@@ -70,8 +69,8 @@ func StreamFind(c echo.Context) error {
 		Name:          "Comedy Night Live",
 		URL:           "cnl",
 		Description:   "ComedySoc does the most funny comedy!",
-		Thumbnail:     null.NewString("https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg", true),
-		BroadcastDate: time.Now().String(),
+		Thumbnail:     "https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg",
+		BroadcastDate: time.Now(),
 		Views:         58,
 	},
 		Status: "live"}
@@ -87,8 +86,8 @@ func StreamHome(c echo.Context) error {
 		Name:          "Comedy Night Live",
 		URL:           "cnl",
 		Description:   "ComedySoc does the most funny comedy!",
-		Thumbnail:     null.NewString("https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg", true),
-		BroadcastDate: time.Now().String(),
+		Thumbnail:     "https://ystv.co.uk/static/images/videos/thumbnails/02331.jpg",
+		BroadcastDate: time.Now(),
 		Views:         58,
 	},
 		Status: "live"}
