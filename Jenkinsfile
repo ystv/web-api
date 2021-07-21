@@ -66,6 +66,7 @@ pipeline {
                         sh 'docker image prune -a -f --filter "label=site=api"' // remove old image
                     }
                 }
+            }
         }
     }
     post {
