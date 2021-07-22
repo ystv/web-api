@@ -38,8 +38,8 @@ pipeline {
                     steps {
                         sshagent(credentials : ['staging-server-key']) {
                             script {
-                                sh 'rsync -av $APP_ENV deploy@TARGET_SERVER:$TARGET_PATH/web-api/.env'
-                                sh '''ssh -tt deploy@web << EOF
+                                sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
+                                sh '''ssh -tt deploy@$TARGET_SERVER << EOF
                                     docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
                                     docker rm -f ystv-web-api
                                     docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
@@ -63,7 +63,7 @@ pipeline {
                         sshagent(credentials : ['prod-server-key']) {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
-                                sh '''ssh -tt deploy@web << EOF
+                                sh '''ssh -tt deploy@$TARGET_SERVER << EOF
                                     docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
                                     docker rm -f ystv-web-api
                                     docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
