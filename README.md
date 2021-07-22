@@ -142,6 +142,10 @@ Then fill in the docker-compose file with your credentials.
 
 `docker-compose up -d --build`
 
+### Jenkins
+
+Checkout this [document](ci).
+
 ## Developing
 
 Developed on Go version 1.14+
