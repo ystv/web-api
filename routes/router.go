@@ -40,6 +40,7 @@ type Router struct {
 type NewRouter struct {
 	Version       string
 	Commit        string
+	DomainName    string
 	JWTSigningKey string
 	Debug         bool
 	Clapper       *clapperPackage.Repos
@@ -72,7 +73,7 @@ func New(conf *NewRouter) *Router {
 	r.router.Debug = conf.Debug
 
 	// Authentication middleware
-	middleware.Init(r.router)
+	middleware.New(r.router, conf.DomainName)
 
 	r.loadRoutes()
 

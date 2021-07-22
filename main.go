@@ -90,6 +90,7 @@ func main() {
 	routes.New(&routes.NewRouter{
 		Version:       Version,
 		Commit:        Commit,
+		DomainName:    os.Getenv("WAPI_DOMAIN_NAME"),
 		Debug:         debug,
 		JWTSigningKey: os.Getenv("WAPI_SIGNING_KEY"),
 		Clapper:       clapper.NewRepos(db),
