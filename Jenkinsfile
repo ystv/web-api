@@ -1,63 +1,79 @@
 pipeline {
     agent any
 
+    environment {
+        REGISTRY_ENDPOINT = credentials('docker-registry-endpoint')
+    }
+
     stages {
         stage('Update Components') {
-            when {
-                anyOf {
-                    branch 'master'
-                    }
-                }
             steps {
-                echo "Updating"
-                sh "docker pull golang:1.15-alpine" // Update with current go image
+                sh "docker pull golang:1.16-alpine" // Update with current Go image
             }
         }
         stage('Build') {
-            when {
-                anyOf {
-                    branch 'master'
-                    }
-                }
             steps {
-                echo "Building"
-                sh "docker build -t localhost:5000/ystv/web-api:$BUILD_ID ."
+                sh 'docker build -t $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID .'
             }
         }
-        stage('Upload & Cleanup') {
-            when {
-                anyOf {
-                    branch 'master'
-                    }
-                }
+        stage('Registry Upload') {
             steps {
-                echo "Uploading To Registry"
-                sh "docker push localhost:5000/ystv/web-api:$BUILD_ID" // Uploaded to registry
-                echo "Performing Cleanup"
-                sh "docker image prune -f --filter label=site=api --filter label=stage=builder" // Removing the local builder image
-                sh "docker image rm localhost:5000/ystv/web-api:$BUILD_ID" // Removing the local builder image
+                sh 'docker push $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID' // Uploaded to registry
             }
         }
         stage('Deploy') {
-            when {
-                anyOf {
-                    branch 'master'
+            stages {
+                stage('Staging') {
+                    when {
+                        branch 'master'
+                        not {
+                            expression { return env.TAG_NAME ==~ /v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/ }
+                        }
+                    }
+                    environment {
+                        APP_ENV = credentials('wapi-staging-env')
+                        TARGET_SERVER = credentials('staging-server-address')
+                        TARGET_PATH = credentials('staging-server-path')
+                    }
+                    steps {
+                        sshagent(credentials : ['staging-server-key']) {
+                            script {
+                                sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
+                                sh '''ssh -tt deploy@$TARGET_SERVER << EOF
+                                    docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    docker rm -f ystv-web-api
+                                    docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    docker image prune -a -f --filter "label=site=api"
+                                    exit 0
+                                EOF'''
+                            }
+                        }
                     }
                 }
-            steps {
-                echo "Deploying"
-                sh "docker pull localhost:5000/ystv/web-api:$BUILD_ID" // Pulling image from local registry
-                script {
-                    try {
-                        sh "docker kill ystv-web-api" // Stop old container
+                stage('Production') {
+                    when {
+                        expression { return env.TAG_NAME ==~ /v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/ } // Checking if it is main semantic version release
                     }
-                    catch (err) {
-                        echo "Couldn't find container to stop"
-                        echo err.getMessage()
+                    environment {
+                        APP_ENV = credentials('wapi-prod-env')
+                        TARGET_SERVER = credentials('prod-server-address')
+                        TARGET_PATH = credentials('prod-server-path')
+                    }
+                    steps {
+                        sshagent(credentials : ['prod-server-key']) {
+                            script {
+                                sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
+                                sh '''ssh -tt deploy@$TARGET_SERVER << EOF
+                                    docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    docker rm -f ystv-web-api
+                                    docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    docker image prune -a -f --filter "label=site=api"
+                                    exit 0
+                                EOF'''
+                            }
+                        }
                     }
                 }
-                sh "docker run -d --rm -p 1336:8081 --env-file /YSTV-ENVVARS/api.env --name ystv-web-api localhost:5000/ystv/web-api:$BUILD_ID" // Deploying site
-                sh 'docker image prune -a -f --filter "label=site=api"' // remove old image
             }
         }
     }
@@ -67,6 +83,10 @@ pipeline {
         }
         failure {
             echo 'That is not ideal, cheeky bugger'
+        }
+        always {
+            sh "docker image prune -f --filter label=site=api --filter label=stage=builder" // Removing the local builder image
+            sh 'docker image prune -a -f --filter "label=site=api"' // remove old image
         }
     }
 }

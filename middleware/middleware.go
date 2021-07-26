@@ -9,22 +9,22 @@ import (
 	echoMw "github.com/labstack/echo/v4/middleware"
 )
 
-var config = echoMw.CORSConfig{
-	AllowCredentials: true,
-	Skipper:          echoMw.DefaultSkipper,
-	AllowOrigins: []string{
-		"http://creator.ystv.co.uk",
-		"https://creator.ystv.co.uk",
-		"http://my.ystv.co.uk",
-		"https://my.ystv.co.uk",
-		"http://local.ystv.co.uk:3000",
-		"http://localhost:3000"},
-	AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-	AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
-}
+// New intialises web server middleware
+func New(e *echo.Echo, domainName string) {
+	config := echoMw.CORSConfig{
+		AllowCredentials: true,
+		Skipper:          echoMw.DefaultSkipper,
+		AllowOrigins: []string{
+			"http://creator." + domainName,
+			"https://creator." + domainName,
+			"http://my." + domainName,
+			"https://my." + domainName,
+			"http://" + domainName,
+			"https://" + domainName},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+	}
 
-// Init intialises web server middleware
-func Init(e *echo.Echo) {
 	e.Pre(echoMw.RemoveTrailingSlash())
 	e.Use(echoMw.Logger())
 	e.Use(echoMw.Recover())

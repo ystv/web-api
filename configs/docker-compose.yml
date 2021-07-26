@@ -5,14 +5,40 @@ services:
       dockerfile: Dockerfile
       context: .
     environment:
-      - db_user=
-      - db_pass=
-      - db_name=
-      - db_host=
-      - db_port=
-      - cdn_endpoint=
-      - cdn_accessKeyID=
-      - cdn_secretAccessKey=
-      - debug=false
+      # Debug variable, when true authentication is disabled and 500 errors return full error message
+      - WAPI_DEBUG=false
+
+      # Backend config
+
+      - WAPI_DB_HOST=
+      - WAPI_DB_PORT=
+      - WAPI_DB_SSLMODE=
+      - WAPI_DB_NAME=
+      - WAPI_DB_PASS=
+      - WAPI_DB_USER=
+
+      - WAPI_MQ_HOST=
+      - WAPI_MQ_PORT=
+      - WAPI_MQ_USER=
+      - WAPI_MQ_PASS=
+
+      - WAPI_CDN_ENDPOINT=
+      - WAPI_CDN_ACCESSKEYID=
+      - WAPI_CDN_SECRETACCESSKEY=
+
+      - WAPI_MAIL_HOST=
+      - WAPI_MAIL_USER=
+      - WAPI_MAIL_PASS=
+      - WAPI_MAIL_PORT=
+
+      # Application config
+
+      - WAPI_DOMAIN_NAME=
+
+      - WAPI_BUCKET_VOD_SERVE=
+      - WAPI_BUKCET_VOD_INGEST=
+
+      # JWT Signing key
+      - WAPI_SIGNING_KEY=
     ports:
-      - "8080:8080"
+      - "8080:8081"
