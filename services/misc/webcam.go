@@ -37,8 +37,7 @@ func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam,
 		FROM misc.webcams
 		WHERE ENABLED;`)
 	if err != nil {
-		err = fmt.Errorf("failed to select webcams: %w", err)
-		return publicWebcams, err
+		return publicWebcams, fmt.Errorf("failed to select webcams: %w", err)
 	}
 
 	// Check if user has permission to view it
@@ -58,7 +57,6 @@ func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam,
 		}
 
 	}
-
 	return publicWebcams, nil
 }
 

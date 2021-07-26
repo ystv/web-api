@@ -1,6 +1,7 @@
 package people
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -22,6 +23,11 @@ type (
 		PermissionID int    `json:"id"`
 		Name         string `json:"name"`
 	}
+)
+
+var (
+	ErrNoCookie      = errors.New("failed to find token cookie")
+	ErrInvalidCookie = errors.New("invalid cookie")
 )
 
 // UserByID finds a user by ID
@@ -80,7 +86,7 @@ func (r *Repo) UserByToken(c echo.Context) error {
 	claims, err := GetToken(c)
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	p, err := r.user.Get(c.Request().Context(), claims.UserID)
 	if err != nil {
@@ -116,7 +122,7 @@ func (r *Repo) UserByTokenFull(c echo.Context) error {
 func GetToken(c echo.Context) (*JWTClaims, error) {
 	cookie, err := c.Cookie("token")
 	if err != nil {
-		return nil, echo.ErrBadRequest
+		return nil, ErrNoCookie
 	}
 	tokenString := cookie.Value
 	claims := &JWTClaims{}
@@ -129,7 +135,7 @@ func GetToken(c echo.Context) (*JWTClaims, error) {
 		return nil, err
 	}
 	if claims.Valid() != nil {
-		return nil, echo.ErrForbidden
+		return nil, ErrInvalidCookie
 	}
 	return claims, nil
 }
