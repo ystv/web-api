@@ -1,33 +1,12 @@
 package people
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
-)
-
-type (
-	// JWTClaims represents an identifiable JWT
-	JWTClaims struct {
-		UserID      int          `json:"id"`
-		Permissions []Permission `json:"perms"`
-		jwt.StandardClaims
-	}
-	// Permission represents the permissions that a user has
-	Permission struct {
-		PermissionID int    `json:"id"`
-		Name         string `json:"name"`
-	}
-)
-
-var (
-	ErrNoCookie      = errors.New("failed to find token cookie")
-	ErrInvalidCookie = errors.New("invalid cookie")
+	"github.com/ystv/web-api/utils"
 )
 
 // UserByID finds a user by ID
@@ -83,7 +62,7 @@ func (r *Repo) UserByIDFull(c echo.Context) error {
 // @Success 200 {object} people.User
 // @Router /v1/internal/people/user [get]
 func (r *Repo) UserByToken(c echo.Context) error {
-	claims, err := GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -105,7 +84,7 @@ func (r *Repo) UserByToken(c echo.Context) error {
 // @Success 200 {object} people.UserFull
 // @Router /v1/internal/people/user/full [get]
 func (r *Repo) UserByTokenFull(c echo.Context) error {
-	claims, err := GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -116,26 +95,4 @@ func (r *Repo) UserByTokenFull(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
-}
-
-// GetToken will return the JWT claims from a valid JWT token
-func GetToken(c echo.Context) (*JWTClaims, error) {
-	cookie, err := c.Cookie("token")
-	if err != nil {
-		return nil, ErrNoCookie
-	}
-	tokenString := cookie.Value
-	claims := &JWTClaims{}
-
-	_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("WAPI_SIGNING_KEY")), nil
-	})
-	if err != nil {
-		err = fmt.Errorf("GetToken failed: %w", err)
-		return nil, err
-	}
-	if claims.Valid() != nil {
-		return nil, ErrInvalidCookie
-	}
-	return claims, nil
 }

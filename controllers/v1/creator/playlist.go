@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/creator/types/playlist"
+	"github.com/ystv/web-api/utils"
 	"gopkg.in/guregu/null.v4"
 )
 
@@ -67,7 +67,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := people.GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -98,7 +98,7 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistUpdate: failed to bind json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := people.GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/controllers/v1/people"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListWebcams handles listing all webcams a user can access
@@ -22,7 +22,7 @@ import (
 // @Router /v1/internal/misc/webcams [get]
 func (r *Repos) ListWebcams(c echo.Context) error {
 	// Get user token
-	claims, err := people.GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("ListWebcams failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -53,7 +53,7 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid camera ID")
 	}
 	// Get user token
-	claims, err := people.GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("GetWebcam failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

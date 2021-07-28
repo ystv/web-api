@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/misc"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListQuotes handles listing quotes by pagination
@@ -53,7 +53,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := people.GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

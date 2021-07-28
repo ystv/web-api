@@ -8,8 +8,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/clapper"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListMonth returns all events for a month.
@@ -78,7 +78,7 @@ func (r *Repos) NewEvent(c echo.Context) error {
 		err = fmt.Errorf("NewEvent: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	p, err := people.GetToken(c)
+	p, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -108,7 +108,7 @@ func (r *Repos) UpdateEvent(c echo.Context) error {
 		err = fmt.Errorf("UpdateEvent: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	p, err := people.GetToken(c)
+	p, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("UpdateEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

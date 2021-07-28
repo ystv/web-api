@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/services/creator/types/video"
+	"github.com/ystv/web-api/utils"
 )
 
 // GetVideo finds a video by ID
@@ -50,7 +50,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 		err = fmt.Errorf("VideoCreate bind fail: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := people.GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -107,7 +107,7 @@ func (r *Repos) VideoList(c echo.Context) error {
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/videos/my [get]
 func (r *Repos) ListVideosByUser(c echo.Context) error {
-	claims, err := people.GetToken(c)
+	claims, err := utils.GetToken(c.Request().Response.Request)
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
