@@ -3,11 +3,9 @@ package encoder
 import (
 	"fmt"
 	"net/http"
-	"os"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/controllers/v1/people"
+	"github.com/ystv/web-api/utils"
 )
 
 type (
@@ -16,7 +14,7 @@ type (
 	// Request represents the upload and a normal HTTP request
 	Request struct {
 		Upload      Upload
-		HTTPRequest http.Request
+		HTTPRequest *http.Request
 	}
 	// Upload represents an object and it's status
 	Upload struct {
@@ -53,24 +51,12 @@ func VideoNew(c echo.Context) error {
 	if r.HTTPRequest.Method != "POST" {
 		return c.NoContent(http.StatusOK)
 	}
-	cookie, err := r.HTTPRequest.Cookie("token")
-	if err != nil {
-		err = fmt.Errorf("VideoNew failed: failed to find api token: %w", err)
-		return echo.NewHTTPError(http.StatusForbidden, err)
-	}
-	tokenString := cookie.Value
-	claims := &people.JWTClaims{}
 
-	_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("signing_key")), nil
-	})
+	_, err := utils.GetToken(r.HTTPRequest)
 	if err != nil {
-		err = fmt.Errorf("VideoNew failed: failed to parse jwt %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		err = fmt.Errorf("GetToken failed: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	if claims.Valid() != nil {
-		err = fmt.Errorf("JWT expired: %w", err)
-		return echo.NewHTTPError(http.StatusForbidden, err)
-	}
+
 	return c.NoContent(http.StatusOK)
 }
