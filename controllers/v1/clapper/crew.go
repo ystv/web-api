@@ -24,7 +24,7 @@ import (
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid}/{signupid}/{crewid} [put]
 func (r *Repos) SetCrew(c echo.Context) error {
-	p, err := utils.GetToken(c.Request().Response.Request)
+	p, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -53,7 +53,7 @@ func (r *Repos) SetCrew(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/event/{signupid}/{crewid}/reset [put]
 func (r *Repos) ResetCrew(c echo.Context) error {
-	_, err := utils.GetToken(c.Request().Response.Request)
+	_, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("ResetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

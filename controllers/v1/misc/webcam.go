@@ -22,7 +22,7 @@ import (
 // @Router /v1/internal/misc/webcams [get]
 func (r *Repos) ListWebcams(c echo.Context) error {
 	// Get user token
-	claims, err := utils.GetToken(c.Request().Response.Request)
+	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("ListWebcams failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -53,7 +53,7 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid camera ID")
 	}
 	// Get user token
-	claims, err := utils.GetToken(c.Request().Response.Request)
+	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("GetWebcam failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

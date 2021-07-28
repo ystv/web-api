@@ -50,7 +50,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 		err = fmt.Errorf("VideoCreate bind fail: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := utils.GetToken(c.Request().Response.Request)
+	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -107,7 +107,7 @@ func (r *Repos) VideoList(c echo.Context) error {
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/videos/my [get]
 func (r *Repos) ListVideosByUser(c echo.Context) error {
-	claims, err := utils.GetToken(c.Request().Response.Request)
+	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

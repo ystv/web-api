@@ -52,7 +52,7 @@ func VideoNew(c echo.Context) error {
 		return c.NoContent(http.StatusOK)
 	}
 
-	_, err := utils.GetToken(r.HTTPRequest)
+	_, err := utils.GetTokenHTTP(r.HTTPRequest)
 	if err != nil {
 		err = fmt.Errorf("GetToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)

@@ -53,7 +53,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := utils.GetToken(c.Request().Response.Request)
+	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

@@ -67,7 +67,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := utils.GetToken(c.Request().Response.Request)
+	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -98,7 +98,7 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistUpdate: failed to bind json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := utils.GetToken(c.Request().Response.Request)
+	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

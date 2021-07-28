@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
 )
 
 type (
@@ -28,16 +29,11 @@ var (
 	ErrInvalidCookie = errors.New("invalid cookie")
 )
 
-// GetToken will return the JWT claims from a valid JWT token
-func GetToken(r *http.Request) (*JWTClaims, error) {
-	cookie, err := r.Cookie("token")
-	if err != nil {
-		return nil, ErrNoCookie
-	}
+func GetToken(cookie *http.Cookie) (*JWTClaims, error) {
 	tokenString := cookie.Value
 	claims := &JWTClaims{}
 
-	_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("WAPI_SIGNING_KEY")), nil
 	})
 	if err != nil {
@@ -48,4 +44,22 @@ func GetToken(r *http.Request) (*JWTClaims, error) {
 		return nil, ErrInvalidCookie
 	}
 	return claims, nil
+}
+
+// GetToken will return the JWT claims from a valid JWT token
+func GetTokenEcho(c echo.Context) (*JWTClaims, error) {
+	cookie, err := c.Cookie("token")
+	if err != nil {
+		return nil, ErrNoCookie
+	}
+	return GetToken(cookie)
+}
+
+// GetToken will return the JWT claims from a valid JWT token
+func GetTokenHTTP(r *http.Request) (*JWTClaims, error) {
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		return nil, ErrNoCookie
+	}
+	return GetToken(cookie)
 }
