@@ -1,13 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "The backend powering most things",
-        "title": "web-api",
-        "contact": {
-            "name": "API Support",
-            "url": "https://github.com/ystv/web-api",
-            "email": "computing@ystv.co.uk"
-        },
+        "contact": {},
         "license": {}
     },
     "paths": {
@@ -1539,6 +1533,90 @@
                 }
             }
         },
+        "/v1/public/playlist/popular/all": {
+            "get": {
+                "description": "Provides a fake playlist, containing a list of popular videos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public-playlist"
+                ],
+                "summary": "Provides a playlist of popular videos of all time",
+                "operationId": "get-public-playlist-popular-by-all-time",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Playlist"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/playlist/popular/month": {
+            "get": {
+                "description": "Provides a fake playlist, containing a list of popular videos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public-playlist"
+                ],
+                "summary": "Provides a playlist of popular videos of past month",
+                "operationId": "get-public-playlist-popular-by-past-month",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Playlist"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/playlist/popular/year": {
+            "get": {
+                "description": "Provides a fake playlist, containing a list of popular videos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public-playlist"
+                ],
+                "summary": "Provides a playlist of popular videos of past year",
+                "operationId": "get-public-playlist-popular-by-past-year",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Playlist"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/playlist/random": {
+            "get": {
+                "description": "Provides a fake playlist, containing a list of random videos",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public-playlist"
+                ],
+                "summary": "Provides a playlist of random videos",
+                "operationId": "get-public-playlist-random",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.Playlist"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/public/playlist/{seriesid}": {
             "get": {
                 "description": "Returns a playlist object, includes videos (not videofiles) and metadata.",
@@ -2289,6 +2367,9 @@
         "people.Permission": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -2662,7 +2743,7 @@
                     "type": "string"
                 },
                 "duration": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "files": {
                     "type": "array",
@@ -2700,7 +2781,7 @@
                     "type": "string"
                 },
                 "duration": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -2826,23 +2907,27 @@
                 "createdAt": {
                     "type": "string"
                 },
-                "createdBy": {
-                    "type": "object",
-                    "$ref": "#/definitions/video.User"
+                "createdByID": {
+                    "type": "integer"
+                },
+                "createdByNick": {
+                    "type": "string"
+                },
+                "deleteByID": {
+                    "type": "string"
+                },
+                "deleteByNick": {
+                    "type": "string"
                 },
                 "deletedAt": {
                     "type": "string"
-                },
-                "deletedBy": {
-                    "type": "object",
-                    "$ref": "#/definitions/video.User"
                 },
                 "description": {
                     "description": "when listing description isn't included",
                     "type": "string"
                 },
                 "duration": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "files": {
                     "type": "array",
@@ -2874,9 +2959,11 @@
                 "updatedAt": {
                     "type": "string"
                 },
-                "updatedBy": {
-                    "type": "object",
-                    "$ref": "#/definitions/video.User"
+                "updatedByID": {
+                    "type": "string"
+                },
+                "updatedByNick": {
+                    "type": "string"
                 },
                 "url": {
                     "type": "string"
@@ -2895,23 +2982,27 @@
                 "createdAt": {
                     "type": "string"
                 },
-                "createdBy": {
-                    "type": "object",
-                    "$ref": "#/definitions/video.User"
+                "createdByID": {
+                    "type": "integer"
+                },
+                "createdByNick": {
+                    "type": "string"
+                },
+                "deleteByID": {
+                    "type": "string"
+                },
+                "deleteByNick": {
+                    "type": "string"
                 },
                 "deletedAt": {
                     "type": "string"
-                },
-                "deletedBy": {
-                    "type": "object",
-                    "$ref": "#/definitions/video.User"
                 },
                 "description": {
                     "description": "when listing description isn't included",
                     "type": "string"
                 },
                 "duration": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "id": {
                     "type": "integer"
@@ -2937,9 +3028,11 @@
                 "updatedAt": {
                     "type": "string"
                 },
-                "updatedBy": {
-                    "type": "object",
-                    "$ref": "#/definitions/video.User"
+                "updatedByID": {
+                    "type": "string"
+                },
+                "updatedByNick": {
+                    "type": "string"
                 },
                 "url": {
                     "type": "string"
@@ -3003,17 +3096,6 @@
                     }
                 },
                 "urlName": {
-                    "type": "string"
-                }
-            }
-        },
-        "video.User": {
-            "type": "object",
-            "properties": {
-                "userID": {
-                    "type": "integer"
-                },
-                "userNickname": {
                     "type": "string"
                 }
             }

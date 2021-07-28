@@ -268,6 +268,8 @@ definitions:
     type: object
   people.Permission:
     properties:
+      description:
+        type: string
       id:
         type: integer
       name:
@@ -513,7 +515,7 @@ definitions:
       description:
         type: string
       duration:
-        type: string
+        type: integer
       files:
         items:
           $ref: '#/definitions/public.VideoFile'
@@ -538,7 +540,7 @@ definitions:
       description:
         type: string
       duration:
-        type: string
+        type: integer
       id:
         type: integer
       name:
@@ -620,19 +622,21 @@ definitions:
         type: string
       createdAt:
         type: string
-      createdBy:
-        $ref: '#/definitions/video.User'
-        type: object
+      createdByID:
+        type: integer
+      createdByNick:
+        type: string
+      deleteByID:
+        type: string
+      deleteByNick:
+        type: string
       deletedAt:
         type: string
-      deletedBy:
-        $ref: '#/definitions/video.User'
-        type: object
       description:
         description: when listing description isn't included
         type: string
       duration:
-        type: string
+        type: integer
       files:
         items:
           $ref: '#/definitions/video.File'
@@ -653,9 +657,10 @@ definitions:
         type: string
       updatedAt:
         type: string
-      updatedBy:
-        $ref: '#/definitions/video.User'
-        type: object
+      updatedByID:
+        type: string
+      updatedByNick:
+        type: string
       url:
         type: string
       views:
@@ -667,19 +672,21 @@ definitions:
         type: string
       createdAt:
         type: string
-      createdBy:
-        $ref: '#/definitions/video.User'
-        type: object
+      createdByID:
+        type: integer
+      createdByNick:
+        type: string
+      deleteByID:
+        type: string
+      deleteByNick:
+        type: string
       deletedAt:
         type: string
-      deletedBy:
-        $ref: '#/definitions/video.User'
-        type: object
       description:
         description: when listing description isn't included
         type: string
       duration:
-        type: string
+        type: integer
       id:
         type: integer
       name:
@@ -696,9 +703,10 @@ definitions:
         type: string
       updatedAt:
         type: string
-      updatedBy:
-        $ref: '#/definitions/video.User'
-        type: object
+      updatedByID:
+        type: string
+      updatedByNick:
+        type: string
       url:
         type: string
       views:
@@ -742,21 +750,9 @@ definitions:
       urlName:
         type: string
     type: object
-  video.User:
-    properties:
-      userID:
-        type: integer
-      userNickname:
-        type: string
-    type: object
 info:
-  contact:
-    email: computing@ystv.co.uk
-    name: API Support
-    url: https://github.com/ystv/web-api
-  description: The backend powering most things
+  contact: {}
   license: {}
-  title: web-api
 paths:
   /v1/internal/clapper/{eventid}/{signupid}:
     delete:
@@ -1821,6 +1817,62 @@ paths:
           schema:
             $ref: '#/definitions/public.Playlist'
       summary: Provides a playlist
+      tags:
+      - public-playlist
+  /v1/public/playlist/popular/all:
+    get:
+      description: Provides a fake playlist, containing a list of popular videos
+      operationId: get-public-playlist-popular-by-all-time
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Playlist'
+      summary: Provides a playlist of popular videos of all time
+      tags:
+      - public-playlist
+  /v1/public/playlist/popular/month:
+    get:
+      description: Provides a fake playlist, containing a list of popular videos
+      operationId: get-public-playlist-popular-by-past-month
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Playlist'
+      summary: Provides a playlist of popular videos of past month
+      tags:
+      - public-playlist
+  /v1/public/playlist/popular/year:
+    get:
+      description: Provides a fake playlist, containing a list of popular videos
+      operationId: get-public-playlist-popular-by-past-year
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Playlist'
+      summary: Provides a playlist of popular videos of past year
+      tags:
+      - public-playlist
+  /v1/public/playlist/random:
+    get:
+      description: Provides a fake playlist, containing a list of random videos
+      operationId: get-public-playlist-random
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/public.Playlist'
+      summary: Provides a playlist of random videos
       tags:
       - public-playlist
   /v1/public/series/{seriesid}:

@@ -272,7 +272,14 @@ func (r *Router) loadRoutes() {
 				series.GET("/:id/breadcrumb", r.public.SeriesBreadcrumb)
 				series.GET("/yearly/:year", r.public.SeriesByYear)
 			}
-			public.GET("/playlist/:playlistid", r.public.GetPlaylist)
+			playlist := public.Group("/playlist")
+			{
+				playlist.GET("/random", r.public.GetPlaylistRandom)
+				playlist.GET("/popular/all", r.public.GetPlaylistPopularByAllTime)
+				playlist.GET("/popular/year", r.public.GetPlaylistPopularByPastYear)
+				playlist.GET("/popular/month", r.public.GetPlaylistPopularByPastMonth)
+				playlist.GET("/:playlistid", r.public.GetPlaylist)
+			}
 			teams := public.Group("/teams")
 			{
 				teams.GET("", r.public.ListTeams)

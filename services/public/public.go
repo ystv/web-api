@@ -2,6 +2,7 @@ package public
 
 import (
 	"context"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -22,6 +23,11 @@ type (
 	}
 	PlaylistRepo interface {
 		GetPlaylist(ctx context.Context, playlistID int) (Playlist, error)
+		GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (Playlist, error)
+		GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, error)
+		GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, error)
+		GetPlaylistPopularByPastMonth(ctx context.Context) (Playlist, error)
+		GetPlaylistRandom(ctx context.Context) (Playlist, error)
 	}
 	// BreadcrumbRepo represents all breadcrumb interactions
 	BreadcrumbRepo interface {
