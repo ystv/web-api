@@ -28,7 +28,7 @@ type (
 		OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, error)
 
 		// New method
-		NewItem(ctx context.Context, v *video.New) error
+		NewItem(ctx context.Context, v *video.New) (int, error)
 
 		// Update method
 		UpdateMeta(ctx context.Context, meta video.Meta) error
