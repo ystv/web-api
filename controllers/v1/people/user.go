@@ -2,7 +2,6 @@ package people
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -63,7 +62,6 @@ func (r *Repo) UserByIDFull(c echo.Context) error {
 // @Success 200 {object} people.User
 // @Router /v1/internal/people/user [get]
 func (r *Repo) UserByToken(c echo.Context) error {
-	log.Printf("%+v", c.Request().Response.Request)
 	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
