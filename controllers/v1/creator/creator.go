@@ -29,8 +29,8 @@ type Repos struct {
 // NewRepos creates our data repositories
 func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
 	config := &creator.Config{
-		IngestBucket: os.Getenv("WAPI_CDN_BUCKET_INGEST"),
-		ServeBucket:  os.Getenv("WAPI_CDN_BUKCET_SERVE"),
+		IngestBucket: os.Getenv("WAPI_BUKCET_VOD_INGEST"),
+		ServeBucket:  os.Getenv("WAPI_BUCKET_VOD_SERVE"),
 	}
 	return &Repos{
 		video.NewStore(db, cdn, config),
