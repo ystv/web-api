@@ -25,7 +25,7 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 	}
 	p, err := r.public.GetPlaylist(c.Request().Context(), playlistID)
 	if err != nil {
-		err = fmt.Errorf("Public GetPlaylist failed : %w", err)
+		err = fmt.Errorf("Public GetPlaylist failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
@@ -43,7 +43,7 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 func (r *Repos) GetPlaylistPopularByAllTime(c echo.Context) error {
 	p, err := r.public.GetPlaylistPopularByAllTime(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("Public GetPlaylistByAllTime failed : %w", err)
+		err = fmt.Errorf("Public GetPlaylistByAllTime failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
@@ -61,7 +61,7 @@ func (r *Repos) GetPlaylistPopularByAllTime(c echo.Context) error {
 func (r *Repos) GetPlaylistPopularByPastYear(c echo.Context) error {
 	p, err := r.public.GetPlaylistPopularByPastYear(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("Public GetPlaylistByPastYear failed : %w", err)
+		err = fmt.Errorf("Public GetPlaylistByPastYear failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
@@ -79,7 +79,7 @@ func (r *Repos) GetPlaylistPopularByPastYear(c echo.Context) error {
 func (r *Repos) GetPlaylistPopularByPastMonth(c echo.Context) error {
 	p, err := r.public.GetPlaylistPopularByPastMonth(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("Public GetPlaylistByPastMonth failed : %w", err)
+		err = fmt.Errorf("Public GetPlaylistByPastMonth failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
@@ -97,7 +97,7 @@ func (r *Repos) GetPlaylistPopularByPastMonth(c echo.Context) error {
 func (r *Repos) GetPlaylistRandom(c echo.Context) error {
 	p, err := r.public.GetPlaylistRandom(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("Public GetPlaylistByRandom failed : %w", err)
+		err = fmt.Errorf("Public GetPlaylistByRandom failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)

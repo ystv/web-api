@@ -59,7 +59,7 @@ func (m *Store) GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (P
 		ORDER BY views DESC
 		LIMIT 30;`, fromPeriod)
 	if err != nil {
-		return p, fmt.Errorf("failed to get playlist videos")
+		return p, fmt.Errorf("failed to get playlist videos: %w", err)
 	}
 
 	return p, nil
@@ -80,7 +80,7 @@ func (m *Store) GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, erro
 		ORDER BY views DESC
 		LIMIT 30;`)
 	if err != nil {
-		return p, fmt.Errorf("failed to get playlist videos")
+		return p, fmt.Errorf("failed to get playlist videos: %w", err)
 	}
 
 	return p, nil
@@ -103,7 +103,7 @@ func (m *Store) GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, err
 		ORDER BY views DESC
 		LIMIT 30;`)
 	if err != nil {
-		return p, fmt.Errorf("failed to get playlist videos")
+		return p, fmt.Errorf("failed to get playlist videos: %w", err)
 	}
 
 	return p, nil
@@ -126,7 +126,7 @@ func (m *Store) GetPlaylistPopularByPastMonth(ctx context.Context) (Playlist, er
 		ORDER BY views DESC
 		LIMIT 30;`)
 	if err != nil {
-		return p, fmt.Errorf("failed to get playlist videos")
+		return p, fmt.Errorf("failed to get playlist videos: %w", err)
 	}
 
 	return p, nil
@@ -146,7 +146,7 @@ func (m *Store) GetPlaylistRandom(ctx context.Context) (Playlist, error) {
 		FROM video.items TABLESAMPLE system_rows(30);`)
 
 	if err != nil {
-		return p, fmt.Errorf("failed to get playlist videos")
+		return p, fmt.Errorf("failed to get playlist videos: %w", err)
 	}
 	return p, nil
 }
