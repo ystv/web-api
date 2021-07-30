@@ -173,6 +173,13 @@ func (r *Router) loadRoutes() {
 						// playlist.DELETE("", r.creator.DeletePlaylist)
 					}
 				}
+				playout := creator.Group("/playout")
+				{
+					playout.GET("/channels", r.creator.ListChannels)
+					playout.POST("/channels", r.creator.NewChannel)
+					playout.PUT("/channels", r.creator.UpdateChannel)
+					playout.DELETE("/channels/:channelid", r.creator.DeleteChannel)
+				}
 				encodes := creator.Group("/encodes")
 				{
 					presets := encodes.Group("/presets")
@@ -287,11 +294,9 @@ func (r *Router) loadRoutes() {
 				teams.GET("/:teamid", r.public.GetTeam)
 				teams.GET("/:teamid/:year", r.public.GetTeamByYear)
 			}
-			streams := public.Group("/streams")
+			stream := public.Group("/playout")
 			{
-				streams.GET("", publicPackage.StreamList)
-				streams.GET("/:id", publicPackage.StreamFind)
-				streams.GET("/home", publicPackage.StreamHome) // isLive null
+				stream.GET("/channels", r.public.ListChannels)
 			}
 
 		}

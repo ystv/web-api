@@ -390,6 +390,36 @@ definitions:
           $ref: '#/definitions/video.Meta'
         type: array
     type: object
+  playout.Channel:
+    properties:
+      description:
+        description: '"Very good tennis"'
+        type: string
+      location:
+        description: '"Central Hall"'
+        type: string
+      name:
+        description: '"YUSU Tennis 2020"'
+        type: string
+      outputType:
+        type: string
+      outputURL:
+        type: string
+      scheduledEnd:
+        type: string
+      scheduledStart:
+        type: string
+      status:
+        description: '"live" or "scheduled" or "cancelled" or "finished"'
+        type: string
+      thumbnail:
+        type: string
+      urlName:
+        description: '"tennis"'
+        type: string
+      visibility:
+        type: string
+    type: object
   public.Breadcrumb:
     properties:
       id:
@@ -409,6 +439,34 @@ definitions:
       video:
         $ref: '#/definitions/public.VideoItem'
         type: object
+    type: object
+  public.Channel:
+    properties:
+      description:
+        description: '"Very good tennis"'
+        type: string
+      location:
+        description: '"Central Hall"'
+        type: string
+      name:
+        description: '"YUSU Tennis 2020"'
+        type: string
+      outputType:
+        type: string
+      outputURL:
+        type: string
+      scheduledEnd:
+        type: string
+      scheduledStart:
+        type: string
+      status:
+        description: '"live" or "scheduled" or "cancelled" or "finished"'
+        type: string
+      thumbnail:
+        type: string
+      urlName:
+        description: '"tennis"'
+        type: string
     type: object
   public.Playlist:
     properties:
@@ -1271,6 +1329,75 @@ paths:
       summary: Get playlist by ID
       tags:
       - creator-playlists
+  /v1/internal/creator/playout/channels:
+    get:
+      description: Lists all channels, these are a rough implementation of what is
+        too come (linear channels)
+      operationId: get-creator-playout-channels
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/playout.Channel'
+            type: array
+      summary: List all channels
+      tags:
+      - creator-playout-channels
+    post:
+      consumes:
+      - application/json
+      description: creates a new channel.
+      operationId: new-creator-playout-channel
+      parameters:
+      - description: Channel object
+        in: body
+        name: channel
+        required: true
+        schema:
+          $ref: '#/definitions/playout.Channel'
+      responses:
+        "201":
+          description: Channel ID
+          schema:
+            type: body
+      summary: New channel
+      tags:
+      - creator-playout-channels
+    put:
+      consumes:
+      - application/json
+      description: updates an channel
+      operationId: update-creator-playout-channel
+      parameters:
+      - description: Channel object
+        in: body
+        name: channel
+        required: true
+        schema:
+          $ref: '#/definitions/playout.Channel'
+      responses:
+        "200": {}
+      summary: Update a channel
+      tags:
+      - creator-playout-channels
+  /v1/internal/creator/playout/channels/{channelid}:
+    delete:
+      description: deletes a channel by the short URL.
+      operationId: delete-creator-playout-channel
+      parameters:
+      - description: Channel URL Name
+        in: path
+        name: channelid
+        required: true
+        type: string
+      responses:
+        "200": {}
+      summary: Delete channel
+      tags:
+      - creator-playout-channels
   /v1/internal/creator/series:
     get:
       description: Lists all series, doesn't include videos inside.
@@ -1350,11 +1477,28 @@ paths:
         schema:
           $ref: '#/definitions/video.New'
       responses:
-        "201":
+        "200": {}
+      summary: New video
+      tags:
+      - creator-videos
+    put:
+      consumes:
+      - application/json
+      description: Updates a video
+      operationId: update-creator-video
+      parameters:
+      - description: VideoItem object
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/video.Item'
+      responses:
+        "200":
           description: Video ID
           schema:
             type: body
-      summary: New video
+      summary: Update video
       tags:
       - creator-videos
   /v1/internal/creator/videos/{videoid}:
@@ -1875,6 +2019,22 @@ paths:
       summary: Provides a playlist of random videos
       tags:
       - public-playlist
+  /v1/public/playout/channels:
+    get:
+      description: Lists the publically visible channels
+      operationId: get-public-stream-channels
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/public.Channel'
+            type: array
+      summary: Provides the visible channels
+      tags:
+      - public-playout-channels
   /v1/public/series/{seriesid}:
     get:
       description: Returns a series object, including the children videos and series.

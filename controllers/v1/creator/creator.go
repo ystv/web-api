@@ -12,6 +12,7 @@ import (
 	"github.com/ystv/web-api/services/creator/breadcrumb"
 	"github.com/ystv/web-api/services/creator/encode"
 	"github.com/ystv/web-api/services/creator/playlist"
+	"github.com/ystv/web-api/services/creator/playout"
 	"github.com/ystv/web-api/services/creator/series"
 	"github.com/ystv/web-api/services/creator/video"
 )
@@ -21,6 +22,7 @@ type Repos struct {
 	video      creator.VideoRepo
 	series     creator.SeriesRepo
 	playlist   creator.PlaylistRepo
+	channel    creator.ChannelRepo
 	breadcrumb creator.BreadcrumbRepo
 	encode     creator.EncodeRepo
 	creator    creator.StatRepo
@@ -36,6 +38,7 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
 		video.NewStore(db, cdn, config),
 		series.NewController(db, cdn, config),
 		playlist.NewStore(db),
+		playout.NewStore(db),
 		breadcrumb.NewController(db, cdn, config),
 		encode.NewStore(db),
 		creator.NewStore(db),

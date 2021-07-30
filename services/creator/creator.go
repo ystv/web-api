@@ -7,6 +7,7 @@ import (
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
 	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/services/creator/types/playlist"
+	"github.com/ystv/web-api/services/creator/types/playout"
 	"github.com/ystv/web-api/services/creator/types/series"
 	"github.com/ystv/web-api/services/creator/types/stats"
 	"github.com/ystv/web-api/services/creator/types/video"
@@ -45,11 +46,12 @@ type (
 		List(ctx context.Context) (*[]series.Meta, error)
 		FromPath(ctx context.Context, path string) (*series.Series, error)
 	}
-	// BreadcrumbRepo defines all creator breadcrumb interactions
-	BreadcrumbRepo interface {
-		Series(ctx context.Context, seriesID int) (*[]breadcrumb.Breadcrumb, error)
-		Video(ctx context.Context, videoID int) (*[]breadcrumb.Breadcrumb, error)
-		Find(ctx context.Context, path string) (*breadcrumb.Item, error)
+	// ChannelRepo defines all channel interactions
+	ChannelRepo interface {
+		ListChannels(ctx context.Context) ([]playout.Channel, error)
+		NewChannel(ctx context.Context, ch playout.Channel) error
+		UpdateChannel(ctx context.Context, ch playout.Channel) error
+		DeleteChannel(ctx context.Context, urlName string) error
 	}
 	// PlaylistRepo defines all playlist interactions
 	PlaylistRepo interface {
@@ -60,6 +62,12 @@ type (
 		AddVideo(ctx context.Context, playlistID, videoID int) error
 		DeleteVideo(ctx context.Context, playlistID, videoID int) error
 		AddVideos(ctx context.Context, playlistID int, videoIDs []int) error
+	}
+	// BreadcrumbRepo defines all creator breadcrumb interactions
+	BreadcrumbRepo interface {
+		Series(ctx context.Context, seriesID int) (*[]breadcrumb.Breadcrumb, error)
+		Video(ctx context.Context, videoID int) (*[]breadcrumb.Breadcrumb, error)
+		Find(ctx context.Context, path string) (*breadcrumb.Item, error)
 	}
 	// EncodeRepo defines all encode interactions
 	EncodeRepo interface {
