@@ -43,6 +43,10 @@ type (
 		ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, error)
 		ListOfficers(ctx context.Context) ([]TeamMember, error)
 	}
+	// StreamRepo represents all stream / playout interactions
+	StreamRepo interface {
+		ListChannels(ctx context.Context) ([]Channel, error)
+	}
 	// Store encapsulates our dependency
 	Store struct {
 		db *sqlx.DB
