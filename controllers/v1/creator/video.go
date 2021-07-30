@@ -69,6 +69,15 @@ func (r *Repos) NewVideo(c echo.Context) error {
 }
 
 // UpdateVideo updates a video's metadata not files
+//
+// @Summary Update video
+// @Description Updates a video
+// @ID update-creator-video
+// @Tags creator-videos
+// @Accept json
+// @Param event body video.Item true "VideoItem object"
+// @Success 200 body int "Video ID"
+// @Router /v1/internal/creator/videos [put]
 func (r *Repos) UpdateVideo(c echo.Context) error {
 	v := video.Item{}
 	err := c.Bind(&v)

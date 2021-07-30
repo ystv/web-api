@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	_ "github.com/lib/pq" // for DB, although likely not needed
 )
 
 type (
