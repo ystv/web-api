@@ -137,3 +137,32 @@ func (m *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 	}
 	return s, nil
 }
+
+// Search performs a full-text search on video library
+//
+// Uses postgres' full-text search, video and series tables to try to make some sense
+func (m *Store) Search(ctx context.Context, query string) (Series, error) {
+	s := Series{}
+	err := m.db.SelectContext(ctx, &s.ChildVideos,
+		`SELECT id AS video_id, title AS name, description, broadcast_date
+	FROM (SELECT	video.video_id id,
+		  video.name title,
+		  video.description description,
+		  video.tags tags,
+		  video.broadcast_date broadcast_date,
+		  to_tsvector(video.name) || ' ' ||
+			to_tsvector(video.description) || ' ' ||
+			to_tsvector(unnest(video.tags)) || ' ' ||
+			  to_tsvector(CAST(video.broadcast_date AS text)) || ' ' ||
+			  to_tsvector(unnest(array_agg(series.name))) || ' ' ||
+			  to_tsvector(unnest(array_agg(series.description)))
+		  AS document
+	FROM video.items video
+	INNER JOIN video.series series ON video.series_id = series.series_id
+	GROUP BY video.video_id) p_search
+	WHERE p_search.document @@ replace(plainto_tsquery($1)::text, '&', '|')::tsquery;`, query)
+	if err != nil {
+		return Series{}, fmt.Errorf("failed to search videos: %w", err)
+	}
+	return s, nil
+}

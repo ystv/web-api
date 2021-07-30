@@ -483,6 +483,11 @@ definitions:
           $ref: '#/definitions/public.VideoItem'
         type: array
     type: object
+  public.SearchInput:
+    properties:
+      query:
+        type: string
+    type: object
   public.Series:
     properties:
       childSeries:
@@ -1477,7 +1482,10 @@ paths:
         schema:
           $ref: '#/definitions/video.New'
       responses:
-        "200": {}
+        "201":
+          description: Video ID
+          schema:
+            type: body
       summary: New video
       tags:
       - creator-videos
@@ -2035,6 +2043,29 @@ paths:
       summary: Provides the visible channels
       tags:
       - public-playout-channels
+  /v1/public/search:
+    post:
+      description: Returns a virtual series that contains relevant videos and series
+      operationId: search-vod
+      parameters:
+      - description: Search Input object
+        in: body
+        name: searchInput
+        required: true
+        schema:
+          $ref: '#/definitions/public.SearchInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/public.Series'
+            type: array
+      summary: Search the VOD library
+      tags:
+      - public-series
   /v1/public/series/{seriesid}:
     get:
       description: Returns a series object, including the children videos and series.

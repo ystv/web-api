@@ -264,6 +264,7 @@ func (r *Router) loadRoutes() {
 
 		public := apiV1.Group("/public")
 		{
+			public.POST("/search", r.public.Search)
 			public.GET("/find/*", r.public.Find)
 			video := public.Group("/video")
 			{

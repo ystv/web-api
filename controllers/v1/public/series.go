@@ -54,3 +54,31 @@ func (r *Repos) SeriesByYear(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, s)
 }
+
+type SearchInput struct {
+	Query string `json:"query"`
+}
+
+// Search returns a virtual series that contains relevant videos and series
+//
+// @Summary Search the VOD library
+// @Description Returns a virtual series that contains relevant videos and series
+// @ID search-vod
+// @Tags public-series
+// @Param searchInput body SearchInput true "Search Input object"
+// @Produce json
+// @Success 200 {array} public.Series
+// @Router /v1/public/search [post]
+func (r *Repos) Search(c echo.Context) error {
+	searchInput := SearchInput{}
+	err := c.Bind(&searchInput)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	s, err := r.public.Search(c.Request().Context(), searchInput.Query)
+	if err != nil {
+		err = fmt.Errorf("Public Search failed : %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, s)
+}

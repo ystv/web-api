@@ -1008,7 +1008,12 @@
                     }
                 ],
                 "responses": {
-                    "200": {}
+                    "201": {
+                        "description": "Video ID",
+                        "schema": {
+                            "type": "body"
+                        }
+                    }
                 }
             }
         },
@@ -1791,6 +1796,41 @@
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/public.Channel"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/public/search": {
+            "post": {
+                "description": "Returns a virtual series that contains relevant videos and series",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public-series"
+                ],
+                "summary": "Search the VOD library",
+                "operationId": "search-vod",
+                "parameters": [
+                    {
+                        "description": "Search Input object",
+                        "name": "searchInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/public.SearchInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/public.Series"
                             }
                         }
                     }
@@ -2836,6 +2876,14 @@
                     "items": {
                         "$ref": "#/definitions/public.VideoItem"
                     }
+                }
+            }
+        },
+        "public.SearchInput": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string"
                 }
             }
         },

@@ -20,6 +20,7 @@ type (
 		GetSeriesMeta(ctx context.Context, seriesID int) (Series, error)
 		GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID int) ([]SeriesMeta, error)
 		GetSeriesFromPath(ctx context.Context, path string) (Series, error)
+		Search(ctx context.Context, query string) (Series, error)
 	}
 	PlaylistRepo interface {
 		GetPlaylist(ctx context.Context, playlistID int) (Playlist, error)
