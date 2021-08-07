@@ -12,11 +12,12 @@ import (
 	"github.com/lib/pq"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/video"
+	"github.com/ystv/web-api/services/encoder"
 	"github.com/ystv/web-api/utils"
 )
 
 // NewStore returns a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Store {
+func NewStore(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Store {
 	return &Store{db: db, cdn: cdn, conf: conf}
 }
 
@@ -83,6 +84,14 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) (int, error) {
 		})
 
 		return 0, fmt.Errorf("failed to insert create: %w", err)
+	}
+
+	// Check if a preset was attached, if so we will start transcoding jobs
+	if v.Preset != 0 {
+		err = s.enc.RefreshVideo(ctx, videoID)
+		if err != nil {
+			return videoID, fmt.Errorf("failed to refresh video: %w", err)
+		}
 	}
 	return videoID, nil
 }

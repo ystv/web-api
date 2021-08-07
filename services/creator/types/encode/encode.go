@@ -21,6 +21,7 @@ type (
 		Mode        string      `json:"mode" db:"mode"`
 		Width       int         `json:"width" db:"width"`
 		Height      int         `json:"height" db:"height"`
+		Arguments   string      `json:"arguments" db:"arguments"`
 		Watermarked bool        `json:"watermarked" db:"watermarked"`
 	}
 )

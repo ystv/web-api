@@ -10,6 +10,7 @@ import (
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/series"
 	"github.com/ystv/web-api/services/creator/video"
+	"github.com/ystv/web-api/services/encoder"
 )
 
 // Here for validation to ensure we are meeting the interface
@@ -22,8 +23,8 @@ type Controller struct {
 }
 
 // NewController creates a new controller
-func NewController(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Controller {
-	return &Controller{db: db, video: video.NewStore(db, cdn, conf)}
+func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Controller {
+	return &Controller{db: db, video: video.NewStore(db, cdn, enc, conf)}
 }
 
 // Get provides the immediate children of series and videos

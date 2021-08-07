@@ -12,6 +12,7 @@ import (
 	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/controllers/v1/public"
 	"github.com/ystv/web-api/routes"
+	"github.com/ystv/web-api/services/encoder"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -67,6 +68,19 @@ func main() {
 	cdn := utils.NewCDN(cdnConfig)
 	log.Printf("Connected to CDN: %s@%s", cdnConfig.AccessKeyID, cdnConfig.Endpoint)
 
+	// Message Queue
+	mqConfig := utils.MQConfig{
+		Host:     os.Getenv("WAPI_MQ_HOST"),
+		Port:     os.Getenv("WAPI_MQ_PORT"),
+		Username: os.Getenv("WAPI_MQ_USER"),
+		Password: os.Getenv("WAPI_MQ_PASS"),
+	}
+	mq, err := utils.NewMQ(mqConfig)
+	if err != nil {
+		log.Fatalf("failed to start mq: %+v", err)
+	}
+	log.Printf("Connected to MQ: %s@%s", mqConfig.Username, mqConfig.Host)
+
 	// Mail
 	// mailPort, err := strconv.Atoi(os.Getenv("WAPI_MAIL_PORT"))
 	// if err != nil {
@@ -87,6 +101,12 @@ func main() {
 	// Messaging
 	// utils.InitMessaging()
 
+	encoderConfig := &encoder.Config{
+		VTEndpoint:  os.Getenv("WAPI_VT_ENDPOINT"),
+		ServeBucket: os.Getenv("WAPI_BUCKET_VOD_SERVE"),
+	}
+	enc := encoder.NewEncoder(db, cdn, mq, encoderConfig)
+
 	routes.New(&routes.NewRouter{
 		Version:       Version,
 		Commit:        Commit,
@@ -94,7 +114,8 @@ func main() {
 		Debug:         debug,
 		JWTSigningKey: os.Getenv("WAPI_SIGNING_KEY"),
 		Clapper:       clapper.NewRepos(db),
-		Creator:       creator.NewRepos(db, cdn),
+		Creator:       creator.NewRepos(db, cdn, enc),
+		Encoder:       enc,
 		Misc:          misc.NewRepos(db),
 		People:        people.NewRepo(db),
 		Public:        public.NewRepos(db),

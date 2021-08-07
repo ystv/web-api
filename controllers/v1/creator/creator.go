@@ -15,6 +15,7 @@ import (
 	"github.com/ystv/web-api/services/creator/playout"
 	"github.com/ystv/web-api/services/creator/series"
 	"github.com/ystv/web-api/services/creator/video"
+	"github.com/ystv/web-api/services/encoder"
 )
 
 // Repos represents all our data repositories
@@ -29,17 +30,17 @@ type Repos struct {
 }
 
 // NewRepos creates our data repositories
-func NewRepos(db *sqlx.DB, cdn *s3.S3) *Repos {
+func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder) *Repos {
 	config := &creator.Config{
 		IngestBucket: os.Getenv("WAPI_BUKCET_VOD_INGEST"),
 		ServeBucket:  os.Getenv("WAPI_BUCKET_VOD_SERVE"),
 	}
 	return &Repos{
-		video.NewStore(db, cdn, config),
-		series.NewController(db, cdn, config),
+		video.NewStore(db, cdn, enc, config),
+		series.NewController(db, cdn, enc, config),
 		playlist.NewStore(db),
 		playout.NewStore(db),
-		breadcrumb.NewController(db, cdn, config),
+		breadcrumb.NewController(db, cdn, enc, config),
 		encode.NewStore(db),
 		creator.NewStore(db),
 	}
