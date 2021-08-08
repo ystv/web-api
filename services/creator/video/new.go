@@ -59,7 +59,9 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) (int, error) {
 			Bucket:     aws.String(s.conf.ServeBucket),
 			CopySource: aws.String(s.conf.IngestBucket + "/" + v.FileID[:32]),
 			Key:        aws.String(key),
+			Metadata:   obj.Metadata, // TODO: Copy from the soure Content-Type
 		})
+
 		if err != nil {
 			return fmt.Errorf("failed to copy video object from pending bucket to video bucket: %w", err)
 		}
