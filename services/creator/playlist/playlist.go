@@ -47,12 +47,12 @@ func (m *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, err
 		return p, err
 	}
 	err = m.db.SelectContext(ctx, &p.Videos,
-		`SELECT video_id, series_id, name video_name, url, EXTRACT(EPOCH FROM duration)::int AS duration, views, tags, broadcast_date, created_at
+		`SELECT video_id, series_id, name video_name, url, duration AS duration, views, tags, broadcast_date, created_at
 		FROM video.items
 		INNER JOIN video.playlist_items ON video_id = video_item_id
 		ORDER BY position ASC;`)
 	if err != nil {
-		err = fmt.Errorf("failed to selected videos: %w", err)
+		err = fmt.Errorf("failed to select videos: %w", err)
 	}
 	return p, err
 }
