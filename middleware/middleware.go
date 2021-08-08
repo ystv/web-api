@@ -19,9 +19,11 @@ func New(e *echo.Echo, domainName string) {
 			"https://creator." + domainName,
 			"http://my." + domainName,
 			"https://my." + domainName,
+			"http://local." + domainName,
+			"https://local." + domainName,
 			"http://" + domainName,
 			"https://" + domainName},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowCredentials},
 		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
 	}
 
