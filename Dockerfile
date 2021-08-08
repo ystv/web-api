@@ -1,6 +1,20 @@
-FROM golang:1.15-alpine AS build
+FROM golang:1.16-alpine AS build
 LABEL site="api"
 LABEL stage="builder"
+
+# Create webapiuser.
+ENV USER=webapiuser
+ENV UID=10001
+
+# See https://stackoverflow.com/a/55757473/12429735RUN 
+RUN adduser \    
+    --disabled-password \    
+    --gecos "" \    
+    --home "/nonexistent" \    
+    --shell "/sbin/nologin" \    
+    --no-create-home \    
+    --uid "${UID}" \    
+    "${USER}"
 
 WORKDIR /src/
 
@@ -16,7 +30,8 @@ COPY . .
 
 # Download git
 RUN apk update && apk upgrade && \
-    apk add --no-cache git
+    apk add --no-cache git ca-certificates tzdata && \
+    update-ca-certificates
 
 # Set build variables
 RUN echo -n "-X 'main.Version=$(git describe --abbrev=0)" > ./ldflags && \
@@ -29,5 +44,16 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflag
 
 FROM scratch
 LABEL site="api"
+
+# Import the user and group files from the builder.
+COPY --from=build /etc/passwd /etc/passwd
+COPY --from=build /etc/group /etc/group
+
 COPY --from=build /bin/api /bin/api
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
+
+# Use an unprivileged user.
+USER webapiuser:webapiuser
+
 ENTRYPOINT ["/bin/api"]
