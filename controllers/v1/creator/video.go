@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator/types/video"
 	"github.com/ystv/web-api/utils"
+	"gopkg.in/guregu/null.v4"
 )
 
 // GetVideo finds a video by ID
@@ -70,19 +72,32 @@ func (r *Repos) NewVideo(c echo.Context) error {
 
 // UpdateVideo updates a video's metadata not files
 //
-// @Summary Update video
-// @Description Updates a video
-// @ID update-creator-video
+// @Summary Update video meta
+// @Description Updates a video metadata
+// @ID update-creator-video-meta
 // @Tags creator-videos
 // @Accept json
 // @Param event body video.Item true "VideoItem object"
 // @Success 200 body int "Video ID"
-// @Router /v1/internal/creator/videos [put]
-func (r *Repos) UpdateVideo(c echo.Context) error {
-	v := video.Item{}
+// @Router /v1/internal/creator/video/meta [put]
+func (r *Repos) UpdateVideoMeta(c echo.Context) error {
+	v := video.Meta{}
 	err := c.Bind(&v)
 	if err != nil {
-		return fmt.Errorf("failed to update video: %w", err)
+		err = fmt.Errorf("failed to update video: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	t, err := utils.GetTokenEcho(c)
+	if err != nil {
+		err = fmt.Errorf("failed to get token: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	v.UpdatedByID = null.IntFrom(int64(t.UserID))
+	v.UpdatedAt = null.TimeFrom(time.Now())
+	err = r.video.UpdateMeta(c.Request().Context(), v)
+	if err != nil {
+		err = fmt.Errorf("failed to update meta: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)
 }
