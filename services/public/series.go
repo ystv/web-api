@@ -7,8 +7,6 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-// TODO add AND to ensure only public is displayed
-
 type (
 	// Series provides basic information about a series
 	// this is useful when you want to know the current series and
@@ -59,7 +57,8 @@ func (m *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error)
 	err := m.db.GetContext(ctx, &s,
 		`SELECT series_id, url, name, description, thumbnail
 		FROM video.series
-		WHERE series_id = $1;`, seriesID)
+		WHERE series_id = $1
+		AND status = 'public';`, seriesID)
 	return s, err
 }
 
@@ -92,8 +91,9 @@ func (m *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 						AND sub_parent.series_id = sub_tree.series_id
 					GROUP BY node.series_id, sub_tree.depth
 					ORDER BY node.lft asc
-			) as queries
-			where depth = 1;`, seriesID)
+			) AS queries
+			WHERE depth = 1
+			AND status = 'public';`, seriesID)
 	return s, err
 }
 
@@ -104,7 +104,7 @@ func (m *Store) GetSeriesFromPath(ctx context.Context, path string) (Series, err
 		`SELECT series_id
 	FROM video.series_paths
 	WHERE path = $1
-	AND status = 'public'`, path)
+	AND status = 'public';`, path)
 	if err != nil {
 		return s, err
 	}
@@ -129,9 +129,10 @@ func (m *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 	err := m.db.SelectContext(ctx, &s.ChildVideos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
-		views, EXTRACT(EPOCH FROM duration)::int AS duration
+		views, duration AS duration
 		FROM video.items
-		WHERE EXTRACT(year FROM broadcast_date) = $1;`, year)
+		WHERE EXTRACT(year FROM broadcast_date) = $1 AND
+		status = 'public';`, year)
 	if err != nil {
 		return s, fmt.Errorf("failed to get list of video metas by year: %w", err)
 	}
@@ -144,23 +145,30 @@ func (m *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 func (m *Store) Search(ctx context.Context, query string) (Series, error) {
 	s := Series{}
 	err := m.db.SelectContext(ctx, &s.ChildVideos,
-		`SELECT id AS video_id, title AS name, description, broadcast_date
-	FROM (SELECT	video.video_id id,
+		`SELECT video_id, title AS name, url, description, thumbnail,
+		 broadcast_date, viewers AS views, duration
+	FROM (SELECT
+		  video.video_id video_id,
 		  video.name title,
+		  video.url url,
 		  video.description description,
+		  video.thumbnail thumbnail,
+		  video.views viewers,
+		  video.duration duration,
 		  video.tags tags,
 		  video.broadcast_date broadcast_date,
-		  to_tsvector(video.name) || ' ' ||
+			to_tsvector(video.name) || ' ' ||
 			to_tsvector(video.description) || ' ' ||
 			to_tsvector(unnest(video.tags)) || ' ' ||
-			  to_tsvector(CAST(video.broadcast_date AS text)) || ' ' ||
-			  to_tsvector(unnest(array_agg(series.name))) || ' ' ||
-			  to_tsvector(unnest(array_agg(series.description)))
+			to_tsvector(CAST(video.broadcast_date AS text)) || ' ' ||
+			to_tsvector(unnest(array_agg(series.name))) || ' ' ||
+			to_tsvector(unnest(array_agg(series.description)))
 		  AS document
 	FROM video.items video
 	INNER JOIN video.series series ON video.series_id = series.series_id
+	WHERE video.status = 'public'
 	GROUP BY video.video_id) p_search
-	WHERE p_search.document @@ replace(plainto_tsquery($1)::text, '&', '|')::tsquery;`, query)
+	WHERE p_search.document @@ replace(plainto_tsquery('elections')::text, '&', '|')::tsquery;`, query)
 	if err != nil {
 		return Series{}, fmt.Errorf("failed to search videos: %w", err)
 	}
