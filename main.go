@@ -101,9 +101,24 @@ func main() {
 	// Messaging
 	// utils.InitMessaging()
 
+	bucketConf := struct {
+		IngestBucket string
+		ServeBucket  string
+	}{
+		IngestBucket: os.Getenv("WAPI_BUKCET_VOD_INGEST"),
+		ServeBucket:  os.Getenv("WAPI_BUCKET_VOD_SERVE"),
+	}
+	log.Printf("Ingest bucket: %s", bucketConf.IngestBucket)
+	log.Printf("Serve bucket: %s", bucketConf.ServeBucket)
+
+	creatorConfig := &creator.Config{
+		IngestBucket: bucketConf.IngestBucket,
+		ServeBucket:  bucketConf.ServeBucket,
+	}
+
 	encoderConfig := &encoder.Config{
 		VTEndpoint:  os.Getenv("WAPI_VT_ENDPOINT"),
-		ServeBucket: os.Getenv("WAPI_BUCKET_VOD_SERVE"),
+		ServeBucket: bucketConf.ServeBucket,
 	}
 	enc := encoder.NewEncoder(db, cdn, mq, encoderConfig)
 
@@ -114,7 +129,7 @@ func main() {
 		Debug:         debug,
 		JWTSigningKey: os.Getenv("WAPI_SIGNING_KEY"),
 		Clapper:       clapper.NewRepos(db),
-		Creator:       creator.NewRepos(db, cdn, enc),
+		Creator:       creator.NewRepos(db, cdn, enc, creatorConfig),
 		Encoder:       enc,
 		Misc:          misc.NewRepos(db),
 		People:        people.NewRepo(db),

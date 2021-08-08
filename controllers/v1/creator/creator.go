@@ -3,7 +3,6 @@ package creator
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
@@ -29,11 +28,16 @@ type Repos struct {
 	creator    creator.StatRepo
 }
 
+type Config struct {
+	IngestBucket string
+	ServeBucket  string
+}
+
 // NewRepos creates our data repositories
-func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder) *Repos {
+func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *Config) *Repos {
 	config := &creator.Config{
-		IngestBucket: os.Getenv("WAPI_BUKCET_VOD_INGEST"),
-		ServeBucket:  os.Getenv("WAPI_BUCKET_VOD_SERVE"),
+		IngestBucket: conf.IngestBucket,
+		ServeBucket:  conf.ServeBucket,
 	}
 	return &Repos{
 		video.NewStore(db, cdn, enc, config),

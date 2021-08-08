@@ -29,7 +29,7 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) (int, error) {
 		Key:    aws.String(v.FileID[:32]),
 	})
 	if err != nil {
-		return 0, fmt.Errorf("failed to find video object in s3: %w", err)
+		return 0, fmt.Errorf("failed to find video object \"%s\" in bucket \"%s\": %w", v.FileID[:32], s.conf.IngestBucket, err)
 	}
 
 	// Generating timestamp
