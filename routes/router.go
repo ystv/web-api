@@ -148,6 +148,7 @@ func (r *Router) loadRoutes() {
 					videos.GET("/my", r.creator.ListVideosByUser)
 					videos.POST("", r.creator.NewVideo)
 					videos.PUT("/meta", r.creator.UpdateVideoMeta)
+					videos.POST("/search", r.creator.SearchVideo)
 					videoItem := videos.Group("/:id")
 					{
 						videoItem.GET("", r.creator.GetVideo)

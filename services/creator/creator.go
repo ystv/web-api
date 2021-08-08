@@ -27,6 +27,7 @@ type (
 		ListMetaByUser(ctx context.Context, userID int) (*[]video.Meta, error)
 		ListByCalendarMonth(ctx context.Context, year, month int) (*[]video.MetaCal, error)
 		OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, error)
+		Search(ctx context.Context, query string) ([]video.Meta, error)
 
 		// New method
 		NewItem(ctx context.Context, v *video.New) (int, error)

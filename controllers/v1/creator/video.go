@@ -174,3 +174,31 @@ func (r *Repos) ListVideosByMonth(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, v)
 }
+
+type SearchInput struct {
+	Query string `json:"query"`
+}
+
+// SearchVideo Handles listing appropriate videos from a relevant search
+//
+// @Summary Search videos
+// @Description Search videos.
+// @ID search-creator-videos
+// @Tags creator-videos
+// @Produce json
+// @Param searchInput body searchInput true "Search Input object"
+// @Success 200 {array} video.Meta
+// @Router /v1/internal/creator/video/search [post]
+func (r *Repos) SearchVideo(c echo.Context) error {
+	searchInput := SearchInput{}
+	err := c.Bind(&searchInput)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	s, err := r.video.Search(c.Request().Context(), searchInput.Query)
+	if err != nil {
+		err = fmt.Errorf("Public Search failed : %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, s)
+}
