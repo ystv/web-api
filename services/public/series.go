@@ -145,30 +145,43 @@ func (m *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 func (m *Store) Search(ctx context.Context, query string) (Series, error) {
 	s := Series{}
 	err := m.db.SelectContext(ctx, &s.ChildVideos,
-		`SELECT video_id, title AS name, url, description, thumbnail,
-		 broadcast_date, viewers AS views, duration
-	FROM (SELECT
-		  video.video_id video_id,
-		  video.name title,
-		  video.url url,
-		  video.description description,
-		  video.thumbnail thumbnail,
-		  video.views viewers,
-		  video.duration duration,
-		  video.tags tags,
-		  video.broadcast_date broadcast_date,
-			to_tsvector(video.name) || ' ' ||
-			to_tsvector(video.description) || ' ' ||
-			to_tsvector(unnest(video.tags)) || ' ' ||
-			to_tsvector(CAST(video.broadcast_date AS text)) || ' ' ||
-			to_tsvector(unnest(array_agg(series.name))) || ' ' ||
-			to_tsvector(unnest(array_agg(series.description)))
-		  AS document
-	FROM video.items video
-	INNER JOIN video.series series ON video.series_id = series.series_id
-	WHERE video.status = 'public'
-	GROUP BY video.video_id) p_search
-	WHERE p_search.document @@ replace(plainto_tsquery($1)::text, '&', '|')::tsquery;`, query)
+		`SELECT
+			video_id,
+			name,
+			url,
+			description,
+			thumbnail,
+		 	broadcast_date,
+		 	views,
+			duration
+		FROM (
+			SELECT
+		  		video.video_id,
+		  		video.name,
+		  		video.url,
+		  		video.description,
+		  		video.thumbnail,
+		  		video.views,
+		  		video.duration,
+		  		video.tags,
+		  		video.broadcast_date,
+				
+				to_tsvector(video.name) || ' ' ||
+				to_tsvector(video.description) || ' ' ||
+				to_tsvector(unnest(video.tags)) || ' ' ||
+				to_tsvector(CAST(video.broadcast_date AS text)) || ' ' ||
+				to_tsvector(unnest(array_agg(series.name))) || ' ' ||
+				to_tsvector(unnest(array_agg(series.description)))
+		  		AS document
+			FROM video.items video
+			INNER JOIN video.series series ON video.series_id = series.series_id
+			WHERE video.status = 'public'
+			GROUP BY video.video_id) p_search,
+
+			ts_rank_cd(p_search.document, replace(plainto_tsquery($1)::text, '&', '|')::tsquery) rank
+
+	WHERE p_search.document @@ replace(plainto_tsquery($1)::text, '&', '|')::tsquery
+	ORDER BY rank DESC;`, query)
 	if err != nil {
 		return Series{}, fmt.Errorf("failed to search videos: %w", err)
 	}
