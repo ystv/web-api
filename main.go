@@ -105,7 +105,7 @@ func main() {
 		IngestBucket string
 		ServeBucket  string
 	}{
-		IngestBucket: os.Getenv("WAPI_BUKCET_VOD_INGEST"),
+		IngestBucket: os.Getenv("WAPI_BUCKET_VOD_INGEST"),
 		ServeBucket:  os.Getenv("WAPI_BUCKET_VOD_SERVE"),
 	}
 	log.Printf("Ingest bucket: %s", bucketConf.IngestBucket)
