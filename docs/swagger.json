@@ -648,7 +648,7 @@
                 }
             }
         },
-        "/v1/internal/creator/playlists": {
+        "/v1/internal/creator/playlist": {
             "get": {
                 "description": "Lists all playlists, doesn't include videos inside.",
                 "produces": [
@@ -727,7 +727,7 @@
                 }
             }
         },
-        "/v1/internal/creator/playlists/{playlistid}": {
+        "/v1/internal/creator/playlist/{playlistid}": {
             "get": {
                 "description": "Get a playlist including it's children videos.",
                 "produces": [
@@ -933,7 +933,7 @@
                 }
             }
         },
-        "/v1/internal/creator/videos": {
+        "/v1/internal/creator/video": {
             "get": {
                 "description": "Lists all videos, doesn't include files inside.",
                 "produces": [
@@ -955,17 +955,19 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/internal/creator/video/meta": {
             "put": {
-                "description": "Updates a video",
+                "description": "Updates a video metadata",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-videos"
                 ],
-                "summary": "Update video",
-                "operationId": "update-creator-video",
+                "summary": "Update video meta",
+                "operationId": "update-creator-video-meta",
                 "parameters": [
                     {
                         "description": "VideoItem object",
@@ -985,7 +987,33 @@
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/internal/creator/video/my": {
+            "get": {
+                "description": "Lists all videos, doesn't include files inside. Uses the createdBy user ID.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "creator-videos"
+                ],
+                "summary": "List all videos created by user ID",
+                "operationId": "get-creator-videos-user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/video.Meta"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/creator/videos": {
             "post": {
                 "description": "creates a new video, requires the file ID/name to find it in CDN.",
                 "consumes": [
@@ -1012,30 +1040,6 @@
                         "description": "Video ID",
                         "schema": {
                             "type": "body"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/internal/creator/videos/my": {
-            "get": {
-                "description": "Lists all videos, doesn't include files inside. Uses the createdBy user ID.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "creator-videos"
-                ],
-                "summary": "List all videos created by user ID",
-                "operationId": "get-creator-videos-user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/video.Meta"
-                            }
                         }
                     }
                 }
@@ -2396,6 +2400,9 @@
         "encode.Format": {
             "type": "object",
             "properties": {
+                "arguments": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },

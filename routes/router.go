@@ -142,15 +142,12 @@ func (r *Router) loadRoutes() {
 			}
 			creator := internal.Group("/creator")
 			{
-				video := creator.Group("/video")
-				{
-					video.PUT("/meta", r.creator.UpdateVideoMeta)
-				}
-				videos := creator.Group("/videos")
+				videos := creator.Group("/video")
 				{
 					videos.GET("", r.creator.VideoList)
 					videos.GET("/my", r.creator.ListVideosByUser)
 					videos.POST("", r.creator.NewVideo)
+					videos.PUT("/meta", r.creator.UpdateVideoMeta)
 					videoItem := videos.Group("/:id")
 					{
 						videoItem.GET("", r.creator.GetVideo)
@@ -167,7 +164,7 @@ func (r *Router) loadRoutes() {
 						// seriesItem.DELETE("", r.creator.DeleteSeries)
 					}
 				}
-				playlists := creator.Group("/playlists")
+				playlists := creator.Group("/playlist")
 				{
 					playlists.GET("", r.creator.ListPlaylist)
 					playlists.POST("", r.creator.NewPlaylist)

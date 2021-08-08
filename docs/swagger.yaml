@@ -163,6 +163,8 @@ definitions:
     type: object
   encode.Format:
     properties:
+      arguments:
+        type: string
       description:
         type: string
       height:
@@ -1260,7 +1262,7 @@ paths:
       summary: List all encode formats
       tags:
       - creator-encodes
-  /v1/internal/creator/playlists:
+  /v1/internal/creator/playlist:
     get:
       description: Lists all playlists, doesn't include videos inside.
       operationId: get-creator-playlists-all
@@ -1314,7 +1316,7 @@ paths:
       summary: Update playlist
       tags:
       - creator-playlists
-  /v1/internal/creator/playlists/{playlistid}:
+  /v1/internal/creator/playlist/{playlistid}:
     get:
       description: Get a playlist including it's children videos.
       operationId: get-creator-playlist
@@ -1453,7 +1455,7 @@ paths:
       summary: Get global video library information
       tags:
       - creator
-  /v1/internal/creator/videos:
+  /v1/internal/creator/video:
     get:
       description: Lists all videos, doesn't include files inside.
       operationId: get-creator-videos-all
@@ -1469,6 +1471,45 @@ paths:
       summary: List all videos
       tags:
       - creator-videos
+  /v1/internal/creator/video/meta:
+    put:
+      consumes:
+      - application/json
+      description: Updates a video metadata
+      operationId: update-creator-video-meta
+      parameters:
+      - description: VideoItem object
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/video.Item'
+      responses:
+        "200":
+          description: Video ID
+          schema:
+            type: body
+      summary: Update video meta
+      tags:
+      - creator-videos
+  /v1/internal/creator/video/my:
+    get:
+      description: Lists all videos, doesn't include files inside. Uses the createdBy
+        user ID.
+      operationId: get-creator-videos-user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/video.Meta'
+            type: array
+      summary: List all videos created by user ID
+      tags:
+      - creator-videos
+  /v1/internal/creator/videos:
     post:
       consumes:
       - application/json
@@ -1489,26 +1530,6 @@ paths:
       summary: New video
       tags:
       - creator-videos
-    put:
-      consumes:
-      - application/json
-      description: Updates a video
-      operationId: update-creator-video
-      parameters:
-      - description: VideoItem object
-        in: body
-        name: event
-        required: true
-        schema:
-          $ref: '#/definitions/video.Item'
-      responses:
-        "200":
-          description: Video ID
-          schema:
-            type: body
-      summary: Update video
-      tags:
-      - creator-videos
   /v1/internal/creator/videos/{videoid}:
     get:
       description: Get a playlist including it's children files.
@@ -1527,23 +1548,6 @@ paths:
           schema:
             $ref: '#/definitions/video.Item'
       summary: Get video by ID
-      tags:
-      - creator-videos
-  /v1/internal/creator/videos/my:
-    get:
-      description: Lists all videos, doesn't include files inside. Uses the createdBy
-        user ID.
-      operationId: get-creator-videos-user
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/video.Meta'
-            type: array
-      summary: List all videos created by user ID
       tags:
       - creator-videos
   /v1/internal/misc/list/{listid}:

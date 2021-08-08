@@ -18,7 +18,7 @@ import (
 // @Tags creator-playlists
 // @Produce json
 // @Success 200 {array} playlist.Playlist
-// @Router /v1/internal/creator/playlists [get]
+// @Router /v1/internal/creator/playlist [get]
 func (r *Repos) ListPlaylist(c echo.Context) error {
 	p, err := r.playlist.All(c.Request().Context())
 	if err != nil {
@@ -36,7 +36,7 @@ func (r *Repos) ListPlaylist(c echo.Context) error {
 // @Produce json
 // @Param playlistid path int true "Playlist ID"
 // @Success 200 {object} playlist.Playlist
-// @Router /v1/internal/creator/playlists/{playlistid} [get]
+// @Router /v1/internal/creator/playlist/{playlistid} [get]
 func (r *Repos) GetPlaylist(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -58,7 +58,7 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 // @Accept json
 // @Param event body playlist.Playlist true "Playlist object"
 // @Success 201 body int "Playlist ID"
-// @Router /v1/internal/creator/playlists [post]
+// @Router /v1/internal/creator/playlist [post]
 func (r *Repos) NewPlaylist(c echo.Context) error {
 	p := playlist.New{}
 	err := c.Bind(&p)
@@ -90,7 +90,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 // @Accept json
 // @Param quote body playlist.New true "Playlist object"
 // @Success 200
-// @Router /v1/internal/creator/playlists [put]
+// @Router /v1/internal/creator/playlist [put]
 func (r *Repos) UpdatePlaylist(c echo.Context) error {
 	p := playlist.Playlist{}
 	err := c.Bind(&p)

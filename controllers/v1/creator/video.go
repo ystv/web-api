@@ -114,7 +114,7 @@ func (r *Repos) DeleteVideo(c echo.Context) error {
 // @Tags creator-videos
 // @Produce json
 // @Success 200 {array} video.Meta
-// @Router /v1/internal/creator/videos [get]
+// @Router /v1/internal/creator/video [get]
 func (r *Repos) VideoList(c echo.Context) error {
 	v, err := r.video.ListMeta(c.Request().Context())
 	if err != nil {
@@ -132,7 +132,7 @@ func (r *Repos) VideoList(c echo.Context) error {
 // @Tags creator-videos
 // @Produce json
 // @Success 200 {array} video.Meta
-// @Router /v1/internal/creator/videos/my [get]
+// @Router /v1/internal/creator/video/my [get]
 func (r *Repos) ListVideosByUser(c echo.Context) error {
 	claims, err := utils.GetTokenEcho(c)
 	if err != nil {
