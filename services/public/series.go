@@ -168,7 +168,7 @@ func (m *Store) Search(ctx context.Context, query string) (Series, error) {
 	INNER JOIN video.series series ON video.series_id = series.series_id
 	WHERE video.status = 'public'
 	GROUP BY video.video_id) p_search
-	WHERE p_search.document @@ replace(plainto_tsquery('elections')::text, '&', '|')::tsquery;`, query)
+	WHERE p_search.document @@ replace(plainto_tsquery($1)::text, '&', '|')::tsquery;`, query)
 	if err != nil {
 		return Series{}, fmt.Errorf("failed to search videos: %w", err)
 	}
