@@ -4,7 +4,7 @@ package encode
 // it can generate the video files so a video item.
 type (
 	Preset struct {
-		PresetID    int      `json:"id" db:"id"`
+		PresetID    int      `json:"presetID" db:"preset_id"`
 		Name        string   `json:"name" db:"name"`
 		Description string   `json:"description" db:"description"`
 		Formats     []Format `json:"formats"`
@@ -12,7 +12,7 @@ type (
 	// Format represents the encode that is applied
 	// to a file.
 	Format struct {
-		FormatID    int    `json:"id" db:"id"`
+		FormatID    int    `json:"formatID" db:"format_id"`
 		Name        string `json:"name" db:"name"`
 		Description string `json:"description" db:"description"`
 		MimeType    string `json:"mimeType" db:"mime_type"`

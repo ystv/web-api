@@ -545,7 +545,130 @@
                 }
             }
         },
-        "/v1/internal/creator/encodes/presets": {
+        "/v1/internal/creator/encode/format": {
+            "get": {
+                "description": "Lists all encode formats, these are instructions for the encoder to create the video",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "creator-encodes"
+                ],
+                "summary": "List all encode formats",
+                "operationId": "get-creator-encode-format",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/encode.Format"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "updates an preset",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "creator-encodes"
+                ],
+                "summary": "Update a preset",
+                "operationId": "update-creator-encode-format",
+                "parameters": [
+                    {
+                        "description": "Preset object",
+                        "name": "format",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/encode.Preset"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            },
+            "post": {
+                "description": "creates a new encode format.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "creator-encodes"
+                ],
+                "summary": "New encode format",
+                "operationId": "new-creator-encode-format",
+                "parameters": [
+                    {
+                        "description": "Encode format object",
+                        "name": "format",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/encode.Preset"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Preset ID",
+                        "schema": {
+                            "type": "body"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/creator/encode/format/{formatid}": {
+            "delete": {
+                "description": "Delete a video encode format",
+                "tags": [
+                    "creator-encodes"
+                ],
+                "summary": "Delete a encode format",
+                "operationId": "delete-creator-encode-format",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Format ID",
+                        "name": "formatid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/creator/encode/format/{presetid}": {
+            "delete": {
+                "description": "Delete a video encode format",
+                "tags": [
+                    "creator-encodes"
+                ],
+                "summary": "Delete a encode format",
+                "operationId": "delete-creator-encode-preset",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Preset ID",
+                        "name": "presetid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/creator/encode/preset": {
             "get": {
                 "description": "Lists all encode presets, these are groups of instructions (formats) for the encoder to create the video",
                 "produces": [
@@ -555,7 +678,7 @@
                     "creator-encodes"
                 ],
                 "summary": "List all encode presets",
-                "operationId": "get-creator-encodes-presets",
+                "operationId": "get-creator-encode-preset",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -577,7 +700,7 @@
                     "creator-encodes"
                 ],
                 "summary": "Update a preset",
-                "operationId": "update-creator-encodes-preset",
+                "operationId": "update-creator-encode-preset",
                 "parameters": [
                     {
                         "description": "Preset object",
@@ -602,7 +725,7 @@
                     "creator-encodes"
                 ],
                 "summary": "New preset",
-                "operationId": "new-creator-encodes-preset",
+                "operationId": "new-creator-encode-preset",
                 "parameters": [
                     {
                         "description": "Preset object",
@@ -619,30 +742,6 @@
                         "description": "Preset ID",
                         "schema": {
                             "type": "body"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/internal/creator/encodes/profiles": {
-            "get": {
-                "description": "Lists all encode formats, these are instructions for the encoder to create the video",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "creator-encodes"
-                ],
-                "summary": "List all encode formats",
-                "operationId": "get-creator-encodes-formats",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/encode.Format"
-                            }
                         }
                     }
                 }
@@ -1000,6 +1099,41 @@
                 ],
                 "summary": "List all videos created by user ID",
                 "operationId": "get-creator-videos-user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/video.Meta"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/creator/video/search": {
+            "post": {
+                "description": "Search videos.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "creator-videos"
+                ],
+                "summary": "Search videos",
+                "operationId": "search-creator-videos",
+                "parameters": [
+                    {
+                        "description": "Search Input object",
+                        "name": "searchInput",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/creator.searchInput"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2397,6 +2531,14 @@
                 }
             }
         },
+        "creator.searchInput": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string"
+                }
+            }
+        },
         "encode.Format": {
             "type": "object",
             "properties": {
@@ -2406,10 +2548,13 @@
                 "description": {
                     "type": "string"
                 },
-                "height": {
+                "fileSuffix": {
+                    "type": "string"
+                },
+                "formatID": {
                     "type": "integer"
                 },
-                "id": {
+                "height": {
                     "type": "integer"
                 },
                 "mimeType": {
@@ -2441,11 +2586,11 @@
                         "$ref": "#/definitions/encode.Format"
                     }
                 },
-                "id": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
+                },
+                "presetID": {
+                    "type": "integer"
                 }
             }
         },

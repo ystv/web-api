@@ -5,40 +5,113 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator/types/encode"
 )
 
-// ListEncodeProfile handles listing encode formats
+// ListEncodeFormat handles listing encode formats
 // @Summary List all encode formats
 // @Description Lists all encode formats, these are instructions for the encoder to create the video
-// @ID get-creator-encodes-formats
+// @ID get-creator-encode-format
 // @Tags creator-encodes
 // @Produce json
 // @Success 200 {array} encode.Format
-// @Router /v1/internal/creator/encodes/profiles [get]
-func (r *Repos) ListEncodeProfile(c echo.Context) error {
+// @Router /v1/internal/creator/encode/format [get]
+func (r *Repos) ListEncodeFormat(c echo.Context) error {
 	e, err := r.encode.ListFormat(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("EncodeProfileList failed: %w", err)
+		err = fmt.Errorf("ListFormat failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, e)
 }
 
-// ListPreset handles listing presets
+// NewEncodeFormat handles creating a new encode format
+// @Summary New encode format
+// @Description creates a new encode format.
+// @ID new-creator-encode-format
+// @Tags creator-encodes
+// @Accept json
+// @Param format body encode.Preset true "Encode format object"
+// @Success 201 body int "Preset ID"
+// @Router /v1/internal/creator/encode/format [post]
+func (r *Repos) NewEncodeFormat(c echo.Context) error {
+	format := encode.Format{}
+	err := c.Bind(&format)
+	if err != nil {
+		err = fmt.Errorf("failed to bind to request json: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	presetID, err := r.encode.NewFormat(c.Request().Context(), format)
+	if err != nil {
+		err = fmt.Errorf("NewFormat failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusCreated, presetID)
+}
+
+// UpdateEncodeFormat handles updating a preset
+// @Summary Update a preset
+// @Description updates an preset
+// @ID update-creator-encode-format
+// @Tags creator-encodes
+// @Accept json
+// @Param format body encode.Preset true "Preset object"
+// @Success 200
+// @Router /v1/internal/creator/encode/format [put]
+func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
+	format := encode.Format{}
+	err := c.Bind(&format)
+	if err != nil {
+		err = fmt.Errorf("failed to bind to request json: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+	err = r.encode.UpdateFormat(c.Request().Context(), format)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusBadRequest, "no preset found")
+		}
+		err = fmt.Errorf("PresetUpdate failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+// DeleteEncodeFormat handles deleting quotes
+// @Summary Delete a encode format
+// @Description Delete a video encode format
+// @ID delete-creator-encode-format
+// @Tags creator-encodes
+// @Param formatid path int true "Format ID"
+// @Success 200
+// @Router /v1/internal/creator/encode/format/{formatid} [delete]
+func (r *Repos) DeleteEncodeFormat(c echo.Context) error {
+	formatID, err := strconv.Atoi(c.Param("formatid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
+	}
+	err = r.encode.DeleteFormat(c.Request().Context(), formatID)
+	if err != nil {
+		err = fmt.Errorf("DeleteFormat failed: %w", err)
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+// ListEncodePreset handles listing presets
 // @Summary List all encode presets
 // @Description Lists all encode presets, these are groups of instructions (formats) for the encoder to create the video
-// @ID get-creator-encodes-presets
+// @ID get-creator-encode-preset
 // @Tags creator-encodes
 // @Produce json
 // @Success 200 {array} encode.Preset
-// @Router /v1/internal/creator/encodes/presets [get]
-func (r *Repos) ListPreset(c echo.Context) error {
+// @Router /v1/internal/creator/encode/preset [get]
+func (r *Repos) ListEncodePreset(c echo.Context) error {
 	p, err := r.encode.ListPreset(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("PresetList failed: %w", err)
+		err = fmt.Errorf("ListPreset failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
@@ -47,20 +120,20 @@ func (r *Repos) ListPreset(c echo.Context) error {
 // NewPreset handles creating a new preset
 // @Summary New preset
 // @Description creates a new preset.
-// @ID new-creator-encodes-preset
+// @ID new-creator-encode-preset
 // @Tags creator-encodes
 // @Accept json
 // @Param event body encode.Preset true "Preset object"
 // @Success 201 body int "Preset ID"
-// @Router /v1/internal/creator/encodes/presets [post]
-func (r *Repos) NewPreset(c echo.Context) error {
+// @Router /v1/internal/creator/encode/preset [post]
+func (r *Repos) NewEncodePreset(c echo.Context) error {
 	p := encode.Preset{}
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	presetID, err := r.encode.NewPreset(c.Request().Context(), &p)
+	presetID, err := r.encode.NewPreset(c.Request().Context(), p)
 	if err != nil {
 		err = fmt.Errorf("PresetNew failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -71,26 +144,47 @@ func (r *Repos) NewPreset(c echo.Context) error {
 // UpdatePreset handles updating a preset
 // @Summary Update a preset
 // @Description updates an preset
-// @ID update-creator-encodes-preset
+// @ID update-creator-encode-preset
 // @Tags creator-encodes
 // @Accept json
 // @Param quote body encode.Preset true "Preset object"
 // @Success 200
-// @Router /v1/internal/creator/encodes/presets [put]
-func (r *Repos) UpdatePreset(c echo.Context) error {
+// @Router /v1/internal/creator/encode/preset [put]
+func (r *Repos) UpdateEncodePreset(c echo.Context) error {
 	p := encode.Preset{}
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	err = r.encode.UpdatePreset(c.Request().Context(), &p)
+	err = r.encode.UpdatePreset(c.Request().Context(), p)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return echo.NewHTTPError(http.StatusBadRequest, "No preset found")
+			return echo.NewHTTPError(http.StatusBadRequest, "no preset found")
 		}
 		err = fmt.Errorf("PresetUpdate failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+// DeleteEncodePreset handles deleting presets
+// @Summary Delete a encode format
+// @Description Delete a video encode format
+// @ID delete-creator-encode-preset
+// @Tags creator-encodes
+// @Param presetid path int true "Preset ID"
+// @Success 200
+// @Router /v1/internal/creator/encode/format/{presetid} [delete]
+func (r *Repos) DeleteEncodePreset(c echo.Context) error {
+	presetID, err := strconv.Atoi(c.Param("presetid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
+	}
+	err = r.encode.DeleteFormat(c.Request().Context(), presetID)
+	if err != nil {
+		err = fmt.Errorf("DeleteFormat failed: %w", err)
+		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)
 }

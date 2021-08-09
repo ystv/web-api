@@ -183,17 +183,21 @@ func (r *Router) loadRoutes() {
 					playout.PUT("/channels", r.creator.UpdateChannel)
 					playout.DELETE("/channels/:channelid", r.creator.DeleteChannel)
 				}
-				encodes := creator.Group("/encodes")
+				encode := creator.Group("/encode")
 				{
-					presets := encodes.Group("/presets")
+					preset := encode.Group("/preset")
 					{
-						presets.GET("", r.creator.ListPreset)
-						presets.POST("", r.creator.NewPreset)
-						presets.PUT("", r.creator.UpdatePreset) // We take the ID in the json request
+						preset.GET("", r.creator.ListEncodePreset)
+						preset.POST("", r.creator.NewEncodePreset)
+						preset.PUT("", r.creator.UpdateEncodePreset) // We take the ID in the json request
+						preset.DELETE("", r.creator.DeleteEncodePreset)
 					}
-					profiles := encodes.Group("/profiles")
+					format := encode.Group("/format")
 					{
-						profiles.GET("", r.creator.ListEncodeProfile)
+						format.GET("", r.creator.ListEncodeFormat)
+						format.PUT("", r.creator.UpdateEncodeFormat)
+						format.POST("", r.creator.NewEncodeFormat)
+						format.DELETE("/:formatid", r.creator.DeleteEncodeFormat)
 					}
 				}
 				creator.GET("/calendar/:year/:month", r.creator.ListVideosByMonth)

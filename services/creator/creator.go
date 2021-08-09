@@ -72,11 +72,15 @@ type (
 	}
 	// EncodeRepo defines all encode interactions
 	EncodeRepo interface {
-		GetPreset(ctx context.Context, presetID int) (*encode.Preset, error)
-		ListPreset(ctx context.Context) ([]encode.Preset, error)
-		NewPreset(ctx context.Context, p *encode.Preset) (int, error)
-		UpdatePreset(ctx context.Context, p *encode.Preset) error
 		ListFormat(ctx context.Context) ([]encode.Format, error)
+		NewFormat(ctx context.Context, format encode.Format) (int, error)
+		UpdateFormat(ctx context.Context, format encode.Format) error
+		DeleteFormat(ctx context.Context, formatID int) error
+		GetPreset(ctx context.Context, presetID int) (encode.Preset, error)
+		ListPreset(ctx context.Context) ([]encode.Preset, error)
+		NewPreset(ctx context.Context, p encode.Preset) (int, error)
+		UpdatePreset(ctx context.Context, p encode.Preset) error
+		DeletePreset(ctx context.Context, presetID int) error
 	}
 	// StatRepo defines all statistical interactions
 	StatRepo interface {

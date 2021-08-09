@@ -161,15 +161,22 @@ definitions:
       unlockDate:
         type: string
     type: object
+  creator.searchInput:
+    properties:
+      query:
+        type: string
+    type: object
   encode.Format:
     properties:
       arguments:
         type: string
       description:
         type: string
-      height:
+      fileSuffix:
+        type: string
+      formatID:
         type: integer
-      id:
+      height:
         type: integer
       mimeType:
         type: string
@@ -190,10 +197,10 @@ definitions:
         items:
           $ref: '#/definitions/encode.Format'
         type: array
-      id:
-        type: integer
       name:
         type: string
+      presetID:
+        type: integer
     type: object
   misc.List:
     properties:
@@ -1191,11 +1198,95 @@ paths:
       summary: List videos by month
       tags:
       - creator-videos
-  /v1/internal/creator/encodes/presets:
+  /v1/internal/creator/encode/format:
+    get:
+      description: Lists all encode formats, these are instructions for the encoder
+        to create the video
+      operationId: get-creator-encode-format
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/encode.Format'
+            type: array
+      summary: List all encode formats
+      tags:
+      - creator-encodes
+    post:
+      consumes:
+      - application/json
+      description: creates a new encode format.
+      operationId: new-creator-encode-format
+      parameters:
+      - description: Encode format object
+        in: body
+        name: format
+        required: true
+        schema:
+          $ref: '#/definitions/encode.Preset'
+      responses:
+        "201":
+          description: Preset ID
+          schema:
+            type: body
+      summary: New encode format
+      tags:
+      - creator-encodes
+    put:
+      consumes:
+      - application/json
+      description: updates an preset
+      operationId: update-creator-encode-format
+      parameters:
+      - description: Preset object
+        in: body
+        name: format
+        required: true
+        schema:
+          $ref: '#/definitions/encode.Preset'
+      responses:
+        "200": {}
+      summary: Update a preset
+      tags:
+      - creator-encodes
+  /v1/internal/creator/encode/format/{formatid}:
+    delete:
+      description: Delete a video encode format
+      operationId: delete-creator-encode-format
+      parameters:
+      - description: Format ID
+        in: path
+        name: formatid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete a encode format
+      tags:
+      - creator-encodes
+  /v1/internal/creator/encode/format/{presetid}:
+    delete:
+      description: Delete a video encode format
+      operationId: delete-creator-encode-preset
+      parameters:
+      - description: Preset ID
+        in: path
+        name: presetid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete a encode format
+      tags:
+      - creator-encodes
+  /v1/internal/creator/encode/preset:
     get:
       description: Lists all encode presets, these are groups of instructions (formats)
         for the encoder to create the video
-      operationId: get-creator-encodes-presets
+      operationId: get-creator-encode-preset
       produces:
       - application/json
       responses:
@@ -1212,7 +1303,7 @@ paths:
       consumes:
       - application/json
       description: creates a new preset.
-      operationId: new-creator-encodes-preset
+      operationId: new-creator-encode-preset
       parameters:
       - description: Preset object
         in: body
@@ -1232,7 +1323,7 @@ paths:
       consumes:
       - application/json
       description: updates an preset
-      operationId: update-creator-encodes-preset
+      operationId: update-creator-encode-preset
       parameters:
       - description: Preset object
         in: body
@@ -1243,23 +1334,6 @@ paths:
       responses:
         "200": {}
       summary: Update a preset
-      tags:
-      - creator-encodes
-  /v1/internal/creator/encodes/profiles:
-    get:
-      description: Lists all encode formats, these are instructions for the encoder
-        to create the video
-      operationId: get-creator-encodes-formats
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/encode.Format'
-            type: array
-      summary: List all encode formats
       tags:
       - creator-encodes
   /v1/internal/creator/playlist:
@@ -1507,6 +1581,29 @@ paths:
               $ref: '#/definitions/video.Meta'
             type: array
       summary: List all videos created by user ID
+      tags:
+      - creator-videos
+  /v1/internal/creator/video/search:
+    post:
+      description: Search videos.
+      operationId: search-creator-videos
+      parameters:
+      - description: Search Input object
+        in: body
+        name: searchInput
+        required: true
+        schema:
+          $ref: '#/definitions/creator.searchInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/video.Meta'
+            type: array
+      summary: Search videos
       tags:
       - creator-videos
   /v1/internal/creator/videos:

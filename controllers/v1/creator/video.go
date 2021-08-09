@@ -175,7 +175,7 @@ func (r *Repos) ListVideosByMonth(c echo.Context) error {
 	return c.JSON(http.StatusOK, v)
 }
 
-type SearchInput struct {
+type searchInput struct {
 	Query string `json:"query"`
 }
 
@@ -190,7 +190,7 @@ type SearchInput struct {
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video/search [post]
 func (r *Repos) SearchVideo(c echo.Context) error {
-	searchInput := SearchInput{}
+	searchInput := searchInput{}
 	err := c.Bind(&searchInput)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)

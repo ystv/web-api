@@ -46,7 +46,7 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 		
 		WHERE video_id = $12
 
-		RETURNING preset;`, m.SeriesID, m.Name, m.URL, m.Description, m.Thumbnail,
+		RETURNING preset_id;`, m.SeriesID, m.Name, m.URL, m.Description, m.Thumbnail,
 		m.Tags, m.Status, m.Preset.PresetID, m.BroadcastDate, m.UpdatedAt, m.UpdatedByID, m.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update video in db: %w", err)
