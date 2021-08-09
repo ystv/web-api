@@ -34,18 +34,15 @@ func (m *Store) GetSeries(ctx context.Context, seriesID int) (Series, error) {
 	s := Series{}
 	s, err := m.GetSeriesMeta(ctx, seriesID)
 	if err != nil {
-		err = fmt.Errorf("failed to get series meta: %w", err)
-		return s, err
+		return s, fmt.Errorf("failed to get series meta: %w", err)
 	}
 	s.ImmediateChildSeries, err = m.GetSeriesImmediateChildrenSeries(ctx, seriesID)
 	if err != nil {
-		err = fmt.Errorf("failed to get child series: %w", err)
-		return s, err
+		return s, fmt.Errorf("failed to get child series: %w", err)
 	}
 	s.ChildVideos, err = m.VideoOfSeries(ctx, seriesID)
 	if err != nil {
-		err = fmt.Errorf("failed to get child videos: %w", err)
-		return s, err
+		return s, fmt.Errorf("failed to get child videos: %w", err)
 	}
 	return s, nil
 }
@@ -68,7 +65,7 @@ func (m *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 	err := m.db.SelectContext(ctx, &s,
 		`SELECT * from (
 			SELECT 
-						node.series_id, node.url, node.name, node.description, node.thumbnail,
+						node.series_id, node.url, node.name, node.description, node.thumbnail, node.status,
 						(COUNT(parent.*) - (sub_tree.depth + 1)) AS depth
 					FROM
 						video.series AS node,
@@ -80,8 +77,8 @@ func (m *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 								video.series AS node,
 								video.series AS parent
 							WHERE
-								node.lft between parent.lft and parent.rgt
-								and node.series_id = $1
+								node.lft between parent.lft AND parent.rgt
+								AND node.series_id = $1
 							GROUP BY node.series_id
 							ORDER BY node.lft ASC
 						) AS sub_tree
@@ -92,8 +89,8 @@ func (m *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 					GROUP BY node.series_id, sub_tree.depth
 					ORDER BY node.lft asc
 			) AS queries
-			WHERE depth = 1
-			AND status = 'public';`, seriesID)
+			WHERE depth = 1 AND
+			status = 'public';`, seriesID)
 	return s, err
 }
 
