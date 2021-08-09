@@ -52,10 +52,13 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 		return ErrNoFormats
 	}
 	for _, format := range p.Formats {
-		err = e.CreateEncode(ctx, v.Files[srcFileIdx], format.FormatID)
+		res, err := e.CreateEncode(ctx, v.Files[srcFileIdx], format.FormatID)
 		if err != nil {
 			return fmt.Errorf("failed to create encode fileID=%d format=%d : %w", v.Files[srcFileIdx].FileID, format.FormatID, err)
 		}
+		e.db.ExecContext(ctx, `
+		INSERT INTO video.files(video_id, format_id, uri, status)
+		VALUES ($1, $2, $3, $4);`, videoID, format.FormatID, res.URI, "processing/"+res.JobID)
 	}
 	return nil
 }

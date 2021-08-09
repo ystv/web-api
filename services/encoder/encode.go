@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -36,8 +35,13 @@ func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (Vide
 	return v, nil
 }
 
+type EncodeResult struct {
+	URI   string
+	JobID string
+}
+
 // CreateEncode creates an encode item in the message queue.
-func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int) error {
+func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int) (EncodeResult, error) {
 	// Check video exists
 	// Validate encode format
 	// Send the job to VT
@@ -53,7 +57,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to get object: %w", err)
+		return EncodeResult{}, fmt.Errorf("failed to get object: %w", err)
 	}
 
 	format := EncodeFormat{}
@@ -62,7 +66,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		FROM video.encode_formats
 		WHERE format_id = $1`, formatID)
 	if format.Arguments == "" {
-		return ErrNoArgs
+		return EncodeResult{}, ErrNoArgs
 	}
 	if format.FileSuffix == "" {
 		format.FileSuffix = fmt.Sprint(formatID)
@@ -75,7 +79,8 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	extension := filepath.Ext(key)
 	keyWithoutExtension := strings.TrimSuffix(key, extension)
 
-	dstURL := e.conf.ServeBucket + keyWithoutExtension + "_" + format.FileSuffix + extension
+	// Setting the name of the transcoded file
+	dstURL := fmt.Sprintf("%s/%s_%s%s", e.conf.ServeBucket, keyWithoutExtension, format.FileSuffix, extension)
 
 	taskVOD := struct {
 		SrcURL  string `json:"srcURL"`
@@ -87,28 +92,27 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 
 	reqJSON, err := json.Marshal(taskVOD)
 	if err != nil {
-		return fmt.Errorf("failed to marshal json: %w", err)
+		return EncodeResult{}, fmt.Errorf("failed to marshal json: %w", err)
 	}
 
 	res, err := e.c.Post(e.conf.VTEndpoint+"/task/video/vod", "application/json", bytes.NewReader(reqJSON))
 	if err != nil {
-		return fmt.Errorf("failed to post to vt: %w", err)
+		return EncodeResult{}, fmt.Errorf("failed to post to vt: %w", err)
 	}
 
 	defer res.Body.Close()
 	switch status := res.StatusCode; {
 	case status == http.StatusCreated:
 	case status == http.StatusUnauthorized:
-		return ErrVTFailedToAuthenticate
+		return EncodeResult{}, ErrVTFailedToAuthenticate
 	default:
-		return ErrVTUnknownResponse
+		return EncodeResult{}, ErrVTUnknownResponse
 	}
 	dec := json.NewDecoder(res.Body)
 	task := TaskIdentification{}
 	err = dec.Decode(&task)
 	if err != nil {
-		return fmt.Errorf("failed to decode vt task response: %w", err)
+		return EncodeResult{}, fmt.Errorf("failed to decode vt task response: %w", err)
 	}
-	log.Printf("%+v", task)
-	return nil
+	return EncodeResult{URI: dstURL, JobID: task.TaskID}, nil
 }

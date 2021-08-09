@@ -8,11 +8,13 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/ystv/web-api/controllers/v1/clapper"
 	"github.com/ystv/web-api/controllers/v1/creator"
+	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
 	"github.com/ystv/web-api/controllers/v1/misc"
 	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/controllers/v1/public"
 	"github.com/ystv/web-api/routes"
 	"github.com/ystv/web-api/services/encoder"
+
 	"github.com/ystv/web-api/utils"
 )
 
@@ -130,7 +132,7 @@ func main() {
 		JWTSigningKey: os.Getenv("WAPI_SIGNING_KEY"),
 		Clapper:       clapper.NewRepos(db),
 		Creator:       creator.NewRepos(db, cdn, enc, creatorConfig),
-		Encoder:       enc,
+		Encoder:       encoderPackage.NewEncoderController(enc),
 		Misc:          misc.NewRepos(db),
 		People:        people.NewRepo(db),
 		Public:        public.NewRepos(db),

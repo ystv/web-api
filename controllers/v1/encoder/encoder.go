@@ -5,8 +5,13 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/ystv/web-api/services/encoder"
 	"github.com/ystv/web-api/utils"
 )
+
+type EncoderController struct {
+	enc *encoder.Encoder
+}
 
 type (
 	// These structs are for binding to tusd's request
@@ -45,7 +50,7 @@ type (
 // Connects with tusd through web-hooks, so tusd POSTs here.
 // tusd's requests here does contain a lot of useful information.
 // but for this endpoint, we are just checking for the JWT.
-func VideoNew(c echo.Context) error {
+func (e *EncoderController) VideoNew(c echo.Context) error {
 	r := Request{}
 	c.Bind(&r)
 	if r.HTTPRequest.Method != "POST" {
@@ -59,4 +64,17 @@ func VideoNew(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func (e *EncoderController) TranscodeFinished(c echo.Context) error {
+	err := e.enc.TranscodeFinished(c.Request().Context(), c.Param("taskid"))
+	if err != nil {
+		err = fmt.Errorf("transcode finished failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.NoContent(http.StatusOK)
+}
+
+func NewEncoderController(enc *encoder.Encoder) *EncoderController {
+	return &EncoderController{enc: enc}
 }
