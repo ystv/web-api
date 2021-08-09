@@ -15,7 +15,8 @@ func (s *Store) ListFormat(ctx context.Context) ([]encode.Format, error) {
 	err := s.db.SelectContext(ctx, &e, `
 		SELECT format_id, name, description, mime_type, mode, width, height,
 		arguments, file_suffix, watermarked
-		FROM video.encode_formats;`)
+		FROM video.encode_formats
+		ORDER BY name;`)
 	if err != nil {
 		return nil, err
 	}

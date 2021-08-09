@@ -57,9 +57,9 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 		return fmt.Errorf("failed to update video in db: %w", err)
 	}
 
-	if m.Preset.PresetID != video.Preset.PresetID {
+	if m.Preset.PresetID.Valid && m.Preset.PresetID != video.Preset.PresetID {
 		// preset change, need to schedule new video files
-		// err := s.enc.RefreshVideo(ctx, m.ID)
+		err := s.enc.RefreshVideo(ctx, m.ID)
 		if err != nil {
 			return fmt.Errorf("failed to refresh video: %w", err)
 		}

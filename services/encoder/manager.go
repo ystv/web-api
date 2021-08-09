@@ -41,7 +41,7 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 		return ErrTooManySourceFiles
 	}
 
-	if v.PresetID.Valid {
+	if !v.PresetID.Valid {
 		return ErrNoPreset
 	}
 	p, err := e.encode.GetPreset(ctx, int(v.PresetID.Int64))
@@ -51,10 +51,10 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 	if len(p.Formats) == 0 {
 		return ErrNoFormats
 	}
-	for format := range p.Formats {
-		err = e.CreateEncode(ctx, v.Files[srcFileIdx], format)
+	for _, format := range p.Formats {
+		err = e.CreateEncode(ctx, v.Files[srcFileIdx], format.FormatID)
 		if err != nil {
-			return fmt.Errorf("failed to create encode fileID=%d format=%d : %w", v.Files[srcFileIdx].FileID, format, err)
+			return fmt.Errorf("failed to create encode fileID=%d format=%d : %w", v.Files[srcFileIdx].FileID, format.FormatID, err)
 		}
 	}
 	return nil

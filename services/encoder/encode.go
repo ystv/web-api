@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"path/filepath"
 	"strings"
 
@@ -15,15 +17,17 @@ import (
 func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (VideoItem, error) {
 	v := VideoItem{}
 	v.VideoID = videoID
-	err := e.db.SelectContext(ctx, &v, `
+
+	err := e.db.GetContext(ctx, &v, `
 		SELECT preset_id
 		FROM video.items
 		WHERE video_id = $1`, videoID)
 	if err != nil {
-		return v, fmt.Errorf("failed to get video item: %w", err)
+		return v, fmt.Errorf("failed to get video item \"%d\": %w", videoID, err)
 	}
+
 	err = e.db.SelectContext(ctx, &v.Files, `
-		SELECT file_id, uri, encode_format
+		SELECT file_id, format_id, uri, is_source
 		FROM video.files
 		WHERE video_id = $1`, videoID)
 	if err != nil {
@@ -56,7 +60,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	e.db.GetContext(ctx, &format, `
 		SELECT arguments, file_suffix
 		FROM video.encode_formats
-		WHERE id = $1`, formatID)
+		WHERE format_id = $1`, formatID)
 	if format.Arguments == "" {
 		return ErrNoArgs
 	}
@@ -86,6 +90,25 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return fmt.Errorf("failed to marshal json: %w", err)
 	}
 
-	e.c.Post(e.conf.VTEndpoint+"/task/video/vod", "application/json", bytes.NewReader(reqJSON))
+	res, err := e.c.Post(e.conf.VTEndpoint+"/task/video/vod", "application/json", bytes.NewReader(reqJSON))
+	if err != nil {
+		return fmt.Errorf("failed to post to vt: %w", err)
+	}
+
+	defer res.Body.Close()
+	switch status := res.StatusCode; {
+	case status == http.StatusCreated:
+	case status == http.StatusUnauthorized:
+		return ErrVTFailedToAuthenticate
+	default:
+		return ErrVTUnknownResponse
+	}
+	dec := json.NewDecoder(res.Body)
+	task := TaskIdentification{}
+	err = dec.Decode(&task)
+	if err != nil {
+		return fmt.Errorf("failed to decode vt task response: %w", err)
+	}
+	log.Printf("%+v", task)
 	return nil
 }

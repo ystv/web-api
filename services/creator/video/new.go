@@ -18,7 +18,7 @@ import (
 
 // NewStore returns a new store
 func NewStore(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Store {
-	return &Store{db: db, cdn: cdn, conf: conf}
+	return &Store{db: db, cdn: cdn, enc: enc, conf: conf}
 }
 
 // NewItem creates a new video item
@@ -67,10 +67,10 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) (int, error) {
 		}
 
 		// Updating DB to reflect this
-		fileQuery := `INSERT INTO video.files (video_id, format_id, uri, status, size)
-					VALUES ($1, $2, $3, $4, $5);`
+		fileQuery := `INSERT INTO video.files (video_id, format_id, uri, status, size, is_source)
+					VALUES ($1, $2, $3, $4, $5, $6);`
 
-		_, err = tx.ExecContext(ctx, fileQuery, videoID, 1, "videos/"+key, "internal", *obj.ContentLength) // TODO make a original encode format
+		_, err = tx.ExecContext(ctx, fileQuery, videoID, 1, "videos/"+key, "internal", *obj.ContentLength, true) // TODO make a original encode format
 		if err != nil {
 			return fmt.Errorf("failed to insert video file row: %w", err)
 		}
