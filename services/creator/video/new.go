@@ -67,10 +67,10 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) (int, error) {
 		}
 
 		// Updating DB to reflect this
-		fileQuery := `INSERT INTO video.files (video_id, uri, status, encode_format, size)
+		fileQuery := `INSERT INTO video.files (video_id, format_id, uri, status, size)
 					VALUES ($1, $2, $3, $4, $5);`
 
-		_, err = tx.ExecContext(ctx, fileQuery, videoID, "videos/"+key, "internal", 1, *obj.ContentLength) // TODO make a original encode format
+		_, err = tx.ExecContext(ctx, fileQuery, videoID, 1, "videos/"+key, "internal", *obj.ContentLength) // TODO make a original encode format
 		if err != nil {
 			return fmt.Errorf("failed to insert video file row: %w", err)
 		}
@@ -89,7 +89,7 @@ func (s *Store) NewItem(ctx context.Context, v *video.New) (int, error) {
 	}
 
 	// Check if a preset was attached, if so we will start transcoding jobs
-	if v.Preset != 0 {
+	if v.PresetID != 0 {
 		err = s.enc.RefreshVideo(ctx, videoID)
 		if err != nil {
 			return videoID, fmt.Errorf("failed to refresh video: %w", err)

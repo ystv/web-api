@@ -73,7 +73,7 @@ type (
 		URLName       string    `json:"urlName" db:"url"`
 		Description   string    `json:"description" db:"description"`
 		Tags          []string  `json:"tags" db:"tags"`
-		Preset        int       `json:"preset" db:"preset"`
+		PresetID      int       `json:"presetID" db:"preset_id"`
 		PublishType   string    `json:"publishType" db:"status"`
 		CreatedAt     time.Time `json:"createdAt" db:"created_by"`
 		CreatedBy     int       `json:"createdBy" db:"created_by"`

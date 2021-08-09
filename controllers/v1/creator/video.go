@@ -84,7 +84,7 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 	v := video.Meta{}
 	err := c.Bind(&v)
 	if err != nil {
-		err = fmt.Errorf("failed to update video: %w", err)
+		err = fmt.Errorf("failed to bind video object: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	t, err := utils.GetTokenEcho(c)

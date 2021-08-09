@@ -26,7 +26,7 @@ func NewStore(db *sqlx.DB) *Store {
 // GetPreset returns a preset by ID
 func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, error) {
 	p := encode.Preset{}
-	err := s.db.GetContext(ctx, &p, `SELECT id, name, description FROM video.encode_presets;`)
+	err := s.db.GetContext(ctx, &p, `SELECT preset_id, name, description FROM video.encode_presets;`)
 	if err != nil {
 		return p, fmt.Errorf("failed to get preset meta: %w", err)
 	}
@@ -47,7 +47,7 @@ func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, err
 // ListPreset returns all presets
 func (s *Store) ListPreset(ctx context.Context) ([]encode.Preset, error) {
 	p := []encode.Preset{}
-	err := s.db.SelectContext(ctx, &p, `SELECT id, name, description
+	err := s.db.SelectContext(ctx, &p, `SELECT preset_id, name, description
 						FROM video.encode_presets;`)
 	if err != nil {
 		err = fmt.Errorf("failed retrieving meta: %w", err)
