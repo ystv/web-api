@@ -70,8 +70,8 @@ func (m *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
 	}
 	err = m.db.SelectContext(ctx, &v.Files,
 		`SELECT uri, mime_type, mode, width, height
-	FROM video.files
-	INNER JOIN video.encode_formats ON id = encode_format
+	FROM video.files file
+	INNER JOIN video.encode_formats format ON format.format_id = file.format_id
 	WHERE status = 'public'
 	AND video_id = $1`, videoID)
 	if err != nil {
