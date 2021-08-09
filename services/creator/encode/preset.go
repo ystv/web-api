@@ -26,7 +26,7 @@ func NewStore(db *sqlx.DB) *Store {
 // GetPreset returns a preset by ID
 func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, error) {
 	p := encode.Preset{}
-	err := s.db.GetContext(ctx, &p, `SELECT id, name, description FROM video.presets;`)
+	err := s.db.GetContext(ctx, &p, `SELECT id, name, description FROM video.encode_presets;`)
 	if err != nil {
 		return p, fmt.Errorf("failed to get preset meta: %w", err)
 	}
@@ -48,7 +48,7 @@ func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, err
 func (s *Store) ListPreset(ctx context.Context) ([]encode.Preset, error) {
 	p := []encode.Preset{}
 	err := s.db.SelectContext(ctx, &p, `SELECT id, name, description
-						FROM video.presets;`)
+						FROM video.encode_presets;`)
 	if err != nil {
 		err = fmt.Errorf("failed retrieving meta: %w", err)
 		return nil, err
@@ -71,7 +71,7 @@ func (s *Store) ListPreset(ctx context.Context) ([]encode.Preset, error) {
 func (s *Store) NewPreset(ctx context.Context, p encode.Preset) (int, error) {
 	presetID := 0
 	err := utils.Transact(s.db, func(tx *sqlx.Tx) error {
-		err := tx.GetContext(ctx, &presetID, "INSERT INTO video.presets(name, description) VALUES ($1, $2) RETURNING preset_id;", p.Name, p.Description)
+		err := tx.GetContext(ctx, &presetID, "INSERT INTO video.encode_presets(name, description) VALUES ($1, $2) RETURNING preset_id;", p.Name, p.Description)
 		if err != nil {
 			return fmt.Errorf("failed to insert preset meta: %w", err)
 		}
@@ -100,7 +100,7 @@ func (s *Store) NewPreset(ctx context.Context, p encode.Preset) (int, error) {
 // UpdatePreset updates an existing preset
 func (s *Store) UpdatePreset(ctx context.Context, p encode.Preset) error {
 	return utils.Transact(s.db, func(tx *sqlx.Tx) error {
-		_, err := tx.ExecContext(ctx, `UPDATE video.presets SET name = $1, description = $2
+		_, err := tx.ExecContext(ctx, `UPDATE video.encode_presets SET name = $1, description = $2
 							WHERE preset_id = $3;`, p.Name, p.Description, p.PresetID)
 		if err != nil {
 			return fmt.Errorf("failed to update preset meta: %w", err)

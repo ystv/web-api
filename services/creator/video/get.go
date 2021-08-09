@@ -8,27 +8,27 @@ import (
 )
 
 // GetItem returns a VideoItem by it's ID.
-func (s *Store) GetItem(ctx context.Context, id int) (*video.Item, error) {
+func (s *Store) GetItem(ctx context.Context, videoID int) (*video.Item, error) {
 	v := video.Item{}
 	err := s.db.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
 		item.description, item.thumbnail, duration,	item.views, item.tags,
-		item.status, preset.id preset_id, preset.name preset_name, broadcast_date,
+		item.status, preset.preset_id, preset.name preset_name, broadcast_date,
 		item.created_at, users.user_id AS created_by_id, users.nickname AS created_by_nick
 		FROM video.items item
-			LEFT JOIN video.presets preset ON item.preset = preset.id
+			LEFT JOIN video.encode_presets preset ON item.preset_id = preset.preset_id
         	INNER JOIN people.users users ON users.user_id = item.created_by
 		WHERE video_id = $1
-		LIMIT 1;`, id)
+		LIMIT 1;`, videoID)
 	if err != nil {
 		err = fmt.Errorf("failed to get video meta: %w", err)
 		return nil, err
 	}
 	err = s.db.SelectContext(ctx, &v.Files,
 		`SELECT uri, name, status, size, mime_type
-		FROM video.files
-		INNER JOIN video.encode_formats ON id = encode_format
-		WHERE video_id = $1;`, id)
+		FROM video.files file
+		INNER JOIN video.encode_formats format ON file.format_id = format.format_id
+		WHERE video_id = $1;`, videoID)
 	if err != nil {
 		err = fmt.Errorf("failed to get video files: %w", err)
 		return nil, err
