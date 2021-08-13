@@ -3,8 +3,6 @@ package public
 import (
 	"context"
 	"fmt"
-
-	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -18,12 +16,12 @@ type (
 	}
 	// SeriesMeta is used as a children object for a series
 	SeriesMeta struct {
-		SeriesID    int         `db:"series_id" json:"id"`
-		URL         string      `db:"url" json:"url"`
-		SeriesName  string      `db:"name" json:"name"`
-		Description string      `db:"description" json:"description"`
-		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
-		Depth       int         `db:"depth" json:"-"`
+		SeriesID    int    `db:"series_id" json:"id"`
+		URL         string `db:"url" json:"url"`
+		SeriesName  string `db:"name" json:"name"`
+		Description string `db:"description" json:"description"`
+		Thumbnail   string `db:"thumbnail" json:"thumbnail"`
+		Depth       int    `db:"depth" json:"-"`
 	}
 )
 
@@ -63,7 +61,7 @@ func (m *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error)
 func (m *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID int) ([]SeriesMeta, error) {
 	s := []SeriesMeta{}
 	err := m.db.SelectContext(ctx, &s,
-		`SELECT * from (
+		`SELECT series_id, url, name, description, thumbnail from (
 			SELECT 
 						node.series_id, node.url, node.name, node.description, node.thumbnail, node.status,
 						(COUNT(parent.*) - (sub_tree.depth + 1)) AS depth
@@ -125,8 +123,7 @@ func (m *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 	// }
 	err := m.db.SelectContext(ctx, &s.ChildVideos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
-		trim(both '"' from to_json(broadcast_date)::text) AS broadcast_date,
-		views, duration AS duration
+		broadcast_date, views, duration
 		FROM video.items
 		WHERE EXTRACT(year FROM broadcast_date) = $1 AND
 		status = 'public';`, year)

@@ -35,8 +35,8 @@ func (r *Repos) Find(c echo.Context) error {
 	}
 	b, err := r.public.Find(c.Request().Context(), clean.Path)
 	if err != nil {
-		err = fmt.Errorf("Public Find failed: %w", err)
-		return c.String(http.StatusInternalServerError, "Internal Server Error")
+		err = fmt.Errorf("public find failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, b)
 }

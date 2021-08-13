@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -66,6 +67,17 @@ func (m *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrum
 // Find returns either a series or video for a given path
 // TODO be consistent with creator's find in terms of variables
 func (m *Store) Find(ctx context.Context, path string) (*BreadcrumbItem, error) {
+	// Check to see if it's a just a video ID
+	videoID, err := strconv.Atoi(path)
+	if err == nil {
+		// It's a raw video ID
+		foundVideo, err := m.GetVideo(ctx, videoID)
+		if err == nil {
+			return &BreadcrumbItem{Video: foundVideo}, nil
+		} else if err != sql.ErrNoRows {
+			return nil, fmt.Errorf("failed to get video: %w", err)
+		}
+	}
 	series, err := m.GetSeriesFromPath(ctx, path)
 	if err != nil {
 		// Might be a video, so we'll go one layer back and check for series
@@ -76,14 +88,14 @@ func (m *Store) Find(ctx context.Context, path string) (*BreadcrumbItem, error) 
 			if err != nil {
 				if err == sql.ErrNoRows {
 					// No series, so there will be no videos
-					err = fmt.Errorf("No series: %w", err)
+					err = fmt.Errorf("no series: %w", err)
 				}
 				return nil, err
 			}
 			// Found series
 			if len(series.ChildVideos) == 0 {
 				// No videos on series
-				return nil, errors.New("No videos")
+				return nil, errors.New("no videos")
 			}
 			// We've got videos
 			for _, v := range series.ChildVideos {
