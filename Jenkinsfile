@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Update Components') {
             steps {
-                sh "docker pull golang:1.16-alpine" // Update with current Go image
+                sh "docker pull golang:1.17-alpine" // Update with current Go image
             }
         }
         stage('Build') {
