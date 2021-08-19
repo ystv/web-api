@@ -34,8 +34,8 @@ func (r *Repos) ListEncodeFormat(c echo.Context) error {
 // @ID new-creator-encode-format
 // @Tags creator-encodes
 // @Accept json
-// @Param format body encode.Preset true "Encode format object"
-// @Success 201 body int "Preset ID"
+// @Param format body encode.Format true "Encode format object"
+// @Success 201 body int "Format ID"
 // @Router /v1/internal/creator/encode/format [post]
 func (r *Repos) NewEncodeFormat(c echo.Context) error {
 	format := encode.Format{}
@@ -44,21 +44,21 @@ func (r *Repos) NewEncodeFormat(c echo.Context) error {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	presetID, err := r.encode.NewFormat(c.Request().Context(), format)
+	formatID, err := r.encode.NewFormat(c.Request().Context(), format)
 	if err != nil {
 		err = fmt.Errorf("NewFormat failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusCreated, presetID)
+	return c.JSON(http.StatusCreated, formatID)
 }
 
-// UpdateEncodeFormat handles updating a preset
-// @Summary Update a preset
-// @Description updates an preset
+// UpdateEncodeFormat handles updating a format
+// @Summary Update a format
+// @Description updates an format
 // @ID update-creator-encode-format
 // @Tags creator-encodes
 // @Accept json
-// @Param format body encode.Preset true "Preset object"
+// @Param format body encode.Format true "Format object"
 // @Success 200
 // @Router /v1/internal/creator/encode/format [put]
 func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
@@ -169,21 +169,21 @@ func (r *Repos) UpdateEncodePreset(c echo.Context) error {
 }
 
 // DeleteEncodePreset handles deleting presets
-// @Summary Delete a encode format
-// @Description Delete a video encode format
+// @Summary Delete a encode preset
+// @Description Delete a video encode preset
 // @ID delete-creator-encode-preset
 // @Tags creator-encodes
 // @Param presetid path int true "Preset ID"
 // @Success 200
-// @Router /v1/internal/creator/encode/format/{presetid} [delete]
+// @Router /v1/internal/creator/encode/preset/{presetid} [delete]
 func (r *Repos) DeleteEncodePreset(c echo.Context) error {
 	presetID, err := strconv.Atoi(c.Param("presetid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
-	err = r.encode.DeleteFormat(c.Request().Context(), presetID)
+	err = r.encode.DeletePreset(c.Request().Context(), presetID)
 	if err != nil {
-		err = fmt.Errorf("DeleteFormat failed: %w", err)
+		err = fmt.Errorf("DeletePreset failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)

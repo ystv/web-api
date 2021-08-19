@@ -202,6 +202,49 @@ definitions:
       presetID:
         type: integer
     type: object
+  encoder.MetaData:
+    properties:
+      filename:
+        type: string
+    type: object
+  encoder.Request:
+    properties:
+      httprequest:
+        type: string
+      upload:
+        $ref: '#/definitions/encoder.Upload'
+        type: object
+    type: object
+  encoder.Storage:
+    properties:
+      bucket:
+        type: string
+      key:
+        type: string
+      type:
+        type: string
+    type: object
+  encoder.Upload:
+    properties:
+      id:
+        type: string
+      isFinal:
+        type: boolean
+      isPartial:
+        type: boolean
+      metaData:
+        description: PartialUploads null
+        items:
+          $ref: '#/definitions/encoder.MetaData'
+        type: array
+      offset:
+        type: integer
+      size:
+        type: integer
+      storage:
+        $ref: '#/definitions/encoder.Storage'
+        type: object
+    type: object
   misc.List:
     properties:
       alias:
@@ -809,7 +852,7 @@ definitions:
         type: string
       name:
         type: string
-      preset:
+      presetID:
         type: integer
       publishType:
         type: string
@@ -1226,10 +1269,10 @@ paths:
         name: format
         required: true
         schema:
-          $ref: '#/definitions/encode.Preset'
+          $ref: '#/definitions/encode.Format'
       responses:
         "201":
-          description: Preset ID
+          description: Format ID
           schema:
             type: body
       summary: New encode format
@@ -1238,18 +1281,18 @@ paths:
     put:
       consumes:
       - application/json
-      description: updates an preset
+      description: updates an format
       operationId: update-creator-encode-format
       parameters:
-      - description: Preset object
+      - description: Format object
         in: body
         name: format
         required: true
         schema:
-          $ref: '#/definitions/encode.Preset'
+          $ref: '#/definitions/encode.Format'
       responses:
         "200": {}
-      summary: Update a preset
+      summary: Update a format
       tags:
       - creator-encodes
   /v1/internal/creator/encode/format/{formatid}:
@@ -1260,21 +1303,6 @@ paths:
       - description: Format ID
         in: path
         name: formatid
-        required: true
-        type: integer
-      responses:
-        "200": {}
-      summary: Delete a encode format
-      tags:
-      - creator-encodes
-  /v1/internal/creator/encode/format/{presetid}:
-    delete:
-      description: Delete a video encode format
-      operationId: delete-creator-encode-preset
-      parameters:
-      - description: Preset ID
-        in: path
-        name: presetid
         required: true
         type: integer
       responses:
@@ -1334,6 +1362,21 @@ paths:
       responses:
         "200": {}
       summary: Update a preset
+      tags:
+      - creator-encodes
+  /v1/internal/creator/encode/preset/{presetid}:
+    delete:
+      description: Delete a video encode preset
+      operationId: delete-creator-encode-preset
+      parameters:
+      - description: Preset ID
+        in: path
+        name: presetid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: Delete a encode preset
       tags:
       - creator-encodes
   /v1/internal/creator/playlist:
@@ -1647,6 +1690,41 @@ paths:
       summary: Get video by ID
       tags:
       - creator-videos
+  /v1/internal/encoder/transcode_finished/{taskid}:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates tusd's webhook requests
+      operationId: new-encoder-transcode-finished
+      parameters:
+      - description: Task ID
+        in: path
+        name: taskid
+        required: true
+        type: integer
+      responses:
+        "200": {}
+      summary: New upload request
+      tags:
+      - encoder
+  /v1/internal/encoder/upload_request:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates tusd's webhook requests
+      operationId: new-encoder-upload-request
+      parameters:
+      - description: Upload Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/encoder.Request'
+      responses:
+        "200": {}
+      summary: New upload request
+      tags:
+      - encoder
   /v1/internal/misc/list/{listid}:
     get:
       description: Get a mailing list. Provides list subscribers also

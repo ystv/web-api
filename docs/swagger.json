@@ -569,23 +569,23 @@
                 }
             },
             "put": {
-                "description": "updates an preset",
+                "description": "updates an format",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "Update a preset",
+                "summary": "Update a format",
                 "operationId": "update-creator-encode-format",
                 "parameters": [
                     {
-                        "description": "Preset object",
+                        "description": "Format object",
                         "name": "format",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/encode.Preset"
+                            "$ref": "#/definitions/encode.Format"
                         }
                     }
                 ],
@@ -610,13 +610,13 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/encode.Preset"
+                            "$ref": "#/definitions/encode.Format"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Preset ID",
+                        "description": "Format ID",
                         "schema": {
                             "type": "body"
                         }
@@ -637,28 +637,6 @@
                         "type": "integer",
                         "description": "Format ID",
                         "name": "formatid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {}
-                }
-            }
-        },
-        "/v1/internal/creator/encode/format/{presetid}": {
-            "delete": {
-                "description": "Delete a video encode format",
-                "tags": [
-                    "creator-encodes"
-                ],
-                "summary": "Delete a encode format",
-                "operationId": "delete-creator-encode-preset",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Preset ID",
-                        "name": "presetid",
                         "in": "path",
                         "required": true
                     }
@@ -744,6 +722,28 @@
                             "type": "body"
                         }
                     }
+                }
+            }
+        },
+        "/v1/internal/creator/encode/preset/{presetid}": {
+            "delete": {
+                "description": "Delete a video encode preset",
+                "tags": [
+                    "creator-encodes"
+                ],
+                "summary": "Delete a encode preset",
+                "operationId": "delete-creator-encode-preset",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Preset ID",
+                        "name": "presetid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -1206,6 +1206,58 @@
                             "$ref": "#/definitions/video.Item"
                         }
                     }
+                }
+            }
+        },
+        "/v1/internal/encoder/transcode_finished/{taskid}": {
+            "post": {
+                "description": "Authenticates tusd's webhook requests",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "encoder"
+                ],
+                "summary": "New upload request",
+                "operationId": "new-encoder-transcode-finished",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "taskid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/internal/encoder/upload_request": {
+            "post": {
+                "description": "Authenticates tusd's webhook requests",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "encoder"
+                ],
+                "summary": "New upload request",
+                "operationId": "new-encoder-upload-request",
+                "parameters": [
+                    {
+                        "description": "Upload Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/encoder.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {}
                 }
             }
         },
@@ -2594,6 +2646,71 @@
                 }
             }
         },
+        "encoder.MetaData": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                }
+            }
+        },
+        "encoder.Request": {
+            "type": "object",
+            "properties": {
+                "httprequest": {
+                    "type": "string"
+                },
+                "upload": {
+                    "type": "object",
+                    "$ref": "#/definitions/encoder.Upload"
+                }
+            }
+        },
+        "encoder.Storage": {
+            "type": "object",
+            "properties": {
+                "bucket": {
+                    "type": "string"
+                },
+                "key": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "encoder.Upload": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "isFinal": {
+                    "type": "boolean"
+                },
+                "isPartial": {
+                    "type": "boolean"
+                },
+                "metaData": {
+                    "description": "PartialUploads null",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/encoder.MetaData"
+                    }
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "storage": {
+                    "type": "object",
+                    "$ref": "#/definitions/encoder.Storage"
+                }
+            }
+        },
         "misc.List": {
             "type": "object",
             "properties": {
@@ -3513,7 +3630,7 @@
                 "name": {
                     "type": "string"
                 },
-                "preset": {
+                "presetID": {
                     "type": "integer"
                 },
                 "publishType": {

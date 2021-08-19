@@ -114,7 +114,7 @@ func (r *Router) loadRoutes() {
 		// Service web endpoints
 		encoder := internal.Group("/encoder")
 		{
-			encoder.POST("/upload_request", r.encoder.VideoNew)
+			encoder.POST("/upload_request", r.encoder.UploadRequest)
 			encoder.POST("/transcode_finished/:taskid", r.encoder.TranscodeFinished)
 		}
 		stream := internal.Group("/stream")

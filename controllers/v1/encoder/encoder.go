@@ -45,17 +45,27 @@ type (
 	}
 )
 
-// VideoNew handles authenticating a video upload request.
+func NewEncoderController(enc *encoder.Encoder) *EncoderController {
+	return &EncoderController{enc: enc}
+}
+
+// UploadRequest handles authenticating an upload request.
 //
 // Connects with tusd through web-hooks, so tusd POSTs here.
 // tusd's requests here does contain a lot of useful information.
 // but for this endpoint, we are just checking for the JWT.
-func (e *EncoderController) VideoNew(c echo.Context) error {
+//
+// @Summary New upload request
+// @Description Authenticates tusd's webhook requests
+// @ID new-encoder-upload-request
+// @Tags encoder
+// @Accept json
+// @Param request body Request true "Upload Request"
+// @Success 200
+// @Router /v1/internal/encoder/upload_request [post]
+func (e *EncoderController) UploadRequest(c echo.Context) error {
 	r := Request{}
 	c.Bind(&r)
-	if r.HTTPRequest.Method != "POST" {
-		return c.NoContent(http.StatusOK)
-	}
 
 	_, err := utils.GetTokenHTTP(r.HTTPRequest)
 	if err != nil {
@@ -66,6 +76,16 @@ func (e *EncoderController) VideoNew(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+// TranscodeFinished handles marking a transcode as finished
+//
+// @Summary Transcode Finished
+// @Description Marks a transcode as finished
+// @ID new-encoder-transcode-finished
+// @Tags encoder
+// @Accept json
+// @Param taskid path int true "Task ID"
+// @Success 200
+// @Router /v1/internal/encoder/transcode_finished/{taskid} [post]
 func (e *EncoderController) TranscodeFinished(c echo.Context) error {
 	err := e.enc.TranscodeFinished(c.Request().Context(), c.Param("taskid"))
 	if err != nil {
@@ -73,8 +93,4 @@ func (e *EncoderController) TranscodeFinished(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.NoContent(http.StatusOK)
-}
-
-func NewEncoderController(enc *encoder.Encoder) *EncoderController {
-	return &EncoderController{enc: enc}
 }
