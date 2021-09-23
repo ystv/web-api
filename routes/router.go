@@ -138,9 +138,18 @@ func (r *Router) loadRoutes() {
 				users := people.Group("/users")
 				{
 					users.GET("", r.people.ListAllPeople)
-					users.GET("/:id", r.people.ListRoleMembers)
 				}
-
+				role := people.Group("/role")
+				{
+					role.GET("", r.people.ListAllRoles)
+					role.GET("/:roleId/members", r.people.ListRoleMembersByID)
+					role.GET("/:roleId/permissions", r.people.ListRolePermissionsByID)
+				}
+				permission := people.Group("/permission")
+				{
+					permission.GET("", r.people.ListAllPermissions)
+					permission.GET("/:permId/members", r.people.ListPermissionMembersByID)
+				}
 			}
 			creator := internal.Group("/creator")
 			{
@@ -308,9 +317,7 @@ func (r *Router) loadRoutes() {
 			{
 				stream.GET("/channels", r.public.ListChannels)
 			}
-
 		}
-
 	}
 	r.router.GET("/", func(c echo.Context) error {
 		text := fmt.Sprintf(`                                                                                

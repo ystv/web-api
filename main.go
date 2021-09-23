@@ -21,15 +21,15 @@ import (
 //go:generate swag init -g routes/router.go
 
 // Version returns web-api's current version
-var Version = "dev (0.6.4)"
+var Version = "dev (0.8.0)"
 
 // Commit returns latest commit hash
 var Commit = "unknown"
 
 func main() {
 	log.Printf("web-api Version %s", Version)
-	err := godotenv.Load()            // Load .env file for production
-	err = godotenv.Load(".env.local") // Load .env.local for developing
+	godotenv.Load()                    // Load .env file for production
+	err := godotenv.Load(".env.local") // Load .env.local for developing
 	if err != nil {
 		log.Print("Failed to load env file, using global env")
 	}

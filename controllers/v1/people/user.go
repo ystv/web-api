@@ -23,7 +23,7 @@ func (r *Repo) UserByID(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
-	p, err := r.user.Get(c.Request().Context(), id)
+	p, err := r.people.GetUser(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("UserByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -45,7 +45,7 @@ func (r *Repo) UserByIDFull(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
-	p, err := r.user.GetFull(c.Request().Context(), id)
+	p, err := r.people.GetUserFull(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("UserByIDFull failed to get user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -67,7 +67,7 @@ func (r *Repo) UserByToken(c echo.Context) error {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	p, err := r.user.Get(c.Request().Context(), claims.UserID)
+	p, err := r.people.GetUser(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed getting user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -89,9 +89,26 @@ func (r *Repo) UserByTokenFull(c echo.Context) error {
 		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	p, err := r.user.GetFull(c.Request().Context(), claims.UserID)
+	p, err := r.people.GetUserFull(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("UserByTokenFull failed getting user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, p)
+}
+
+// ListAllPeople handles listing all users
+//
+// @Summary List all users
+// @ID get-people-users-all
+// @Tags people-users
+// @Produce json
+// @Success 200 {array} people.User
+// @Router /v1/internal/people/users [get]
+func (r *Repo) ListAllPeople(c echo.Context) error {
+	p, err := r.people.ListAllUsers(c.Request().Context())
+	if err != nil {
+		err = fmt.Errorf("ListAllPeople failed to get all users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)

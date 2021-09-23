@@ -7,7 +7,7 @@ import (
 
 // Repo stores our dependencies
 type Repo struct {
-	user people.UserRepo
+	people *people.Store
 }
 
 // NewRepo creates our data store
