@@ -42,7 +42,9 @@ func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam,
 
 	// Check if user has permission to view it
 	publicWebcam := Webcam{}
+	isAuthorized := false
 	for _, webcam := range w {
+		isAuthorized = false
 		for _, id := range permissionIDs {
 			if webcam.PermissionID.Valid && int64(id) == webcam.PermissionID.Int64 || !webcam.PermissionID.Valid {
 				publicWebcam = Webcam{
@@ -52,10 +54,12 @@ func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam,
 					webcam.File,
 					webcam.MIMEType,
 				}
-				publicWebcams = append(publicWebcams, publicWebcam)
+				isAuthorized = true
 			}
 		}
-
+		if isAuthorized {
+			publicWebcams = append(publicWebcams, publicWebcam)
+		}
 	}
 	return publicWebcams, nil
 }
