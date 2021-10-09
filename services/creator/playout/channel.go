@@ -57,7 +57,7 @@ func (s *Store) UpdateChannel(ctx context.Context, ch playout.Channel) error {
 		`UPDATE playout.channel SET
 			url_name = $1, name = $2, description = $3, thumbnail = $4,
 			output_type = $5, output_url = $6, visibility = $7,	status = $8,
-			location = $9, scheduled_start = $10, scheduled_end = $10
+			location = $9, scheduled_start = $10, scheduled_end = $11
 		WHERE url_name = $1;`,
 		ch.URLName, ch.Name, ch.Description, ch.Thumbnail, ch.OutputType,
 		ch.OutputURL, ch.Visiblity, ch.Status, ch.Location, ch.ScheduledStart,
