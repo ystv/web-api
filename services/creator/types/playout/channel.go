@@ -18,5 +18,5 @@ type Channel struct {
 	Status         string    `db:"status" json:"status"`     // "live" or "scheduled" or "cancelled" or "finished"
 	Location       string    `db:"location" json:"location"` // "Central Hall"
 	ScheduledStart time.Time `db:"scheduled_start" json:"scheduledStart"`
-	ScheduledEnd   time.Time `db:"scheudled_end" json:"scheduledEnd"`
+	ScheduledEnd   time.Time `db:"scheduled_end" json:"scheduledEnd"`
 }
