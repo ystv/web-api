@@ -18,7 +18,7 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-//go:generate swag init -g routes/router.go
+//go:generate swag init --parseDependency
 
 // Version returns web-api's current version
 var Version = "dev (0.8.0)"
