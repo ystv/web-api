@@ -39,3 +39,18 @@ func (s *Store) ListChannels(ctx context.Context) ([]Channel, error) {
 	}
 	return chs, nil
 }
+
+// GetChannel will get a public or unlisted channel
+func (s *Store) GetChannel(ctx context.Context, urlName string) (Channel, error) {
+	ch := Channel{}
+	err := s.db.GetContext(ctx, &ch, `
+		SELECT url_name, name, description, thumbnail, output_type, output_url,
+		status, location, scheduled_start, scheduled_end
+		FROM playout.channel
+		WHERE visibility IN ('public', 'unlisted')
+		AND url_name = $1;`, urlName)
+	if err != nil {
+		return Channel{}, fmt.Errorf("failed to get channels: %w", err)
+	}
+	return ch, nil
+}

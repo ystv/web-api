@@ -313,9 +313,10 @@ func (r *Router) loadRoutes() {
 				teams.GET("/:teamid", r.public.GetTeam)
 				teams.GET("/:teamid/:year", r.public.GetTeamByYear)
 			}
-			stream := public.Group("/playout")
+			stream := public.Group("/playout/channel")
 			{
-				stream.GET("/channels", r.public.ListChannels)
+				stream.GET("", r.public.ListChannels)
+				stream.GET("/:channelShortName", r.public.GetChannel)
 			}
 		}
 	}

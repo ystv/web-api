@@ -47,6 +47,7 @@ type (
 	// StreamRepo represents all stream / playout interactions
 	StreamRepo interface {
 		ListChannels(ctx context.Context) ([]Channel, error)
+		GetChannel(ctx context.Context, urlName string) (Channel, error)
 	}
 	// Store encapsulates our dependency
 	Store struct {
