@@ -113,7 +113,7 @@ if that doesn't work try `git clone https://github.com/ystv/web-api`
 Run `go build -o web-api`, hopefully you've got the binary.
 
 Copy the `.env` file from `configs` and place it in the root directory  
-`mv configs/.env .`
+`cp configs/.env .`
 
 Run `./web-api` and hopefully it should be running.
 
@@ -160,7 +160,7 @@ When ran with the `debug` flag set to true. 500 server errors will be returned t
 
 Try to keep all "business" logic with in the `/services` and try to keep the imports local to that package, but you'll probably need the `utils` package but we're trying to keep it modular so web-api can theoretically be split up and keeping it seperate would likely make it a lot easier.
 
-Generate docs by running `go generate` in the root of the repo.
+Generate docs by running `~/go/bin/swag init --pd -o swagger/` in the root of the repo.
 
 ### Layout
 
