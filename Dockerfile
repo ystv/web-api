@@ -28,6 +28,10 @@ RUN go mod download
 # Copy source
 COPY . .
 
+# Generate documentation
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 swag init --pd -o swagger/
+
 # Download git
 RUN apk update && apk upgrade && \
     apk add --no-cache git ca-certificates tzdata && \
