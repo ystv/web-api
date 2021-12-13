@@ -1,3 +1,4 @@
 .env.local
 docker-compose.yml
 web-api
+*.sw[a-z]
