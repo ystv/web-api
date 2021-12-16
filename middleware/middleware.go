@@ -33,7 +33,8 @@ func New(e *echo.Echo, domainName string) {
 	e.Use(echoMw.CORSWithConfig(config))
 	e.Use(echoMw.GzipWithConfig(echoMw.GzipConfig{
 		Skipper: func(c echo.Context) bool {
-			if strings.Contains(c.Path(), "swagger") {
+			path := c.Path()
+			if path == "/metrics" || strings.Contains(path, "swagger") {
 				return true
 			}
 			return false
