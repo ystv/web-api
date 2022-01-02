@@ -49,6 +49,9 @@ func NewEncoderController(enc *encoder.Encoder) *EncoderController {
 	return &EncoderController{enc: enc}
 }
 
+// TODO: look into adding the parameter object without
+// causing swagger to need to check external dependencies
+
 // UploadRequest handles authenticating an upload request.
 //
 // Connects with tusd through web-hooks, so tusd POSTs here.
@@ -60,7 +63,6 @@ func NewEncoderController(enc *encoder.Encoder) *EncoderController {
 // @ID new-encoder-upload-request
 // @Tags encoder
 // @Accept json
-// @Param request body Request true "Upload Request"
 // @Success 200
 // @Router /v1/internal/encoder/upload_request [post]
 func (e *EncoderController) UploadRequest(c echo.Context) error {

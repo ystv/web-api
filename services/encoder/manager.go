@@ -41,10 +41,10 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 		return ErrTooManySourceFiles
 	}
 
-	if !v.PresetID.Valid {
+	if v.PresetID == nil {
 		return ErrNoPreset
 	}
-	p, err := e.encode.GetPreset(ctx, int(v.PresetID.Int64))
+	p, err := e.encode.GetPreset(ctx, *v.PresetID)
 	if err != nil {
 		return fmt.Errorf("failed to get preset: %w", err)
 	}
