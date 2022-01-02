@@ -281,7 +281,7 @@ func (r *Router) loadRoutes() {
 				}
 			}
 		}
-		apiV1.GET("/list_unsubscribe/:uuid", r.misc.UnsubscribeByUUID)
+		apiV1.GET("/list-unsubscribe/:uuid", r.misc.UnsubscribeByUUID)
 
 		public := apiV1.Group("/public")
 		{
