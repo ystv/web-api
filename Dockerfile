@@ -30,7 +30,7 @@ COPY . .
 
 # Generate documentation
 RUN go install github.com/swaggo/swag/cmd/swag@latest
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 swag init --pd -o swagger/
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go generate
 
 # Download git
 RUN apk update && apk upgrade && \
