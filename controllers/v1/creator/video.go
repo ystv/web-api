@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator/types/video"
 	"github.com/ystv/web-api/utils"
-	"gopkg.in/guregu/null.v4"
 )
 
 // GetVideo finds a video by ID
@@ -92,8 +91,9 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 		err = fmt.Errorf("failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	v.UpdatedByID = null.IntFrom(int64(t.UserID))
-	v.UpdatedAt = null.TimeFrom(time.Now())
+	v.UpdatedByID = &t.UserID
+	currentDateTime := time.Now()
+	v.UpdatedAt = &currentDateTime
 	err = r.video.UpdateMeta(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to update meta: %w", err)

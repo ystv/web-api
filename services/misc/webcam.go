@@ -3,8 +3,6 @@ package misc
 import (
 	"context"
 	"fmt"
-
-	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -19,8 +17,8 @@ type (
 	// AdminWebcam represents extra options to configure the webcam
 	AdminWebcam struct {
 		Webcam
-		Enabled      bool     `db:"enabled" json:"enabled"`
-		PermissionID null.Int `db:"permission_id" json:"permissionID"`
+		Enabled      bool `db:"enabled" json:"enabled"`
+		PermissionID *int `db:"permission_id" json:"permissionID"`
 	}
 )
 
@@ -46,7 +44,7 @@ func (m *Store) ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam,
 	for _, webcam := range w {
 		isAuthorized = false
 		for _, id := range permissionIDs {
-			if webcam.PermissionID.Valid && int64(id) == webcam.PermissionID.Int64 || !webcam.PermissionID.Valid {
+			if webcam.PermissionID == nil || webcam.PermissionID != nil && id == *webcam.PermissionID {
 				publicWebcam = Webcam{
 					webcam.CameraID,
 					webcam.Name,
@@ -80,7 +78,7 @@ func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissionIDs []int
 
 	// Check if user has permission to view it
 	for _, id := range permissionIDs {
-		if w.PermissionID.Valid && int64(id) == w.PermissionID.Int64 || !w.PermissionID.Valid {
+		if w.PermissionID == nil || w.PermissionID != nil && id == *w.PermissionID {
 			publicWebcam = Webcam{
 				w.CameraID,
 				w.Name,

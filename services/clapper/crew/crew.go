@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"gopkg.in/guregu/null.v4"
-
 	"github.com/jmoiron/sqlx"
 	"github.com/ystv/web-api/services/clapper"
 	"github.com/ystv/web-api/utils"
@@ -25,11 +23,22 @@ func NewStore(db *sqlx.DB) *Store {
 // Here to verify we are meeting the interface
 var _ clapper.CrewRepo = &Store{}
 
-// crew a basic crew reprensentations temporary for processing
+// crew a small version used for helper functions
+// that can be used in transactions.
+//
+// Both userID and permissionID are nullable since
+// no-one could have signed up yet or there is no
+// permission requirement for the crew position.
 type crew struct {
-	userID       null.Int `db:"user_id"`
-	PermissionID null.Int `db:"permission_id"`
+	userID       *int `db:"user_id"`
+	PermissionID *int `db:"permission_id"`
 }
+
+var (
+	ErrNoSuperPermission = errors.New("user doesn't have super-user permission")
+	ErrNoAdminPermission = errors.New("user doesn't have admin permission")
+	ErrNorolePermission  = errors.New("user doesn't have role permission")
+)
 
 // New creates a new crew position, with default settings
 func (m *Store) New(ctx context.Context, signupID, positionID int) error {
@@ -51,8 +60,7 @@ func (m *Store) Get(ctx context.Context, crewID int) (*clapper.CrewPosition, err
 		INNER JOIN event.positions ON crews.position_id = positions.position_id
 		WHERE crew_id = $1;`, crewID)
 	if err != nil {
-		err = fmt.Errorf("failed to get crew from crewID: %w", err)
-		return nil, err
+		return nil, fmt.Errorf("failed to get crew from crewID: %w", err)
 	}
 	return &cp, nil
 }
@@ -65,13 +73,11 @@ func (m *Store) DeleteUser(ctx context.Context, crewID int) error {
 			SET user_id = NULL
 			WHERE crew_id = $1;`)
 		if err != nil {
-			err = fmt.Errorf("failed to prepare statement to delete crew user: %w", err)
-			return err
+			return fmt.Errorf("failed to prepare statement to delete crew user: %w", err)
 		}
 		_, err = stmt.ExecContext(ctx, crewID)
 		if err != nil {
-			err = fmt.Errorf("failed to execute statement on crew delete user: %w", err)
-			return err
+			return fmt.Errorf("failed to execute statement on crew delete user: %w", err)
 		}
 		return nil
 	})
@@ -95,13 +101,11 @@ func (m *Store) updateUser(ctx context.Context, tx *sqlx.Tx, crewID, userID int)
 		SET user_id = $1
 		WHERE crew_id = $2;`)
 	if err != nil {
-		err = fmt.Errorf("failed to prepare statement to update crew: %w", err)
-		return err
+		return fmt.Errorf("failed to prepare statement to update crew: %w", err)
 	}
 	_, err = stmt.ExecContext(ctx, userID, crewID)
 	if err != nil {
-		err = fmt.Errorf("failed to execute statement on crew update: %w", err)
-		return err
+		return fmt.Errorf("failed to execute statement on crew update: %w", err)
 	}
 	return nil
 }
@@ -121,15 +125,15 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 		err := m.checkSuperUser(ctx, tx, userID)
 		if err != nil {
 			return m.updateUser(ctx, tx, crewID, userID)
-		} else if !errors.Is(err, errors.New("user doesn't have super-user permission")) {
+		} else if !errors.Is(err, ErrNoSuperPermission) {
 			return err
 		}
 		// we're just checking if a user has already signed up, otherwise go for it
-		crew, err := m.checkSameUser(ctx, tx, crewID, userID)
+		crew, err := m.getUserAndPermissionFromCrew(ctx, tx, crewID, userID)
 		if err != nil {
 			return err
 		}
-		if !crew.userID.Valid {
+		if crew.userID == nil {
 			// no-one has signed-up, check if locked
 			isLocked, err := m.checkRoleLocked(ctx, tx, crewID)
 			if err != nil {
@@ -146,7 +150,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 			}
 
 			// check if role has permission
-			if crew.PermissionID.Valid {
+			if crew.PermissionID != nil {
 				// role does require permission
 				err = m.checkUserRole(ctx, tx, crewID, userID)
 				if err != nil {
@@ -171,8 +175,26 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 	return nil
 }
 
-func (m *Store) getEventFromCrew(ctx context.Context, tx *sqlx.Tx, crewID int) error {
-	return nil
+// getUserAndPermissionFromCrew fetches the user for the
+// given crew and see if it matches returns the
+func (m *Store) getUserAndPermissionFromCrew(ctx context.Context, tx *sqlx.Tx, crewID, userID int) (crew, error) {
+	stmt, err := tx.PrepareContext(ctx,
+		`SELECT crew.user_id, position.permission_id
+	FROM event.crews crew
+	INNER JOIN positions position
+	ON crew.position_id = position.position_id
+	WHERE crew.crew_id = $1 AND crew.user_id = $2;
+	`)
+	crew := crew{}
+	if err != nil {
+		return crew, fmt.Errorf("failed to prepare same user statement: %w", err)
+	}
+
+	err = stmt.QueryRowContext(ctx, crewID, userID).Scan(&crew)
+	if err != nil {
+		return crew, fmt.Errorf("failed to query crew user and perm: %w", err)
+	}
+	return crew, nil
 }
 
 // Misc authorization checks
@@ -187,13 +209,13 @@ func (m *Store) checkSuperUser(ctx context.Context, tx *sqlx.Tx, userID int) err
 	if err != nil {
 		return fmt.Errorf("failed to prepare super user check: %w", err)
 	}
-	isSuperUser := null.Bool{}
+	isSuperUser := false
 	err = stmt.QueryRowContext(ctx, userID).Scan(&isSuperUser)
 	if err != nil {
 		return fmt.Errorf("failed to exec super user check: %w", err)
 	}
-	if !isSuperUser.Valid {
-		return errors.New("user doesn't have super-user permission")
+	if !isSuperUser {
+		return ErrNoSuperPermission
 	}
 	return nil
 }
@@ -207,7 +229,7 @@ func (m *Store) checkEventAdmin(ctx context.Context, tx *sqlx.Tx, crewID, userID
 	if err != nil {
 		return fmt.Errorf("failed to prepare getting event from crew: %w", err)
 	}
-	eventID := null.Int{}
+	eventID := 0
 	err = stmt.QueryRowContext(ctx, crewID).Scan(&eventID)
 	if err != nil {
 		return fmt.Errorf("failed to query event from crew: %w", err)
@@ -223,12 +245,12 @@ func (m *Store) checkEventAdmin(ctx context.Context, tx *sqlx.Tx, crewID, userID
 		return fmt.Errorf("failed to prepare event admin check: %w", err)
 	}
 	hasAdmin := false
-	err = stmt.QueryRowContext(ctx, eventID.ValueOrZero, userID).Scan(&hasAdmin)
+	err = stmt.QueryRowContext(ctx, eventID, userID).Scan(&hasAdmin)
 	if err != nil {
 		return fmt.Errorf("failed to query event admin check: %w", err)
 	}
 	if !hasAdmin {
-		return errors.New("user doesn't have admin permission")
+		return ErrNoAdminPermission
 	}
 	return nil
 }
@@ -255,29 +277,9 @@ func (m *Store) checkUserRole(ctx context.Context, tx *sqlx.Tx, crewID, userID i
 		return fmt.Errorf("failed to check permission of user for crew: %w", err)
 	}
 	if !hasPermission {
-		return errors.New("user doesn't have role permission")
+		return ErrNorolePermission
 	}
 	return nil
-}
-
-func (m *Store) checkSameUser(ctx context.Context, tx *sqlx.Tx, crewID, userID int) (crew, error) {
-	stmt, err := tx.PrepareContext(ctx,
-		`SELECT crew.user_id, position.permission_id
-	FROM event.crews crew
-	INNER JOIN positions position
-	ON crew.position_id = position.position_id
-	WHERE crew.crew_id = $1 AND crew.user_id = $2;
-	`)
-	crew := crew{}
-	if err != nil {
-		return crew, fmt.Errorf("failed to prepare same user statement: %w", err)
-	}
-
-	err = stmt.QueryRowContext(ctx, crewID, userID).Scan(&crew)
-	if err != nil {
-		return crew, fmt.Errorf("failed to query crew user and perm: %w", err)
-	}
-	return crew, nil
 }
 
 // checkRoleLocked returns isLocked and error

@@ -8,7 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator/types/playlist"
 	"github.com/ystv/web-api/utils"
-	"gopkg.in/guregu/null.v4"
 )
 
 // ListPlaylist handles listing all playlist metadata's
@@ -103,7 +102,7 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	p.UpdatedBy = null.IntFrom(int64(claims.UserID))
+	p.UpdatedBy = &claims.UserID
 	var videoIDs []int
 	for _, v := range p.Videos {
 		videoIDs = append(videoIDs, v.ID)

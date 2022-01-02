@@ -113,7 +113,7 @@ if that doesn't work try `git clone https://github.com/ystv/web-api`
 Run `go build -o web-api`, hopefully you've got the binary.
 
 Copy the `.env` file from `configs` and place it in the root directory  
-`mv configs/.env .`
+`cp configs/.env .`
 
 Run `./web-api` and hopefully it should be running.
 

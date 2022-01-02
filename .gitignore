@@ -1,3 +1,5 @@
 .env.local
 docker-compose.yml
 web-api
+/swagger
+*.sw[a-z]

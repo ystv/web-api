@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/ystv/web-api/services/people"
-	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -15,7 +14,7 @@ type (
 		Name         string       `db:"name" json:"name"`
 		Description  string       `db:"description" json:"description"`
 		Alias        string       `db:"alias" json:"alias"`
-		PermissionID null.Int     `db:"permission_id" json:"permissionID"`
+		PermissionID *int         `db:"permission_id" json:"permissionID"`
 		IsSubscribed bool         `db:"is_subscribed" json:"isSubscribed"`
 		Subscribers  []Subscriber `json:"subscribers,omitempty"`
 	}
