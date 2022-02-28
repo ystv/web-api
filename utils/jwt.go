@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
@@ -25,15 +26,38 @@ type (
 )
 
 var (
-	ErrNoCookie      = errors.New("failed to find token cookie")
-	ErrInvalidCookie = errors.New("invalid cookie")
+	ErrNoToken      = errors.New("failed to find token")
+	ErrInvalidToken = errors.New("invalid token")
 )
 
-func GetToken(cookie *http.Cookie) (*JWTClaims, error) {
-	tokenString := cookie.Value
+// GetToken will return the JWT claims from a valid JWT token
+func GetTokenEcho(c echo.Context) (*JWTClaims, error) {
+	token := c.Request().Header.Get("Authorization")
+	splitToken := strings.Split(token, "Bearer ")
+	token = splitToken[1]
+
+	if token == "" {
+		return nil, ErrNoToken
+	}
+	return getClaims(token)
+}
+
+// GetToken will return the JWT claims from a valid JWT token
+func GetTokenHTTP(r *http.Request) (*JWTClaims, error) {
+	token := r.Header.Get("Authorization")
+	splitToken := strings.Split(token, "Bearer ")
+	token = splitToken[1]
+
+	if token == "" {
+		return nil, ErrNoToken
+	}
+	return getClaims(token)
+}
+
+func getClaims(token string) (*JWTClaims, error) {
 	claims := &JWTClaims{}
 
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("WAPI_SIGNING_KEY")), nil
 	})
 	if err != nil {
@@ -41,25 +65,7 @@ func GetToken(cookie *http.Cookie) (*JWTClaims, error) {
 		return nil, err
 	}
 	if claims.Valid() != nil {
-		return nil, ErrInvalidCookie
+		return nil, ErrInvalidToken
 	}
 	return claims, nil
-}
-
-// GetToken will return the JWT claims from a valid JWT token
-func GetTokenEcho(c echo.Context) (*JWTClaims, error) {
-	cookie, err := c.Cookie("token")
-	if err != nil {
-		return nil, ErrNoCookie
-	}
-	return GetToken(cookie)
-}
-
-// GetToken will return the JWT claims from a valid JWT token
-func GetTokenHTTP(r *http.Request) (*JWTClaims, error) {
-	cookie, err := r.Cookie("token")
-	if err != nil {
-		return nil, ErrNoCookie
-	}
-	return GetToken(cookie)
 }
