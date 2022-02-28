@@ -59,9 +59,8 @@ func New(conf *NewRouter) *Router {
 		commit:  conf.Commit,
 		router:  echo.New(),
 		jwtConfig: &echoMw.JWTConfig{
-			Claims:      &utils.JWTClaims{},
-			TokenLookup: "cookie:token",
-			SigningKey:  []byte(conf.JWTSigningKey),
+			Claims:     &utils.JWTClaims{},
+			SigningKey: []byte(conf.JWTSigningKey),
 		},
 		clapper: conf.Clapper,
 		creator: conf.Creator,

@@ -27,10 +27,10 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 		err = fmt.Errorf("ListWebcams failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	// Prepare slice of permission IDs
-	perms := []int{}
+	// Prepare slice of permission names
+	perms := []string{}
 	for _, permission := range claims.Permissions {
-		perms = append(perms, permission.PermissionID)
+		perms = append(perms, permission)
 	}
 	w, err := r.misc.ListWebcams(c.Request().Context(), perms)
 	if err != nil {
@@ -58,10 +58,10 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 		err = fmt.Errorf("GetWebcam failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	// Prepare slice of permission IDs
-	perms := []int{}
+	// Prepare slice of permissions
+	perms := []string{}
 	for _, permission := range claims.Permissions {
-		perms = append(perms, permission.PermissionID)
+		perms = append(perms, permission)
 	}
 	// Get webcam URL and check user has permission for it
 	w, err := r.misc.GetWebcam(c.Request().Context(), cameraID, perms)

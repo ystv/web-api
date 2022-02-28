@@ -17,8 +17,8 @@ type (
 
 	// WebcamRepo represents all webcam interactions
 	WebcamRepo interface {
-		ListWebcams(ctx context.Context, permissionIDs []int) ([]Webcam, error)
-		GetWebcam(ctx context.Context, cameraID int, permissionIDs []int) (Webcam, error)
+		ListWebcams(ctx context.Context, permissions []string) ([]Webcam, error)
+		GetWebcam(ctx context.Context, cameraID int, permissions []string) (Webcam, error)
 	}
 	// ListRepo represents all mailing list interactions
 	//

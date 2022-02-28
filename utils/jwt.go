@@ -13,8 +13,8 @@ import (
 type (
 	// JWTClaims represents an identifiable JWT
 	JWTClaims struct {
-		UserID      int          `json:"id"`
-		Permissions []Permission `json:"perms"`
+		UserID      int      `json:"id"`
+		Permissions []string `json:"perms"`
 		jwt.StandardClaims
 	}
 	// Permission represents the permissions that a user has
