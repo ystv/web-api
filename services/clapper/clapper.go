@@ -3,8 +3,6 @@ package clapper
 import (
 	"context"
 	"time"
-
-	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -25,14 +23,14 @@ type (
 
 	// NewSignup required fields to add
 	NewSignup struct {
-		EventID     int       `db:"event_id" json:"eventID"`
-		Title       string    `db:"title" json:"title"`
-		Description string    `db:"description" json:"description"`
-		UnlockDate  null.Time `db:"unlock_date" json:"unlockDate"`
-		ArrivalTime null.Time `db:"arrival_time" json:"arrivalTime"`
-		StartTime   null.Time `db:"start_time" json:"startTime"`
-		EndTime     null.Time `db:"end_time" json:"endTime"`
-		Crew        []NewCrew `json:"crew"`
+		EventID     int        `db:"event_id" json:"eventID"`
+		Title       string     `db:"title" json:"title"`
+		Description string     `db:"description" json:"description"`
+		UnlockDate  *time.Time `db:"unlock_date" json:"unlockDate"`
+		ArrivalTime *time.Time `db:"arrival_time" json:"arrivalTime"`
+		StartTime   *time.Time `db:"start_time" json:"startTime"`
+		EndTime     *time.Time `db:"end_time" json:"endTime"`
+		Crew        []NewCrew  `json:"crew"`
 	}
 	// NewCrew required fields to add crew to to a signup sheet
 	NewCrew struct {
@@ -64,20 +62,20 @@ type (
 		SignupID    int            `db:"signup_id" json:"signupID"`
 		Title       string         `db:"title" json:"title"`
 		Description string         `db:"description" json:"description"`
-		UnlockDate  null.Time      `db:"unlock_date" json:"unlockDate"`
-		ArrivalTime null.Time      `db:"arrival_time" json:"arrivalTime"`
-		StartTime   null.Time      `db:"start_time" json:"startTime"`
-		EndTime     null.Time      `db:"end_time" json:"endTime"`
+		UnlockDate  *time.Time     `db:"unlock_date" json:"unlockDate"`
+		ArrivalTime *time.Time     `db:"arrival_time" json:"arrivalTime"`
+		StartTime   *time.Time     `db:"start_time" json:"startTime"`
+		EndTime     *time.Time     `db:"end_time" json:"endTime"`
 		Crew        []CrewPosition `json:"crew"`
 	}
 
 	// Position is a role people can signup too
 	Position struct {
-		PositionID   int      `db:"position_id" json:"positionID"`
-		Name         string   `db:"name" json:"name"`
-		Description  string   `db:"description" json:"description"`
-		Admin        bool     `db:"admin" json:"admin"`
-		PermissionID null.Int `db:"permission_id" json:"permissionID"`
+		PositionID   int    `db:"position_id" json:"positionID"`
+		Name         string `db:"name" json:"name"`
+		Description  string `db:"description" json:"description"`
+		Admin        bool   `db:"admin" json:"admin"`
+		PermissionID *int   `db:"permission_id" json:"permissionID"`
 	}
 	// CrewPosition represents a role for a signup sheet
 	CrewPosition struct {

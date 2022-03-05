@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -44,7 +43,7 @@ type (
 		Username    string       `db:"username" json:"username,omitempty"`
 		Email       string       `db:"email" json:"email,omitempty"`
 		Nickname    string       `db:"nickname" json:"nickname"`
-		Avatar      null.String  `db:"avatar" json:"avatar"`
+		Avatar      string       `db:"avatar" json:"avatar"`
 		FirstName   string       `db:"first_name" json:"firstName"`
 		LastName    string       `db:"last_name" json:"lastName"`
 		Permissions []Permission `json:"permissions,omitempty"`
@@ -55,10 +54,10 @@ type (
 		LastLogin *time.Time `db:"last_login" json:"lastLogin,omitempty"`
 		CreatedAt *time.Time `db:"created_at" json:"createdAt,omitempty"`
 		CreatedBy int        `db:"created_by" json:"createdBy,omitempty"`
-		UpdatedAt *null.Time `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedBy *null.Int  `db:"updated_by" json:"updatedBy,omitempty"`
-		DeletedAt *null.Time `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedBy *null.Int  `db:"deleted_by" json:"deletedBy,omitempty"`
+		UpdatedAt *time.Time `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedBy *int       `db:"updated_by" json:"updatedBy,omitempty"`
+		DeletedAt *time.Time `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedBy *int       `db:"deleted_by" json:"deletedBy,omitempty"`
 		Roles     []Role     `json:"roles,omitempty"`
 	}
 	// Role represents a "group" of permissions where multiple users
@@ -66,15 +65,15 @@ type (
 	Role struct {
 		RoleID      int          `db:"role_id" json:"id"`
 		Name        string       `db:"name" json:"name"`
-		Description null.String  `db:"description" json:"description"`
+		Description string       `db:"description" json:"description"`
 		Permissions []Permission `json:"permissions"`
 	}
 
 	// Permission represents an individual permission. Attempting to implement some RBAC here.
 	Permission struct {
-		PermissionID int          `db:"permission_id" json:"id"`
-		Name         string       `db:"name" json:"name"`
-		Description  *null.String `db:"description" json:"description,omitempty"`
+		PermissionID int    `db:"permission_id" json:"id"`
+		Name         string `db:"name" json:"name"`
+		Description  string `db:"description" json:"description,omitempty"`
 	}
 )
 

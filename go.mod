@@ -3,7 +3,6 @@ module github.com/ystv/web-api
 go 1.17
 
 require (
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/aws/aws-sdk-go v1.42.4
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/jmoiron/sqlx v1.3.4
@@ -13,9 +12,8 @@ require (
 	github.com/lib/pq v1.10.4
 	github.com/streadway/amqp v1.0.0
 	github.com/swaggo/echo-swagger v1.1.4
-	github.com/swaggo/swag v1.7.4
+	github.com/swaggo/swag v1.7.6
 	github.com/xhit/go-simple-mail/v2 v2.10.0
-	gopkg.in/guregu/null.v4 v4.0.0
 )
 
 require (
@@ -44,11 +42,11 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
-	golang.org/x/sys v0.0.0-20211113001501-0c823b97ae02 // indirect
+	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
+	golang.org/x/sys v0.0.0-20211210111614-af8b64212486 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
-	golang.org/x/tools v0.1.7 // indirect
+	golang.org/x/tools v0.1.8 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

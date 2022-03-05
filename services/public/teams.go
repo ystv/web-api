@@ -35,7 +35,8 @@ func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 	t := []Team{}
 	err := s.db.SelectContext(ctx, &t, `
 		SELECT team_id, name, email_alias, short_description, full_description
-		FROM people.officership_teams;`)
+		FROM people.officership_teams
+		ORDER BY name;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list teams: %w", err)
 	}
@@ -97,7 +98,8 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
 		INNER JOIN people.officership_team_members tm ON officer.officer_id = tm.officer_id
 		WHERE start_date < NOW() AND (end_date > NOW() OR end_date IS NULL) AND
-		team_id = $1;`, teamID)
+		team_id = $1
+		ORDER BY officer_id;`, teamID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list team members: %w", err)
 	}

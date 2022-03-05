@@ -3,8 +3,6 @@ package people
 import (
 	"context"
 	"fmt"
-
-	"gopkg.in/guregu/null.v4"
 )
 
 var _ PermissionRepo = &Store{}
@@ -34,9 +32,9 @@ func (m *Store) ListPermissionMembersByID(ctx context.Context, permissionID int)
 		return nil, fmt.Errorf("failed to get user meta: %w", err)
 	}
 	for _, user := range u {
-		if user.Avatar.Valid {
-			// TODO sort this out
-			user.Avatar = null.StringFrom("https://ystv.co.uk/static/images/members/thumb/" + user.Avatar.String)
+		if user.Avatar != "" {
+			// TODO: sort this out
+			user.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + user.Avatar
 		}
 	}
 	return u, nil

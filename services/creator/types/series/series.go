@@ -2,7 +2,6 @@ package series
 
 import (
 	"github.com/ystv/web-api/services/creator/types/video"
-	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -16,11 +15,11 @@ type (
 	}
 	// Meta is used as a children object for a series
 	Meta struct {
-		SeriesID    int         `db:"series_id" json:"id"`
-		URL         string      `db:"url" json:"url"`
-		SeriesName  null.String `db:"name" json:"name"`
-		Description null.String `db:"description" json:"description"`
-		Thumbnail   null.String `db:"thumbnail" json:"thumbnail"`
-		Depth       int         `db:"depth" json:"depth"`
+		SeriesID    int    `db:"series_id" json:"id"`
+		URL         string `db:"url" json:"url"`
+		SeriesName  string `db:"name" json:"name"`
+		Description string `db:"description" json:"description"`
+		Thumbnail   string `db:"thumbnail" json:"thumbnail"`
+		Depth       int    `db:"depth" json:"depth"`
 	}
 )

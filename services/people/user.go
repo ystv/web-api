@@ -3,8 +3,6 @@ package people
 import (
 	"context"
 	"fmt"
-
-	"gopkg.in/guregu/null.v4"
 )
 
 var _ UserRepo = &Store{}
@@ -40,9 +38,9 @@ func (m *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 			return UserFull{}, fmt.Errorf("failed to get permissions from roles: %w", err)
 		}
 	}
-	if u.Avatar.Valid {
-		// TODO sort this out
-		u.Avatar = null.StringFrom("https://ystv.co.uk/static/images/members/thumb/" + u.Avatar.String)
+	if u.Avatar != "" {
+		// TODO: sort this out
+		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
 	}
 	return u, nil
 }
@@ -66,9 +64,9 @@ func (m *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	if err != nil {
 		return User{}, fmt.Errorf("failed to get permissions: %w", err)
 	}
-	if u.Avatar.Valid {
+	if u.Avatar != "" {
 		// TODO sort this out
-		u.Avatar = null.StringFrom("https://ystv.co.uk/static/images/members/thumb/" + u.Avatar.String)
+		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
 	}
 	return u, nil
 }

@@ -21,7 +21,7 @@ type DatabaseConfig struct {
 
 // NewDB Initialises the connection to the database
 func NewDB(config DatabaseConfig) (*sqlx.DB, error) {
-	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=%s",
+	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=%s application_name=web-api",
 		config.Name, config.Host, config.Username, config.Password, config.Port, config.SSLMode) // Build connection string
 
 	db, err := sqlx.Open("postgres", dbURI)

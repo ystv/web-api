@@ -108,7 +108,7 @@ func (r *Repos) NewCrew(c echo.Context) error {
 //
 // @Summary Delete crew
 // @Description deletes a crew position by ID.
-// @ID delete-signup
+// @ID delete-crew
 // @Tags clapper-crews
 // @Param signupid path int true "Event ID"
 // @Param signupid path int true "Signup ID"

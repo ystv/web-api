@@ -9,7 +9,6 @@ import (
 	"github.com/streadway/amqp"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/encode"
-	"gopkg.in/guregu/null.v4"
 )
 
 var (
@@ -51,8 +50,8 @@ func NewEncoder(db *sqlx.DB, cdn *s3.S3, mq *amqp.Connection, conf *Config) *Enc
 
 type (
 	VideoItem struct {
-		VideoID  int      `db:"video_id"`
-		PresetID null.Int `db:"preset_id"`
+		VideoID  int  `db:"video_id"`
+		PresetID *int `db:"preset_id"`
 		Files    []VideoFile
 	}
 	VideoFile struct {
