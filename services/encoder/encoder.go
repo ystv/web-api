@@ -6,7 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
-	"github.com/streadway/amqp"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/encode"
 )
@@ -27,7 +26,6 @@ type Encoder struct {
 	encode creator.EncodeRepo
 	db     *sqlx.DB
 	cdn    *s3.S3
-	mq     *amqp.Connection
 	c      *http.Client
 	conf   *Config
 }
@@ -37,12 +35,11 @@ type Config struct {
 	ServeBucket string
 }
 
-func NewEncoder(db *sqlx.DB, cdn *s3.S3, mq *amqp.Connection, conf *Config) *Encoder {
+func NewEncoder(db *sqlx.DB, cdn *s3.S3, conf *Config) *Encoder {
 	return &Encoder{
 		encode: encode.NewStore(db),
 		db:     db,
 		cdn:    cdn,
-		mq:     mq,
 		c:      &http.Client{},
 		conf:   conf,
 	}

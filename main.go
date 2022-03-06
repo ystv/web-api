@@ -70,39 +70,6 @@ func main() {
 	cdn := utils.NewCDN(cdnConfig)
 	log.Printf("Connected to CDN: %s@%s", cdnConfig.AccessKeyID, cdnConfig.Endpoint)
 
-	// Message Queue
-	mqConfig := utils.MQConfig{
-		Host:     os.Getenv("WAPI_MQ_HOST"),
-		Port:     os.Getenv("WAPI_MQ_PORT"),
-		Username: os.Getenv("WAPI_MQ_USER"),
-		Password: os.Getenv("WAPI_MQ_PASS"),
-	}
-	mq, err := utils.NewMQ(mqConfig)
-	if err != nil {
-		log.Fatalf("failed to start mq: %+v", err)
-	}
-	log.Printf("Connected to MQ: %s@%s", mqConfig.Username, mqConfig.Host)
-
-	// Mail
-	// mailPort, err := strconv.Atoi(os.Getenv("WAPI_MAIL_PORT"))
-	// if err != nil {
-	// 	log.Fatalf("bad mail port: %+v", err)
-	// }
-	// mailConfig := utils.MailConfig{
-	// 	Host:     os.Getenv("WAPI_MAIL_HOST"),
-	// 	Port:     mailPort,
-	// 	Username: os.Getenv("WAPI_MAIL_USER"),
-	// 	Password: os.Getenv("WAPI_MAIL_PASS"),
-	// }
-	// m, err := utils.NewMailer(mailConfig)
-	// if err != nil {
-	// 	log.Fatalf("failed to start mailer: %+v", err)
-	// }
-	// log.Printf("Connected to mail: %s@%s", mailConfig.Username, mailConfig.Host)
-
-	// Messaging
-	// utils.InitMessaging()
-
 	bucketConf := struct {
 		IngestBucket string
 		ServeBucket  string
@@ -110,8 +77,11 @@ func main() {
 		IngestBucket: os.Getenv("WAPI_BUCKET_VOD_INGEST"),
 		ServeBucket:  os.Getenv("WAPI_BUCKET_VOD_SERVE"),
 	}
-	log.Printf("Ingest bucket: %s", bucketConf.IngestBucket)
-	log.Printf("Serve bucket: %s", bucketConf.ServeBucket)
+
+	access := utils.NewAccesser(utils.Config{
+		AccessCookieName: "token",
+		SigningKey:       []byte(os.Getenv("WAPI_SIGNING_KEY")),
+	})
 
 	creatorConfig := &creator.Config{
 		IngestBucket: bucketConf.IngestBucket,
@@ -122,19 +92,19 @@ func main() {
 		VTEndpoint:  os.Getenv("WAPI_VT_ENDPOINT"),
 		ServeBucket: bucketConf.ServeBucket,
 	}
-	enc := encoder.NewEncoder(db, cdn, mq, encoderConfig)
+	enc := encoder.NewEncoder(db, cdn, encoderConfig)
 
 	routes.New(&routes.NewRouter{
-		Version:       Version,
-		Commit:        Commit,
-		DomainName:    os.Getenv("WAPI_DOMAIN_NAME"),
-		Debug:         debug,
-		JWTSigningKey: os.Getenv("WAPI_SIGNING_KEY"),
-		Clapper:       clapper.NewRepos(db),
-		Creator:       creator.NewRepos(db, cdn, enc, creatorConfig),
-		Encoder:       encoderPackage.NewEncoderController(enc),
-		Misc:          misc.NewRepos(db),
-		People:        people.NewRepo(db),
-		Public:        public.NewRepos(db),
+		Version:    Version,
+		Commit:     Commit,
+		DomainName: os.Getenv("WAPI_DOMAIN_NAME"),
+		Debug:      debug,
+		Access:     access,
+		Clapper:    clapper.NewRepos(db, access),
+		Creator:    creator.NewRepos(db, cdn, enc, access, creatorConfig),
+		Encoder:    encoderPackage.NewEncoderController(enc, access),
+		Misc:       misc.NewRepos(db, access),
+		People:     people.NewRepo(db, access),
+		Public:     public.NewRepos(db),
 	}).Start()
 }

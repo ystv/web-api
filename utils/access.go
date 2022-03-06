@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/labstack/echo/v4"
 )
 
 type (
@@ -14,8 +15,8 @@ type (
 		conf Config
 	}
 	Config struct {
-		accessCookieName string
-		signingKey       []byte
+		AccessCookieName string
+		SigningKey       []byte
 	}
 	// AccessClaims represents an identifiable JWT
 	AccessClaims struct {
@@ -48,15 +49,22 @@ func NewAccesser(conf Config) *Accesser {
 // check the access cookie
 func (a *Accesser) GetToken(r *http.Request) (*AccessClaims, error) {
 	token := r.Header.Get("Authorization")
-	splitToken := strings.Split(token, "Bearer ")
-	token = splitToken[1]
 
-	if token == "" {
-		cookie, err := r.Cookie(a.conf.accessCookieName)
-		token = cookie.Value
+	if len(token) == 0 {
+		cookie, err := r.Cookie(a.conf.AccessCookieName)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get cookie", err)
+			if errors.As(http.ErrNoCookie, &err) {
+				return nil, ErrNoToken
+			}
+			return nil, fmt.Errorf("failed to get cookie: %w", err)
 		}
+		token = cookie.Value
+	} else {
+		splitToken := strings.Split(token, "Bearer ")
+		if len(splitToken) != 2 {
+			return nil, ErrInvalidToken
+		}
+		token = splitToken[1]
 	}
 
 	if token == "" {
@@ -69,14 +77,25 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 	claims := &AccessClaims{}
 
 	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return a.conf.signingKey, nil
+		return a.conf.SigningKey, nil
 	})
 	if err != nil {
-		err = fmt.Errorf("failed to parse jwt: %w", err)
-		return nil, err
-	}
-	if claims.Valid() != nil {
 		return nil, ErrInvalidToken
 	}
 	return claims, nil
+}
+
+// AuthMiddleware checks a HTTP request for a valid token either in the header or cookie
+func (a *Accesser) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		_, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     http.StatusBadRequest,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		return next(c)
+	}
 }

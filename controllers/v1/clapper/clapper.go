@@ -7,10 +7,12 @@ import (
 	"github.com/ystv/web-api/services/clapper/event"
 	"github.com/ystv/web-api/services/clapper/position"
 	"github.com/ystv/web-api/services/clapper/signup"
+	"github.com/ystv/web-api/utils"
 )
 
 // Repos encapsulates the dependency
 type Repos struct {
+	access   *utils.Accesser
 	crew     clapper.CrewRepo
 	event    clapper.EventRepo
 	signup   clapper.SignupRepo
@@ -18,6 +20,12 @@ type Repos struct {
 }
 
 // NewRepos creates our data store
-func NewRepos(db *sqlx.DB) *Repos {
-	return &Repos{crew.NewStore(db), event.NewStore(db), signup.NewStore(db), position.NewStore(db)}
+func NewRepos(db *sqlx.DB, access *utils.Accesser) *Repos {
+	return &Repos{
+		access,
+		crew.NewStore(db),
+		event.NewStore(db),
+		signup.NewStore(db),
+		position.NewStore(db),
+	}
 }
