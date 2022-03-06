@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/utils"
 )
 
 // UserByID finds a user by ID
@@ -62,7 +61,7 @@ func (r *Repo) UserByIDFull(c echo.Context) error {
 // @Success 200 {object} people.User
 // @Router /v1/internal/people/user [get]
 func (r *Repo) UserByToken(c echo.Context) error {
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -84,7 +83,7 @@ func (r *Repo) UserByToken(c echo.Context) error {
 // @Success 200 {object} people.UserFull
 // @Router /v1/internal/people/user/full [get]
 func (r *Repo) UserByTokenFull(c echo.Context) error {
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

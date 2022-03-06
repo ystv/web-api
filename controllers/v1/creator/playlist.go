@@ -7,7 +7,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator/types/playlist"
-	"github.com/ystv/web-api/utils"
 )
 
 // ListPlaylist handles listing all playlist metadata's
@@ -66,7 +65,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -97,7 +96,7 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistUpdate: failed to bind json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

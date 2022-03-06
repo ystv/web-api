@@ -8,7 +8,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator/types/video"
-	"github.com/ystv/web-api/utils"
 )
 
 // GetVideo finds a video by ID
@@ -55,7 +54,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 		err = fmt.Errorf("VideoCreate bind fail: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -86,7 +85,7 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 		err = fmt.Errorf("failed to bind video object: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	t, err := utils.GetTokenEcho(c)
+	t, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -134,7 +133,7 @@ func (r *Repos) VideoList(c echo.Context) error {
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video/my [get]
 func (r *Repos) ListVideosByUser(c echo.Context) error {
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
