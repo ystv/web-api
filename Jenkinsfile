@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         REGISTRY_ENDPOINT = credentials('docker-registry-endpoint')
+        LOGGING_ENDPOINT = credentials('logging-endpoint')
     }
 
     stages {
@@ -44,8 +45,9 @@ pipeline {
                                     cd $TARGET_PATH/web-api
                                     BUILD_ID=$BUILD_ID \
                                     REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
+                                    LOGGING_ENDPOINT=$LOGGING_ENDPOINT \
                                     docker-compose -f docker-compose.deploy.yml up -d \
-                                        --force-recreate \
+                                        --force-recreate
 
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0
@@ -72,8 +74,9 @@ pipeline {
                                     cd $TARGET_PATH/web-api
                                     BUILD_ID=$BUILD_ID \
                                     REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
+                                    LOGGING_ENDPOINT=$LOGGING_ENDPOINT \
                                     docker-compose -f docker-compose.deploy.yml up -d \
-                                        --force-recreate \
+                                        --force-recreate
 
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0

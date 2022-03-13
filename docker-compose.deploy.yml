@@ -7,3 +7,7 @@ services:
       - 1336:8081
     env_file:
       - .env
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: ${LOGGING_ENDPOINT}
