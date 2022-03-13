@@ -40,9 +40,13 @@ pipeline {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
-                                    docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
-                                    docker rm -f ystv-web-api
-                                    docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    cd $TARGET_PATH/web-api
+                                    BUILD_ID=$BUILD_ID
+                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT
+                                    docker-compose -f docker-compose.deploy.yaml up \
+                                        --force-recreate
+                                        --abort-on-container-exit
+
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0
                                 EOF'''
@@ -64,9 +68,13 @@ pipeline {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
-                                    docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
-                                    docker rm -f ystv-web-api
-                                    docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    cd $TARGET_PATH/web-api
+                                    BUILD_ID=$BUILD_ID
+                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT
+                                    docker-compose -f docker-compose.deploy.yaml up \
+                                        --force-recreate
+                                        --abort-on-container-exit
+
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0
                                 EOF'''

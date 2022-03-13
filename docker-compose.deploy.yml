@@ -1,0 +1,7 @@
+version: "3"
+services:
+  api:
+    image: ${REGISTRY_ENDPOINT}/ystv/web-api:${BUILD_ID}
+    restart: unless-stopped
+    ports:
+      - 1336:8081
