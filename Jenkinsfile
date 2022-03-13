@@ -44,9 +44,8 @@ pipeline {
                                     cd $TARGET_PATH/web-api
                                     BUILD_ID=$BUILD_ID \
                                     REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
-                                    docker-compose -f docker-compose.deploy.yml up \
+                                    docker-compose -f docker-compose.deploy.yml up -d \
                                         --force-recreate \
-                                        --abort-on-container-exit
 
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0
@@ -73,9 +72,8 @@ pipeline {
                                     cd $TARGET_PATH/web-api
                                     BUILD_ID=$BUILD_ID \
                                     REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
-                                    docker-compose -f docker-compose.deploy.yml up \
+                                    docker-compose -f docker-compose.deploy.yml up -d \
                                         --force-recreate \
-                                        --abort-on-container-exit
 
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0
