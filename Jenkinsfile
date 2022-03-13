@@ -39,12 +39,13 @@ pipeline {
                         sshagent(credentials : ['staging-server-key']) {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
+                                sh 'rsync -av docker-compose.deploy.yml@$TARGET_SERVER:$TARGET_PATH/web-api/'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
                                     cd $TARGET_PATH/web-api
-                                    BUILD_ID=$BUILD_ID
-                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT
-                                    docker-compose -f docker-compose.deploy.yaml up \
-                                        --force-recreate
+                                    BUILD_ID=$BUILD_ID \
+                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
+                                    docker-compose -f docker-compose.deploy.yml up \
+                                        --force-recreate \
                                         --abort-on-container-exit
 
                                     docker image prune -a -f --filter "label=site=api"
@@ -67,12 +68,13 @@ pipeline {
                         sshagent(credentials : ['prod-server-key']) {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
+                                sh 'rsync -av docker-compose.deploy.yml@$TARGET_SERVER:$TARGET_PATH/web-api/'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
                                     cd $TARGET_PATH/web-api
-                                    BUILD_ID=$BUILD_ID
-                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT
-                                    docker-compose -f docker-compose.deploy.yaml up \
-                                        --force-recreate
+                                    BUILD_ID=$BUILD_ID \
+                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
+                                    docker-compose -f docker-compose.deploy.yml up \
+                                        --force-recreate \
                                         --abort-on-container-exit
 
                                     docker image prune -a -f --filter "label=site=api"
