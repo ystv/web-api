@@ -39,7 +39,7 @@ pipeline {
                         sshagent(credentials : ['staging-server-key']) {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
-                                sh 'rsync -av docker-compose.deploy.yml@$TARGET_SERVER:$TARGET_PATH/web-api/'
+                                sh 'rsync -av docker-compose.deploy.yml deploy@$TARGET_SERVER:$TARGET_PATH/web-api/'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
                                     cd $TARGET_PATH/web-api
                                     BUILD_ID=$BUILD_ID \
@@ -68,7 +68,7 @@ pipeline {
                         sshagent(credentials : ['prod-server-key']) {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
-                                sh 'rsync -av docker-compose.deploy.yml@$TARGET_SERVER:$TARGET_PATH/web-api/'
+                                sh 'rsync -av docker-compose.deploy.yml deploy@$TARGET_SERVER:$TARGET_PATH/web-api/'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
                                     cd $TARGET_PATH/web-api
                                     BUILD_ID=$BUILD_ID \
