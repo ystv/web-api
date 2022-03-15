@@ -9,8 +9,6 @@ import (
 	"github.com/ystv/web-api/services/encoder"
 )
 
-// TODO update schema so duration is not null
-
 var _ creator.VideoRepo = &Store{}
 
 // Store encapsulates our dependencies

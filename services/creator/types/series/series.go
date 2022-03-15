@@ -1,6 +1,8 @@
 package series
 
 import (
+	"errors"
+
 	"github.com/ystv/web-api/services/creator/types/video"
 )
 
@@ -9,9 +11,9 @@ type (
 	// this is useful when you want to know the current series and
 	// see it's immediate children.
 	Series struct {
-		*Meta
-		ImmediateChildSeries *[]Meta       `json:"childSeries"`
-		ChildVideos          *[]video.Meta `json:"videos"`
+		Meta
+		ImmediateChildSeries []Meta       `json:"childSeries"`
+		ChildVideos          []video.Meta `json:"videos"`
 	}
 	// Meta is used as a children object for a series
 	Meta struct {
@@ -22,4 +24,11 @@ type (
 		Thumbnail   string `db:"thumbnail" json:"thumbnail"`
 		Depth       int    `db:"depth" json:"depth"`
 	}
+)
+
+var (
+	ErrNotFound               = errors.New("series not found")
+	ErrMetaNotFound           = errors.New("series meta not found")
+	ErrChildrenSeriesNotFound = errors.New("series children series not found")
+	ErrChildrenVideosNotFound = errors.New("series videos not found")
 )

@@ -16,7 +16,7 @@ type (
 	}
 	// Item is either a video or a series
 	Item struct {
-		Video  *video.Item    `json:"video"`
-		Series *series.Series `json:"series"`
+		Video  video.Item    `json:"video,omitempty"`
+		Series series.Series `json:"series,omitempty"`
 	}
 )

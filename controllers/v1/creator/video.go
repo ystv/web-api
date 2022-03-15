@@ -60,7 +60,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	v.CreatedBy = claims.UserID
-	videoID, err := r.video.NewItem(c.Request().Context(), &v)
+	videoID, err := r.video.NewItem(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to create new video item: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

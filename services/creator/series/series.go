@@ -3,6 +3,7 @@ package series
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -28,43 +29,52 @@ func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.
 }
 
 // Get provides the immediate children of series and videos
-func (c *Controller) Get(ctx context.Context, seriesID int) (*series.Series, error) {
-	s, err := c.getMetaByPointer(ctx, seriesID)
+func (c *Controller) Get(ctx context.Context, seriesID int) (series.Series, error) {
+	s := series.Series{}
+	meta, err := c.GetMeta(ctx, seriesID)
 	if err != nil {
-		err = fmt.Errorf("failed to get series meta: %w", err)
-		return nil, err
+		if errors.Is(err, series.ErrMetaNotFound) {
+			return series.Series{}, series.ErrNotFound
+		}
+		return series.Series{}, fmt.Errorf("failed to get series meta: %w", err)
 	}
+	s.Meta = meta
+
+	// Allowing these children not found errors to be ignored since they are optional
+
 	s.ImmediateChildSeries, err = c.ImmediateChildrenSeries(ctx, seriesID)
 	if err != nil {
-		err = fmt.Errorf("failed to get child series: %w", err)
-		return nil, err
+		if !errors.Is(err, series.ErrChildrenSeriesNotFound) {
+			return series.Series{}, fmt.Errorf("failed to get child series: %w", err)
+		}
 	}
 	s.ChildVideos, err = c.video.OfSeries(ctx, seriesID)
 	if err != nil {
-		err = fmt.Errorf("failed to get child videos: %w", err)
-		return nil, err
+		if !errors.Is(err, series.ErrChildrenVideosNotFound) {
+			return series.Series{}, fmt.Errorf("failed to get child videos: %w", err)
+		}
 	}
 	return s, nil
 }
 
-// this is a very basic wrapper so we can use pointers
-func (c *Controller) getMetaByPointer(ctx context.Context, seriesID int) (*series.Series, error) {
-	m, err := c.GetMeta(ctx, seriesID)
-	return &series.Series{Meta: m}, err
-}
-
 // GetMeta provides basic information for only the selected series
-func (c *Controller) GetMeta(ctx context.Context, seriesID int) (*series.Meta, error) {
+func (c *Controller) GetMeta(ctx context.Context, seriesID int) (series.Meta, error) {
 	s := series.Meta{}
 	err := c.db.GetContext(ctx, &s,
 		`SELECT series_id, url, name, description, thumbnail
 		FROM video.series
 		WHERE series_id = $1`, seriesID)
-	return &s, err
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return series.Meta{}, series.ErrMetaNotFound
+		}
+		return series.Meta{}, err
+	}
+	return s, nil
 }
 
 // ImmediateChildrenSeries returns series directly below the chosen series
-func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) (*[]series.Meta, error) {
+func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) ([]series.Meta, error) {
 	s := []series.Meta{}
 	err := c.db.SelectContext(ctx, &s,
 		`SELECT * from (
@@ -94,13 +104,19 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) 
 					ORDER BY node.lft asc
 			) as queries
 			where depth = 1;`, SeriesID)
-	return &s, err
+	if err != nil {
+		return []series.Meta{}, err
+	}
+	if len(s) == 0 {
+		return []series.Meta{}, series.ErrChildrenSeriesNotFound
+	}
+	return s, nil
 }
 
 // List returns all series in the DB including their depth
-func (c *Controller) List(ctx context.Context) (*[]series.Meta, error) {
+func (c *Controller) List(ctx context.Context) ([]series.Meta, error) {
 	s := []series.Meta{}
-	err := c.db.SelectContext(ctx, &s,
+	err := c.db.SelectContext(ctx, s,
 		`SELECT
 			child.series_id, child.url, child.name, child.description, child.thumbnail,
 			(COUNT(parent.*) -1) AS depth
@@ -111,11 +127,17 @@ func (c *Controller) List(ctx context.Context) (*[]series.Meta, error) {
 			child.lft BETWEEN parent.lft AND parent.rgt
 		GROUP BY child.series_id
 		ORDER BY child.lft ASC;`)
-	return &s, err
+	if err != nil {
+		return []series.Meta{}, err
+	}
+	if len(s) == 0 {
+		return []series.Meta{}, series.ErrNotFound
+	}
+	return s, nil
 }
 
 // AllBelow returns all series below a certain series including depth
-func (c *Controller) AllBelow(ctx context.Context, SeriesID int) (*[]series.Meta, error) {
+func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta, error) {
 	s := []series.Meta{}
 	err := c.db.SelectContext(ctx, &s,
 		`SELECT 
@@ -142,24 +164,29 @@ func (c *Controller) AllBelow(ctx context.Context, SeriesID int) (*[]series.Meta
 			AND sub_parent.series_id = sub_tree.series_id
 		GROUP BY node.series_id, sub_tree.depth
 		ORDER BY node.lft ASC;`, SeriesID)
-	return &s, err
+	if err != nil {
+		return []series.Meta{}, err
+	}
+	if len(s) == 0 {
+		return []series.Meta{}, series.ErrNotFound
+	}
+	return s, nil
 }
 
 // FromPath will return a series from a given path
-func (c *Controller) FromPath(ctx context.Context, path string) (*series.Series, error) {
-	s := &series.Series{}
+func (c *Controller) FromPath(ctx context.Context, path string) (series.Series, error) {
+	s := series.Series{}
 	err := c.db.GetContext(ctx, s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	if err != nil {
-		// We ignore ErrNoRows since it's not a log worthy error and the path function will generate this error when used
-		if err != sql.ErrNoRows {
-			err = fmt.Errorf("failed to get series from path: %w", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return series.Series{}, series.ErrNotFound
 		}
-		return nil, err
+		return series.Series{}, fmt.Errorf("failed to get series from path: %w", err)
 	}
 	s, err = c.Get(ctx, s.SeriesID)
 	if err != nil {
 		err = fmt.Errorf("failed to get series data: %w", err)
-		return nil, err
+		return series.Series{}, err
 	}
 	return s, err
 }

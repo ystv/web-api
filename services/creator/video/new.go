@@ -22,7 +22,7 @@ func NewStore(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Confi
 }
 
 // NewItem creates a new video item
-func (s *Store) NewItem(ctx context.Context, v *video.New) (int, error) {
+func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 	// Checking if video file exists
 	obj, err := s.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s.conf.IngestBucket),
