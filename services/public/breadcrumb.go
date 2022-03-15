@@ -47,11 +47,14 @@ func (m *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb,
 	}
 	sB, err := m.SeriesBreadcrumb(ctx, vB.SeriesID)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get series breadcrumb: %w", err)
+		// Interesting edge-case
+		if !errors.Is(err, ErrSeriesNotFound) {
+			return nil, fmt.Errorf("failed to get series breadcrumb: %w", err)
+		}
 	}
 	sB = append(sB, vB)
 
-	return sB, err
+	return sB, nil
 }
 
 // SeriesBreadcrumb will return the breadcrumb from SeriesID to root
@@ -68,11 +71,11 @@ func (m *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrum
 			AND node.series_id = $1
 		ORDER BY parent.lft;`, seriesID)
 	if err != nil {
-		return nil, ErrSeriesNotFound
+		return []Breadcrumb{}, ErrSeriesNotFound
 	}
 	// For some reason it's not returning NoRows
 	if len(b) == 0 {
-		return nil, ErrSeriesNotFound
+		return []Breadcrumb{}, ErrSeriesNotFound
 	}
 	return b, err
 }
