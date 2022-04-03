@@ -17,7 +17,7 @@ import (
 // @Param playlistid path int true "Playlist ID"
 // @Produce json
 // @Success 200 {object} public.Playlist
-// @Router /v1/public/playlist/{seriesid} [get]
+// @Router /v1/public/playlist/{playlistid} [get]
 func (r *Repos) GetPlaylist(c echo.Context) error {
 	playlistID, err := strconv.Atoi(c.Param("playlistid"))
 	if err != nil {

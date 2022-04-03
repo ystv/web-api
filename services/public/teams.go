@@ -78,7 +78,7 @@ func (s *Store) GetTeamByYear(ctx context.Context, teamID, year int) (Team, erro
 		INNER JOIN people.officership_members off_mem ON officer.officer_id = off_mem.officer_id
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
 		INNER JOIN people.officership_team_members tm ON officer.officer_id = tm.officer_id
-		WHERE EXTRACT(year FROM start_date) = $1 OR EXTRACT(year FROM end_date) = $1 AND
+		WHERE (EXTRACT(year FROM start_date) = $1 OR EXTRACT(year FROM end_date)) = $1 AND
 		team_id = $2;`, year, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by year: %w", err)

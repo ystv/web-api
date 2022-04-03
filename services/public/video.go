@@ -37,9 +37,8 @@ type (
 var _ VideoRepo = &Store{}
 
 // ListVideo returns all video metadata
-func (m *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
+func (m *Store) ListVideo(ctx context.Context, pagesize int, page int) (*[]VideoMeta, error) {
 	v := []VideoMeta{}
-	// TODO Change pagination method
 	// TODO Do a double check on if we need to convert broadcast date
 	err := m.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
@@ -47,7 +46,7 @@ func (m *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMe
 		FROM video.items
 		WHERE status = 'public'
 		ORDER BY broadcast_date DESC
-		OFFSET $1 LIMIT $2;`, page, offset)
+		OFFSET $1 LIMIT $2;`, page, pagesize)
 	if err != nil {
 		return nil, err
 	}

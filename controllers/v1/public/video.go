@@ -26,7 +26,7 @@ func (r *Repos) Video(c echo.Context) error {
 	v, err := r.public.GetVideo(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("Public GetVideo failed: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, v)
 }
@@ -34,24 +34,24 @@ func (r *Repos) Video(c echo.Context) error {
 // ListVideos handles listing videos using an offset and page
 //
 // @Summary Provides a list of videos
-// @Description List of video meta's in order of broadcast date.
+// @Description List of video metas in order of broadcast date. Pages of size PAGESIZE, shifted by PAGE
 // @ID get-public-videos
 // @Tags public-video
-// @Param offset path int true "Offset"
+// @Param offset path int true "Pagesize"
 // @Param page path int true "Page"
 // @Produce json
 // @Success 200 {array} public.VideoMeta
 // @Router /v1/public/videos/{offset}/{page} [get]
 func (r *Repos) ListVideos(c echo.Context) error {
-	offset, err := strconv.Atoi(c.Param("offset"))
+	offset, err := strconv.Atoi(c.Param("pagesize"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Bad offset")
+		return echo.NewHTTPError(http.StatusBadRequest, "Bad pagesize")
 	}
 	page, err := strconv.Atoi(c.Param("page"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad page")
 	}
-	v, err := r.public.ListVideo(c.Request().Context(), offset, page)
+	v, err := r.public.ListVideo(c.Request().Context(), pagesize, page)
 	if err != nil {
 		err = fmt.Errorf("Public ListVideos failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
