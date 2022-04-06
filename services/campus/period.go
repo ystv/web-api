@@ -4,11 +4,18 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"time"
 )
 
 type (
+	// AcademicYear represents the academic year and the teaching cycle
+	AcademicYear struct {
+		Year          int              `db:"year" json:"year"`
+		TeachingCycle []TeachingPeriod `json:"teachingCycle"`
+	}
+
 	// TeachingPeriod represents an academic time period either a term or semester
 	TeachingPeriod struct {
 		TeachingPeriodID int       `db:"teaching_period_id" json:"teachingPeriodID"`
@@ -27,9 +34,34 @@ type (
 )
 
 var (
+	ErrNoAcademicYearFound   = errors.New("no academic year found")
 	ErrNoTeachingPeriodFound = errors.New("no teaching period found")
 	ErrNoWeekFound           = errors.New("no week found")
 )
+
+// GetAcademicYear retrieves an academic year for a given time
+func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYear, error) {
+	ay := AcademicYear{}
+	ay.Year = t.Year()
+
+	err := c.db.SelectContext(ctx, &ay.TeachingCycle, `
+	SELECT teaching_period_id, period.year, name, start finish
+	FROM misc.teaching_period period
+	INNER JOIN (
+		SELECT year
+		FROM misc.teaching_period
+		GROUP BY year
+		HAVING $1 BETWEEN min(start) AND max(finish)
+	) selected_year ON selected_year.year = period.year
+	ORDER BY start;`)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return AcademicYear{}, ErrNoAcademicYearFound
+		}
+		return AcademicYear{}, fmt.Errorf("failed to get teaching cycle: %w", err)
+	}
+	return ay, nil
+}
 
 // GetTeachingPeriod retrives an academic term for a given time
 func (c *Campuser) GetTeachingPeriod(ctx context.Context, t time.Time) (TeachingPeriod, error) {
@@ -64,6 +96,11 @@ func (c *Campuser) GetWeek(ctx context.Context, t time.Time) (Week, error) {
 	w.WeekNo = (int(t.Sub(w.TeachingPeriod.Start).Hours()) / 24 / 7) + 1
 
 	return w, nil
+}
+
+// GetCurrentAcademicYear returns the academic year as of the current time
+func (c *Campuser) GetCurrentAcademicYear(ctx context.Context) (AcademicYear, error) {
+	return c.GetAcademicYear(ctx, time.Now())
 }
 
 // GetCurrentTeachingPeriod returns the teaching period as of the current time
