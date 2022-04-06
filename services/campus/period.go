@@ -46,10 +46,10 @@ func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYe
 
 	err := c.db.SelectContext(ctx, &ay.TeachingCycle, `
 	SELECT teaching_period_id, period.year, name, start finish
-	FROM misc.teaching_period period
+	FROM misc.teaching_periods period
 	INNER JOIN (
 		SELECT year
-		FROM misc.teaching_period
+		FROM misc.teaching_periods
 		GROUP BY year
 		HAVING $1 BETWEEN min(start) AND max(finish)
 	) selected_year ON selected_year.year = period.year
