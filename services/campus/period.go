@@ -58,7 +58,7 @@ func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYe
 		if errors.Is(err, sql.ErrNoRows) {
 			return AcademicYear{}, ErrNoAcademicYearFound
 		}
-		return AcademicYear{}, fmt.Errorf("failed to get teaching cycle: %w", err)
+		return AcademicYear{}, err
 	}
 	return ay, nil
 }
@@ -88,7 +88,7 @@ func (c *Campuser) GetWeek(ctx context.Context, t time.Time) (Week, error) {
 		if errors.Is(err, ErrNoTeachingPeriodFound) {
 			return Week{}, ErrNoWeekFound
 		}
-		return Week{}, err
+		return Week{}, fmt.Errorf("failed to get teaching period: %w", err)
 	}
 
 	// TODO: Need to convert time from what's given to
