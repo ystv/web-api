@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/labstack/echo/v4"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/breadcrumb"
@@ -36,7 +36,7 @@ type Config struct {
 }
 
 // NewRepos creates our data repositories
-func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Accesser, conf *Config) *Repos {
+func NewRepos(db *pgx.Conn, cdn *s3.S3, enc *encoder.Encoder, access *utils.Accesser, conf *Config) *Repos {
 	config := &creator.Config{
 		IngestBucket: conf.IngestBucket,
 		ServeBucket:  conf.ServeBucket,

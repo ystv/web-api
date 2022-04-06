@@ -4,17 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/clapper"
 )
 
 // Store encapsulates our dependency
 type Store struct {
-	db *sqlx.DB
+	db *pgx.Conn
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *pgx.Conn) *Store {
 	return &Store{db}
 }
 

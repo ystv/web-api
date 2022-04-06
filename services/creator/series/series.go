@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/series"
 	"github.com/ystv/web-api/services/creator/video"
@@ -19,12 +19,12 @@ var _ creator.SeriesRepo = &Controller{}
 
 // Controller contains our dependencies
 type Controller struct {
-	db    *sqlx.DB
+	db    *pgx.Conn
 	video creator.VideoRepo
 }
 
 // NewController creates a new controller
-func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Controller {
+func NewController(db *pgx.Conn, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Controller {
 	return &Controller{db: db, video: video.NewStore(db, cdn, enc, conf)}
 }
 

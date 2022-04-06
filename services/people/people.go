@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 )
 
 type (
@@ -30,7 +30,7 @@ type (
 
 	// Store contains our dependency
 	Store struct {
-		db *sqlx.DB
+		db *pgx.Conn
 	}
 )
 
@@ -78,6 +78,6 @@ type (
 )
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *pgx.Conn) *Store {
 	return &Store{db: db}
 }

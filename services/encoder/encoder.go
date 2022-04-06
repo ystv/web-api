@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/encode"
 )
@@ -24,7 +24,7 @@ var (
 
 type Encoder struct {
 	encode creator.EncodeRepo
-	db     *sqlx.DB
+	db     *pgx.Conn
 	cdn    *s3.S3
 	c      *http.Client
 	conf   *Config
@@ -35,7 +35,7 @@ type Config struct {
 	ServeBucket string
 }
 
-func NewEncoder(db *sqlx.DB, cdn *s3.S3, conf *Config) *Encoder {
+func NewEncoder(db *pgx.Conn, cdn *s3.S3, conf *Config) *Encoder {
 	return &Encoder{
 		encode: encode.NewStore(db),
 		db:     db,

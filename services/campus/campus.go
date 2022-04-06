@@ -3,8 +3,8 @@
 // on the ystv net
 package campus
 
-import "github.com/jmoiron/sqlx"
+import "github.com/jackc/pgx"
 
 type Campuser struct {
-	db sqlx.DB
+	db pgx.Conn
 }

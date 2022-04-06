@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/encoder"
 )
@@ -13,7 +13,7 @@ var _ creator.VideoRepo = &Store{}
 
 // Store encapsulates our dependencies
 type Store struct {
-	db   *sqlx.DB
+	db   *pgx.Conn
 	cdn  *s3.S3
 	enc  *encoder.Encoder
 	conf *creator.Config

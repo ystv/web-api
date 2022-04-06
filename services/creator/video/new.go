@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"github.com/ystv/web-api/services/creator"
@@ -17,7 +18,7 @@ import (
 )
 
 // NewStore returns a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Store {
+func NewStore(db *pgx.Conn, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Store {
 	return &Store{db: db, cdn: cdn, enc: enc, conf: conf}
 }
 

@@ -1,7 +1,7 @@
 package public
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/public"
 )
 
@@ -11,6 +11,6 @@ type Repos struct {
 }
 
 // NewRepos creates our data store
-func NewRepos(db *sqlx.DB) *Repos {
+func NewRepos(db *pgx.Conn) *Repos {
 	return &Repos{public.NewStore(db)}
 }

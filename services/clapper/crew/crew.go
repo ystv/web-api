@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/ystv/web-api/services/clapper"
 	"github.com/ystv/web-api/utils"
@@ -12,11 +13,11 @@ import (
 
 // Store encapsulates our dependency
 type Store struct {
-	db *sqlx.DB
+	db *pgx.Conn
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *pgx.Conn) *Store {
 	return &Store{db}
 }
 
@@ -42,7 +43,7 @@ var (
 
 // New creates a new crew position, with default settings
 func (m *Store) New(ctx context.Context, signupID, positionID int) error {
-	_, err := m.db.ExecContext(ctx,
+	_, err := m.db.Exec(ctx,
 		`INSERT INTO event.crews(signup_id, position_id)
 		VALUES ($1, $2);`, signupID, positionID)
 	if err != nil {
@@ -54,11 +55,11 @@ func (m *Store) New(ctx context.Context, signupID, positionID int) error {
 // Get returns a crew position object
 func (m *Store) Get(ctx context.Context, crewID int) (*clapper.CrewPosition, error) {
 	cp := clapper.CrewPosition{}
-	err := m.db.GetContext(ctx, &cp,
+	err := m.db.QueryRow(ctx,
 		`SELECT crew_id, user_id, locked, admin, permission_id
 		FROM event.crews
 		INNER JOIN event.positions ON crews.position_id = positions.position_id
-		WHERE crew_id = $1;`, crewID)
+		WHERE crew_id = $1;`, crewID).Scan(&cp)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get crew from crewID: %w", err)
 	}
@@ -67,15 +68,15 @@ func (m *Store) Get(ctx context.Context, crewID int) (*clapper.CrewPosition, err
 
 // DeleteUser clears the user ID from the crew ID object
 func (m *Store) DeleteUser(ctx context.Context, crewID int) error {
-	return utils.Transact(m.db, func(tx *sqlx.Tx) error {
-		stmt, err := tx.PrepareContext(ctx,
+	return utils.Transact(ctx, m.db, func(tx pgx.Tx) error {
+		stmt, err := tx.Prepare(ctx, "",
 			`UPDATE event.crews
 			SET user_id = NULL
 			WHERE crew_id = $1;`)
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to delete crew user: %w", err)
 		}
-		_, err = stmt.ExecContext(ctx, crewID)
+		_, err = stmt.Exec(ctx, crewID)
 		if err != nil {
 			return fmt.Errorf("failed to execute statement on crew delete user: %w", err)
 		}

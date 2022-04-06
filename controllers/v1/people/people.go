@@ -1,7 +1,7 @@
 package people
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/people"
 	"github.com/ystv/web-api/utils"
 )
@@ -13,7 +13,7 @@ type Repo struct {
 }
 
 // NewRepo creates our data store
-func NewRepo(db *sqlx.DB, access *utils.Accesser) *Repo {
+func NewRepo(db *pgx.Conn, access *utils.Accesser) *Repo {
 	return &Repo{
 		people: people.NewStore(db),
 		access: access,

@@ -1,7 +1,8 @@
 package clapper
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4"
+
 	"github.com/ystv/web-api/services/clapper"
 	"github.com/ystv/web-api/services/clapper/crew"
 	"github.com/ystv/web-api/services/clapper/event"
@@ -20,7 +21,7 @@ type Repos struct {
 }
 
 // NewRepos creates our data store
-func NewRepos(db *sqlx.DB, access *utils.Accesser) *Repos {
+func NewRepos(db *pgx.Conn, access *utils.Accesser) *Repos {
 	return &Repos{
 		access,
 		crew.NewStore(db),

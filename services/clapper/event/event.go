@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
 	"github.com/ystv/web-api/services/clapper"
 	"github.com/ystv/web-api/utils"
@@ -12,11 +13,11 @@ import (
 
 // Store encapsulates our dependency
 type Store struct {
-	db *sqlx.DB
+	db *pgx.Conn
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *pgx.Conn) *Store {
 	return &Store{db}
 }
 

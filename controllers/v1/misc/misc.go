@@ -1,7 +1,7 @@
 package misc
 
 import (
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/misc"
 	"github.com/ystv/web-api/utils"
 )
@@ -13,7 +13,7 @@ type Repos struct {
 }
 
 // NewRepos creates our data store
-func NewRepos(db *sqlx.DB, access *utils.Accesser) *Repos {
+func NewRepos(db *pgx.Conn, access *utils.Accesser) *Repos {
 	return &Repos{
 		misc:   misc.NewStore(db),
 		access: access,

@@ -3,7 +3,7 @@ package creator
 import (
 	"context"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx"
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
 	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/services/creator/types/playlist"
@@ -93,10 +93,10 @@ var _ StatRepo = &Store{}
 
 // Store contains our dependency
 type Store struct {
-	db *sqlx.DB
+	db *pgx.Conn
 }
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *pgx.Conn) *Store {
 	return &Store{db: db}
 }

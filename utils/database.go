@@ -1,12 +1,11 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 
-	// PostgreSQL driver
-	_ "github.com/lib/pq"
-
-	"github.com/jmoiron/sqlx"
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 // DatabaseConfig represents a configuration to connect to an SQL database
@@ -20,35 +19,37 @@ type DatabaseConfig struct {
 }
 
 // NewDB Initialises the connection to the database
-func NewDB(config DatabaseConfig) (*sqlx.DB, error) {
+func NewDB(ctx context.Context, config DatabaseConfig) (*pgx.Conn, error) {
 	dbURI := fmt.Sprintf("dbname=%s host=%s user=%s password=%s port=%s sslmode=%s application_name=web-api",
 		config.Name, config.Host, config.Username, config.Password, config.Port, config.SSLMode) // Build connection string
 
-	db, err := sqlx.Open("postgres", dbURI)
+	conn, err := pgxpool.Connect(ctx, dbURI)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
-	err = db.Ping()
+	defer conn.Close()
+
+	err = conn.Ping(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
-	return db, nil
+	return conn, nil
 }
 
 // Transact wraps transactions
-func Transact(db *sqlx.DB, txFunc func(*sqlx.Tx) error) (err error) {
-	tx, err := db.Beginx()
+func Transact(ctx context.Context, db *pgx.Conn, txFunc func(pgx.Tx) error) (err error) {
+	tx, err := db.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return
 	}
 	defer func() {
 		if p := recover(); p != nil {
-			tx.Rollback()
+			tx.Rollback(ctx)
 			panic(p) // re-throw panic after Rollback
 		} else if err != nil {
-			tx.Rollback() // err is non-nil; don't chang eit
+			tx.Rollback(ctx) // err is non-nil; don't change it
 		} else {
-			err = tx.Commit() // err is nil; if Commit returns error update err
+			err = tx.Commit(ctx) // err is nil; if Commit returns error update err
 		}
 	}()
 	err = txFunc(tx)
