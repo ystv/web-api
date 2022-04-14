@@ -21,6 +21,8 @@ func New(e *echo.Echo, domainName string) {
 			"https://my." + domainName,
 			"http://local." + domainName + ":3000",
 			"https://local." + domainName + ":3000",
+			"http://local." + domainName + ":8080",
+			"https://local." + domainName + ":8080",
 			"http://" + domainName,
 			"https://" + domainName},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowCredentials, echo.HeaderAccessControlAllowOrigin, echo.HeaderAuthorization},
