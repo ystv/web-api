@@ -99,7 +99,13 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 		INNER JOIN people.officership_team_members tm ON officer.officer_id = tm.officer_id
 		WHERE start_date < NOW() AND (end_date > NOW() OR end_date IS NULL) AND
 		team_id = $1
-		ORDER BY officer_id;`, teamID)
+		ORDER BY CASE
+		    WHEN officer.name LIKE 'Station Director' THEN 0
+		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
+		    WHEN officer.name LIKE '%Deputy%' THEN 2
+		    WHEN officer.name LIKE 'Head of Welfare and Training' THEN 3
+		    WHEN officer.name LIKE '%Head of%' THEN 4
+		    ELSE 5 END;`, teamID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list team members: %w", err)
 	}
