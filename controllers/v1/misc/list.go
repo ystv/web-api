@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/utils"
 )
 
 // GetLists handles listing mailing lists
@@ -38,7 +37,7 @@ func (r *Repos) GetLists(c echo.Context) error {
 // @Success 200 {array} misc.List
 // @Router /v1/internal/misc/lists/my [get]
 func (r *Repos) GetListsByToken(c echo.Context) error {
-	p, err := utils.GetTokenEcho(c)
+	p, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -112,7 +111,7 @@ func (r *Repos) SubscribeByToken(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SubscribeByToken failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -168,7 +167,7 @@ func (r *Repos) UnsubscribeByToken(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UnsubscribeByToken failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

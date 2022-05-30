@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         REGISTRY_ENDPOINT = credentials('docker-registry-endpoint')
+        LOGGING_ENDPOINT = credentials('logging-endpoint')
     }
 
     stages {
@@ -39,10 +40,15 @@ pipeline {
                         sshagent(credentials : ['staging-server-key']) {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
+                                sh 'rsync -av docker-compose.deploy.yml deploy@$TARGET_SERVER:$TARGET_PATH/web-api/'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
-                                    docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
-                                    docker rm -f ystv-web-api
-                                    docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    cd $TARGET_PATH/web-api
+                                    BUILD_ID=$BUILD_ID \
+                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
+                                    LOGGING_ENDPOINT=$LOGGING_ENDPOINT \
+                                    docker-compose -f docker-compose.deploy.yml up -d \
+                                        --force-recreate
+
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0
                                 EOF'''
@@ -63,10 +69,15 @@ pipeline {
                         sshagent(credentials : ['prod-server-key']) {
                             script {
                                 sh 'rsync -av $APP_ENV deploy@$TARGET_SERVER:$TARGET_PATH/web-api/.env'
+                                sh 'rsync -av docker-compose.deploy.yml deploy@$TARGET_SERVER:$TARGET_PATH/web-api/'
                                 sh '''ssh -tt deploy@$TARGET_SERVER << EOF
-                                    docker pull $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
-                                    docker rm -f ystv-web-api
-                                    docker run -d -p 1336:8081 --env-file $TARGET_PATH/web-api/.env --name ystv-web-api $REGISTRY_ENDPOINT/ystv/web-api:$BUILD_ID
+                                    cd $TARGET_PATH/web-api
+                                    BUILD_ID=$BUILD_ID \
+                                    REGISTRY_ENDPOINT=$REGISTRY_ENDPOINT \
+                                    LOGGING_ENDPOINT=$LOGGING_ENDPOINT \
+                                    docker-compose -f docker-compose.deploy.yml up -d \
+                                        --force-recreate
+
                                     docker image prune -a -f --filter "label=site=api"
                                     exit 0
                                 EOF'''

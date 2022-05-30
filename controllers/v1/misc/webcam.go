@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/utils"
 )
 
 // ListWebcams handles listing all webcams a user can access
@@ -21,17 +20,15 @@ import (
 // @Success 200 {array} misc.Webcam
 // @Router /v1/internal/misc/webcams [get]
 func (r *Repos) ListWebcams(c echo.Context) error {
-	// Get user token
-	claims, err := utils.GetTokenEcho(c)
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("ListWebcams failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	// Prepare slice of permission IDs
-	perms := []int{}
-	for _, permission := range claims.Permissions {
-		perms = append(perms, permission.PermissionID)
-	}
+
+	perms := []string{}
+	perms = append(perms, claims.Permissions...)
+
 	w, err := r.misc.ListWebcams(c.Request().Context(), perms)
 	if err != nil {
 		err = fmt.Errorf("failed to list webcams: %w", err)
@@ -52,18 +49,16 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid camera ID")
 	}
-	// Get user token
-	claims, err := utils.GetTokenEcho(c)
+
+	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetWebcam failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	// Prepare slice of permission IDs
-	perms := []int{}
-	for _, permission := range claims.Permissions {
-		perms = append(perms, permission.PermissionID)
-	}
-	// Get webcam URL and check user has permission for it
+
+	perms := []string{}
+	perms = append(perms, claims.Permissions...)
+
 	w, err := r.misc.GetWebcam(c.Request().Context(), cameraID, perms)
 	if err != nil {
 		err = fmt.Errorf("failed to get camera: %w", err)

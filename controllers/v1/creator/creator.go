@@ -15,10 +15,12 @@ import (
 	"github.com/ystv/web-api/services/creator/series"
 	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/services/encoder"
+	"github.com/ystv/web-api/utils"
 )
 
 // Repos represents all our data repositories
 type Repos struct {
+	access     *utils.Accesser
 	video      creator.VideoRepo
 	series     creator.SeriesRepo
 	playlist   creator.PlaylistRepo
@@ -34,12 +36,13 @@ type Config struct {
 }
 
 // NewRepos creates our data repositories
-func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *Config) *Repos {
+func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Accesser, conf *Config) *Repos {
 	config := &creator.Config{
 		IngestBucket: conf.IngestBucket,
 		ServeBucket:  conf.ServeBucket,
 	}
 	return &Repos{
+		access,
 		video.NewStore(db, cdn, enc, config),
 		series.NewController(db, cdn, enc, config),
 		playlist.NewStore(db),

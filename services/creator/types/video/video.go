@@ -1,6 +1,7 @@
 package video
 
 import (
+	"errors"
 	"time"
 )
 
@@ -75,4 +76,8 @@ type (
 		CreatedBy     int       `json:"createdBy" db:"created_by"`
 		BroadcastDate time.Time `json:"broadcastDate" db:"broadcast_date"`
 	}
+)
+
+var (
+	ErrNotFound = errors.New("video not found")
 )

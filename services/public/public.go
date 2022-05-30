@@ -34,7 +34,7 @@ type (
 	BreadcrumbRepo interface {
 		VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error)
 		SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error)
-		Find(ctx context.Context, path string) (*BreadcrumbItem, error)
+		Find(ctx context.Context, path string) (BreadcrumbItem, error)
 	}
 	// TeamRepo represents all team interactions
 	TeamRepo interface {

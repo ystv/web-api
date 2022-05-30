@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ystv/web-api/utils"
 )
 
 // SetCrew handles setting the user ID for a crew object,
@@ -24,7 +23,7 @@ import (
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid}/{signupid}/{crewid} [put]
 func (r *Repos) SetCrew(c echo.Context) error {
-	p, err := utils.GetTokenEcho(c)
+	p, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -53,7 +52,7 @@ func (r *Repos) SetCrew(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/event/{signupid}/{crewid}/reset [put]
 func (r *Repos) ResetCrew(c echo.Context) error {
-	_, err := utils.GetTokenEcho(c)
+	_, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("ResetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

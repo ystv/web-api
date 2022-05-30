@@ -22,15 +22,15 @@ type (
 	// VideoRepo defines all creator video interactions
 	VideoRepo interface {
 		// Get methods
-		GetItem(ctx context.Context, id int) (*video.Item, error)
-		ListMeta(ctx context.Context) (*[]video.Meta, error)
-		ListMetaByUser(ctx context.Context, userID int) (*[]video.Meta, error)
-		ListByCalendarMonth(ctx context.Context, year, month int) (*[]video.MetaCal, error)
-		OfSeries(ctx context.Context, seriesID int) (*[]video.Meta, error)
+		GetItem(ctx context.Context, id int) (video.Item, error)
+		ListMeta(ctx context.Context) ([]video.Meta, error)
+		ListMetaByUser(ctx context.Context, userID int) ([]video.Meta, error)
+		ListByCalendarMonth(ctx context.Context, year, month int) ([]video.MetaCal, error)
+		OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error)
 		Search(ctx context.Context, query string) ([]video.Meta, error)
 
 		// New method
-		NewItem(ctx context.Context, v *video.New) (int, error)
+		NewItem(ctx context.Context, v video.New) (int, error)
 
 		// Update method
 		UpdateMeta(ctx context.Context, meta video.Meta) error
@@ -41,11 +41,11 @@ type (
 	}
 	// SeriesRepo defines all creator series interactions
 	SeriesRepo interface {
-		Get(ctx context.Context, seriesID int) (*series.Series, error)
-		GetMeta(ctx context.Context, seriesID int) (*series.Meta, error)
-		ImmediateChildrenSeries(ctx context.Context, seriesID int) (*[]series.Meta, error)
-		List(ctx context.Context) (*[]series.Meta, error)
-		FromPath(ctx context.Context, path string) (*series.Series, error)
+		Get(ctx context.Context, seriesID int) (series.Series, error)
+		GetMeta(ctx context.Context, seriesID int) (series.Meta, error)
+		ImmediateChildrenSeries(ctx context.Context, seriesID int) ([]series.Meta, error)
+		List(ctx context.Context) ([]series.Meta, error)
+		FromPath(ctx context.Context, path string) (series.Series, error)
 	}
 	// ChannelRepo defines all channel interactions
 	ChannelRepo interface {
@@ -66,9 +66,9 @@ type (
 	}
 	// BreadcrumbRepo defines all creator breadcrumb interactions
 	BreadcrumbRepo interface {
-		Series(ctx context.Context, seriesID int) (*[]breadcrumb.Breadcrumb, error)
-		Video(ctx context.Context, videoID int) (*[]breadcrumb.Breadcrumb, error)
-		Find(ctx context.Context, path string) (*breadcrumb.Item, error)
+		Series(ctx context.Context, seriesID int) ([]breadcrumb.Breadcrumb, error)
+		Video(ctx context.Context, videoID int) ([]breadcrumb.Breadcrumb, error)
+		Find(ctx context.Context, path string) (breadcrumb.Item, error)
 	}
 	// EncodeRepo defines all encode interactions
 	EncodeRepo interface {
@@ -84,7 +84,7 @@ type (
 	}
 	// StatRepo defines all statistical interactions
 	StatRepo interface {
-		GlobalVideo(ctx context.Context) (*stats.VideoGlobalStats, error)
+		GlobalVideo(ctx context.Context) (stats.VideoGlobalStats, error)
 	}
 )
 

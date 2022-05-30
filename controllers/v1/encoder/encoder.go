@@ -10,7 +10,8 @@ import (
 )
 
 type EncoderController struct {
-	enc *encoder.Encoder
+	enc    *encoder.Encoder
+	access *utils.Accesser
 }
 
 type (
@@ -45,8 +46,11 @@ type (
 	}
 )
 
-func NewEncoderController(enc *encoder.Encoder) *EncoderController {
-	return &EncoderController{enc: enc}
+func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *EncoderController {
+	return &EncoderController{
+		enc:    enc,
+		access: access,
+	}
 }
 
 // TODO: look into adding the parameter object without
@@ -69,7 +73,7 @@ func (e *EncoderController) UploadRequest(c echo.Context) error {
 	r := Request{}
 	c.Bind(&r)
 
-	_, err := utils.GetTokenHTTP(r.HTTPRequest)
+	_, err := e.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)

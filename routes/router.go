@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	echoMw "github.com/labstack/echo/v4/middleware"
 	clapperPackage "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
@@ -28,31 +27,31 @@ import (
 
 // Router provides a HTTP server for web-api
 type Router struct {
-	version   string
-	commit    string
-	router    *echo.Echo
-	jwtConfig *echoMw.JWTConfig
-	clapper   *clapperPackage.Repos
-	creator   *creatorPackage.Repos
-	encoder   *encoderPackage.EncoderController
-	misc      *miscPackage.Repos
-	people    *peoplePackage.Repo
-	public    *publicPackage.Repos
+	version string
+	commit  string
+	router  *echo.Echo
+	access  *utils.Accesser
+	clapper *clapperPackage.Repos
+	creator *creatorPackage.Repos
+	encoder *encoderPackage.EncoderController
+	misc    *miscPackage.Repos
+	people  *peoplePackage.Repo
+	public  *publicPackage.Repos
 }
 
 // NewRouter is the required dependencies
 type NewRouter struct {
-	Version       string
-	Commit        string
-	DomainName    string
-	JWTSigningKey string
-	Debug         bool
-	Clapper       *clapperPackage.Repos
-	Creator       *creatorPackage.Repos
-	Encoder       *encoderPackage.EncoderController
-	Misc          *miscPackage.Repos
-	People        *peoplePackage.Repo
-	Public        *publicPackage.Repos
+	Version    string
+	Commit     string
+	DomainName string
+	Debug      bool
+	Access     *utils.Accesser
+	Clapper    *clapperPackage.Repos
+	Creator    *creatorPackage.Repos
+	Encoder    *encoderPackage.EncoderController
+	Misc       *miscPackage.Repos
+	People     *peoplePackage.Repo
+	Public     *publicPackage.Repos
 }
 
 // New creates a new router instance
@@ -61,11 +60,7 @@ func New(conf *NewRouter) *Router {
 		version: conf.Version,
 		commit:  conf.Commit,
 		router:  echo.New(),
-		jwtConfig: &echoMw.JWTConfig{
-			Claims:      &utils.JWTClaims{},
-			TokenLookup: "cookie:token",
-			SigningKey:  []byte(conf.JWTSigningKey),
-		},
+		access:  conf.Access,
 		clapper: conf.Clapper,
 		creator: conf.Creator,
 		encoder: conf.Encoder,
@@ -126,7 +121,7 @@ func (r *Router) loadRoutes() {
 		}
 		// Internal user endpoints
 		if !r.router.Debug {
-			internal.Use(echoMw.JWTWithConfig(*r.jwtConfig))
+			internal.Use(r.access.AuthMiddleware)
 		}
 		{
 			people := internal.Group("/people")

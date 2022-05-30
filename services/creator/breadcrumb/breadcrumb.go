@@ -11,6 +11,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
+	"github.com/ystv/web-api/services/creator/types/series"
+	videoType "github.com/ystv/web-api/services/creator/types/video"
 	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/services/encoder"
 )
@@ -31,7 +33,7 @@ func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.
 }
 
 // Series will return the breadcrumb from SeriesID to root
-func (c *Controller) Series(ctx context.Context, seriesID int) (*[]breadcrumb.Breadcrumb, error) {
+func (c *Controller) Series(ctx context.Context, seriesID int) ([]breadcrumb.Breadcrumb, error) {
 	s := []breadcrumb.Breadcrumb{}
 	// TODO Need a bool to indicate if series is in URL
 	err := c.db.SelectContext(ctx, &s,
@@ -44,34 +46,41 @@ func (c *Controller) Series(ctx context.Context, seriesID int) (*[]breadcrumb.Br
 			AND node.series_id = $1
 		ORDER BY parent.lft;`, seriesID)
 	if err != nil {
-		return nil, err
+		return []breadcrumb.Breadcrumb{}, err
 	}
-	return &s, err
+	if len(s) == 0 {
+		return []breadcrumb.Breadcrumb{}, series.ErrNotFound
+	}
+	return s, nil
 }
 
 // Video returns the absolute path from a VideoID
-func (c *Controller) Video(ctx context.Context, videoID int) (*[]breadcrumb.Breadcrumb, error) {
+func (c *Controller) Video(ctx context.Context, videoID int) ([]breadcrumb.Breadcrumb, error) {
 	vB := breadcrumb.Breadcrumb{} // Video breadcrumb
 	err := c.db.GetContext(ctx, &vB,
 		`SELECT video_id as id, series_id, COALESCE(name, url) as name, url
 		FROM video.items
 		WHERE video_id = $1`, videoID)
 	if err != nil {
-		err = fmt.Errorf("failed to get video breadcrumb: %w", err)
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return []breadcrumb.Breadcrumb{}, videoType.ErrNotFound
+		}
+		return []breadcrumb.Breadcrumb{}, fmt.Errorf("failed to get video breadcrumb: %w", err)
 	}
 	sB, err := c.Series(ctx, vB.SeriesID)
 	if err != nil {
-		err = fmt.Errorf("failed to get series breadcrumb: %w", err)
-		return nil, err
+		// Interesting edge-case
+		if !errors.Is(err, series.ErrNotFound) {
+			return nil, fmt.Errorf("failed to get series breadcrumb: %w", err)
+		}
 	}
-	*sB = append(*sB, vB)
+	sB = append(sB, vB)
 
-	return sB, err
+	return sB, nil
 }
 
 // Find will returns either a series or a video for a given path
-func (c *Controller) Find(ctx context.Context, path string) (*breadcrumb.Item, error) {
+func (c *Controller) Find(ctx context.Context, path string) (breadcrumb.Item, error) {
 	s, err := c.series.FromPath(ctx, path)
 	if err != nil {
 		// Might be a video, so we'll go back a crumb and check for a series
@@ -80,36 +89,29 @@ func (c *Controller) Find(ctx context.Context, path string) (*breadcrumb.Item, e
 			PathWithoutLast := strings.Join(split[:len(split)-1], "/")
 			s, err := c.series.FromPath(ctx, PathWithoutLast)
 			if err != nil {
-				if errors.Is(err, sql.ErrNoRows) {
-					// No series, so there will be no videos
-					err = fmt.Errorf("No series: %w", err)
-					return nil, err
-				}
-				err = fmt.Errorf("Failed from back a layer: %w", err)
-				return nil, err
+				return breadcrumb.Item{}, err
 			}
 			// Found series
-			if len(*s.ChildVideos) == 0 {
+			if len(s.ChildVideos) == 0 {
 				// No videos on series
-				return nil, errors.New("No videos")
+				return breadcrumb.Item{}, videoType.ErrNotFound
 			}
 			// We've got videos
-			for _, v := range *s.ChildVideos {
+			for _, v := range s.ChildVideos {
 				// Check if video name matches last path
 				if v.URL == split[len(split)-1] {
 					// Found video
 					foundVideo, err := c.video.GetItem(ctx, v.ID)
 					if err != nil {
-						return nil, err
+						return breadcrumb.Item{}, fmt.Errorf("failed to get video: %w", err)
 					}
-					return &breadcrumb.Item{Video: foundVideo}, nil
+					return breadcrumb.Item{Video: foundVideo}, nil
 				}
 			}
 		} else {
-			err = fmt.Errorf("From path %s: %w", path, err)
-			return nil, err
+			return breadcrumb.Item{}, fmt.Errorf("failed to get series from path: %w", err)
 		}
 	}
 	// Found series
-	return &breadcrumb.Item{Series: s}, nil
+	return breadcrumb.Item{Series: s}, nil
 }
