@@ -100,10 +100,10 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 		WHERE start_date < NOW() AND (end_date > NOW() OR end_date IS NULL) AND
 		team_id = $1
 		ORDER BY CASE
-		    WHEN officer.name LIKE 'Station Director' THEN 0
+		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
-		    WHEN officer.name LIKE 'Head of Welfare and Training' THEN 3
+		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
 		    WHEN officer.name LIKE '%Head of%' THEN 4
 		    ELSE 5 END;`, teamID)
 	if err != nil {
