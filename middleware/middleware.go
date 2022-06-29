@@ -23,6 +23,7 @@ func New(e *echo.Echo, domainName string) {
 			"https://local." + domainName + ":3000",
 			"http://local." + domainName + ":8080",
 			"https://local." + domainName + ":8080",
+      "ystv-development.localhost:3000",
 			"http://" + strings.Join(strings.Split(domainName, ".")[1:], "."),
 			"https://" + strings.Join(strings.Split(domainName, ".")[1:], "."),
 			"http://" + domainName,
