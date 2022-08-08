@@ -37,14 +37,31 @@ pipeline {
     }
 
     stage('Deploy') {
-      when {
-        expression { env.BRANCH_IS_PRIMARY }
-      }
-      steps {
-        build(job: 'Deploy Nomad Job', parameters: [
-         string(name: 'JOB_FILE', value: 'web-api-dev.nomad'),
-         text(name: 'TAG_REPLACEMENTS', value: "${registryEndpoint}/${imageName}")
-        ])
+      stages {
+        stage('Development') {
+          when {
+            expression { env.BRANCH_IS_PRIMARY }
+          }
+          steps {
+            build(job: 'Deploy Nomad Job', parameters: [
+              string(name: 'JOB_FILE', value: 'web-api-dev.nomad'),
+              text(name: 'TAG_REPLACEMENTS', value: "${registryEndpoint}/${imageName}")
+            ])
+          }
+        }
+
+        stage('Production') {
+          when {
+            // Checking if it is semantic version release.
+            expression { return env.TAG_NAME ==~ /v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/ }
+          }
+          steps {
+            build(job: 'Deploy Nomad Job', parameters: [
+              string(name: 'JOB_FILE', value: 'web-api-prod.nomad'),
+              text(name: 'TAG_REPLACEMENTS', value: "${registryEndpoint}/${imageName}")
+            ])
+          }
+        }
       }
     }
   }
