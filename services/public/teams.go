@@ -44,16 +44,16 @@ func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 }
 
 // GetTeam returns a single team including it's members
-func (s *Store) GetTeam(ctx context.Context, teamID int) (Team, error) {
+func (s *Store) GetTeam(ctx context.Context, emailAlias string) (Team, error) {
 	t := Team{}
 	err := s.db.GetContext(ctx, &t, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams
-		WHERE team_id = $1;`, teamID)
+		WHERE email_alias = $1;`, emailAlias)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team: %w", err)
 	}
-	t.Members, err = s.ListTeamMembers(ctx, teamID)
+	t.Members, err = s.ListTeamMembers(ctx, t.TeamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members: %w", err)
 	}
