@@ -22,6 +22,7 @@ type (
 		GetSeriesFromPath(ctx context.Context, path string) (Series, error)
 		Search(ctx context.Context, query string) (Series, error)
 	}
+	// PlaylistRepo represents all playlist interactions
 	PlaylistRepo interface {
 		GetPlaylist(ctx context.Context, playlistID int) (Playlist, error)
 		GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (Playlist, error)
@@ -39,7 +40,7 @@ type (
 	// TeamRepo represents all team interactions
 	TeamRepo interface {
 		ListTeams(ctx context.Context) ([]Team, error)
-		GetTeam(ctx context.Context, teamID int) (Team, error)
+		GetTeam(ctx context.Context, emailAlias string) (Team, error)
 		GetTeamByYear(ctx context.Context, teamID, year int) (Team, error)
 		ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, error)
 		ListOfficers(ctx context.Context) ([]TeamMember, error)
