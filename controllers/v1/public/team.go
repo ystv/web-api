@@ -32,18 +32,14 @@ func (r *Repos) ListTeams(c echo.Context) error {
 // @Description Contains members and a range of descriptions
 // @ID get-public-team
 // @Tags public-teams
-// @Param teamid path int true "teamid"
+// @Param emailAlias path string true "emailAlias"
 // @Produce json
 // @Success 200 {object} public.Team
-// @Router /v1/public/teams/{teamid} [get]
+// @Router /v1/public/teams/{emailAlias} [get]
 func (r *Repos) GetTeam(c echo.Context) error {
-	teamID, err := strconv.Atoi(c.Param("teamid"))
+	t, err := r.public.GetTeam(c.Request().Context(), c.Param("emailAlias"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Bad teamid")
-	}
-	t, err := r.public.GetTeam(c.Request().Context(), teamID)
-	if err != nil {
-		err = fmt.Errorf("Public GetTeamByYear failed: %w", err)
+		err = fmt.Errorf("Public GetTeam failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, t)
