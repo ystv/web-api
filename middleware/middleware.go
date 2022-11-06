@@ -26,7 +26,8 @@ func New(e *echo.Echo, domainName string) {
 			"http://" + strings.Join(strings.Split(domainName, ".")[1:], "."),
 			"https://" + strings.Join(strings.Split(domainName, ".")[1:], "."),
 			"http://" + domainName,
-			"https://" + domainName},
+			"https://" + domainName,
+			"https://streamer." + domainName},
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowCredentials, echo.HeaderAccessControlAllowOrigin, echo.HeaderAuthorization},
 		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
 	}
