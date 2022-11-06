@@ -308,7 +308,7 @@ func (r *Router) loadRoutes() {
 			{
 				teams.GET("", r.public.ListTeams)
 				teams.GET("/officers", r.public.ListOfficers)
-				teams.GET("/:teamid", r.public.GetTeam)
+				teams.GET("/:emailAlias", r.public.GetTeam)
 				teams.GET("/:teamid/:year", r.public.GetTeamByYear)
 			}
 			stream := public.Group("/playout/channel")
