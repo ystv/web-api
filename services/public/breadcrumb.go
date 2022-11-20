@@ -68,6 +68,7 @@ func (m *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrum
 			video.series parent
 		WHERE
 			node.lft BETWEEN parent.lft AND parent.rgt
+			AND parent.status = 'public'
 			AND node.series_id = $1
 		ORDER BY parent.lft;`, seriesID)
 	if err != nil {
