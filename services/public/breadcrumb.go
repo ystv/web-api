@@ -65,7 +65,7 @@ func (m *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrum
 		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
 		FROM
 			video.series node,
-			video.xseries parent
+			video.series parent
 		WHERE
 			node.lft BETWEEN parent.lft AND parent.rgt
 			AND node.series_id = $1
