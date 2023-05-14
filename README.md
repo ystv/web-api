@@ -20,10 +20,10 @@ Generation of usable JWT's is available in [web-auth](github.com/ystv/web-auth) 
     - [ ] Thumbnail inheritance
   - [ ] Live
     - [x] Streams (currrently static)
-  - [ ] Teams
+  - [x] Teams
     - [x] Get current team
     - [x] List teams
-    - [ ] Get a team by year
+    - [x] Get a team by year
     - [x] List all officers
 - [ ] Internal (Secured)
   - [ ] Creator Studio
