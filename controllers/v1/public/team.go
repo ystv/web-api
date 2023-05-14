@@ -30,7 +30,7 @@ func (r *Repos) ListTeams(c echo.Context) error {
 //
 // @Summary Provides the team of that year from email alias
 // @Description Contains members and a range of descriptions
-// @ID get-public-team
+// @ID get-public-team-by-email
 // @Tags public-teams
 // @Param emailAlias path string true "emailAlias"
 // @Produce json
@@ -49,7 +49,7 @@ func (r *Repos) GetTeamByEmail(c echo.Context) error {
 //
 // @Summary Provides the team of that year from id
 // @Description Contains members and a range of descriptions
-// @ID get-public-team
+// @ID get-public-team-by-id
 // @Tags public-teams
 // @Param emailAlias path string true "teamId"
 // @Produce json
@@ -129,7 +129,7 @@ func (r *Repos) GetTeamByYearById(c echo.Context) error {
 //
 // @Summary Provides the team of a selected year
 // @Description Get the team and their members of that year
-// @ID get-public-team-start-end-year
+// @ID get-public-team-start-end-year-by-email
 // @Tags public-teams
 // @Param emailAlias path int true "emailAlias"
 // @Param startYear path int true "startYear"
@@ -163,7 +163,7 @@ func (r *Repos) GetTeamByStartEndYearByEmail(c echo.Context) error {
 //
 // @Summary Provides the team of a selected year
 // @Description Get the team and their members of that year
-// @ID get-public-team-start-end-year
+// @ID get-public-team-start-end-year-by-id
 // @Tags public-teams
 // @Param emailAlias path int true "emailAlias"
 // @Param startYear path int true "startYear"
