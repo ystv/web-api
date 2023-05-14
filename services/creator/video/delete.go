@@ -32,8 +32,8 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 	// Then we will need to delete the object files
 	// * VOD files
 	// * Original master
-	fileURLs := []string{}
-	// Wrapped in transaction so we can rollback if it fails, however
+	var fileURLs []string
+	// Wrapped in transaction, so we can roll back if it fails, however
 	// S3 doesn't support transactions so only database is protected
 	err := utils.Transact(s.db, func(tx *sqlx.Tx) error {
 		// Get child files

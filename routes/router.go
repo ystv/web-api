@@ -23,7 +23,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-// TODO standarise on function names
+// TODO standardise on function names
 
 // Router provides a HTTP server for web-api
 type Router struct {
@@ -33,7 +33,7 @@ type Router struct {
 	access  *utils.Accesser
 	clapper *clapperPackage.Repos
 	creator *creatorPackage.Repos
-	encoder *encoderPackage.EncoderController
+	encoder *encoderPackage.Repo
 	misc    *miscPackage.Repos
 	people  *peoplePackage.Repo
 	public  *publicPackage.Repos
@@ -308,8 +308,18 @@ func (r *Router) loadRoutes() {
 			{
 				teams.GET("", r.public.ListTeams)
 				teams.GET("/officers", r.public.ListOfficers)
-				teams.GET("/:emailAlias", r.public.GetTeam)
-				teams.GET("/:teamid/:year", r.public.GetTeamByYear)
+				teamsEmail := teams.Group("/email")
+				{
+					teamsEmail.GET("/:emailAlias/:startYear/:endYear", r.public.GetTeamByStartEndYearByEmail)
+					teamsEmail.GET("/:emailAlias/:year", r.public.GetTeamByYearByEmail)
+					teamsEmail.GET("/:emailAlias", r.public.GetTeamByEmail)
+				}
+				teamsId := teams.Group("/teamid")
+				{
+					teamsId.GET("/:teamid/:startYear/:endYear", r.public.GetTeamByStartEndYearById)
+					teamsId.GET("/:teamid/:year", r.public.GetTeamByYearById)
+					teamsId.GET("/:teamid", r.public.GetTeamById)
+				}
 			}
 			stream := public.Group("/playout/channel")
 			{

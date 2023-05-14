@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// SeriesByID returns a series with it's immediate children with a SeriesID
+// SeriesByID returns a series with its immediate children with a SeriesID
 //
 // @Summary Provides a series
 // @Description Returns a series object, including the children videos and series.
@@ -25,7 +25,7 @@ func (r *Repos) SeriesByID(c echo.Context) error {
 	}
 	s, err := r.public.GetSeries(c.Request().Context(), id)
 	if err != nil {
-		err = fmt.Errorf("Public SeriesByID failed : %w", err)
+		err = fmt.Errorf("public SeriesByID failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, s)
@@ -49,7 +49,7 @@ func (r *Repos) SeriesByYear(c echo.Context) error {
 	}
 	s, err := r.public.SeriesByYear(c.Request().Context(), year)
 	if err != nil {
-		err = fmt.Errorf("Public ListSeriesByYear failed : %w", err)
+		err = fmt.Errorf("public ListSeriesByYear failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, s)
@@ -77,7 +77,7 @@ func (r *Repos) Search(c echo.Context) error {
 	}
 	s, err := r.public.Search(c.Request().Context(), searchInput.Query)
 	if err != nil {
-		err = fmt.Errorf("Public Search failed : %w", err)
+		err = fmt.Errorf("public Search failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, s)

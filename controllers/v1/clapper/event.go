@@ -40,7 +40,7 @@ func (r *Repos) ListMonth(c echo.Context) error {
 
 // GetEvent handles getting all signups and roles for a given event
 // @Summary Get event by ID
-// @Description Get a event including signup-sheets and roles.
+// @Description Get an event including signup-sheets and roles.
 // @ID get-event
 // @Tags clapper-events
 // @Produce json

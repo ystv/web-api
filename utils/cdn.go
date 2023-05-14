@@ -16,14 +16,17 @@ type CDNConfig struct {
 }
 
 // NewCDN Initialise connection to CDN
-func NewCDN(config CDNConfig) *s3.S3 {
+func NewCDN(config CDNConfig) (*s3.S3, error) {
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(config.AccessKeyID, config.SecretAccessKey, ""),
 		Endpoint:         aws.String(config.Endpoint),
 		Region:           aws.String(config.Region),
 		S3ForcePathStyle: aws.Bool(true),
 	}
-	newSession := session.New(s3Config)
+	newSession, err := session.NewSession(s3Config)
+	if err != nil {
+		return nil, err
+	}
 	cdn := s3.New(newSession)
-	return cdn
+	return cdn, nil
 }

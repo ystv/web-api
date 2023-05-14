@@ -25,7 +25,7 @@ func (r *Repos) Video(c echo.Context) error {
 	}
 	v, err := r.public.GetVideo(c.Request().Context(), id)
 	if err != nil {
-		err = fmt.Errorf("Public GetVideo failed: %w", err)
+		err = fmt.Errorf("public GetVideo failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, v)
@@ -53,7 +53,7 @@ func (r *Repos) ListVideos(c echo.Context) error {
 	}
 	v, err := r.public.ListVideo(c.Request().Context(), offset, page)
 	if err != nil {
-		err = fmt.Errorf("Public ListVideos failed: %w", err)
+		err = fmt.Errorf("public ListVideos failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, v)

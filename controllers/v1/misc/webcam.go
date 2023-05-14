@@ -26,7 +26,7 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	perms := []string{}
+	var perms []string
 	perms = append(perms, claims.Permissions...)
 
 	w, err := r.misc.ListWebcams(c.Request().Context(), perms)
@@ -56,7 +56,7 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	perms := []string{}
+	var perms []string
 	perms = append(perms, claims.Permissions...)
 
 	w, err := r.misc.GetWebcam(c.Request().Context(), cameraID, perms)

@@ -24,7 +24,7 @@ func NewStore(db *sqlx.DB) *Store {
 
 // ListChannels list all channels
 func (s *Store) ListChannels(ctx context.Context) ([]playout.Channel, error) {
-	chs := []playout.Channel{}
+	var chs []playout.Channel
 	err := s.db.SelectContext(ctx, &chs, `
 		SELECT url_name, name, description, thumbnail, output_type, output_url,
 		visibility, status, location, scheduled_start, scheduled_end

@@ -25,7 +25,7 @@ var _ clapper.EventRepo = &Store{}
 
 // ListMonth Lists all event meta's for a month
 func (m *Store) ListMonth(ctx context.Context, year, month int) (*[]clapper.Event, error) {
-	e := []clapper.Event{}
+	var e []clapper.Event
 	err := m.db.SelectContext(ctx, &e,
 		`SELECT event_id, event_type, name, start_date, end_date, description,
 		location, is_private, is_cancelled, is_tentative

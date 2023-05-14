@@ -25,7 +25,7 @@ func (r *Repos) ListSeries(c echo.Context) error {
 
 // GetSeries finds a video by ID
 // @Summary Get series by ID
-// @Description Get a series including it's children videos.
+// @Description Get a series including its children videos.
 // @ID get-creator-series
 // @Tags creator-series
 // @Produce json
@@ -35,7 +35,7 @@ func (r *Repos) ListSeries(c echo.Context) error {
 func (r *Repos) GetSeries(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		c.String(http.StatusBadRequest, "Number pls")
+		return c.String(http.StatusBadRequest, "Number pls")
 	}
 	s, err := r.series.Get(c.Request().Context(), id)
 	if err != nil {

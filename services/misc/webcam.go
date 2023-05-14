@@ -27,8 +27,8 @@ var _ WebcamRepo = &Store{}
 
 // ListWebcams returns all webcams a user can access
 func (m *Store) ListWebcams(ctx context.Context, permissions []string) ([]Webcam, error) {
-	webcams := []AdminWebcam{}
-	publicWebcams := []Webcam{}
+	var webcams []AdminWebcam
+	var publicWebcams []Webcam
 	// Fetch all enabled webcams from DB
 	err := m.db.SelectContext(ctx, &webcams,
 		`SELECT	camera_id, name, file, mime_type, permission

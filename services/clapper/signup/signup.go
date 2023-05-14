@@ -128,7 +128,7 @@ func (m *Store) updateCrew(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) e
 }
 
 func (m *Store) crewPositionToNewCrew(crewPosition []clapper.CrewPosition) []clapper.NewCrew {
-	newCrew := []clapper.NewCrew{}
+	var newCrew []clapper.NewCrew
 	for _, crew := range crewPosition {
 		newCrew = append(newCrew, clapper.NewCrew{
 			PositionID: crew.PositionID,

@@ -11,7 +11,7 @@ func Manager() {
 	//TODO Make the cool subroutine here
 }
 
-// RefreshVideoItem will run CreateEncode() on a VideoItem for any
+// RefreshVideo will run CreateEncode() on a VideoItem for any
 // encodes missing in the preset.
 func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 	// So we will get the video files for a video and the video's preset
@@ -56,9 +56,12 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 		if err != nil {
 			return fmt.Errorf("failed to create encode fileID=%d format=%d : %w", v.Files[srcFileIdx].FileID, format.FormatID, err)
 		}
-		e.db.ExecContext(ctx, `
+		_, err = e.db.ExecContext(ctx, `
 		INSERT INTO video.files(video_id, format_id, uri, status)
 		VALUES ($1, $2, $3, $4);`, videoID, format.FormatID, res.URI, "processing/"+res.JobID)
+		if err != nil {
+			return fmt.Errorf("failed to insert RefreshVideo: %w", err)
+		}
 	}
 	return nil
 }

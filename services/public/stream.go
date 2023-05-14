@@ -28,7 +28,7 @@ type Channel struct {
 
 // ListChannels will list all public channels
 func (s *Store) ListChannels(ctx context.Context) ([]Channel, error) {
-	chs := []Channel{}
+	var chs []Channel
 	err := s.db.SelectContext(ctx, &chs, `
 		SELECT url_name, name, description, thumbnail, output_type, output_url,
 		status, location, scheduled_start, scheduled_end

@@ -11,7 +11,7 @@ var _ creator.EncodeRepo = &Store{}
 
 // ListFormat lists all encode formats
 func (s *Store) ListFormat(ctx context.Context) ([]encode.Format, error) {
-	e := []encode.Format{}
+	var e []encode.Format
 	err := s.db.SelectContext(ctx, &e, `
 		SELECT format_id, name, description, mime_type, mode, width, height,
 		arguments, file_suffix, watermarked

@@ -10,7 +10,7 @@ import (
 	"github.com/ystv/web-api/services/creator/types/video"
 )
 
-// GetItem returns a VideoItem by it's ID.
+// GetItem returns a VideoItem by its ID.
 func (s *Store) GetItem(ctx context.Context, videoID int) (video.Item, error) {
 	v := video.Item{}
 	err := s.db.GetContext(ctx, &v,
@@ -41,7 +41,7 @@ func (s *Store) GetItem(ctx context.Context, videoID int) (video.Item, error) {
 
 // ListMeta returns a list of VideoMeta's
 func (s *Store) ListMeta(ctx context.Context) ([]video.Meta, error) {
-	v := []video.Meta{}
+	var v []video.Meta
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
 		duration, views, tags, status, broadcast_date,	created_at
@@ -52,7 +52,7 @@ func (s *Store) ListMeta(ctx context.Context) ([]video.Meta, error) {
 
 // ListMetaByUser returns a list of VideoMeta's for a given user
 func (s *Store) ListMetaByUser(ctx context.Context, userID int) ([]video.Meta, error) {
-	v := []video.Meta{}
+	var v []video.Meta
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
 		duration, views, tags, status, broadcast_date, created_at
@@ -64,7 +64,7 @@ func (s *Store) ListMetaByUser(ctx context.Context, userID int) ([]video.Meta, e
 
 // ListByCalendarMonth returns a list of VideoMeta's for a given month/year
 func (s *Store) ListByCalendarMonth(ctx context.Context, year, month int) ([]video.MetaCal, error) {
-	v := []video.MetaCal{}
+	var v []video.MetaCal
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, name, status, broadcast_date
 		FROM video.items
@@ -75,7 +75,7 @@ func (s *Store) ListByCalendarMonth(ctx context.Context, year, month int) ([]vid
 
 // OfSeries returns all the videos belonging to a series
 func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error) {
-	v := []video.Meta{}
+	var v []video.Meta
 	//TODO Update this select to fill all fields
 	err := s.db.Select(&v,
 		`SELECT video_id, series_id, name video_name, url,
@@ -93,10 +93,10 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error
 
 // Search performs a full-text search on video library
 //
-// Uses postgres' full-text search, video and series tables to try to make some sense
-func (m *Store) Search(ctx context.Context, query string) ([]video.Meta, error) {
-	videos := []video.Meta{}
-	err := m.db.SelectContext(ctx, &videos,
+// Uses postgres full-text search, video and series tables to try to make some sense
+func (s *Store) Search(ctx context.Context, query string) ([]video.Meta, error) {
+	var videos []video.Meta
+	err := s.db.SelectContext(ctx, &videos,
 		`SELECT
 			video_id,
 			name,

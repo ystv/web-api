@@ -54,7 +54,7 @@ func (r *Repos) NewEncodeFormat(c echo.Context) error {
 
 // UpdateEncodeFormat handles updating a format
 // @Summary Update a format
-// @Description updates an format
+// @Description updates a format
 // @ID update-creator-encode-format
 // @Tags creator-encodes
 // @Accept json
@@ -80,7 +80,7 @@ func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
 }
 
 // DeleteEncodeFormat handles deleting quotes
-// @Summary Delete a encode format
+// @Summary Delete an encode format
 // @Description Delete a video encode format
 // @ID delete-creator-encode-format
 // @Tags creator-encodes
@@ -117,7 +117,7 @@ func (r *Repos) ListEncodePreset(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-// NewPreset handles creating a new preset
+// NewEncodePreset handles creating a new preset
 // @Summary New preset
 // @Description creates a new preset.
 // @ID new-creator-encode-preset
@@ -141,7 +141,7 @@ func (r *Repos) NewEncodePreset(c echo.Context) error {
 	return c.JSON(http.StatusCreated, presetID)
 }
 
-// UpdatePreset handles updating a preset
+// UpdateEncodePreset handles updating a preset
 // @Summary Update a preset
 // @Description updates an preset
 // @ID update-creator-encode-preset
