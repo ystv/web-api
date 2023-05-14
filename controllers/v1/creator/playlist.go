@@ -38,11 +38,11 @@ func (r *Repos) ListPlaylist(c echo.Context) error {
 func (r *Repos) GetPlaylist(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		echo.NewHTTPError(http.StatusBadRequest, "Invalid playlist ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid playlist ID")
 	}
 	p, err := r.playlist.Get(c.Request().Context(), id)
 	if err != nil {
-		err = fmt.Errorf("Playlist get failed: %w", err)
+		err = fmt.Errorf("playlist get failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 	return c.JSON(http.StatusOK, p)

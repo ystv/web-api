@@ -37,11 +37,11 @@ type (
 var _ VideoRepo = &Store{}
 
 // ListVideo returns all video metadata
-func (m *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
-	v := []VideoMeta{}
+func (s *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
+	var v []VideoMeta
 	// TODO Change pagination method
 	// TODO Do a double check on if we need to convert broadcast date
-	err := m.db.SelectContext(ctx, &v,
+	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date,	views, duration
 		FROM video.items
@@ -55,9 +55,9 @@ func (m *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMe
 }
 
 // GetVideo returns a VideoItem, including the files, based on a given VideoItem ID.
-func (m *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
+func (s *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
 	v := VideoItem{}
-	err := m.db.GetContext(ctx, &v,
+	err := s.db.GetContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
 	views, duration, broadcast_date
 	FROM video.items
@@ -68,7 +68,7 @@ func (m *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
 		err = fmt.Errorf("failed to get video meta: %w", err)
 		return nil, err
 	}
-	err = m.db.SelectContext(ctx, &v.Files,
+	err = s.db.SelectContext(ctx, &v.Files,
 		`SELECT uri, mime_type, mode, width, height
 	FROM video.files file
 	INNER JOIN video.encode_formats format ON format.format_id = file.format_id
@@ -82,9 +82,9 @@ func (m *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
 }
 
 // VideoOfSeries returns all the videos belonging to a series
-func (m *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, error) {
-	v := []VideoMeta{}
-	err := m.db.SelectContext(ctx, &v,
+func (s *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, error) {
+	var v []VideoMeta
+	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date,	views, duration
 		FROM video.items

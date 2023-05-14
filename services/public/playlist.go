@@ -19,10 +19,10 @@ type Playlist struct {
 var _ PlaylistRepo = &Store{}
 
 // GetPlaylist returns a playlist object containing a list of videos and metadata
-func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, error) {
+func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, error) {
 	p := Playlist{}
 	// Retrieve playlist metadata information
-	err := m.db.GetContext(ctx, &p, `
+	err := s.db.GetContext(ctx, &p, `
 		SELECT playlist_id, name, description, thumbnail
 		FROM video.playlists
 		WHERE playlist_id = $1;`, playlistID)
@@ -30,7 +30,7 @@ func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, erro
 		return p, fmt.Errorf("failed to get playlist meta: %w", err)
 	}
 	// Retrieve videos of playlist
-	err = m.db.SelectContext(ctx, &p.Videos, `
+	err = s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
 		FROM video.playlist_items vid_list
@@ -44,14 +44,14 @@ func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, erro
 }
 
 // GetPlaylistPopular returns a playlist of the most popular videos
-func (m *Store) GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (Playlist, error) {
+func (s *Store) GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,
 		Name:        "Popular",
 		Description: "Popular videos",
 	}
 
-	err := m.db.SelectContext(ctx, &p.Videos, `
+	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
 		FROM video.items
@@ -66,14 +66,14 @@ func (m *Store) GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (P
 }
 
 // GetPlaylistPopularByAllTime returns a playlist of the most popular videos of all time
-func (m *Store) GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, error) {
+func (s *Store) GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,
 		Name:        "Popular",
 		Description: "Popular videos",
 	}
 
-	err := m.db.SelectContext(ctx, &p.Videos, `
+	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
 		FROM video.items
@@ -87,14 +87,14 @@ func (m *Store) GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, erro
 }
 
 // GetPlaylistPopularByPastYear returns a playlist of the most popular videos of past year
-func (m *Store) GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, error) {
+func (s *Store) GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,
 		Name:        "Popular",
 		Description: "Popular videos",
 	}
 
-	err := m.db.SelectContext(ctx, &p.Videos, `
+	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT DISTINCT item.video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
 		FROM video.items item
@@ -110,14 +110,14 @@ func (m *Store) GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, err
 }
 
 // GetPlaylistPopularByPastMonth returns a playlist of the most popular videos of past month
-func (m *Store) GetPlaylistPopularByPastMonth(ctx context.Context) (Playlist, error) {
+func (s *Store) GetPlaylistPopularByPastMonth(ctx context.Context) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,
 		Name:        "Popular",
 		Description: "Popular videos",
 	}
 
-	err := m.db.SelectContext(ctx, &p.Videos, `
+	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT DISTINCT item.video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
 		FROM video.items item
@@ -133,14 +133,14 @@ func (m *Store) GetPlaylistPopularByPastMonth(ctx context.Context) (Playlist, er
 }
 
 // GetPlaylistRandom retrieves a random list of videos
-func (m *Store) GetPlaylistRandom(ctx context.Context) (Playlist, error) {
+func (s *Store) GetPlaylistRandom(ctx context.Context) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,
 		Name:        "Random",
 		Description: "Random videos",
 	}
 
-	err := m.db.SelectContext(ctx, &p.Videos, `
+	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
 		FROM video.items TABLESAMPLE system_rows(30);`)

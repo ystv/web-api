@@ -23,7 +23,7 @@ import (
 func (r *Repos) GetVideo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		echo.NewHTTPError(http.StatusBadRequest, "Invalid video ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid video ID")
 	}
 	v, err := r.video.GetItem(c.Request().Context(), id)
 	if err != nil {
@@ -68,7 +68,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 	return c.JSON(http.StatusCreated, NewVideoOutput{VideoID: videoID})
 }
 
-// UpdateVideo updates a video's metadata not files
+// UpdateVideoMeta updates a video's metadata not files
 //
 // @Summary Update video meta
 // @Description Updates a video metadata
@@ -196,7 +196,7 @@ func (r *Repos) SearchVideo(c echo.Context) error {
 	}
 	s, err := r.video.Search(c.Request().Context(), searchInput.Query)
 	if err != nil {
-		err = fmt.Errorf("Public Search failed : %w", err)
+		err = fmt.Errorf("public Search failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, s)

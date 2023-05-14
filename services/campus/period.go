@@ -79,7 +79,7 @@ func (c *Campuser) GetTeachingPeriod(ctx context.Context, t time.Time) (Teaching
 	return tp, nil
 }
 
-// GetWeek retrives the week and it's term
+// GetWeek retrieves the week and it's term
 func (c *Campuser) GetWeek(ctx context.Context, t time.Time) (Week, error) {
 	w := Week{}
 	var err error

@@ -80,10 +80,13 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 	if err != nil {
 		// Since we've wrapped in transaction the DB is safe, will just need to make sure s3 is back to original state
 		// TODO: Do we want to care about this outcome?
-		s.cdn.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+		_, err = s.cdn.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 			Bucket: aws.String(s.conf.ServeBucket),
 			Key:    aws.String(s.conf.IngestBucket + "/" + v.FileID[:32]),
 		})
+		if err != nil {
+			return 0, err
+		}
 
 		return 0, fmt.Errorf("failed to insert create: %w", err)
 	}

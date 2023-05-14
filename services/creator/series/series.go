@@ -75,7 +75,7 @@ func (c *Controller) GetMeta(ctx context.Context, seriesID int) (series.Meta, er
 
 // ImmediateChildrenSeries returns series directly below the chosen series
 func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) ([]series.Meta, error) {
-	s := []series.Meta{}
+	var s []series.Meta
 	err := c.db.SelectContext(ctx, &s,
 		`SELECT * from (
 			SELECT 
@@ -115,7 +115,7 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) 
 
 // List returns all series in the DB including their depth
 func (c *Controller) List(ctx context.Context) ([]series.Meta, error) {
-	s := []series.Meta{}
+	var s []series.Meta
 	err := c.db.SelectContext(ctx, s,
 		`SELECT
 			child.series_id, child.url, child.name, child.description, child.thumbnail,
@@ -138,7 +138,7 @@ func (c *Controller) List(ctx context.Context) ([]series.Meta, error) {
 
 // AllBelow returns all series below a certain series including depth
 func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta, error) {
-	s := []series.Meta{}
+	var s []series.Meta
 	err := c.db.SelectContext(ctx, &s,
 		`SELECT 
 			node.series_id, node.url node.name, node.description, node.thumbnail,

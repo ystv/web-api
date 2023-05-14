@@ -23,7 +23,7 @@ var _ clapper.PositionRepo = &Store{}
 
 // List returns all positions
 func (m *Store) List(ctx context.Context) (*[]clapper.Position, error) {
-	p := []clapper.Position{}
+	var p []clapper.Position
 	err := m.db.SelectContext(ctx, &p,
 		`SELECT position_id, name, description, admin, permission_id
 		FROM event.positions;`)

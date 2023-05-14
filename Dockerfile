@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine AS build
+FROM golang:1.17.6-alpine AS build
 LABEL site="api"
 LABEL stage="builder"
 
@@ -7,13 +7,13 @@ ENV USER=webapiuser
 ENV UID=10001
 
 # See https://stackoverflow.com/a/55757473/12429735RUN 
-RUN adduser \    
-    --disabled-password \    
-    --gecos "" \    
-    --home "/nonexistent" \    
-    --shell "/sbin/nologin" \    
-    --no-create-home \    
-    --uid "${UID}" \    
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
     "${USER}"
 
 WORKDIR /src/

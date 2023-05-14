@@ -43,10 +43,16 @@ func Transact(db *sqlx.DB, txFunc func(*sqlx.Tx) error) (err error) {
 	}
 	defer func() {
 		if p := recover(); p != nil {
-			tx.Rollback()
+			err = tx.Rollback()
+			if err != nil {
+				return
+			}
 			panic(p) // re-throw panic after Rollback
 		} else if err != nil {
-			tx.Rollback() // err is non-nil; don't chang eit
+			err = tx.Rollback()
+			if err != nil {
+				return
+			} // err is non-nil; don't chang eit
 		} else {
 			err = tx.Commit() // err is nil; if Commit returns error update err
 		}

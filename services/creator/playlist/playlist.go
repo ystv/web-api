@@ -27,7 +27,7 @@ func NewStore(db *sqlx.DB) *Store {
 
 // All lists all playlists metadata
 func (m *Store) All(ctx context.Context) ([]playlist.Playlist, error) {
-	p := []playlist.Playlist{}
+	var p []playlist.Playlist
 	err := m.db.SelectContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists;`)

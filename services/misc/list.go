@@ -30,7 +30,7 @@ var _ ListRepo = &Store{}
 // GetLists returns all available mailing lists
 // Doesn't include individual subscribers
 func (m *Store) GetLists(ctx context.Context) ([]List, error) {
-	l := []List{}
+	var l []List
 	err := m.db.SelectContext(ctx, &l, `
 		SELECT list_id, name, description, alias, permission_id
 		FROM mail.lists;`)
@@ -43,7 +43,7 @@ func (m *Store) GetLists(ctx context.Context) ([]List, error) {
 // GetListsByUserID returns all available and currently subscribed to
 // mailing lists for a user, doesn't include individual subscribers
 func (m *Store) GetListsByUserID(ctx context.Context, userID int) ([]List, error) {
-	l := []List{}
+	var l []List
 	err := m.db.SelectContext(ctx, &l, `
 		SELECT DISTINCT list.list_id, name, description, alias, permission_id,
 		CASE WHEN sub.user_id = $1 THEN true ELSE false END AS is_subscribed
@@ -75,7 +75,7 @@ func (m *Store) GetList(ctx context.Context, listID int) (List, error) {
 
 // GetSubscribers returns all subscribers of a list
 func (m *Store) GetSubscribers(ctx context.Context, listID int) ([]Subscriber, error) {
-	s := []Subscriber{}
+	var s []Subscriber
 	err := m.db.SelectContext(ctx, &s, `
 		SELECT subscribe_id, sub.user_id, username, email, first_name, last_name, nickname, avatar
 		FROM mail.subscribers sub

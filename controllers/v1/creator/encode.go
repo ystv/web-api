@@ -117,7 +117,7 @@ func (r *Repos) ListEncodePreset(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-// NewPreset handles creating a new preset
+// NewEncodePreset handles creating a new preset
 // @Summary New preset
 // @Description creates a new preset.
 // @ID new-creator-encode-preset
@@ -141,7 +141,7 @@ func (r *Repos) NewEncodePreset(c echo.Context) error {
 	return c.JSON(http.StatusCreated, presetID)
 }
 
-// UpdatePreset handles updating a preset
+// UpdateEncodePreset handles updating a preset
 // @Summary Update a preset
 // @Description updates an preset
 // @ID update-creator-encode-preset

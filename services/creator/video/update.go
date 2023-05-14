@@ -11,18 +11,17 @@ import (
 
 // UpdateMeta updates a video's metadata
 //
-// This wont update:
+// This won't update:
 // * duration
 // * views
-//
 func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
-	video, err := s.GetItem(ctx, m.ID)
+	videoItem, err := s.GetItem(ctx, m.ID)
 	if err != nil {
-		return fmt.Errorf("failed to find video to update: %w", err)
+		return fmt.Errorf("failed to find videoItem to update: %w", err)
 	}
 
 	if m.Thumbnail != "" {
-		_, err := s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
+		_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
 			Bucket:     aws.String(s.conf.ServeBucket),
 			CopySource: aws.String(s.conf.IngestBucket + "/" + m.Thumbnail),
 			Key:        aws.String(m.Thumbnail),
@@ -33,11 +32,11 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 
 		m.Thumbnail = "https://cdn.ystv.co.uk/" + s.conf.ServeBucket + "/" + m.Thumbnail
 	} else {
-		m.Thumbnail = video.Thumbnail
+		m.Thumbnail = videoItem.Thumbnail
 	}
 
 	_, err = s.db.ExecContext(ctx, `
-				UPDATE video.items SET
+				UPDATE videoItem.items SET
 					series_id = $1,
 					name = $2,
 					url = $3,
@@ -54,14 +53,14 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 		m.SeriesID, m.Name, m.URL, m.Description, m.Thumbnail, m.Tags, m.Status,
 		m.Preset.PresetID, m.BroadcastDate, m.UpdatedAt, m.UpdatedByID, m.ID)
 	if err != nil {
-		return fmt.Errorf("failed to update video in db: %w", err)
+		return fmt.Errorf("failed to update videoItem in db: %w", err)
 	}
 
-	if m.Preset.PresetID != nil && m.Preset.PresetID != video.Preset.PresetID {
-		// preset change, need to schedule new video files
-		err := s.enc.RefreshVideo(ctx, m.ID)
+	if m.Preset.PresetID != nil && m.Preset.PresetID != videoItem.Preset.PresetID {
+		// preset change, need to schedule new videoItem files
+		err = s.enc.RefreshVideo(ctx, m.ID)
 		if err != nil {
-			return fmt.Errorf("failed to refresh video: %w", err)
+			return fmt.Errorf("failed to refresh videoItem: %w", err)
 		}
 	}
 	return nil

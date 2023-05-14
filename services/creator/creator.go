@@ -21,7 +21,7 @@ type (
 	}
 	// VideoRepo defines all creator video interactions
 	VideoRepo interface {
-		// Get methods
+		// GetItem gets the individual video item
 		GetItem(ctx context.Context, id int) (video.Item, error)
 		ListMeta(ctx context.Context) ([]video.Meta, error)
 		ListMetaByUser(ctx context.Context, userID int) ([]video.Meta, error)
@@ -29,13 +29,13 @@ type (
 		OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error)
 		Search(ctx context.Context, query string) ([]video.Meta, error)
 
-		// New method
+		// NewItem inserts a new video
 		NewItem(ctx context.Context, v video.New) (int, error)
 
-		// Update method
+		// UpdateMeta updates the video metadata
 		UpdateMeta(ctx context.Context, meta video.Meta) error
 
-		// Delete method
+		// DeleteItem removes a video
 		DeleteItem(ctx context.Context, videoID, userID int) error
 		// DeleteFile(ctx context.Context, fileID, userID int) error
 	}

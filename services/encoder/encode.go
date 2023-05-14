@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -61,10 +62,13 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	}
 
 	format := EncodeFormat{}
-	e.db.GetContext(ctx, &format, `
-		SELECT arguments, file_suffix
-		FROM video.encode_formats
-		WHERE format_id = $1`, formatID)
+	err = e.db.GetContext(ctx, &format, `
+			SELECT arguments, file_suffix
+			FROM video.encode_formats
+			WHERE format_id = $1`, formatID)
+	if err != nil {
+		return EncodeResult{}, err
+	}
 	if format.Arguments == "" {
 		return EncodeResult{}, ErrNoArgs
 	}
@@ -100,7 +104,12 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, fmt.Errorf("failed to post to vt: %w", err)
 	}
 
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err = Body.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(res.Body)
 	switch status := res.StatusCode; {
 	case status == http.StatusCreated:
 	case status == http.StatusUnauthorized:

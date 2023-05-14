@@ -8,9 +8,9 @@ import (
 var _ UserRepo = &Store{}
 
 // GetUserFull will return all user information to be used for profile and management.
-func (m *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
+func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	u := UserFull{}
-	err := m.db.GetContext(ctx, &u,
+	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname,
 		avatar, last_login, created_at, created_by, updated_at, updated_by,
 		deleted_at, deleted_by
@@ -20,7 +20,7 @@ func (m *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	if err != nil {
 		return UserFull{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
-	err = m.db.SelectContext(ctx, &u.Roles,
+	err = s.db.SelectContext(ctx, &u.Roles,
 		`SELECT r.role_id, r.name, r.description
 	FROM people.roles r
 	INNER JOIN people.role_members rm ON rm.role_id = r.role_id
@@ -29,7 +29,7 @@ func (m *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		return UserFull{}, fmt.Errorf("failed to get roles: %w", err)
 	}
 	for idx := range u.Roles {
-		err := m.db.SelectContext(ctx, &u.Roles[idx].Permissions,
+		err := s.db.SelectContext(ctx, &u.Roles[idx].Permissions,
 			`SELECT p.permission_id, p.name, p.description
 		FROM people.permissions p
 		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
@@ -46,16 +46,16 @@ func (m *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 }
 
 // GetUser returns basic user information to be used for other services.
-func (m *Store) GetUser(ctx context.Context, userID int) (User, error) {
+func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	u := User{}
-	err := m.db.GetContext(ctx, &u,
+	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname, avatar
 		FROM people.users
 		WHERE user_id = $1;`, userID)
 	if err != nil {
 		return User{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
-	err = m.db.SelectContext(ctx, &u.Permissions,
+	err = s.db.SelectContext(ctx, &u.Permissions,
 		`SELECT p.permission_id, p.name
 		FROM people.permissions p
 		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
@@ -78,9 +78,9 @@ func (m *Store) GetUser(ctx context.Context, userID int) (User, error) {
 // There will likely be modifications to include the other fields
 // but will need to add a filter at the web handler first or offer
 // a different function.
-func (m *Store) ListAllUsers(ctx context.Context) ([]User, error) {
-	u := []User{}
-	err := m.db.SelectContext(ctx, &u,
+func (s *Store) ListAllUsers(ctx context.Context) ([]User, error) {
+	var u []User
+	err := s.db.SelectContext(ctx, &u,
 		`SELECT user_id, avatar, nickname, first_name, last_name
 		FROM people.users;`)
 	if err != nil {

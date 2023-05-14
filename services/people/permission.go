@@ -7,10 +7,10 @@ import (
 
 var _ PermissionRepo = &Store{}
 
-func (m *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
-	p := []Permission{}
+func (s *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
+	var p []Permission
 	for _, permission := range p {
-		err := m.db.SelectContext(ctx, &permission, `
+		err := s.db.SelectContext(ctx, &permission, `
 			SELECT permission_id, name, description
 			FROM people.permissions;`)
 		if err != nil {
@@ -20,9 +20,9 @@ func (m *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
 	return p, nil
 }
 
-func (m *Store) ListPermissionMembersByID(ctx context.Context, permissionID int) ([]User, error) {
-	u := []User{}
-	err := m.db.GetContext(ctx, &u,
+func (s *Store) ListPermissionMembersByID(ctx context.Context, permissionID int) ([]User, error) {
+	var u []User
+	err := s.db.GetContext(ctx, &u,
 		`SELECT u.user_id, username, email, first_name, last_name, nickname, avatar
 		FROM people.users u
 		INNER JOIN people.role_members rm ON u.user_id = rm.user_id

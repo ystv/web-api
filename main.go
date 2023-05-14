@@ -28,8 +28,11 @@ var Commit = "unknown"
 
 func main() {
 	log.Printf("web-api Version %s", Version)
-	godotenv.Load()                    // Load .env file for production
-	err := godotenv.Load(".env.local") // Load .env.local for developing
+	err := godotenv.Load()
+	if err != nil {
+		return
+	} // Load .env file for production
+	err = godotenv.Load(".env.local") // Load .env.local for developing
 	if err != nil {
 		log.Print("Failed to load env file, using global env")
 	}
@@ -38,7 +41,10 @@ func main() {
 	debug, err := strconv.ParseBool(os.Getenv("WAPI_DEBUG"))
 	if err != nil {
 		debug = false
-		os.Setenv("DEBUG", "false")
+		err = os.Setenv("DEBUG", "false")
+		if err != nil {
+			log.Printf("failed to set env: %v", err)
+		}
 	}
 	if debug {
 		log.Println("Debug Mode - Disabled auth - pls don't run in production")
@@ -56,7 +62,7 @@ func main() {
 	}
 	db, err := utils.NewDB(dbConfig)
 	if err != nil {
-		log.Fatalf("failed to start DB: %+v", err)
+		log.Fatalf("failed to connect DB: %+v", err)
 	}
 	log.Printf("Connected to DB: %s@%s", dbConfig.Username, dbConfig.Host)
 
@@ -67,7 +73,10 @@ func main() {
 		AccessKeyID:     os.Getenv("WAPI_CDN_ACCESSKEYID"),
 		SecretAccessKey: os.Getenv("WAPI_CDN_SECRETACCESSKEY"),
 	}
-	cdn := utils.NewCDN(cdnConfig)
+	cdn, err := utils.NewCDN(cdnConfig)
+	if err != nil {
+		log.Fatalf("Unable to connect to CDN: %v", err)
+	}
 	log.Printf("Connected to CDN: %s@%s", cdnConfig.AccessKeyID, cdnConfig.Endpoint)
 
 	bucketConf := struct {

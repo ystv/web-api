@@ -20,7 +20,7 @@ import (
 func (r *Repos) ListTeams(c echo.Context) error {
 	t, err := r.public.ListTeams(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("Public ListTeams failed: %w", err)
+		err = fmt.Errorf("public ListTeams failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, t)
@@ -85,7 +85,7 @@ func (r *Repos) GetTeamByYear(c echo.Context) error {
 func (r *Repos) ListOfficers(c echo.Context) error {
 	o, err := r.public.ListOfficers(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("Public GetTeamByYear failed: %w", err)
+		err = fmt.Errorf("public GetTeamByYearByEmail failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, o)

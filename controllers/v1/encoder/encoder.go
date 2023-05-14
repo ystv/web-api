@@ -9,7 +9,7 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-type EncoderController struct {
+type Repo struct {
 	enc    *encoder.Encoder
 	access *utils.Accesser
 }
@@ -46,8 +46,8 @@ type (
 	}
 )
 
-func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *EncoderController {
-	return &EncoderController{
+func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *Repo {
+	return &Repo{
 		enc:    enc,
 		access: access,
 	}
@@ -69,11 +69,14 @@ func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *Encoder
 // @Accept json
 // @Success 200
 // @Router /v1/internal/encoder/upload_request [post]
-func (e *EncoderController) UploadRequest(c echo.Context) error {
+func (e *Repo) UploadRequest(c echo.Context) error {
 	r := Request{}
-	c.Bind(&r)
+	err := c.Bind(&r)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
 
-	_, err := e.access.GetToken(c.Request())
+	_, err = e.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -92,7 +95,7 @@ func (e *EncoderController) UploadRequest(c echo.Context) error {
 // @Param taskid path int true "Task ID"
 // @Success 200
 // @Router /v1/internal/encoder/transcode_finished/{taskid} [post]
-func (e *EncoderController) TranscodeFinished(c echo.Context) error {
+func (e *Repo) TranscodeFinished(c echo.Context) error {
 	err := e.enc.TranscodeFinished(c.Request().Context(), c.Param("taskid"))
 	if err != nil {
 		err = fmt.Errorf("transcode finished failed: %w", err)

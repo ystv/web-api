@@ -33,7 +33,7 @@ type Router struct {
 	access  *utils.Accesser
 	clapper *clapperPackage.Repos
 	creator *creatorPackage.Repos
-	encoder *encoderPackage.EncoderController
+	encoder *encoderPackage.Repo
 	misc    *miscPackage.Repos
 	people  *peoplePackage.Repo
 	public  *publicPackage.Repos
