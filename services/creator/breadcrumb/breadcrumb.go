@@ -79,7 +79,7 @@ func (c *Controller) Video(ctx context.Context, videoID int) ([]breadcrumb.Bread
 	return sB, nil
 }
 
-// Find will returns either a series or a video for a given path
+// Find will return either a series or a video for a given path
 func (c *Controller) Find(ctx context.Context, path string) (breadcrumb.Item, error) {
 	s, err := c.series.FromPath(ctx, path)
 	if err != nil {

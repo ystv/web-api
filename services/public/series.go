@@ -8,7 +8,7 @@ import (
 type (
 	// Series provides basic information about a series
 	// this is useful when you want to know the current series and
-	// see it's immediate children.
+	// see its immediate children.
 	Series struct {
 		SeriesMeta
 		ImmediateChildSeries []SeriesMeta `json:"childSeries"`
@@ -110,7 +110,7 @@ func (s *Store) GetSeriesFromPath(ctx context.Context, path string) (Series, err
 func (s *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 	series := Series{}
 	// Putting the child series on pause since it looks like we didn't historically store the
-	// the created date of video_boxes, we will need to generate the created_at field at some point
+	// created date of video_boxes, we will need to generate the created_at field at some point
 	// based on the child videos upload date
 	//
 	// err := m.db.SelectContext(ctx, &s.ImmediateChildSeries, `
@@ -134,7 +134,7 @@ func (s *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 
 // Search performs a full-text search on video library
 //
-// Uses postgres' full-text search, video and series tables to try to make some sense
+// Uses postgres full-text search, video and series tables to try to make some sense
 func (s *Store) Search(ctx context.Context, query string) (Series, error) {
 	series := Series{}
 	err := s.db.SelectContext(ctx, &series.ChildVideos,

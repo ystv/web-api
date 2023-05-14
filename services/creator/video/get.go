@@ -10,7 +10,7 @@ import (
 	"github.com/ystv/web-api/services/creator/types/video"
 )
 
-// GetItem returns a VideoItem by it's ID.
+// GetItem returns a VideoItem by its ID.
 func (s *Store) GetItem(ctx context.Context, videoID int) (video.Item, error) {
 	v := video.Item{}
 	err := s.db.GetContext(ctx, &v,
@@ -93,7 +93,7 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error
 
 // Search performs a full-text search on video library
 //
-// Uses postgres' full-text search, video and series tables to try to make some sense
+// Uses postgres full-text search, video and series tables to try to make some sense
 func (s *Store) Search(ctx context.Context, query string) ([]video.Meta, error) {
 	var videos []video.Meta
 	err := s.db.SelectContext(ctx, &videos,

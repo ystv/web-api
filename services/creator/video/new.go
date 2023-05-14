@@ -70,7 +70,7 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 		fileQuery := `INSERT INTO video.files (video_id, format_id, uri, status, size, is_source)
 					VALUES ($1, $2, $3, $4, $5, $6);`
 
-		_, err = tx.ExecContext(ctx, fileQuery, videoID, 1, "videos/"+key, "internal", *obj.ContentLength, true) // TODO make a original encode format
+		_, err = tx.ExecContext(ctx, fileQuery, videoID, 1, "videos/"+key, "internal", *obj.ContentLength, true) // TODO make an original encode format
 		if err != nil {
 			return fmt.Errorf("failed to insert video file row: %w", err)
 		}

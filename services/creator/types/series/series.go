@@ -9,7 +9,7 @@ import (
 type (
 	// Series provides basic information about a series
 	// this is useful when you want to know the current series and
-	// see it's immediate children.
+	// see its immediate children.
 	Series struct {
 		Meta
 		ImmediateChildSeries []Meta       `json:"childSeries"`

@@ -61,7 +61,7 @@ type (
 		Roles     []Role     `json:"roles,omitempty"`
 	}
 	// Role represents a "group" of permissions where multiple users
-	// can have this role and they will inherit these permissions.
+	// can have this role, and they will inherit these permissions.
 	Role struct {
 		RoleID      int          `db:"role_id" json:"id"`
 		Name        string       `db:"name" json:"name"`

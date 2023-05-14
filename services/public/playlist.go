@@ -7,7 +7,7 @@ import (
 )
 
 // Playlist is a list of videos
-// Seperate from series and can contain videos from anywhere
+// Separate from series and can contain videos from anywhere
 type Playlist struct {
 	PlaylistID  int         `db:"playlist_id" json:"id"`
 	Name        string      `db:"name" json:"name"`

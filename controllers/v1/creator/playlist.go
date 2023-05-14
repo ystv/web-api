@@ -26,9 +26,9 @@ func (r *Repos) ListPlaylist(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-// GetPlaylist handles getting a single playlist and it's following videometa's
+// GetPlaylist handles getting a single playlist, and it's following videometa's
 // @Summary Get playlist by ID
-// @Description Get a playlist including it's children videos.
+// @Description Get a playlist including its children videos.
 // @ID get-creator-playlist
 // @Tags creator-playlists
 // @Produce json
