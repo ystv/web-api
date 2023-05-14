@@ -44,7 +44,8 @@ RUN echo -n "-X 'main.Version=$(git describe --abbrev=0)" > ./ldflags && \
     tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
     echo -n "'" >> ./ldflags
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -v -o /bin/api
+RUN #CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -v -o /bin/api
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/api
 
 FROM scratch
 LABEL site="api"
