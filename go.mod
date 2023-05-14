@@ -12,6 +12,7 @@ require (
 	github.com/lib/pq v1.10.4
 	github.com/streadway/amqp v1.0.0
 	github.com/swaggo/echo-swagger v1.4.0
+	github.com/swaggo/swag v1.8.12
 	github.com/xhit/go-simple-mail/v2 v2.10.0
 )
 
@@ -50,7 +51,6 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
-	github.com/swaggo/swag v1.8.12 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

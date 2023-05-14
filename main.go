@@ -30,7 +30,7 @@ func main() {
 	log.Printf("web-api Version %s", Version)
 	err := godotenv.Load()
 	if err != nil {
-		return
+		log.Fatalf("Failed to load env: %v", err)
 	} // Load .env file for production
 	err = godotenv.Load(".env.local") // Load .env.local for developing
 	if err != nil {
