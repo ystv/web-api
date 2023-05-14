@@ -12,7 +12,7 @@ The current aim with the services package is to have a set of core packages:
 * campus (campus related activities)
 
 These core packages aim to not depend on each other. Then there are the
-hybrid packages which use a mixture of the cores and there own business
+hybrid packages which use a mixture of the cores and their own business
 code. Examples include:
 * creator
 * public

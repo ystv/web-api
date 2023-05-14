@@ -43,7 +43,7 @@ func NewAccesser(conf Config) *Accesser {
 	}
 }
 
-// GetToken will return the claims from a access token JWT
+// GetToken will return the claims from an access token JWT
 //
 // First will check the Authorization header, if unset will
 // check the access cookie

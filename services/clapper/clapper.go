@@ -32,7 +32,7 @@ type (
 		EndTime     *time.Time `db:"end_time" json:"endTime"`
 		Crew        []NewCrew  `json:"crew"`
 	}
-	// NewCrew required fields to add crew to to a signup sheet
+	// NewCrew required fields to add crew to a signup sheet
 	NewCrew struct {
 		PositionID int  `db:"position_id" json:"positionID"`
 		Locked     bool `db:"locked" json:"locked"`
@@ -69,7 +69,7 @@ type (
 		Crew        []CrewPosition `json:"crew"`
 	}
 
-	// Position is a role people can signup too
+	// Position is a role people can sign up too
 	Position struct {
 		PositionID   int    `db:"position_id" json:"positionID"`
 		Name         string `db:"name" json:"name"`

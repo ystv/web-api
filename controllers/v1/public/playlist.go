@@ -11,7 +11,7 @@ import (
 // GetPlaylist handles returning a playlist with a list of videos and metadata
 //
 // @Summary Provides a playlist
-// @Description Returns a playlist object, includes videos (not videofiles) and metadata.
+// @Description Returns a playlist object, includes videos (not video files) and metadata.
 // @ID get-public-playlist
 // @Tags public-playlist
 // @Param playlistid path int true "Playlist ID"

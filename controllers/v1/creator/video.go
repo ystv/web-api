@@ -13,7 +13,7 @@ import (
 // GetVideo finds a video by ID
 //
 // @Summary Get video by ID
-// @Description Get a playlist including it's children files.
+// @Description Get a playlist including its children files.
 // @ID get-creator-video
 // @Tags creator-videos
 // @Produce json

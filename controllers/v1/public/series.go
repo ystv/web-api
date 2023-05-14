@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// SeriesByID returns a series with it's immediate children with a SeriesID
+// SeriesByID returns a series with its immediate children with a SeriesID
 //
 // @Summary Provides a series
 // @Description Returns a series object, including the children videos and series.

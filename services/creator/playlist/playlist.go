@@ -138,7 +138,7 @@ func (m *Store) Update(ctx context.Context, p playlist.Meta, videoIDs []int) err
 			`INSERT INTO video.playlist_items(playlist_id, video_item_id, position)
 		VALUES ($1, $2, $3);`)
 		// TODO do we need position? We can get an order sort of for the order
-		// of how they where inserted?
+		// of how they were inserted?
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to insert videos: %w", err)
 		}

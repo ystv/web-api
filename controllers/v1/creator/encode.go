@@ -54,7 +54,7 @@ func (r *Repos) NewEncodeFormat(c echo.Context) error {
 
 // UpdateEncodeFormat handles updating a format
 // @Summary Update a format
-// @Description updates an format
+// @Description updates a format
 // @ID update-creator-encode-format
 // @Tags creator-encodes
 // @Accept json
@@ -80,7 +80,7 @@ func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
 }
 
 // DeleteEncodeFormat handles deleting quotes
-// @Summary Delete a encode format
+// @Summary Delete an encode format
 // @Description Delete a video encode format
 // @ID delete-creator-encode-format
 // @Tags creator-encodes

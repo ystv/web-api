@@ -4,7 +4,7 @@ We use Jenkins at YSTV to automate our build deployments. For each of our websit
 
 We use multi-stage pipelines and would recommend them for best compatibility with our scripts.
 
-The repo should be mostly plug and play with Jenkins but you will need to set a couple of credentials that are used by all of our pipelines:
+The repo should be mostly plug and play with Jenkins, but you will need to set a couple of credentials that are used by all of our pipelines:
 
 - `docker-registry-endpoint` (secret text) - A Docker registry endpoint i.e. `registry.ystv.co.uk`, checkout this [guide](https://docs.docker.com/registry/) to learn more.
 

@@ -25,7 +25,7 @@ func (r *Repos) ListSeries(c echo.Context) error {
 
 // GetSeries finds a video by ID
 // @Summary Get series by ID
-// @Description Get a series including it's children videos.
+// @Description Get a series including its children videos.
 // @ID get-creator-series
 // @Tags creator-series
 // @Produce json

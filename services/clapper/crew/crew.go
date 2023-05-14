@@ -121,7 +121,7 @@ func (m *Store) UpdateUser(ctx context.Context, crewID, userID int) error {
 // it will also perform additional checks to ensure they have enough permission
 func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) error {
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
-		// check if they are super user
+		// check if they are superuser
 		err := m.checkSuperUser(ctx, tx, userID)
 		if err != nil {
 			return m.updateUser(ctx, tx, crewID, userID)

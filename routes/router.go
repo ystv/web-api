@@ -23,7 +23,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-// TODO standarise on function names
+// TODO standardise on function names
 
 // Router provides a HTTP server for web-api
 type Router struct {
