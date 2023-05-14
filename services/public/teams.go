@@ -45,11 +45,7 @@ func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 
 // GetTeamByEmail returns a single team including its members
 func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, error) {
-	t := Team{}
-	err := s.db.GetContext(ctx, &t, `
-		SELECT team_id, name, email_alias, short_description, full_description
-		FROM people.officership_teams
-		WHERE email_alias = $1;`, emailAlias)
+	t, err := s.getTeamByEmail(ctx, emailAlias)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by email: %w", err)
 	}
@@ -62,11 +58,7 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 
 // GetTeamById returns a single team including its members
 func (s *Store) GetTeamById(ctx context.Context, teamId int) (Team, error) {
-	t := Team{}
-	err := s.db.GetContext(ctx, &t, `
-		SELECT team_id, name, email_alias, short_description, full_description
-		FROM people.officership_teams
-		WHERE team_id = $1;`, teamId)
+	t, err := s.getTeamById(ctx, teamId)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by id: %w", err)
 	}
@@ -79,11 +71,7 @@ func (s *Store) GetTeamById(ctx context.Context, teamId int) (Team, error) {
 
 // GetTeamByYearByEmail returns a team by a calendar year
 func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, year int) (Team, error) {
-	t := Team{}
-	err := s.db.GetContext(ctx, &t, `
-		SELECT team_id, name, email_alias, short_description, full_description
-		FROM people.officership_teams
-		WHERE email_alias = $1;`, emailAlias)
+	t, err := s.getTeamByEmail(ctx, emailAlias)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by year by email: %w", err)
 	}
@@ -113,11 +101,7 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 
 // GetTeamByYearById returns a team by a calendar year
 func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, error) {
-	t := Team{}
-	err := s.db.GetContext(ctx, &t, `
-		SELECT team_id, name, email_alias, short_description, full_description
-		FROM people.officership_teams
-		WHERE team_id = $1;`, teamId)
+	t, err := s.getTeamById(ctx, teamId)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by year by id: %w", err)
 	}
@@ -147,11 +131,7 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 
 // GetTeamByStartEndYearByEmail returns a team by an academic year
 func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias string, startYear, endYear int) (Team, error) {
-	t := Team{}
-	err := s.db.GetContext(ctx, &t, `
-		SELECT team_id, name, email_alias, short_description, full_description
-		FROM people.officership_teams
-		WHERE email_alias = $1;`, emailAlias)
+	t, err := s.getTeamByEmail(ctx, emailAlias)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by start end year by email: %w", err)
 	}
@@ -181,11 +161,7 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 
 // GetTeamByStartEndYearById returns a team by an academic year
 func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear, endYear int) (Team, error) {
-	t := Team{}
-	err := s.db.GetContext(ctx, &t, `
-		SELECT team_id, name, email_alias, short_description, full_description
-		FROM people.officership_teams
-		WHERE team_id = $1;`, teamId)
+	t, err := s.getTeamById(ctx, teamId)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by start end year by id: %w", err)
 	}
@@ -211,6 +187,30 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 		return t, fmt.Errorf("failed to get team members by start end year by id: %w", err)
 	}
 	return t, nil
+}
+
+func (s *Store) getTeamByEmail(ctx context.Context, emailAlias string) (Team, error) {
+	team := Team{}
+	err := s.db.GetContext(ctx, &team, `
+		SELECT team_id, name, email_alias, short_description, full_description
+		FROM people.officership_teams
+		WHERE email_alias = $1;`, emailAlias)
+	if err != nil {
+		return team, err
+	}
+	return team, nil
+}
+
+func (s *Store) getTeamById(ctx context.Context, teamId int) (Team, error) {
+	team := Team{}
+	err := s.db.GetContext(ctx, &team, `
+		SELECT team_id, name, email_alias, short_description, full_description
+		FROM people.officership_teams
+		WHERE team_id = $1;`, teamId)
+	if err != nil {
+		return team, err
+	}
+	return team, nil
 }
 
 // ListTeamMembers returns a list of TeamMembers who are part of a team
