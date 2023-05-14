@@ -1,4 +1,4 @@
-FROM golang:1.17.6-alpine AS build
+FROM golang:1.20.4-alpine3.18 AS build
 LABEL site="api"
 LABEL stage="builder"
 
@@ -44,7 +44,7 @@ RUN echo -n "-X 'main.Version=$(git describe --abbrev=0)" > ./ldflags && \
     tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
     echo -n "'" >> ./ldflags
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -o /bin/api
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -v -o /bin/api
 
 FROM scratch
 LABEL site="api"
