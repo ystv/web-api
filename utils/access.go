@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"github.com/ystv/web-api/utils/permissions/users"
 	"net/http"
 	"strings"
 
@@ -85,7 +86,7 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 	return claims, nil
 }
 
-// AuthMiddleware checks a HTTP request for a valid token either in the header or cookie
+// AuthMiddleware checks an HTTP request for a valid token either in the header or cookie
 func (a *Accesser) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		_, err := a.GetToken(c.Request())
@@ -97,5 +98,65 @@ func (a *Accesser) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		return next(c)
+	}
+}
+
+// AddUserAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can add a user
+func (a *Accesser) AddUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     http.StatusBadRequest,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersMembersAdmin || p == users.ManageMembersMembersAdd {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+}
+
+// ListUserAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can list users
+func (a *Accesser) ListUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     http.StatusBadRequest,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersMembersAdmin || p == users.ManageMembersMembersList {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+}
+
+// ModifyUserAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can list users
+func (a *Accesser) ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     http.StatusBadRequest,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersMembersAdmin {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 }
