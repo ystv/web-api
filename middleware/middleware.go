@@ -9,7 +9,7 @@ import (
 	echoMw "github.com/labstack/echo/v4/middleware"
 )
 
-// New intialises web server middleware
+// New initialises web server middleware
 func New(e *echo.Echo, domainName string) {
 	config := echoMw.CORSConfig{
 		AllowCredentials: true,
