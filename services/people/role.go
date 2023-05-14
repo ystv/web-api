@@ -5,18 +5,16 @@ import (
 	"fmt"
 )
 
-var _ RoleRepo = &Store{}
-
 func (s *Store) ListAllRoles(ctx context.Context) ([]Role, error) {
 	var r []Role
 	err := s.db.SelectContext(ctx, &r, `
-		SELECT name, description
+		SELECT role_id, name, description
 		FROM people.roles;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select roles: %w", err)
 	}
 	for _, role := range r {
-		err = s.db.SelectContext(ctx, &role, `
+		err = s.db.SelectContext(ctx, &role.Permissions, `
 			SELECT perm.permission_id, name, description
 			FROM people.permissions perm
 			INNER JOIN people.role_permissions role ON perm.permission_id = role.permission_id
@@ -50,15 +48,13 @@ func (s *Store) ListRoleMembersByID(ctx context.Context, roleID int) ([]User, er
 
 func (s *Store) ListRolePermissionsByID(ctx context.Context, roleID int) ([]Permission, error) {
 	var p []Permission
-	for _, permission := range p {
-		err := s.db.SelectContext(ctx, &permission, `
-			SELECT perm.permission_id, name, description
-			FROM people.permissions perm
-			INNER JOIN people.role_permissions role ON perm.permission_id = role.permission_id
-			WHERE role_id = $1;`, roleID)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get permissions for role \"%d\": %w", roleID, err)
-		}
+	err := s.db.SelectContext(ctx, &p, `
+		SELECT perms.permission_id, perms.name, perms.description
+		FROM people.permissions perms
+		INNER JOIN people.role_permissions rp ON perms.permission_id = rp.permission_id
+		WHERE rp.role_id = $1`, roleID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get permissions for role \"%d\": %w", roleID, err)
 	}
 	return p, nil
 }

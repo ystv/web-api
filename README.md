@@ -2,7 +2,7 @@
 
 A Go based backend that should be able to handle website queries? Hopefully having a supportive subroutine to keep everything in order. Designed kind of like a monolith, but we'll see where we get to with it.
 
-Generation of usable JWT's is available in [web-auth](github.com/ystv/web-auth) currently.
+Generation of usable JWT's is available in [web-auth](https://github.com/ystv/web-auth) currently.
 
 ## Functionality
 
@@ -183,4 +183,4 @@ Generate docs by running `go generate` in the root of the repo.
 
 ### Database info
 
-This is currently build using the new schema available in the [planning repo](github.com/ystv/Website2ElectricBoogaloo), it is still lacking functionality compared to the current implementation.
+This is currently build using the new schema available in the [planning repo](https://github.com/ystv/Website2ElectricBoogaloo), it is still lacking functionality compared to the current implementation.

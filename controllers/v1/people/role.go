@@ -35,7 +35,7 @@ func (r *Repo) ListAllRoles(c echo.Context) error {
 // @Success 200 {array} people.Role
 // @Router /v1/internal/people/role/{roleId}/members [get]
 func (r *Repo) ListRoleMembersByID(c echo.Context) error {
-	roleID, err := strconv.Atoi(c.Param("roleId"))
+	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid role id")
 	}
@@ -57,14 +57,13 @@ func (r *Repo) ListRoleMembersByID(c echo.Context) error {
 // @Success 200 {array} people.Role
 // @Router /v1/internal/people/role/{roleId}/permissions [get]
 func (r *Repo) ListRolePermissionsByID(c echo.Context) error {
-	roleID, err := strconv.Atoi(c.Param("roleId"))
+	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid role id")
 	}
 	p, err := r.people.ListRolePermissionsByID(c.Request().Context(), roleID)
 	if err != nil {
-		err = fmt.Errorf("ListRoleMembersByID failed to get users: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("ListRolePermissionsByID failed to get permission: %w", err))
 	}
 	return c.JSON(http.StatusOK, p)
 }

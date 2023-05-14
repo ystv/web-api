@@ -2,6 +2,7 @@ package people
 
 import (
 	"fmt"
+	"github.com/ystv/web-api/services/people"
 	"net/http"
 	"strconv"
 
@@ -94,6 +95,15 @@ func (r *Repo) UserByTokenFull(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, p)
+}
+
+func (r *Repo) AddUser(c echo.Context) error {
+	u := people.User{}
+	err := c.Bind(&u)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get user from request in AddUser: %w", err))
+	}
+	return c.JSON(http.StatusOK, u)
 }
 
 // ListAllPeople handles listing all users

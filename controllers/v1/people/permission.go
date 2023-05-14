@@ -35,7 +35,7 @@ func (r *Repo) ListAllPermissions(c echo.Context) error {
 // @Success 200 {array} people.Permission
 // @Router /v1/internal/people/permission/{permId}/members [get]
 func (r *Repo) ListPermissionMembersByID(c echo.Context) error {
-	permissionID, err := strconv.Atoi(c.Param("permId"))
+	permissionID, err := strconv.Atoi(c.Param("permissionid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid permission id")
 	}

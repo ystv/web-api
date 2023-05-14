@@ -20,6 +20,7 @@ var (
 	ErrVTFailedToCreate       = errors.New("vt failed to create encode job")
 	ErrVTFailedToAuthenticate = errors.New("failed to authenticate to vt")
 	ErrVTUnknownResponse      = errors.New("unknown vt response")
+	_                         = ErrVTFailedToCreate
 )
 
 type Encoder struct {

@@ -72,7 +72,7 @@ func (r *Repos) GetTeamById(c echo.Context) error {
 //
 // @Summary Provides the team of a selected year
 // @Description Get the team and their members of that year
-// @ID get-public-team-year
+// @ID get-public-team-year-by-email
 // @Tags public-teams
 // @Param emailAlias path int true "emailAlias"
 // @Param year path int true "year"
@@ -101,7 +101,7 @@ func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
 //
 // @Summary Provides the team of a selected year
 // @Description Get the team and their members of that year
-// @ID get-public-team-year
+// @ID get-public-team-year-by-id
 // @Tags public-teams
 // @Param emailAlias path int true "emailAlias"
 // @Param year path int true "year"
