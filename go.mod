@@ -11,7 +11,7 @@ require (
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/lib/pq v1.10.4
 	github.com/streadway/amqp v1.0.0
-	github.com/swaggo/echo-swagger v1.1.4
+	//github.com/swaggo/echo-swagger v1.1.4
 	github.com/xhit/go-simple-mail/v2 v2.10.0
 )
 

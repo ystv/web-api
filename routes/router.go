@@ -19,8 +19,7 @@ import (
 	// Run `go generate` if your IDE gives an import error here.
 	//_ "github.com/ystv/web-api/swagger"
 	"github.com/ystv/web-api/utils"
-
-	echoSwagger "github.com/swaggo/echo-swagger"
+	//echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 // TODO standardise on function names
@@ -94,7 +93,7 @@ func (r *Router) Start() {
 // @contact.email computing@ystv.co.uk
 func (r *Router) loadRoutes() {
 	// swagger
-	r.router.GET("/swagger/*", echoSwagger.WrapHandler)
+	//r.router.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// List all possible routes
 	r.router.GET("/routes", func(c echo.Context) error {
