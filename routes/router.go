@@ -82,7 +82,7 @@ func New(conf *NewRouter) *Router {
 
 // Start the HTTP Server
 func (r *Router) Start() {
-	r.router.Logger.Fatal(r.router.Start(":8082"))
+	r.router.Logger.Fatal(r.router.Start(":8081"))
 }
 
 // loadRoutes initialise routes
