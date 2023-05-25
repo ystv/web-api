@@ -37,18 +37,18 @@ RUN apk update && apk upgrade && \
     apk add --no-cache git ca-certificates tzdata && \
     update-ca-certificates
 
+ARG WAPI_VERSION_ARG
+ENV WAPI_VERSION=$WAPI_VERSION_ARG
+LABEL build=$WAPI_VERSION_ARG
+
 # Set build variables
-RUN echo -n "-X 'main.Version=$(git describe --abbrev=0)" > ./ldflags && \
+RUN echo -n "-X 'main.Version=$WAPI_VERSION_ARG" > ./ldflags && \
     tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
     echo -n "' -X 'main.Commit=$(git log --format="%H" -n 1)" >> ./ldflags && \
     tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
     echo -n "'" >> ./ldflags
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go mod tidy
-
-ARG WAPI_VERSION_ARG
-ENV WAPI_VERSION=$WAPI_VERSION_ARG
-LABEL build=$WAPI_VERSION_ARG
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -v -o /bin/api
 RUN #CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/api
