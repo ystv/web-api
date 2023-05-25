@@ -27,7 +27,6 @@ var Version = "dev (0.8.0)"
 var Commit = "unknown"
 
 func main() {
-	log.Printf("web-api Version %s", Version)
 	err := godotenv.Load()
 	if err != nil {
 		log.Printf("Failed to load global env file: %v", err)
@@ -36,6 +35,13 @@ func main() {
 	if err != nil {
 		log.Printf("Failed to load env file, using global env: %v\n", err)
 	}
+
+	version := os.Getenv("WAPI_VERSION")
+	if len(version) > 0 {
+		Version = version
+	}
+
+	log.Printf("web-api version: %s", Version)
 
 	// Check if debugging
 	debug, err := strconv.ParseBool(os.Getenv("WAPI_DEBUG"))

@@ -2,6 +2,10 @@ FROM golang:1.20.4-alpine3.18 AS build
 LABEL site="api"
 LABEL stage="builder"
 
+ARG WAPI_VERSION_ARG
+ENV WAPI_VERSION=$WAPI_VERSION_ARG
+LABEL build=$WAPI_VERSION
+
 # Create webapiuser.
 ENV USER=webapiuser
 ENV UID=10001
