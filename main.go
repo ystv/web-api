@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -36,10 +37,13 @@ func main() {
 		log.Printf("Failed to load env file, using global env: %v\n", err)
 	}
 
+	fmt.Println(Version)
 	version := os.Getenv("WAPI_VERSION")
 	if len(version) > 0 {
 		Version = version
 	}
+
+	fmt.Println(Version)
 
 	log.Printf("web-api version: %s", Version)
 
