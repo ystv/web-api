@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -28,6 +27,7 @@ var Version = "dev (0.8.0)"
 var Commit = "unknown"
 
 func main() {
+	log.Println(os.Getenv("WAPI_VERSION"))
 	err := godotenv.Load()
 	if err != nil {
 		log.Printf("Failed to load global env file: %v", err)
@@ -37,14 +37,16 @@ func main() {
 		log.Printf("Failed to load env file, using global env: %v\n", err)
 	}
 
-	fmt.Println(Version)
+	log.Println(os.Getenv("WAPI_VERSION"))
+
+	log.Println(Version)
 	version := os.Getenv("WAPI_VERSION")
 	if len(version) > 0 {
-		fmt.Println(1, version)
+		log.Println(1, version)
 		Version = version
 	}
 
-	fmt.Println(Version)
+	log.Println(Version)
 
 	log.Printf("web-api version: %s", Version)
 
