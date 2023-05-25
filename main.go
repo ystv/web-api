@@ -40,6 +40,7 @@ func main() {
 	fmt.Println(Version)
 	version := os.Getenv("WAPI_VERSION")
 	if len(version) > 0 {
+		fmt.Println(1, version)
 		Version = version
 	}
 
