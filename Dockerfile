@@ -2,10 +2,6 @@ FROM golang:1.20.4-alpine3.18 AS build
 LABEL site="api"
 LABEL stage="builder"
 
-ARG WAPI_VERSION_ARG
-ENV WAPI_VERSION=$WAPI_VERSION_ARG
-LABEL build=$WAPI_VERSION_ARG
-
 # Create webapiuser.
 ENV USER=webapiuser
 ENV UID=10001
@@ -49,6 +45,10 @@ RUN echo -n "-X 'main.Version=$(git describe --abbrev=0)" > ./ldflags && \
     echo -n "'" >> ./ldflags
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go mod tidy
+
+ARG WAPI_VERSION_ARG
+ENV WAPI_VERSION=$WAPI_VERSION_ARG
+LABEL build=$WAPI_VERSION_ARG
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -v -o /bin/api
 RUN #CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/api
