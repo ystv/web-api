@@ -4,7 +4,7 @@ LABEL stage="builder"
 
 ARG WAPI_VERSION_ARG
 ENV WAPI_VERSION=$WAPI_VERSION_ARG
-LABEL build=$WAPI_VERSION
+LABEL build=$WAPI_VERSION_ARG
 
 # Create webapiuser.
 ENV USER=webapiuser
