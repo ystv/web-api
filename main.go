@@ -27,7 +27,6 @@ var Version = "dev (0.8.0)"
 var Commit = "unknown"
 
 func main() {
-	log.Println(os.Getenv("WAPI_VERSION"))
 	err := godotenv.Load()
 	if err != nil {
 		log.Printf("Failed to load global env file: %v", err)
@@ -36,17 +35,6 @@ func main() {
 	if err != nil {
 		log.Printf("Failed to load env file, using global env: %v\n", err)
 	}
-
-	log.Println(os.Getenv("WAPI_VERSION"))
-
-	log.Println(Version)
-	version := os.Getenv("WAPI_VERSION")
-	if len(version) > 0 {
-		log.Println(1, version)
-		Version = version
-	}
-
-	log.Println(Version)
 
 	log.Printf("web-api version: %s", Version)
 
@@ -60,7 +48,7 @@ func main() {
 		}
 	}
 	if debug {
-		log.Println("Debug Mode - Disabled auth - pls don't run in production")
+		log.Println("Debug Mode - Disabled auth - don't run in production")
 	}
 
 	// Initialise backend connections

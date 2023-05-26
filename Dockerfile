@@ -38,8 +38,6 @@ RUN apk update && apk upgrade && \
     update-ca-certificates
 
 ARG WAPI_VERSION_ARG
-ENV WAPI_VERSION=$WAPI_VERSION_ARG
-LABEL build=$WAPI_VERSION_ARG
 
 # Set build variables
 RUN echo -n "-X 'main.Version=$WAPI_VERSION_ARG" > ./ldflags && \
