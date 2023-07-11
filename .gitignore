@@ -4,4 +4,3 @@ web-api
 /swagger
 *.sw[a-z]
 /.idea
-go.sum

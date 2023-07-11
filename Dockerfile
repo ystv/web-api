@@ -49,7 +49,6 @@ RUN echo -n "-X 'main.Version=$WAPI_VERSION_ARG" > ./ldflags && \
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go mod tidy
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -v -o /bin/api
-RUN #CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/api
 
 FROM scratch
 LABEL site="api"
