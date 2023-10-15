@@ -44,6 +44,7 @@ type (
 		Email       string       `db:"email" json:"email,omitempty"`
 		Nickname    string       `db:"nickname" json:"nickname"`
 		Avatar      string       `db:"avatar" json:"avatar"`
+		UseGravatar bool         `db:"use_gravatar" json:"useGravatar"`
 		FirstName   string       `db:"first_name" json:"firstName"`
 		LastName    string       `db:"last_name" json:"lastName"`
 		Permissions []Permission `json:"permissions,omitempty"`

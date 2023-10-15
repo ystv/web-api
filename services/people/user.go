@@ -2,7 +2,10 @@ package people
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"strings"
 )
 
 var _ UserRepo = &Store{}
@@ -12,7 +15,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	u := UserFull{}
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname,
-		avatar, last_login, created_at, created_by, updated_at, updated_by,
+		avatar, use_gravatar, last_login, created_at, created_by, updated_at, updated_by,
 		deleted_at, deleted_by
 		FROM people.users
 		WHERE user_id = $1
@@ -42,6 +45,10 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		// TODO: sort this out
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
 	}
+	if u.UseGravatar {
+		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
+		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
+	}
 	return u, nil
 }
 
@@ -49,7 +56,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	u := User{}
 	err := s.db.GetContext(ctx, &u,
-		`SELECT user_id, username, email, first_name, last_name, nickname, avatar
+		`SELECT user_id, username, email, first_name, last_name, nickname, avatar, use_gravatar
 		FROM people.users
 		WHERE user_id = $1;`, userID)
 	if err != nil {
@@ -68,6 +75,10 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 		// TODO sort this out
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
 	}
+	if u.UseGravatar {
+		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
+		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
+	}
 	return u, nil
 }
 
@@ -81,7 +92,7 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 func (s *Store) ListAllUsers(ctx context.Context) ([]User, error) {
 	var u []User
 	err := s.db.SelectContext(ctx, &u,
-		`SELECT user_id, avatar, nickname, first_name, last_name
+		`SELECT user_id, avatar, use_gravatar, nickname, first_name, last_name
 		FROM people.users;`)
 	if err != nil {
 		return nil, fmt.Errorf("fialed to list all users: %w", err)
