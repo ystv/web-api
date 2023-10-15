@@ -36,7 +36,7 @@ func main() {
 		log.Printf("Failed to load env file, using global env: %v\n", err)
 	}
 
-	log.Printf("web-api version: %s", Version)
+	log.Printf("web-api version: %s, commit: %s\n", Version, Commit)
 
 	// Check if debugging
 	debug, err := strconv.ParseBool(os.Getenv("WAPI_DEBUG"))

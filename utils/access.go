@@ -17,6 +17,7 @@ type (
 	}
 	Config struct {
 		AccessCookieName string
+		SecurityBaseURL  string
 		SigningKey       []byte
 	}
 	// AccessClaims represents an identifiable JWT
