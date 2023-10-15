@@ -15,17 +15,20 @@ type (
 	Accesser struct {
 		conf Config
 	}
+
 	Config struct {
 		AccessCookieName string
 		SecurityBaseURL  string
 		SigningKey       []byte
 	}
+
 	// AccessClaims represents an identifiable JWT
 	AccessClaims struct {
 		UserID      int      `json:"id"`
 		Permissions []string `json:"perms"`
 		jwt.StandardClaims
 	}
+
 	// Permission represents the permissions that a user has
 	Permission struct {
 		Name string `json:"name"`
