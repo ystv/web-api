@@ -1,4 +1,4 @@
-FROM golang:1.20.4-alpine3.18 AS build
+FROM golang:1.21.3-alpine3.18 AS build
 LABEL site="api"
 LABEL stage="builder"
 
@@ -46,10 +46,7 @@ RUN echo -n "-X 'main.Version=$WAPI_VERSION_ARG" > ./ldflags && \
     tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
     echo -n "'" >> ./ldflags
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go mod tidy
-
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="$(cat ./ldflags)" -v -o /bin/api
-RUN #CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/api
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="$(cat ./ldflags)" -o /bin/api
 
 FROM scratch
 LABEL site="api"
