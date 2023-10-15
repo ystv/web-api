@@ -3,11 +3,11 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ystv/web-api/utils/permissions/users"
 	"net/http"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
