@@ -26,7 +26,7 @@ type (
 	AccessClaims struct {
 		UserID      int      `json:"id"`
 		Permissions []string `json:"perms"`
-		jwt.StandardClaims
+		jwt.RegisteredClaims
 	}
 
 	// Permission represents the permissions that a user has
