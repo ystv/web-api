@@ -103,7 +103,7 @@ func (s *Store) Find(ctx context.Context, path string) (BreadcrumbItem, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			split := strings.Split(path, "/")
 			pathWithoutLast := strings.Join(split[:len(split)-1], "/")
-			series, err := s.GetSeriesFromPath(ctx, pathWithoutLast)
+			series, err = s.GetSeriesFromPath(ctx, pathWithoutLast)
 			if err != nil {
 				if errors.Is(err, sql.ErrNoRows) {
 					// No series, so there will be no videos

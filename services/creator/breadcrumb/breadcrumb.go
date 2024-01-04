@@ -87,7 +87,7 @@ func (c *Controller) Find(ctx context.Context, path string) (breadcrumb.Item, er
 		if errors.Is(err, sql.ErrNoRows) {
 			split := strings.Split(path, "/")
 			PathWithoutLast := strings.Join(split[:len(split)-1], "/")
-			s, err := c.series.FromPath(ctx, PathWithoutLast)
+			s, err = c.series.FromPath(ctx, PathWithoutLast)
 			if err != nil {
 				return breadcrumb.Item{}, err
 			}
