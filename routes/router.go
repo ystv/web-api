@@ -232,7 +232,7 @@ func (r *Router) loadRoutes() {
 				calendar := clapper.Group("/calendar")
 				{
 					calendar.GET("/termly/:year/:term", notImplemented)        // List all events of term
-					calendar.GET("/monthly/:year/:month", r.clapper.ListMonth) // List all events of month
+					calendar.GET("/monthly/:year/:month", r.clapper.ListMonth) // List all events of the month
 				}
 				events := clapper.Group("/event")
 				{
@@ -240,7 +240,7 @@ func (r *Router) loadRoutes() {
 					events.PUT("", r.clapper.UpdateEvent) // Update an event
 					event := events.Group("/:eventid")
 					{
-						event.GET("", r.clapper.GetEvent) // Get event info, returns event info and signup sheets
+						event.GET("", r.clapper.GetEvent) // Get event info, return event info and signup sheets
 						event.DELETE("", r.clapper.DeleteEvent)
 						event.POST("/signup", r.clapper.NewSignup)
 						signup := event.Group("/:signupid")

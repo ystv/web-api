@@ -59,7 +59,7 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 			Bucket:     aws.String(s.conf.ServeBucket),
 			CopySource: aws.String(s.conf.IngestBucket + "/" + v.FileID[:32]),
 			Key:        aws.String(key),
-			Metadata:   obj.Metadata, // TODO: Copy from the soure Content-Type
+			Metadata:   obj.Metadata, // TODO: Copy from the source Content-Type
 		})
 
 		if err != nil {

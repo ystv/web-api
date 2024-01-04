@@ -6,7 +6,8 @@ import (
 )
 
 // Manager subroutine provides a service to manage videos, also
-// ensuring consistency of video library.
+//
+//	ensuring the consistency of a video library.
 func Manager() {
 	//TODO Make the cool subroutine here
 }
@@ -14,8 +15,8 @@ func Manager() {
 // RefreshVideo will run CreateEncode() on a VideoItem for any
 // encodes missing in the preset.
 func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
-	// So we will get the video files for a video and the video's preset
-	// Check to make sure that there is a source file (we will create renditions based off of it)
+	// So we will get the video files for a video and the video's preset.
+	// Check to make sure that there is a source file (we will create renditions based off of it).
 	// Check to make sure that there is a preset file set to ensure that encode formats will be created
 	v, err := e.getVideoFilesAndPreset(ctx, videoID)
 	if err != nil {
@@ -25,7 +26,8 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 		return ErrNoVideoFiles
 	}
 	// We are keeping track of the number of source files since we are ensuring that each
-	// video only has one source file, if there is more than one it returns an error
+	// video only has one source file.
+	// If there is more than one, it returns an error
 	numOfSrcFiles := 0
 	srcFileIdx := 0
 	for i, file := range v.Files {
