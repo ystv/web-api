@@ -8,15 +8,24 @@ import (
 )
 
 type nginx struct {
-	call     string
-	addr     string
+	//nolint:unused
+	call string
+	//nolint:unused
+	addr string
+	//nolint:unused
 	clientid string
-	app      string
+	//nolint:unused
+	app string
+	//nolint:unused
 	flashVer string
-	swfUrl   string
-	tcUrl    string
-	pageUrl  string
-	name     string
+	//nolint:unused
+	swfUrl string
+	//nolint:unused
+	tcUrl string
+	//nolint:unused
+	pageUrl string
+	//nolint:unused
+	name string
 }
 
 // CheckAuth used by nginx to check if the stream has correct credentials
