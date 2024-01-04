@@ -20,7 +20,7 @@ type (
 		Width    int    `db:"width" json:"width"`
 		Height   int    `db:"height" json:"height"`
 	}
-	// VideoMeta represents basic information about the videoitem used for listing.
+	// VideoMeta represents basic information about the VideoItem used for listing.
 	VideoMeta struct {
 		VideoID       int       `db:"video_id" json:"id"`
 		SeriesID      int       `db:"series_id" json:"seriesID"`

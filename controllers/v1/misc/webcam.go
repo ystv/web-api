@@ -42,8 +42,8 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 // @Description Reverse proxies the selected webcam returns the jpeg feed as a result.
 // @ID get-webcam
 // @Tags misc-webcams
-// @Param cameraid path int true "Camera ID"
-// @Router /v1/internal/misc/webcams/{cameraid} [get]
+// @Param cameraID path int true "Camera ID"
+// @Router /v1/internal/misc/webcams/{cameraID} [get]
 func (r *Repos) GetWebcam(c echo.Context) error {
 	cameraID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -96,35 +96,35 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 }
 
 func singleJoiningSlash(a, b string) string {
-	aslash := strings.HasSuffix(a, "/")
-	bslash := strings.HasPrefix(b, "/")
+	aSlash := strings.HasSuffix(a, "/")
+	bSlash := strings.HasPrefix(b, "/")
 	switch {
-	case aslash && bslash:
+	case aSlash && bSlash:
 		return a + b[1:]
-	case !aslash && !bslash:
+	case !aSlash && !bSlash:
 		return a + "/" + b
 	}
 	return a + b
 }
 
-func joinURLPath(proxy, req *url.URL) (path, rawpath string) {
+func joinURLPath(proxy, req *url.URL) (path, rawPath string) {
 	req.Path = strings.TrimSuffix(req.Path, proxy.Path)
 	if proxy.RawPath == "" && req.RawPath == "" {
 		return singleJoiningSlash(proxy.Path, req.Path), ""
 	}
 	// Same as singleJoiningSlash, but uses EscapedPath to determine
 	// whether a slash should be added
-	apath := proxy.EscapedPath()
-	bpath := req.EscapedPath()
+	aPath := proxy.EscapedPath()
+	bPath := req.EscapedPath()
 
-	aslash := strings.HasSuffix(apath, "/")
-	bslash := strings.HasPrefix(bpath, "/")
+	aSlash := strings.HasSuffix(aPath, "/")
+	bSlash := strings.HasPrefix(bPath, "/")
 
 	switch {
-	case aslash && bslash:
-		return proxy.Path + req.Path[1:], apath + bpath[1:]
-	case !aslash && !bslash:
-		return proxy.Path + "/" + req.Path, apath + "/" + bpath
+	case aSlash && bSlash:
+		return proxy.Path + req.Path[1:], aPath + bPath[1:]
+	case !aSlash && !bSlash:
+		return proxy.Path + "/" + req.Path, aPath + "/" + bPath
 	}
-	return proxy.Path + req.Path, apath + bpath
+	return proxy.Path + req.Path, aPath + bPath
 }

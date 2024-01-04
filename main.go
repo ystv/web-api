@@ -12,7 +12,6 @@ import (
 	"github.com/ystv/web-api/controllers/v1/misc"
 	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/controllers/v1/public"
-	"github.com/ystv/web-api/routes"
 	"github.com/ystv/web-api/services/encoder"
 
 	"github.com/ystv/web-api/utils"
@@ -105,7 +104,7 @@ func main() {
 	}
 	enc := encoder.NewEncoder(db, cdn, encoderConfig)
 
-	routes.New(&routes.NewRouter{
+	New(&NewRouter{
 		Version:    Version,
 		Commit:     Commit,
 		DomainName: os.Getenv("WAPI_DOMAIN_NAME"),

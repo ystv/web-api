@@ -8,7 +8,7 @@ import (
 type (
 	// New objects
 
-	// NewEvent represents necessary fields to create a new event.
+	// NewEvent represents the necessary fields to create a new event.
 	NewEvent struct {
 		EventType   string    `db:"event_type" json:"eventType"`
 		Name        string    `db:"name" json:"name"`
@@ -86,7 +86,7 @@ type (
 		Ordering int  `db:"ordering" json:"ordering,omitempty"`
 		Position
 	}
-	// Attendee represents a persons attendance for a meeting, social or other
+	// Attendee represents a person's attendance for a meeting, social or other
 	Attendee struct {
 		User
 		AttendStatus string `db:"attend_status" json:"attendStatus"`
@@ -120,7 +120,7 @@ type (
 	// PositionRepo defines all position interactions.
 	//
 	// This repo is for managing the positions, where it
-	// feeds the system where the producer makes the signup sheet
+	// feeds the system where the producer makes the signup sheet,
 	// but not the doesn't interact with an event directly.
 	PositionRepo interface {
 		List(ctx context.Context) (*[]Position, error)

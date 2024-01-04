@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Video handles a video item, providing info vfiles
+// Video handles a video item, providing info
 //
 // @Summary Provides a video item
 // @Description Returns a video item. Including the video files.

@@ -58,8 +58,8 @@ func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *Repo {
 // UploadRequest handles authenticating an upload request.
 //
 // Connects with tusd through web-hooks, so tusd POSTs here.
-// tusd's requests here does contain a lot of useful information.
-// but for this endpoint, we are just checking for the JWT.
+// Tusd's requests here do contain a lot of useful information.
+// But for this endpoint, we are just checking for the JWT.
 //
 // @Summary New upload request
 // @Description Authenticates tusd's webhook requests

@@ -26,9 +26,9 @@ func (s *Store) ListAllRoles(ctx context.Context) ([]Role, error) {
 	return r, nil
 }
 
-// ListRoleMembersByID returns all users who have a certain role
-// It doesn't return the full User object
-// Returns user_id, avatar, nickname, first_name, last_name
+// ListRoleMembersByID returns all users who have a certain role.
+// It doesn't return the full User object.
+// Returns user_id, avatar, nickname, first_name, last_name.
 //
 // There will likely be modifications to include the other fields
 // but will need to add a filter at the web handler first or offer

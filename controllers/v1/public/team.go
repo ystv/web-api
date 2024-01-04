@@ -80,11 +80,11 @@ func (r *Repos) GetTeamById(c echo.Context) error {
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/email/{emailAlias}/{year} [get]
 func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
-	//teamID, err := strconv.Atoi(c.Param("teamid"))
-	//fmt.Println(teamID)
-	//if err != nil {
+	// teamID, err := strconv.Atoi(c.Param("teamid"))
+	// fmt.Println(teamID)
+	// if err != nil {
 	//	return echo.NewHTTPError(http.StatusBadRequest, "Bad teamid")
-	//}
+	// }
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad year")

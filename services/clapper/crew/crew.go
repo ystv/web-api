@@ -23,7 +23,7 @@ func NewStore(db *sqlx.DB) *Store {
 // Here to verify we are meeting the interface
 var _ clapper.CrewRepo = &Store{}
 
-// crew a small version used for helper functions
+// Crew a small version used for helper functions
 // that can be used in transactions.
 //
 // Both userID and permissionID are nullable since
@@ -37,7 +37,7 @@ type crew struct {
 var (
 	ErrNoSuperPermission = errors.New("user doesn't have super-user permission")
 	ErrNoAdminPermission = errors.New("user doesn't have admin permission")
-	ErrNorolePermission  = errors.New("user doesn't have role permission")
+	ErrNoRolePermission  = errors.New("user doesn't have role permission")
 )
 
 // New creates a new crew position, with default settings
@@ -121,7 +121,7 @@ func (m *Store) UpdateUser(ctx context.Context, crewID, userID int) error {
 // it will also perform additional checks to ensure they have enough permission
 func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) error {
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
-		// check if they are superuser
+		// check if they are a superuser
 		err := m.checkSuperUser(ctx, tx, userID)
 		if err != nil {
 			return m.updateUser(ctx, tx, crewID, userID)
@@ -149,7 +149,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 				return m.updateUser(ctx, tx, crewID, userID)
 			}
 
-			// check if role has permission
+			// check if a role has permission
 			if crew.PermissionID != nil {
 				// role does require permission
 				err = m.checkUserRole(ctx, tx, crewID, userID)
@@ -160,7 +160,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 				return m.updateUser(ctx, tx, crewID, userID)
 			}
 		}
-		// they are kicking someone off, so lets check they have consent from the government (authorization)
+		// they are kicking someone off, so let's check they have consent from the government (authorisation)
 		// check if they are an admin of the event
 		err = m.checkEventAdmin(ctx, tx, crewID, userID)
 		if err != nil {
@@ -176,7 +176,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 }
 
 // getUserAndPermissionFromCrew fetches the user for the
-// given crew and see if it matches returns the
+// given crew and see if it matches returns the crew
 func (m *Store) getUserAndPermissionFromCrew(ctx context.Context, tx *sqlx.Tx, crewID, userID int) (crew, error) {
 	stmt, err := tx.PrepareContext(ctx,
 		`SELECT crew.user_id, position.permission_id
@@ -260,8 +260,8 @@ func (m *Store) checkUserRole(ctx context.Context, tx *sqlx.Tx, crewID, userID i
 		`SELECT CASE WHEN EXISTS(
 						SELECT true
 						FROM event.crews crew
-						INNER JOIN event.positions position ON crew.position_id = position.position_id;
-						INNER JOIN people.role_permissions permission ON position.permission_id = permission.permission_id;
+						INNER JOIN event.positions position ON crew.position_id = position.position_id
+						INNER JOIN people.role_permissions permission ON position.permission_id = permission.permission_id
 						INNER JOIN people.role_members member ON permission.role_id = member.role_id
 						WHERE crew.crew_id = $1 AND member.user_id = $2
 					)
@@ -277,7 +277,7 @@ func (m *Store) checkUserRole(ctx context.Context, tx *sqlx.Tx, crewID, userID i
 		return fmt.Errorf("failed to check permission of user for crew: %w", err)
 	}
 	if !hasPermission {
-		return ErrNorolePermission
+		return ErrNoRolePermission
 	}
 	return nil
 }

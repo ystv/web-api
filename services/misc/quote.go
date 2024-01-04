@@ -13,7 +13,7 @@ type (
 		Description string `db:"description" json:"description"`
 		CreatedBy   int    `db:"created_by" json:"createdBy"`
 	}
-	// QuotePage is a group of quotes including the last page idnex
+	// QuotePage is a group of quotes including the last page index
 	QuotePage struct {
 		Quotes        []Quote
 		LastPageIndex int

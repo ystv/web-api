@@ -62,7 +62,7 @@ func (m *Store) Update(ctx context.Context, p *clapper.Position) error {
 
 // Delete a position by position ID
 func (m *Store) Delete(ctx context.Context, positionID int) error {
-	_, err := m.db.Exec(`DELETE event.positions
+	_, err := m.db.Exec(`DELETE FROM event.positions
 						WHERE position_id = $1`, positionID)
 	if err != nil {
 		err = fmt.Errorf("failed to delete position: %w", err)

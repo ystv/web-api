@@ -89,7 +89,7 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 func (r *Repos) DeletePosition(c echo.Context) error {
 	positionID, err := strconv.Atoi(c.Param("positionid"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid posiiton ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
 	}
 	err = r.position.Delete(c.Request().Context(), positionID)
 	if err != nil {

@@ -59,7 +59,7 @@ func (m *Store) addCrew(ctx context.Context, tx *sqlx.Tx, signupID int, crew []c
 		return fmt.Errorf("failed to prepare statement to insert crew: %w", err)
 	}
 	for _, position := range crew {
-		// we might want to handle the signup ID if it does exist, just an if statement will do
+		// we might want to handle the signup ID if it does exist, just as an if a statement does
 		_, err = stmt.ExecContext(ctx,
 			signupID, position.PositionID, position.Locked, position.Credited, position.Ordering)
 		if err != nil {
@@ -94,11 +94,11 @@ func (m *Store) updateMeta(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) e
 	_, err := tx.ExecContext(ctx,
 		`UPDATE event.signups
 		SET title = $1,
-		SET description = $2
-		SET unlock_date = $3
-		SET arrival_time = $4
-		SET start_time = $5
-		SET end_time = $6
+		description = $2,
+		unlock_date = $3,
+		arrival_time = $4,
+		start_time = $5,
+		end_time = $6
 		WHERE signup_id = $7`, s.Title, s.Description, s.UnlockDate, s.ArrivalTime, s.StartTime, s.EndTime)
 	if err != nil {
 		return fmt.Errorf("failed to update signup meta: %w", err)
@@ -139,7 +139,7 @@ func (m *Store) crewPositionToNewCrew(crewPosition []clapper.CrewPosition) []cla
 	return newCrew
 }
 
-// Delete will remove the signup sheet and it's children crew
+// Delete will remove the signup sheet, and it's children crew
 // (The database should cascade to delete children)
 func (m *Store) Delete(ctx context.Context, signupID int) error {
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {

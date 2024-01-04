@@ -9,7 +9,7 @@ import (
 	"github.com/ystv/web-api/services/creator/types/playlist"
 )
 
-// ListPlaylist handles listing all playlist metadata's
+// ListPlaylist handles listing all playlist metadata
 // @Summary List all playlists
 // @Description Lists all playlists, doesn't include videos inside.
 // @ID get-creator-playlists-all

@@ -41,7 +41,7 @@ func (m *Store) GetLists(ctx context.Context) ([]List, error) {
 }
 
 // GetListsByUserID returns all available and currently subscribed to
-// mailing lists for a user, doesn't include individual subscribers
+// mailing lists for a user don't include individual subscribers
 func (m *Store) GetListsByUserID(ctx context.Context, userID int) ([]List, error) {
 	var l []List
 	err := m.db.SelectContext(ctx, &l, `
@@ -88,7 +88,7 @@ func (m *Store) GetSubscribers(ctx context.Context, listID int) ([]Subscriber, e
 
 // Subscribe adds a user to a mailing list
 func (m *Store) Subscribe(ctx context.Context, userID, listID int) error {
-	_, err := m.db.ExecContext(ctx, `INSERT INTO mail.subscribers(list_id, user_id VALUES ($1, $2);`, listID, userID)
+	_, err := m.db.ExecContext(ctx, `INSERT INTO mail.subscribers(list_id, user_id) VALUES ($1, $2);`, listID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to subscribe to mailing list \"%d\": %w", listID, err)
 	}

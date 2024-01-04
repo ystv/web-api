@@ -54,12 +54,12 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 		extension := strings.Split(*obj.Metadata["Filename"], ".")
 		key := fmt.Sprintf("%d_%d_%s_%s.%s", v.BroadcastDate.Year(), videoID, v.URLName, getSeason(v.BroadcastDate), extension[1])
 
-		// Copy from pending bucket to main video bucket
+		// Copy from pending bucket to the main video bucket
 		_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
 			Bucket:     aws.String(s.conf.ServeBucket),
 			CopySource: aws.String(s.conf.IngestBucket + "/" + v.FileID[:32]),
 			Key:        aws.String(key),
-			Metadata:   obj.Metadata, // TODO: Copy from the soure Content-Type
+			Metadata:   obj.Metadata, // TODO: Copy from the source Content-Type
 		})
 
 		if err != nil {

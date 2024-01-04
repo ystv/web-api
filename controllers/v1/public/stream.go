@@ -10,7 +10,7 @@ import (
 // ListChannels handles listing all channels
 //
 // @Summary Provides the visible channels
-// @Description Lists the publically visible channels
+// @Description Lists the publicly visible channels
 // @ID get-public-stream-channels
 // @Tags public-playout-channels
 // @Produce json

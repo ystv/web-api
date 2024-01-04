@@ -84,10 +84,10 @@ func (c *Controller) Find(ctx context.Context, path string) (breadcrumb.Item, er
 	s, err := c.series.FromPath(ctx, path)
 	if err != nil {
 		// Might be a video, so we'll go back a crumb and check for a series
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			split := strings.Split(path, "/")
 			PathWithoutLast := strings.Join(split[:len(split)-1], "/")
-			s, err := c.series.FromPath(ctx, PathWithoutLast)
+			s, err = c.series.FromPath(ctx, PathWithoutLast)
 			if err != nil {
 				return breadcrumb.Item{}, err
 			}

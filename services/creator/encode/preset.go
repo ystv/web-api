@@ -3,6 +3,7 @@ package encode
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -36,7 +37,7 @@ func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, err
 		INNER JOIN video.encode_preset_formats preset ON preset.format_id = format.format_id
 		WHERE preset.preset_id = $1;`, p.PresetID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return p, nil
 		}
 		return p, fmt.Errorf("failed to get formats: %w", err)

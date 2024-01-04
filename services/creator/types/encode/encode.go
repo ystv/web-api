@@ -1,7 +1,7 @@
 package encode
 
 // Preset represents a group of encode formats. A video has a preset applied to it, so
-// it can generate the video files so a video item.
+// it can generate the video files as a video item.
 type (
 	Preset struct {
 		PresetID    int      `json:"presetID" db:"preset_id"`

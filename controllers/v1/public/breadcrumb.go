@@ -12,7 +12,7 @@ import (
 	"github.com/ystv/web-api/services/public"
 )
 
-// Find handles converting a url path to either a video or series
+// Find handles converting an url path to either a video or series
 //
 // @Summary Converts a VOD url to either a series or video
 // @Description Allows us to remain backwards compatible with the existing URLs

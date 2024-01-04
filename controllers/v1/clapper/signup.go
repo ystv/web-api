@@ -14,7 +14,7 @@ import (
 // NewSignup handles a creating a signup sheet
 //
 // @Summary New signup sheet
-// @Description Creates a new signup sheet, this is the sub part of an event
+// @Description Creates a new signup sheet; this is the subpart of an event
 // @Description containing the list of crew, with a little metadata on top.
 // @ID new-signup
 // @Tags clapper-signups
@@ -46,7 +46,7 @@ func (r *Repos) NewSignup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	// Insert new signup sheet
+	// Insert a new signup sheet
 	signupID, err := r.signup.New(c.Request().Context(), e.EventID, s)
 	if err != nil {
 		err = fmt.Errorf("NewSignup: failed to insert new signup: %w", err)

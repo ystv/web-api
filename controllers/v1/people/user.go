@@ -31,7 +31,7 @@ func (r *Repo) UserByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-// UserByIDFull finds a user by ID returing all info
+// UserByIDFull finds a user by ID returning all info
 // @Summary Get a full user by ID
 // @Description Get a complete user object by ID.
 // @ID get-user-id-full
