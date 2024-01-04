@@ -18,7 +18,7 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 	// Swag CLI generates documentation, you have to import it.
 	// Run `go generate` if your IDE gives an import error here.
-	_ "github.com/ystv/web-api/swagger"
+	//_ "github.com/ystv/web-api/swagger"
 	"github.com/ystv/web-api/utils"
 )
 
