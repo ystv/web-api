@@ -23,7 +23,7 @@ func NewStore(db *sqlx.DB) *Store {
 // Here to verify we are meeting the interface
 var _ clapper.CrewRepo = &Store{}
 
-// crew a small version used for helper functions
+// Crew a small version used for helper functions
 // that can be used in transactions.
 //
 // Both userID and permissionID are nullable since
