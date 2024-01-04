@@ -6,11 +6,13 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// Repo stores our dependencies
-type Repo struct {
-	people *people.Store
-	access *utils.Accesser
-}
+type (
+	// Repo stores our dependencies
+	Repo struct {
+		people *people.Store
+		access *utils.Accesser
+	}
+)
 
 // NewRepo creates our data store
 func NewRepo(db *sqlx.DB, access *utils.Accesser) *Repo {

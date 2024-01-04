@@ -20,6 +20,7 @@ type (
 		ListWebcams(ctx context.Context, permissions []string) ([]Webcam, error)
 		GetWebcam(ctx context.Context, cameraID int, permissions []string) (Webcam, error)
 	}
+
 	// ListRepo represents all mailing list interactions
 	//
 	// Send emails to roles and other groups
@@ -32,12 +33,12 @@ type (
 		UnsubscribeByID(ctx context.Context, userID, listID int) error
 		UnsubscribeByUUID(ctx context.Context, uuid string) error
 	}
-)
 
-// Store contains our dependency
-type Store struct {
-	db *sqlx.DB
-}
+	// Store contains our dependency
+	Store struct {
+		db *sqlx.DB
+	}
+)
 
 // NewStore creates a new store
 func NewStore(db *sqlx.DB) *Store {
