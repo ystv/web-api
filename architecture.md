@@ -4,10 +4,12 @@ This document aims to assist developers on understanding the codebase.
 
 This application follows the MVC architecture (sort of) at a high level.
 With the `controllers` packages containing the code handling HTTP responses
-and putting it into something Go can handle. The services packages are
-where all the business logic is contained. Each package has a set domain.
+and putting it into something Go can handle.
+The service packages are
+where all the business logic is contained.
+Each package has a set domain.
 
-The current aim with the services package is to have a set of core packages:
+The current aim with the service package is to have a set of core packages:
 * vod (handling all Video on Demand queries)
 * campus (campus related activities)
 

@@ -91,7 +91,7 @@ func (s *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 	return seriesMeta, err
 }
 
-// GetSeriesFromPath returns a series from a url path
+// GetSeriesFromPath returns a series from an url path
 func (s *Store) GetSeriesFromPath(ctx context.Context, path string) (Series, error) {
 	series := Series{}
 	err := s.db.GetContext(ctx, &series.SeriesID,

@@ -38,7 +38,7 @@ func (s *Store) NewFormat(ctx context.Context, format encode.Format) (int, error
 	return formatID, nil
 }
 
-// UpdateFormat will update a format
+// UpdateFormat will update the format
 func (s *Store) UpdateFormat(ctx context.Context, format encode.Format) error {
 	_, err := s.db.ExecContext(ctx, `
 		UPDATE video.encode_formats SET

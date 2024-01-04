@@ -126,7 +126,8 @@ func (r *Repos) VideoList(c echo.Context) error {
 // ListVideosByUser Handles retrieving a user's videos using their userid in their token.
 //
 // @Summary List all videos created by user ID
-// @Description Lists all videos, doesn't include files inside. Uses the createdBy user ID.
+// @Description Lists all videos, doesn't include files inside.
+// Use the createdBy user ID.
 // @ID get-creator-videos-user
 // @Tags creator-videos
 // @Produce json
@@ -178,7 +179,7 @@ type searchInput struct {
 	Query string `json:"query"`
 }
 
-// SearchVideo Handles listing appropriate videos from a relevant search
+// SearchVideo Handles listing appropriate videos from the relevant search
 //
 // @Summary Search videos
 // @Description Search videos.

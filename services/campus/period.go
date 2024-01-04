@@ -63,7 +63,7 @@ func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYe
 	return ay, nil
 }
 
-// GetTeachingPeriod retrives an academic term for a given time
+// GetTeachingPeriod retrieves an academic term for a given time
 func (c *Campuser) GetTeachingPeriod(ctx context.Context, t time.Time) (TeachingPeriod, error) {
 	tp := TeachingPeriod{}
 	err := c.db.GetContext(ctx, &tp, `

@@ -7,7 +7,7 @@ import (
 	"github.com/ystv/web-api/services/creator/types/stats"
 )
 
-// GlobalVideo returns general information about video library
+// GlobalVideo returns general information about a video library
 func (m *Store) GlobalVideo(ctx context.Context) (stats.VideoGlobalStats, error) {
 	s := stats.VideoGlobalStats{}
 	err := m.db.GetContext(ctx, &s.TotalVideos,

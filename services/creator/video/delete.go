@@ -26,15 +26,15 @@ func (s *Store) DeleteItem(ctx context.Context, videoID, userID int) error {
 
 // DeleteItemPermanently removes a video entirely, including the associated video files
 func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
-	// To delete a video we will need to delete all child objects database first
+	// To delete a video, we will need to delete all child objects database first
 	// * Video hits
 	// * Video files
 	// Then we will need to delete the object files
 	// * VOD files
-	// * Original master
+	// * Original primary
 	var fileURLs []string
-	// Wrapped in transaction, so we can roll back if it fails, however
-	// S3 doesn't support transactions so only database is protected
+	// Wrapped in transaction, so we can roll back if it fails, however,
+	// S3 doesn't support transactions, so only a database is protected
 	err := utils.Transact(s.db, func(tx *sqlx.Tx) error {
 		// Get child files
 		err := tx.SelectContext(ctx, &fileURLs, `
@@ -61,7 +61,7 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 				return fmt.Errorf("failed to delete video file object: %w", err)
 			}
 
-			// Finally removing the video item / meta from the database
+			// Finally, removing the video item / meta from the database
 			_, err = tx.ExecContext(ctx, `DELETE FROM video.items WHERE video_id = $1`, videoID)
 			if err != nil {
 				return fmt.Errorf("failed to delete video item from database: %w", err)

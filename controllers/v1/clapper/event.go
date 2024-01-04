@@ -92,7 +92,7 @@ func (r *Repos) NewEvent(c echo.Context) error {
 
 // UpdateEvent updates an existing event
 // @Summary Update event
-// @Description updates an event. Only uses the meta, if you change the
+// @Description updates an event. Only use the meta, if you change the
 // @Description type it will delete the children.
 // @ID update-event
 // @Tags clapper-events

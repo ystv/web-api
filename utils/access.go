@@ -131,7 +131,8 @@ func (a *Accesser) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-// AddUserAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can add a user
+// AddUserAuthMiddleware checks an HTTP request for a valid token either in the header or cookie,
+// and if the user can add a user
 func (a *Accesser) AddUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		claims, err := a.GetToken(c.Request())

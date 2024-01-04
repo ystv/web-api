@@ -84,7 +84,7 @@ func (s *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrum
 // Find returns either a series or video for a given path
 // TODO be consistent with creator's find in terms of variables
 func (s *Store) Find(ctx context.Context, path string) (BreadcrumbItem, error) {
-	// Check to see if it's a just a video ID
+	// Check to see if it's just a video ID
 	videoID, err := strconv.Atoi(path)
 	if err == nil {
 		// It's a raw video ID
@@ -118,7 +118,7 @@ func (s *Store) Find(ctx context.Context, path string) (BreadcrumbItem, error) {
 			}
 			// We've got videos
 			for _, v := range series.ChildVideos {
-				// Check if video  name matches last name
+				// Check if video name matches last name
 				if v.URL == split[len(split)-1] {
 					// Found video
 					foundVideo, err := s.GetVideo(ctx, v.VideoID)

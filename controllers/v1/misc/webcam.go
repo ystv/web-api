@@ -42,8 +42,8 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 // @Description Reverse proxies the selected webcam returns the jpeg feed as a result.
 // @ID get-webcam
 // @Tags misc-webcams
-// @Param cameraid path int true "Camera ID"
-// @Router /v1/internal/misc/webcams/{cameraid} [get]
+// @Param cameraID path int true "Camera ID"
+// @Router /v1/internal/misc/webcams/{cameraID} [get]
 func (r *Repos) GetWebcam(c echo.Context) error {
 	cameraID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

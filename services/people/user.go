@@ -82,9 +82,9 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	return u, nil
 }
 
-// ListAllUsers returns all users
-// It doesn't return the full User object
-// Returns user_id, avatar, nickname, first_name, last_name
+// ListAllUsers returns all users.
+// It doesn't return the full User object.
+// Returns user_id, avatar, nickname, first_name, last_name.
 //
 // There will likely be modifications to include the other fields
 // but will need to add a filter at the web handler first or offer

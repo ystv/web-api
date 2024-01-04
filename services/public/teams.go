@@ -239,7 +239,7 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 	return m, nil
 }
 
-// ListOfficers returns the list of officers of the current officers
+// ListOfficers returns the list of current officers
 func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 	var m []TeamMember
 	err := s.db.SelectContext(ctx, &m, `

@@ -8,11 +8,11 @@ import (
 
 var _ StreamRepo = &Store{}
 
-// This is currently quite barebones, it is hoped it will integrate with
-// ystv/playout in order to provide more data
+// This is currently quite bare bones; it is hoped it will integrate with
+// ystv/playout to provide more data
 
 // Channel represents a derivative of ystv/playout's channels.
-// These are event only rather than linear or event.
+// These are events only rather than linear or events.
 type Channel struct {
 	URLName        string    `db:"url_name" json:"urlName"`        // "tennis"
 	Name           string    `db:"name" json:"name"`               // "YUSU Tennis 2020"

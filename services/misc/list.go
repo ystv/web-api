@@ -41,7 +41,7 @@ func (m *Store) GetLists(ctx context.Context) ([]List, error) {
 }
 
 // GetListsByUserID returns all available and currently subscribed to
-// mailing lists for a user, doesn't include individual subscribers
+// mailing lists for a user don't include individual subscribers
 func (m *Store) GetListsByUserID(ctx context.Context, userID int) ([]List, error) {
 	var l []List
 	err := m.db.SelectContext(ctx, &l, `

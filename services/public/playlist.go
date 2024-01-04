@@ -65,7 +65,7 @@ func (s *Store) GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (P
 	return p, nil
 }
 
-// GetPlaylistPopularByAllTime returns a playlist of the most popular videos of all time
+// GetPlaylistPopularByAllTime returns a playlist of the most popular videos from all time
 func (s *Store) GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,
@@ -86,7 +86,7 @@ func (s *Store) GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, erro
 	return p, nil
 }
 
-// GetPlaylistPopularByPastYear returns a playlist of the most popular videos of past year
+// GetPlaylistPopularByPastYear returns a playlist of the most popular videos from the past year
 func (s *Store) GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,
@@ -109,7 +109,7 @@ func (s *Store) GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, err
 	return p, nil
 }
 
-// GetPlaylistPopularByPastMonth returns a playlist of the most popular videos of past month
+// GetPlaylistPopularByPastMonth returns a playlist of the most popular videos from the past month
 func (s *Store) GetPlaylistPopularByPastMonth(ctx context.Context) (Playlist, error) {
 	p := Playlist{
 		PlaylistID:  0,

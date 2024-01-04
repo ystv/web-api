@@ -143,7 +143,7 @@ func (r *Repos) NewEncodePreset(c echo.Context) error {
 
 // UpdateEncodePreset handles updating a preset
 // @Summary Update a preset
-// @Description updates an preset
+// @Description updates a preset
 // @ID update-creator-encode-preset
 // @Tags creator-encodes
 // @Accept json

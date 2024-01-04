@@ -66,8 +66,8 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 	return nil
 }
 
-// Refresh will check all existing videoitems to ensure that they
-// match their preset, creating new job
+// Refresh will check all existing video items to ensure that they
+// match their preset, creating a new job
 func (e *Encoder) Refresh(ctx context.Context) error {
 
 	return nil

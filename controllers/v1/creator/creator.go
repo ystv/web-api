@@ -53,7 +53,7 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Acces
 	}
 }
 
-// Stats handles sending general stats about the video library
+// Stats handle sending general stats about the video library
 // @Summary Get global video library information
 // @Description Gets the statistics about the global video library.
 // @ID get-creator-glob-stats
