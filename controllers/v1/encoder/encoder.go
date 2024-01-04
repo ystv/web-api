@@ -84,10 +84,10 @@ func (e *Repo) UploadRequest(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// TranscodeFinished handles marking a transcode as finished
+// TranscodeFinished handles marking a transcode item as finished
 //
 // @Summary Transcode Finished
-// @Description Marks a transcode as finished
+// @Description Marks a transcode item as finished
 // @ID new-encoder-transcode-finished
 // @Tags encoder
 // @Accept json
