@@ -94,11 +94,11 @@ func (m *Store) updateMeta(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) e
 	_, err := tx.ExecContext(ctx,
 		`UPDATE event.signups
 		SET title = $1,
-		SET description = $2
-		SET unlock_date = $3
-		SET arrival_time = $4
-		SET start_time = $5
-		SET end_time = $6
+		description = $2,
+		unlock_date = $3,
+		arrival_time = $4,
+		start_time = $5,
+		end_time = $6
 		WHERE signup_id = $7`, s.Title, s.Description, s.UnlockDate, s.ArrivalTime, s.StartTime, s.EndTime)
 	if err != nil {
 		return fmt.Errorf("failed to update signup meta: %w", err)

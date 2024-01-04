@@ -260,8 +260,8 @@ func (m *Store) checkUserRole(ctx context.Context, tx *sqlx.Tx, crewID, userID i
 		`SELECT CASE WHEN EXISTS(
 						SELECT true
 						FROM event.crews crew
-						INNER JOIN event.positions position ON crew.position_id = position.position_id;
-						INNER JOIN people.role_permissions permission ON position.permission_id = permission.permission_id;
+						INNER JOIN event.positions position ON crew.position_id = position.position_id
+						INNER JOIN people.role_permissions permission ON position.permission_id = permission.permission_id
 						INNER JOIN people.role_members member ON permission.role_id = member.role_id
 						WHERE crew.crew_id = $1 AND member.user_id = $2
 					)

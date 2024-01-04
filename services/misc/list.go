@@ -88,7 +88,7 @@ func (m *Store) GetSubscribers(ctx context.Context, listID int) ([]Subscriber, e
 
 // Subscribe adds a user to a mailing list
 func (m *Store) Subscribe(ctx context.Context, userID, listID int) error {
-	_, err := m.db.ExecContext(ctx, `INSERT INTO mail.subscribers(list_id, user_id VALUES ($1, $2);`, listID, userID)
+	_, err := m.db.ExecContext(ctx, `INSERT INTO mail.subscribers(list_id, user_id) VALUES ($1, $2);`, listID, userID)
 	if err != nil {
 		return fmt.Errorf("failed to subscribe to mailing list \"%d\": %w", listID, err)
 	}

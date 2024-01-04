@@ -15,7 +15,7 @@ import (
 func (s *Store) DeleteItem(ctx context.Context, videoID, userID int) error {
 	_, err := s.db.ExecContext(ctx, `
 		UPDATE video.items SET
-			deleted_at = NOW()
+			deleted_at = NOW(),
 			deleted_by = $2
 		WHERE video_id = $1;`, videoID, userID)
 	if err != nil {
