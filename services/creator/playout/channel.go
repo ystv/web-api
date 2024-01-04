@@ -43,7 +43,7 @@ func (s *Store) NewChannel(ctx context.Context, ch playout.Channel) error {
 		visibility, status, location, scheduled_start, scheduled_end)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);`,
 		ch.URLName, ch.Name, ch.Description, ch.Thumbnail, ch.OutputType,
-		ch.OutputURL, ch.Visiblity, ch.Status, ch.Location, ch.ScheduledStart,
+		ch.OutputURL, ch.Visibility, ch.Status, ch.Location, ch.ScheduledStart,
 		ch.ScheduledEnd)
 	if err != nil {
 		return fmt.Errorf("failed to create channe: %w", err)
@@ -60,7 +60,7 @@ func (s *Store) UpdateChannel(ctx context.Context, ch playout.Channel) error {
 			location = $9, scheduled_start = $10, scheduled_end = $11
 		WHERE url_name = $1;`,
 		ch.URLName, ch.Name, ch.Description, ch.Thumbnail, ch.OutputType,
-		ch.OutputURL, ch.Visiblity, ch.Status, ch.Location, ch.ScheduledStart,
+		ch.OutputURL, ch.Visibility, ch.Status, ch.Location, ch.ScheduledStart,
 		ch.ScheduledEnd)
 	if err != nil {
 		return fmt.Errorf("failed to update channel: %w", err)

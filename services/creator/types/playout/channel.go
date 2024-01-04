@@ -14,7 +14,7 @@ type Channel struct {
 	Thumbnail      string    `db:"thumbnail" json:"thumbnail"`
 	OutputType     string    `db:"output_type" json:"outputType"`
 	OutputURL      string    `db:"output_url" json:"outputURL"`
-	Visiblity      string    `db:"visibility" json:"visibility"`
+	Visibility     string    `db:"visibility" json:"visibility"`
 	Status         string    `db:"status" json:"status"`     // "live" or "scheduled" or "cancelled" or "finished"
 	Location       string    `db:"location" json:"location"` // "Central Hall"
 	ScheduledStart time.Time `db:"scheduled_start" json:"scheduledStart"`
