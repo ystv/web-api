@@ -36,7 +36,7 @@ services:
       - WAPI_DOMAIN_NAME=
 
       - WAPI_BUCKET_VOD_SERVE=
-      - WAPI_BUKCET_VOD_INGEST=
+      - WAPI_BUCKET_VOD_INGEST=
 
       # JWT Signing key
       - WAPI_SIGNING_KEY=
