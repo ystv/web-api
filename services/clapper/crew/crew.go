@@ -121,7 +121,7 @@ func (m *Store) UpdateUser(ctx context.Context, crewID, userID int) error {
 // it will also perform additional checks to ensure they have enough permission
 func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) error {
 	err := utils.Transact(m.db, func(tx *sqlx.Tx) error {
-		// check if they are superuser
+		// check if they are a superuser
 		err := m.checkSuperUser(ctx, tx, userID)
 		if err != nil {
 			return m.updateUser(ctx, tx, crewID, userID)
@@ -149,7 +149,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 				return m.updateUser(ctx, tx, crewID, userID)
 			}
 
-			// check if role has permission
+			// check if a role has permission
 			if crew.PermissionID != nil {
 				// role does require permission
 				err = m.checkUserRole(ctx, tx, crewID, userID)
@@ -160,7 +160,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 				return m.updateUser(ctx, tx, crewID, userID)
 			}
 		}
-		// they are kicking someone off, so lets check they have consent from the government (authorization)
+		// they are kicking someone off, so let's check they have consent from the government (authorisation)
 		// check if they are an admin of the event
 		err = m.checkEventAdmin(ctx, tx, crewID, userID)
 		if err != nil {
@@ -176,7 +176,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 }
 
 // getUserAndPermissionFromCrew fetches the user for the
-// given crew and see if it matches returns the
+// given crew and see if it matches returns the crew
 func (m *Store) getUserAndPermissionFromCrew(ctx context.Context, tx *sqlx.Tx, crewID, userID int) (crew, error) {
 	stmt, err := tx.PrepareContext(ctx,
 		`SELECT crew.user_id, position.permission_id
