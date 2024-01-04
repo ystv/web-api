@@ -100,6 +100,9 @@ func (r *Repos) NewCrew(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
 	}
 	err = r.crew.New(c.Request().Context(), signupID, positionID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Failed to insert crew: ", err)
+	}
 	return c.NoContent(http.StatusOK)
 }
 
