@@ -53,8 +53,7 @@ func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *Repo {
 	}
 }
 
-// TODO: look into adding the parameter object without
-// causing swagger to need to check external dependencies
+// TODO: look into adding the parameter object without causing swagger to need to check external dependencies
 
 // UploadRequest handles authenticating an upload request.
 //
