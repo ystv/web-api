@@ -60,7 +60,7 @@ func (a *Accesser) GetToken(r *http.Request) (*AccessClaims, error) {
 	if len(token) == 0 {
 		cookie, err := r.Cookie(a.conf.AccessCookieName)
 		if err != nil {
-			if errors.As(http.ErrNoCookie, &err) {
+			if strings.Contains(err.Error(), "named cookie not present") {
 				return nil, ErrNoToken
 			}
 			return nil, fmt.Errorf("failed to get cookie: %w", err)
