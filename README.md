@@ -2,7 +2,7 @@
 
 A Go based backend that should be able to handle website queries? Hopefully having a supportive subroutine to keep everything in order. Designed kind of like a monolith, but we'll see where we get to with it.
 
-Generation of usable JWT's is available in [web-auth](https://github.com/ystv/web-auth) currently.
+The generation of usable JSON Web Tokens is available in [web-auth](https://github.com/ystv/web-auth) currently.
 
 ## Functionality
 
@@ -65,7 +65,7 @@ Generation of usable JWT's is available in [web-auth](https://github.com/ystv/we
     - [ ] Events
       - [x] List by month
       - [ ] List by term
-      - [ ] Signups
+      - [ ] Sign ups
         - [x] Listing including positions
         - [x] Creating
         - [x] Updating
