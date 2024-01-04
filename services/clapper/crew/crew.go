@@ -37,7 +37,7 @@ type crew struct {
 var (
 	ErrNoSuperPermission = errors.New("user doesn't have super-user permission")
 	ErrNoAdminPermission = errors.New("user doesn't have admin permission")
-	ErrNorolePermission  = errors.New("user doesn't have role permission")
+	ErrNoRolePermission  = errors.New("user doesn't have role permission")
 )
 
 // New creates a new crew position, with default settings
@@ -277,7 +277,7 @@ func (m *Store) checkUserRole(ctx context.Context, tx *sqlx.Tx, crewID, userID i
 		return fmt.Errorf("failed to check permission of user for crew: %w", err)
 	}
 	if !hasPermission {
-		return ErrNorolePermission
+		return ErrNoRolePermission
 	}
 	return nil
 }
