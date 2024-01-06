@@ -1,4 +1,5 @@
 FROM golang:1.21.5-alpine3.19 AS build
+
 LABEL site="api"
 LABEL stage="builder"
 
