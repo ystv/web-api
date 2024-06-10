@@ -1,4 +1,4 @@
-FROM golang:1.21.5-alpine3.19 AS build
+FROM golang:1.22.4-alpine3.20 AS build
 
 LABEL site="api"
 LABEL stage="builder"
@@ -47,7 +47,7 @@ RUN echo -n "-X 'main.Version=$WAPI_VERSION_ARG" > ./ldflags && \
     tr -d \\n < ./ldflags > ./temp && mv ./temp ./ldflags && \
     echo -n "'" >> ./ldflags
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="$(cat ./ldflags)" -o /bin/api
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="$(cat ./ldflags)" -o /bin/api
 
 FROM scratch
 LABEL site="api"
