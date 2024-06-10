@@ -256,7 +256,9 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
 		    WHEN officer.name LIKE '%Head of%' THEN 4
-		    ELSE 5 END;`)
+		    ELSE 5 END, 
+		    officer.name,
+		    off_mem.start_date;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all officers: %w", err)
 	}
