@@ -90,9 +90,10 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
-		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
-		    WHEN officer.name LIKE '%Head of%' THEN 4
-		    ELSE 5 END;`, year, emailAlias)
+		    WHEN officer.name LIKE '%Assistant%' THEN 3
+		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
+		    WHEN officer.name LIKE '%Head of%' THEN 5
+		    ELSE 6 END;`, year, emailAlias)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by year by email: %w", err)
 	}
@@ -120,9 +121,10 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
-		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
-		    WHEN officer.name LIKE '%Head of%' THEN 4
-		    ELSE 5 END;`, year, teamId)
+		    WHEN officer.name LIKE '%Assistant%' THEN 3
+		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
+		    WHEN officer.name LIKE '%Head of%' THEN 5
+		    ELSE 6 END;`, year, teamId)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by year by id: %w", err)
 	}
@@ -150,9 +152,10 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
-		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
-		    WHEN officer.name LIKE '%Head of%' THEN 4
-		    ELSE 5 END;`, startYear, endYear, emailAlias)
+		    WHEN officer.name LIKE '%Assistant%' THEN 3
+		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
+		    WHEN officer.name LIKE '%Head of%' THEN 5
+		    ELSE 6 END;`, startYear, endYear, emailAlias)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by start end year by email: %w", err)
 	}
@@ -180,9 +183,10 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
-		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
-		    WHEN officer.name LIKE '%Head of%' THEN 4
-		    ELSE 5 END;`, startYear, endYear, teamId)
+		    WHEN officer.name LIKE '%Assistant%' THEN 3
+		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
+		    WHEN officer.name LIKE '%Head of%' THEN 5
+		    ELSE 6 END;`, startYear, endYear, teamId)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by start end year by id: %w", err)
 	}
@@ -230,9 +234,10 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
-		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
-		    WHEN officer.name LIKE '%Head of%' THEN 4
-		    ELSE 5 END;`, teamID)
+		    WHEN officer.name LIKE '%Assistant%' THEN 3
+		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
+		    WHEN officer.name LIKE '%Head of%' THEN 5
+		    ELSE 6 END;`, teamID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list team members: %w", err)
 	}
@@ -252,11 +257,12 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 		WHERE start_date < NOW() AND (end_date > NOW() OR end_date IS NULL)
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
-		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
+		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
-		    WHEN officer.name = 'Head of Welfare and Training' THEN 3
-		    WHEN officer.name LIKE '%Head of%' THEN 4
-		    ELSE 5 END, 
+		    WHEN officer.name LIKE '%Assistant%' THEN 3
+		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
+		    WHEN officer.name LIKE '%Head of%' THEN 5
+		    ELSE 6 END, 
 		    officer.name,
 		    off_mem.start_date;`)
 	if err != nil {
