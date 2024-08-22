@@ -25,6 +25,19 @@ var Version = "dev (0.8.0)"
 // Commit returns latest commit hash
 var Commit = "unknown"
 
+// @title YSTV Web API
+// @version 1.0
+// @description This is YSTV's API for public and backend sites
+// @termsOfService http://swagger.io/terms/
+//
+// @contact.name API Support
+// @contact.url https://comp.ystv.co.uk
+// @contact.email computing@ystv.co.uk
+//
+// @license.name GPL-3.0
+// @license.url https://www.gnu.org/licenses/gpl-3.0.en.html
+//
+// @host api.ystv.co.uk
 func main() {
 	err := godotenv.Load()
 	if err != nil {
