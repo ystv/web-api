@@ -84,7 +84,7 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
 		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
 		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE (EXTRACT(year FROM officerTeamMembers.start_date) = $1 OR EXTRACT(year FROM officerTeamMembers.end_date) = $1) AND
+		WHERE EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $1 OR officerTeamMembers.end_date IS NULL) AND
 		teams.email_alias = $2
 		ORDER BY start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
