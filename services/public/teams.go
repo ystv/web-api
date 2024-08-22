@@ -3,6 +3,8 @@ package public
 import (
 	"context"
 	"fmt"
+
+	"github.com/ystv/web-api/utils"
 )
 
 type (
@@ -18,14 +20,16 @@ type (
 
 	// TeamMember a position within a group
 	TeamMember struct {
-		UserID             int    `json:"userID" db:"user_id"`
-		UserName           string `json:"userName" db:"user_name"`
-		Avatar             string `json:"avatar" db:"avatar"`
-		OfficerID          int    `json:"officerID" db:"officer_id"`
-		EmailAlias         string `json:"emailAlias" db:"email_alias"`
-		OfficerName        string `json:"officerName" db:"officer_name"`
-		OfficerDescription string `json:"officerDescription" db:"officer_description"`
-		HistoryWikiURL     string `json:"historywikiURL" db:"historywiki_url"`
+		UserID             int              `json:"userID" db:"user_id"`
+		UserName           string           `json:"userName" db:"user_name"`
+		Avatar             string           `json:"avatar" db:"avatar"`
+		OfficerID          int              `json:"officerID" db:"officer_id"`
+		EmailAlias         string           `json:"emailAlias" db:"email_alias"`
+		OfficerName        string           `json:"officerName" db:"officer_name"`
+		OfficerDescription string           `json:"officerDescription" db:"officer_description"`
+		HistoryWikiURL     string           `json:"historywikiURL" db:"historywiki_url"`
+		StartDate          utils.CustomTime `json:"startDate" db:"start_date"`
+		EndDate            utils.CustomTime `json:"endDate" db:"end_date"`
 	}
 )
 
@@ -86,7 +90,7 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url
+		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
 		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
@@ -119,7 +123,7 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url
+		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
 		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
@@ -153,7 +157,7 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url
+		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
 		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
@@ -188,7 +192,7 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url
+		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
 		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
@@ -248,7 +252,7 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 	err := s.db.SelectContext(ctx, &m, `
 		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,
 		email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		historywiki_url
+		historywiki_url, off_mem.start_date, off_mem.end_date
 		FROM people.officerships officer
 		INNER JOIN people.officership_members off_mem ON officer.officer_id = off_mem.officer_id
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
@@ -277,7 +281,7 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 	err := s.db.SelectContext(ctx, &m, `
 		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,
 		email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		historywiki_url
+		historywiki_url, off_mem.start_date, off_mem.end_date
 		FROM people.officerships officer
 		INNER JOIN people.officership_members off_mem ON officer.officer_id = off_mem.officer_id
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
