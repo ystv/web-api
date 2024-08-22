@@ -15,6 +15,8 @@ import (
 	streamV1 "github.com/ystv/web-api/controllers/v1/stream"
 	"github.com/ystv/web-api/middleware"
 
+	_ "github.com/ystv/web-api/swagger"
+
 	echoSwagger "github.com/swaggo/echo-swagger"
 	// Swag CLI generates documentation, you have to import it.
 	// Run `go generate` if your IDE gives an import error here.
