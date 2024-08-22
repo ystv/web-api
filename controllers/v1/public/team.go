@@ -110,7 +110,7 @@ func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid}/{year} [get]
 func (r *Repos) GetTeamByYearById(c echo.Context) error {
-	teamID, err := strconv.Atoi(c.Param("teamId"))
+	teamID, err := strconv.Atoi(c.Param("teamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad teamid")
 	}
