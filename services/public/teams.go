@@ -33,6 +33,7 @@ type (
 // ListTeams returns a list of the ystv teams and their current members.
 func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 	var t []Team
+
 	err := s.db.SelectContext(ctx, &t, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams
@@ -40,6 +41,7 @@ func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list teams: %w", err)
 	}
+
 	return t, nil
 }
 
@@ -49,10 +51,12 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by email: %w", err)
 	}
+
 	t.Members, err = s.ListTeamMembers(ctx, t.TeamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by email: %w", err)
 	}
+
 	return t, nil
 }
 
@@ -62,10 +66,12 @@ func (s *Store) GetTeamById(ctx context.Context, teamId int) (Team, error) {
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by id: %w", err)
 	}
+
 	t.Members, err = s.ListTeamMembers(ctx, t.TeamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by id: %w", err)
 	}
+
 	return t, nil
 }
 
@@ -75,6 +81,7 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by year by email: %w", err)
 	}
+
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
@@ -97,6 +104,7 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by year by email: %w", err)
 	}
+
 	return t, nil
 }
 
@@ -106,6 +114,7 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by year by id: %w", err)
 	}
+
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
@@ -115,7 +124,8 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
 		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
 		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE (EXTRACT(year FROM officerTeamMembers.start_date) = $1 OR EXTRACT(year FROM officerTeamMembers.end_date) = $1) AND
+		WHERE (EXTRACT(year FROM officerTeamMembers.start_date) = $1 OR EXTRACT(year FROM officerTeamMembers.end_date) = $1 OR
+		       (EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) >= $1)) AND
 		teams.team_id = $2
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
@@ -128,6 +138,7 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by year by id: %w", err)
 	}
+
 	return t, nil
 }
 
@@ -137,6 +148,7 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by start end year by email: %w", err)
 	}
+
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
@@ -146,9 +158,11 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
 		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
 		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE (EXTRACT(year FROM officerTeamMembers.start_date) = $1 OR EXTRACT(year FROM officerTeamMembers.end_date) = $2) AND
+		WHERE ((EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) >= $1) OR
+		       (EXTRACT(year FROM officerTeamMembers.start_date) >= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) <= $2) OR
+		       (EXTRACT(year FROM officerTeamMembers.start_date) <= $2 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $2 OR officerTeamMembers.end_date IS NULL))) AND
 		teams.email_alias = $3
-		ORDER BY CASE
+		ORDER BY officerTeamMembers.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
@@ -159,6 +173,7 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by start end year by email: %w", err)
 	}
+
 	return t, nil
 }
 
@@ -168,6 +183,7 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by start end year by id: %w", err)
 	}
+
 	err = s.db.SelectContext(ctx, &t.Members, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
@@ -177,7 +193,9 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
 		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
 		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE (EXTRACT(year FROM officerTeamMembers.start_date) = $1 OR EXTRACT(year FROM officerTeamMembers.end_date) = $2) AND
+		WHERE ((EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) >= $1) OR
+		       (EXTRACT(year FROM officerTeamMembers.start_date) >= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) <= $2) OR
+		       (EXTRACT(year FROM officerTeamMembers.start_date) <= $2 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $2 OR officerTeamMembers.end_date IS NULL))) AND
 		teams.team_id = $3
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
@@ -190,11 +208,13 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by start end year by id: %w", err)
 	}
+
 	return t, nil
 }
 
 func (s *Store) getTeamByEmail(ctx context.Context, emailAlias string) (Team, error) {
-	team := Team{}
+	var team Team
+
 	err := s.db.GetContext(ctx, &team, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams
@@ -202,11 +222,13 @@ func (s *Store) getTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 	if err != nil {
 		return team, err
 	}
+
 	return team, nil
 }
 
 func (s *Store) getTeamById(ctx context.Context, teamId int) (Team, error) {
-	team := Team{}
+	var team Team
+
 	err := s.db.GetContext(ctx, &team, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams
@@ -214,12 +236,14 @@ func (s *Store) getTeamById(ctx context.Context, teamId int) (Team, error) {
 	if err != nil {
 		return team, err
 	}
+
 	return team, nil
 }
 
 // ListTeamMembers returns a list of TeamMembers who are part of a team
 func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, error) {
 	var m []TeamMember
+
 	err := s.db.SelectContext(ctx, &m, `
 		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,
 		email_alias, officer.name AS officer_name, officer.description AS officer_description,
@@ -241,12 +265,14 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to list team members: %w", err)
 	}
+
 	return m, nil
 }
 
 // ListOfficers returns the list of current officers
 func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 	var m []TeamMember
+
 	err := s.db.SelectContext(ctx, &m, `
 		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,
 		email_alias, officer.name AS officer_name, officer.description AS officer_description,
@@ -268,5 +294,6 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all officers: %w", err)
 	}
+
 	return m, nil
 }
