@@ -15,6 +15,7 @@ type (
 		LongDescription  string       `json:"longDescription,omitempty" db:"full_description"`
 		Members          []TeamMember `json:"members,omitempty"`
 	}
+
 	// TeamMember a position within a group
 	TeamMember struct {
 		UserID             int    `json:"userID" db:"user_id"`
