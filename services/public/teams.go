@@ -98,7 +98,7 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
 		WHERE EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $1 OR officerTeamMembers.end_date IS NULL) AND
 		teams.email_alias = $2
-		ORDER BY start_date, CASE
+		ORDER BY officerTeamMembers.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
@@ -129,10 +129,9 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
 		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
 		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE (EXTRACT(year FROM officerTeamMembers.start_date) = $1 OR EXTRACT(year FROM officerTeamMembers.end_date) = $1 OR
-		       (EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) >= $1)) AND
+		WHERE EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $1 OR officerTeamMembers.end_date IS NULL) AND
 		teams.team_id = $2
-		ORDER BY CASE
+		ORDER BY officerTeamMembers.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
@@ -202,7 +201,7 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 		       (EXTRACT(year FROM officerTeamMembers.start_date) >= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) <= $2) OR
 		       (EXTRACT(year FROM officerTeamMembers.start_date) <= $2 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $2 OR officerTeamMembers.end_date IS NULL))) AND
 		teams.team_id = $3
-		ORDER BY CASE
+		ORDER BY officerTeamMembers.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
@@ -257,8 +256,8 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 		INNER JOIN people.officership_members off_mem ON officer.officer_id = off_mem.officer_id
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
 		INNER JOIN people.officership_team_members tm ON officer.officer_id = tm.officer_id
-		WHERE start_date < NOW() AND (end_date > NOW() OR end_date IS NULL) AND
-		team_id = $1
+		WHERE off_mem.start_date < NOW() AND (off_mem.end_date > NOW() OR off_mem.end_date IS NULL) AND
+		tm.team_id = $1
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
@@ -266,7 +265,7 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
 		    WHEN officer.name LIKE '%Head of%' THEN 5
-		    ELSE 6 END;`, teamID)
+		    ELSE 6 END, off_mem.start_date;`, teamID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list team members: %w", err)
 	}
@@ -285,7 +284,7 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 		FROM people.officerships officer
 		INNER JOIN people.officership_members off_mem ON officer.officer_id = off_mem.officer_id
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
-		WHERE start_date < NOW() AND (end_date > NOW() OR end_date IS NULL)
+		WHERE off_mem.start_date < NOW() AND (off_mem.end_date > NOW() OR off_mem.end_date IS NULL)
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
@@ -293,9 +292,7 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
 		    WHEN officer.name LIKE '%Head of%' THEN 5
-		    ELSE 6 END, 
-		    officer.name,
-		    off_mem.start_date;`)
+		    ELSE 6 END, off_mem.start_date;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all officers: %w", err)
 	}
