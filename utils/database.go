@@ -5,6 +5,7 @@ import (
 
 	// PostgreSQL driver
 	_ "github.com/lib/pq"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -53,4 +54,16 @@ func Transact(db *sqlx.DB, txFunc func(*sqlx.Tx) error) (err error) {
 	}()
 	err = txFunc(tx)
 	return err
+}
+
+type CustomTime struct {
+	null.Time
+}
+
+func (t *CustomTime) MarshalJSON() ([]byte, error) {
+	if t.Valid {
+		return []byte(t.Time.Time.Format(`"2006-01-02"`)), nil
+	}
+
+	return []byte("null"), nil
 }

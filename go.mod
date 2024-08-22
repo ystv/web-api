@@ -16,6 +16,7 @@ require (
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.3
 	github.com/xhit/go-simple-mail/v2 v2.16.0
+	gopkg.in/guregu/null.v4 v4.0.0
 )
 
 require (
