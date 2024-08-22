@@ -53,7 +53,7 @@ func (r *Repos) GetTeamByEmail(c echo.Context) error {
 // @Description Contains members and a range of descriptions
 // @ID get-public-team-by-id
 // @Tags public-teams
-// @Param emailAlias path string true "teamId"
+// @Param teamid path int true "teamid"
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid} [get]
@@ -104,7 +104,7 @@ func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
 // @Description Get the team and their members of that year
 // @ID get-public-team-year-by-id
 // @Tags public-teams
-// @Param emailAlias path string true "emailAlias"
+// @Param teamid path int true "teamid"
 // @Param year path int true "year"
 // @Produce json
 // @Success 200 {object} public.Team
@@ -167,7 +167,7 @@ func (r *Repos) GetTeamByStartEndYearByEmail(c echo.Context) error {
 // @Description Get the team and their members of that year
 // @ID get-public-team-start-end-year-by-id
 // @Tags public-teams
-// @Param emailAlias path string true "emailAlias"
+// @Param teamid path int true "teamid"
 // @Param startYear path int true "startYear"
 // @Param endYear path int true "endYear"
 // @Produce json
