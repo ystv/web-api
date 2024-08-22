@@ -88,7 +88,7 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 		teams.email_alias = $2
 		ORDER BY start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
-		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
+		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
@@ -119,7 +119,7 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 		teams.team_id = $2
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
-		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
+		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
@@ -150,7 +150,7 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 		teams.email_alias = $3
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
-		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
+		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
@@ -181,7 +181,7 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 		teams.team_id = $3
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
-		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
+		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
@@ -232,7 +232,7 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 		team_id = $1
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
-		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' THEN 1
+		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
