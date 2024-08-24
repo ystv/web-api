@@ -33,21 +33,25 @@ func (s *Store) GetSeries(ctx context.Context, seriesID int) (Series, error) {
 	if err != nil {
 		return series, fmt.Errorf("failed to get series meta: %w", err)
 	}
+
 	series.ImmediateChildSeries, err = s.GetSeriesImmediateChildrenSeries(ctx, seriesID)
 	if err != nil {
 		return series, fmt.Errorf("failed to get child series: %w", err)
 	}
+
 	series.ChildVideos, err = s.VideoOfSeries(ctx, seriesID)
 	if err != nil {
 		return series, fmt.Errorf("failed to get child videos: %w", err)
 	}
+
 	return series, nil
 }
 
 // GetSeriesMeta provides basic information for only the selected series
 // TODO probably want to swap this to return SeriesMeta instead
 func (s *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error) {
-	series := Series{}
+	var series Series
+
 	err := s.db.GetContext(ctx, &series,
 		`SELECT series_id, url, name, description, thumbnail
 		FROM video.series
@@ -59,6 +63,7 @@ func (s *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error)
 // GetSeriesImmediateChildrenSeries returns series directly below the chosen series
 func (s *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID int) ([]SeriesMeta, error) {
 	var seriesMeta []SeriesMeta
+
 	err := s.db.SelectContext(ctx, &seriesMeta,
 		`SELECT series_id, url, name, description, thumbnail from (
 			SELECT 
@@ -93,7 +98,8 @@ func (s *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 
 // GetSeriesFromPath returns a series from an url path
 func (s *Store) GetSeriesFromPath(ctx context.Context, path string) (Series, error) {
-	series := Series{}
+	var series Series
+
 	err := s.db.GetContext(ctx, &series.SeriesID,
 		`SELECT series_id
 	FROM video.series_paths
@@ -102,13 +108,14 @@ func (s *Store) GetSeriesFromPath(ctx context.Context, path string) (Series, err
 	if err != nil {
 		return series, err
 	}
+
 	series, err = s.GetSeries(ctx, series.SeriesID)
 	return series, err
 }
 
 // SeriesByYear a virtual series containing child series / videos of content uploaded in that year
 func (s *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
-	series := Series{}
+	var series Series
 	// Putting the child series on pause since it looks like we didn't historically store the
 	// created date of video_boxes, we will need to generate the created_at field at some point
 	// based on the child videos upload date
@@ -129,6 +136,7 @@ func (s *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 	if err != nil {
 		return series, fmt.Errorf("failed to get list of video metas by year: %w", err)
 	}
+
 	return series, nil
 }
 
@@ -136,7 +144,8 @@ func (s *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
 //
 // Uses postgres full-text search, video and series tables to try to make some sense
 func (s *Store) Search(ctx context.Context, query string) (Series, error) {
-	series := Series{}
+	var series Series
+
 	err := s.db.SelectContext(ctx, &series.ChildVideos,
 		`SELECT
 			video_id,
@@ -178,5 +187,6 @@ func (s *Store) Search(ctx context.Context, query string) (Series, error) {
 	if err != nil {
 		return Series{}, fmt.Errorf("failed to search videos: %w", err)
 	}
+
 	return series, nil
 }
