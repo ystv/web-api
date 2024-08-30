@@ -342,10 +342,10 @@ func (r *Router) loadRoutes() {
 					teamsId.GET("/:teamid", r.public.GetTeamById)
 				}
 			}
-			stream := public.Group("/playout/channel")
+			streamChannel := public.Group("/playout/channel")
 			{
-				stream.GET("", r.public.ListChannels)
-				stream.GET("/:channelShortName", r.public.GetChannel)
+				streamChannel.GET("", r.public.ListChannels)
+				streamChannel.GET("/:channelShortName", r.public.GetChannel)
 			}
 		}
 	}
