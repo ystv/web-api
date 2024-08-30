@@ -1,6 +1,6 @@
 .env.local
 docker-compose.yml
 web-api
-/swagger
+/swagger/*.json
 *.sw[a-z]
 /.idea
