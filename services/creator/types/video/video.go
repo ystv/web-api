@@ -1,7 +1,11 @@
 package video
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -23,16 +27,16 @@ type (
 
 	// Meta represents just the metadata of a video, used for listing.
 	Meta struct {
-		ID            int      `db:"video_id" json:"id"`
-		SeriesID      int      `db:"series_id" json:"seriesID"`
-		Name          string   `db:"video_name" json:"name"`
-		URL           string   `db:"url" json:"url"`
-		Description   string   `db:"description" json:"description,omitempty"` // when listing description isn't included
-		Thumbnail     string   `db:"thumbnail" json:"thumbnail"`
-		Duration      int      `db:"duration" json:"duration"`
-		Views         int      `db:"views" json:"views"`
-		Tags          []string `db:"tags" json:"tags"`
-		Status        string   `db:"status" json:"status"`
+		ID            int    `db:"video_id" json:"id"`
+		SeriesID      int    `db:"series_id" json:"seriesID"`
+		Name          string `db:"video_name" json:"name"`
+		URL           string `db:"url" json:"url"`
+		Description   string `db:"description" json:"description,omitempty"` // when listing description isn't included
+		Thumbnail     string `db:"thumbnail" json:"thumbnail"`
+		Duration      int    `db:"duration" json:"duration"`
+		Views         int    `db:"views" json:"views"`
+		Tags          Tag    `db:"tags" json:"tags"`
+		Status        string `db:"status" json:"status"`
 		Preset        `json:"preset"`
 		BroadcastDate time.Time  `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt     time.Time  `db:"created_at" json:"createdAt"`
@@ -76,8 +80,41 @@ type (
 		CreatedBy     int       `json:"createdBy" db:"created_by"`
 		BroadcastDate time.Time `json:"broadcastDate" db:"broadcast_date"`
 	}
+
+	Tag []string
 )
 
 var (
 	ErrNotFound = errors.New("video not found")
 )
+
+func (t Tag) Value() (driver.Value, error) {
+	if len(t) == 0 {
+		return "{}", nil
+	}
+	return fmt.Sprintf(`{"%s"}`, strings.Join(t, `","`)), nil
+}
+
+func (t *Tag) Scan(src interface{}) (err error) {
+	var tags []string
+	switch src.(type) {
+	case string:
+		fmt.Println("string")
+		err = json.Unmarshal([]byte(src.(string)), &tags)
+	case []byte:
+		fmt.Println("[]byte")
+		fmt.Println(string(src.([]byte)))
+		temp := string(src.([]byte))
+
+		temp = strings.TrimLeft(temp, "{")
+		temp = strings.TrimRight(temp, "}")
+		tags = strings.Split(temp, ",")
+	default:
+		return errors.New("incompatible type for Tag")
+	}
+	if err != nil {
+		return
+	}
+	*t = tags
+	return nil
+}
