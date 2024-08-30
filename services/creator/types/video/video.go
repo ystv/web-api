@@ -97,24 +97,22 @@ func (t Tag) Value() (driver.Value, error) {
 
 func (t *Tag) Scan(src interface{}) (err error) {
 	var tags []string
+	//nolint:gosimple
 	switch src.(type) {
 	case string:
-		fmt.Println("string")
 		err = json.Unmarshal([]byte(src.(string)), &tags)
+		if err != nil {
+			return
+		}
 	case []byte:
-		fmt.Println("[]byte")
-		fmt.Println(string(src.([]byte)))
 		temp := string(src.([]byte))
-
 		temp = strings.TrimLeft(temp, "{")
 		temp = strings.TrimRight(temp, "}")
 		tags = strings.Split(temp, ",")
 	default:
 		return errors.New("incompatible type for Tag")
 	}
-	if err != nil {
-		return
-	}
+
 	*t = tags
 	return nil
 }
