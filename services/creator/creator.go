@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
 	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/services/creator/types/playlist"

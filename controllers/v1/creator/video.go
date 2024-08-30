@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/creator/types/video"
 )
 

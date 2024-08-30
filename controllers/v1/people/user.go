@@ -2,11 +2,12 @@ package people
 
 import (
 	"fmt"
-	"github.com/ystv/web-api/services/people"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/services/people"
 )
 
 // UserByID finds a user by ID

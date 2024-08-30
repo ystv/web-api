@@ -7,6 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/playlist"
 	"github.com/ystv/web-api/utils"

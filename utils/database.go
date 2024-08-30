@@ -3,11 +3,10 @@ package utils
 import (
 	"fmt"
 
+	"github.com/jmoiron/sqlx"
 	// PostgreSQL driver
 	_ "github.com/lib/pq"
 	"gopkg.in/guregu/null.v4"
-
-	"github.com/jmoiron/sqlx"
 )
 
 // DatabaseConfig represents a configuration to connect to an SQL database
