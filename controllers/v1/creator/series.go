@@ -1,10 +1,13 @@
 package creator
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
 // ListSeries handles listing every series and their depth
@@ -18,9 +21,11 @@ import (
 func (r *Repos) ListSeries(c echo.Context) error {
 	s, err := r.series.List(c.Request().Context())
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, s)
+		err = fmt.Errorf("failed to list series: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, s)
+
+	return c.JSON(http.StatusOK, utils.NonNil(s))
 }
 
 // GetSeries finds a video by ID
@@ -37,9 +42,12 @@ func (r *Repos) GetSeries(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Number pls")
 	}
+
 	s, err := r.series.Get(c.Request().Context(), id)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		err = fmt.Errorf("failed to get series: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, s)
 }

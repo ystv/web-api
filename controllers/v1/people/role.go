@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
 // ListAllRoles handles listing all roles
@@ -22,7 +24,8 @@ func (r *Repo) ListAllRoles(c echo.Context) error {
 		err = fmt.Errorf("ListAllRoles failed to get roles: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
 // ListRoleMembersByID handles listing all members of a certain role
@@ -61,9 +64,11 @@ func (r *Repo) ListRolePermissionsByID(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid role id")
 	}
+
 	p, err := r.people.ListRolePermissionsByID(c.Request().Context(), roleID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("ListRolePermissionsByID failed to get permission: %w", err))
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/clapper"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListPosition handles listing all possible positions
@@ -26,7 +27,8 @@ func (r *Repos) ListPosition(c echo.Context) error {
 		err = fmt.Errorf("ListPosition: failed to list: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
 // NewPosition handles creating a new position

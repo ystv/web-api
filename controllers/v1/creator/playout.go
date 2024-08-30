@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/creator/types/playout"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListChannels handles listing channels
@@ -25,7 +26,8 @@ func (r *Repos) ListChannels(c echo.Context) error {
 		err = fmt.Errorf("ListChannels failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, chs)
+
+	return c.JSON(http.StatusOK, utils.NonNil(chs))
 }
 
 // NewChannel handles creating a new channel

@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/creator/types/encode"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListEncodeFormat handles listing encode formats
@@ -26,7 +27,8 @@ func (r *Repos) ListEncodeFormat(c echo.Context) error {
 		err = fmt.Errorf("ListFormat failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, e)
+
+	return c.JSON(http.StatusOK, utils.NonNil(e))
 }
 
 // NewEncodeFormat handles creating a new encode format
@@ -115,7 +117,8 @@ func (r *Repos) ListEncodePreset(c echo.Context) error {
 		err = fmt.Errorf("ListPreset failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
 // NewEncodePreset handles creating a new preset

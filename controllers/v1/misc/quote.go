@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/misc"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListQuotes handles listing quotes by pagination
@@ -25,16 +26,19 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad offset")
 	}
+
 	page, err := strconv.Atoi(c.Param("page"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad page")
 	}
+
 	q, err := r.misc.ListQuotes(c.Request().Context(), amount, page)
 	if err != nil {
 		err = fmt.Errorf("ListQuotes failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, q)
+
+	return c.JSON(http.StatusOK, utils.NonNil(q))
 }
 
 // NewQuote handles creating a quote

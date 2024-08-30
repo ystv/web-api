@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/creator/types/playlist"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListPlaylist handles listing all playlist metadata
@@ -24,7 +25,8 @@ func (r *Repos) ListPlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistAll failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
 // GetPlaylist handles getting a single playlist, and it's following videometa's

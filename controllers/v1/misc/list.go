@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
 // GetLists handles listing mailing lists
@@ -23,7 +25,8 @@ func (r *Repos) GetLists(c echo.Context) error {
 		err = fmt.Errorf("GetLists failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, l)
+
+	return c.JSON(http.StatusOK, utils.NonNil(l))
 }
 
 // GetListsByToken handles listing mailing lists
@@ -65,12 +68,14 @@ func (r *Repos) GetList(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
+
 	l, err := r.misc.GetList(c.Request().Context(), listID)
 	if err != nil {
 		err = fmt.Errorf("GetList failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, l)
+
+	return c.JSON(http.StatusOK, utils.NonNil(l))
 }
 
 // GetSubscribers handles listing a mailing list's subscribers
@@ -88,12 +93,14 @@ func (r *Repos) GetSubscribers(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
+
 	s, err := r.misc.GetSubscribers(c.Request().Context(), listID)
 	if err != nil {
 		err = fmt.Errorf("GetSubscribers failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, s)
+
+	return c.JSON(http.StatusOK, utils.NonNil(s))
 }
 
 // SubscribeByToken handles subscribing a user to a mailing list

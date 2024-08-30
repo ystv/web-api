@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
 // ListTeams handles listing teams and their members and info
@@ -24,7 +26,7 @@ func (r *Repos) ListTeams(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, t)
+	return c.JSON(http.StatusOK, utils.NonNil(t))
 }
 
 // GetTeamByEmail handles getting a selected team
@@ -214,5 +216,5 @@ func (r *Repos) ListOfficers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, o)
+	return c.JSON(http.StatusOK, utils.NonNil(o))
 }

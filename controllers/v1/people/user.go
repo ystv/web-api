@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/people"
+	"github.com/ystv/web-api/utils"
 )
 
 // UserByID finds a user by ID
@@ -121,5 +122,6 @@ func (r *Repo) ListAllPeople(c echo.Context) error {
 		err = fmt.Errorf("ListAllPeople failed to get all users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/clapper"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListMonth returns all events for a month.
@@ -27,16 +28,19 @@ func (r *Repos) ListMonth(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
 	}
+
 	month, err := strconv.Atoi(c.Param("month"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
+
 	e, err := r.event.ListMonth(c.Request().Context(), year, month)
 	if err != nil {
 		err = fmt.Errorf("ListMonth failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	return c.JSON(http.StatusOK, e)
+
+	return c.JSON(http.StatusOK, utils.NonNil(e))
 }
 
 // GetEvent handles getting all signups and roles for a given event

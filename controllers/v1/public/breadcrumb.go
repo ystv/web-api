@@ -11,6 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/public"
+	"github.com/ystv/web-api/utils"
 )
 
 // Find handles converting an url path to either a video or series
@@ -63,6 +64,7 @@ func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")
 	}
+
 	v, err := r.public.VideoBreadcrumb(c.Request().Context(), id)
 	if err != nil {
 		if errors.Is(err, public.ErrVideoNotFound) {
@@ -71,7 +73,8 @@ func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 		err = fmt.Errorf("public video breadcrumb failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, v)
+
+	return c.JSON(http.StatusOK, utils.NonNil(v))
 }
 
 // SeriesBreadcrumb returns the breadcrumb of a given series
@@ -89,6 +92,7 @@ func (r *Repos) SeriesBreadcrumb(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad series ID")
 	}
+
 	v, err := r.public.SeriesBreadcrumb(c.Request().Context(), id)
 	if err != nil {
 		if errors.Is(err, public.ErrSeriesNotFound) {
@@ -97,5 +101,6 @@ func (r *Repos) SeriesBreadcrumb(c echo.Context) error {
 		err = fmt.Errorf("public series breadcrumb failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, v)
+
+	return c.JSON(http.StatusOK, utils.NonNil(v))
 }
