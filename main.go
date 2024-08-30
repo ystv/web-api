@@ -12,6 +12,7 @@ import (
 	"github.com/ystv/web-api/controllers/v1/misc"
 	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/controllers/v1/public"
+	"github.com/ystv/web-api/controllers/v1/stream"
 	"github.com/ystv/web-api/services/encoder"
 
 	"github.com/ystv/web-api/utils"
@@ -129,5 +130,6 @@ func main() {
 		Misc:       misc.NewRepos(db, access),
 		People:     people.NewRepo(db, access),
 		Public:     public.NewRepos(db),
+		Stream:     stream.NewRepos(db),
 	}).Start()
 }

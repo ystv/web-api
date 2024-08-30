@@ -38,6 +38,7 @@ type Router struct {
 	misc    *miscPackage.Repos
 	people  *peoplePackage.Repo
 	public  *publicPackage.Repos
+	stream  *streamV1.Repos
 }
 
 // NewRouter is the required dependencies
@@ -53,6 +54,7 @@ type NewRouter struct {
 	Misc       *miscPackage.Repos
 	People     *peoplePackage.Repo
 	Public     *publicPackage.Repos
+	Stream     *streamV1.Repos
 }
 
 // New creates a new router instance
@@ -68,6 +70,7 @@ func New(conf *NewRouter) *Router {
 		misc:    conf.Misc,
 		people:  conf.People,
 		public:  conf.Public,
+		stream:  conf.Stream,
 	}
 	r.router.HideBanner = true
 
@@ -118,7 +121,8 @@ func (r *Router) loadRoutes() {
 		}
 		stream := internal.Group("/stream")
 		{
-			stream.POST("/auth", streamV1.CheckAuth)
+			stream.POST("/publish", r.stream.PublishHandler)
+			stream.POST("/unpublish", r.stream.UnpublishHandler)
 		}
 		// Internal user endpoints
 		if !r.router.Debug {
