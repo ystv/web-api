@@ -188,9 +188,9 @@ func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta,
 
 // FromPath will return a series from a given path
 func (c *Controller) FromPath(ctx context.Context, path string) (series.Series, error) {
-	err := c.db.GetContext(ctx, s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	var s series.Series
 
+	err := c.db.GetContext(ctx, &s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return series.Series{}, series.ErrNotFound
