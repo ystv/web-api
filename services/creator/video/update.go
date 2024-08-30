@@ -37,7 +37,7 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 	}
 
 	_, err = s.db.ExecContext(ctx, `
-				UPDATE videoItem.items SET
+				UPDATE video.items SET
 					series_id = $1,
 					name = $2,
 					url = $3,

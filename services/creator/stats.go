@@ -30,7 +30,7 @@ func (m *Store) GlobalVideo(ctx context.Context) (stats.VideoGlobalStats, error)
 
 	err = m.db.GetContext(ctx, &s.TotalVideoHits,
 		`SELECT COUNT(*)
-		FROM public.video_hits;`)
+		FROM video.hits;`)
 	if err != nil {
 		err = fmt.Errorf("failed to get number of video hits: %w", err)
 		return s, err
