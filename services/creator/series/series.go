@@ -31,7 +31,8 @@ func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.
 
 // Get provides the immediate children of series and videos
 func (c *Controller) Get(ctx context.Context, seriesID int) (series.Series, error) {
-	s := series.Series{}
+	var s series.Series
+
 	meta, err := c.GetMeta(ctx, seriesID)
 	if err != nil {
 		if errors.Is(err, series.ErrMetaNotFound) {
@@ -63,7 +64,8 @@ func (c *Controller) Get(ctx context.Context, seriesID int) (series.Series, erro
 
 // GetMeta provides basic information for only the selected series
 func (c *Controller) GetMeta(ctx context.Context, seriesID int) (series.Meta, error) {
-	s := series.Meta{}
+	var s series.Meta
+
 	err := c.db.GetContext(ctx, &s,
 		`SELECT series_id, url, name, description, thumbnail
 		FROM video.series
@@ -123,7 +125,8 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) 
 // List returns all series in the DB including their depth
 func (c *Controller) List(ctx context.Context) ([]series.Meta, error) {
 	var s []series.Meta
-	err := c.db.SelectContext(ctx, s,
+
+	err := c.db.SelectContext(ctx, &s,
 		`SELECT
 			child.series_id, child.url, child.name, child.description, child.thumbnail,
 			(COUNT(parent.*) -1) AS depth
@@ -185,8 +188,9 @@ func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta,
 
 // FromPath will return a series from a given path
 func (c *Controller) FromPath(ctx context.Context, path string) (series.Series, error) {
-	s := series.Series{}
 	err := c.db.GetContext(ctx, s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
+	var s series.Series
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return series.Series{}, series.ErrNotFound

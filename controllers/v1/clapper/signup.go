@@ -31,7 +31,8 @@ func (r *Repos) NewSignup(c echo.Context) error {
 	}
 
 	// Bind request json to signup
-	s := clapper.NewSignup{}
+	var s clapper.NewSignup
+
 	err = c.Bind(&s)
 	if err != nil {
 		err = fmt.Errorf("NewSignup: failed to bind to request json: %w", err)
@@ -71,7 +72,8 @@ func (r *Repos) NewSignup(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid}/{signupid} [put]
 func (r *Repos) UpdateSignup(c echo.Context) error {
-	s := clapper.Signup{}
+	var s clapper.Signup
+
 	err := c.Bind(&s)
 	if err != nil {
 		err = fmt.Errorf("UpdateSignup: failed to bind to request json: %w", err)

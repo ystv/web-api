@@ -15,8 +15,7 @@ import (
 )
 
 func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (VideoItem, error) {
-	v := VideoItem{}
-	v.VideoID = videoID
+	v := VideoItem{VideoID: videoID}
 
 	err := e.db.GetContext(ctx, &v, `
 		SELECT preset_id
@@ -62,7 +61,8 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, fmt.Errorf("failed to get object: %w", err)
 	}
 
-	format := EncodeFormat{}
+	var format EncodeFormat
+
 	err = e.db.GetContext(ctx, &format, `
 			SELECT arguments, file_suffix
 			FROM video.encode_formats
@@ -111,6 +111,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 			fmt.Println(err)
 		}
 	}(res.Body)
+
 	switch status := res.StatusCode; {
 	case status == http.StatusCreated:
 	case status == http.StatusUnauthorized:
@@ -119,7 +120,9 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, ErrVTUnknownResponse
 	}
 	dec := json.NewDecoder(res.Body)
-	task := TaskIdentification{}
+
+	var task TaskIdentification
+
 	err = dec.Decode(&task)
 	if err != nil {
 		return EncodeResult{}, fmt.Errorf("failed to decode vt task response: %w", err)

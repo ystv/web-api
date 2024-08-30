@@ -78,7 +78,8 @@ func (r *Repos) GetEvent(c echo.Context) error {
 // @Success 201 body int "Event ID"
 // @Router /v1/internal/clapper/event [post]
 func (r *Repos) NewEvent(c echo.Context) error {
-	e := clapper.NewEvent{}
+	var e clapper.NewEvent
+
 	err := c.Bind(&e)
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to bind to request json: %w", err)
@@ -111,7 +112,8 @@ func (r *Repos) NewEvent(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/event [put]
 func (r *Repos) UpdateEvent(c echo.Context) error {
-	e := clapper.Event{}
+	var e clapper.Event
+
 	err := c.Bind(&e)
 	if err != nil {
 		err = fmt.Errorf("UpdateEvent: failed to bind to request json: %w", err)

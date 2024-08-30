@@ -70,7 +70,8 @@ func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *Repo {
 // @Success 200
 // @Router /v1/internal/encoder/upload_request [post]
 func (e *Repo) UploadRequest(c echo.Context) error {
-	r := Request{}
+	var r Request
+
 	err := c.Bind(&r)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)

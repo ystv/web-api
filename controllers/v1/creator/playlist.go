@@ -63,7 +63,8 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 // @Success 201 body int "Playlist ID"
 // @Router /v1/internal/creator/playlist [post]
 func (r *Repos) NewPlaylist(c echo.Context) error {
-	p := playlist.New{}
+	var p playlist.New
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind json: %w", err)
@@ -97,7 +98,8 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/creator/playlist [put]
 func (r *Repos) UpdatePlaylist(c echo.Context) error {
-	p := playlist.Playlist{}
+	var p playlist.Playlist
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate: failed to bind json: %w", err)

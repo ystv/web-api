@@ -20,7 +20,8 @@ var _ PlaylistRepo = &Store{}
 
 // GetPlaylist returns a playlist object containing a list of videos and metadata
 func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, error) {
-	p := Playlist{}
+	var p Playlist
+
 	// Retrieve playlist metadata information
 	err := s.db.GetContext(ctx, &p, `
 		SELECT playlist_id, name, description, thumbnail

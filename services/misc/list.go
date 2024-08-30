@@ -61,7 +61,8 @@ func (m *Store) GetListsByUserID(ctx context.Context, userID int) ([]List, error
 
 // GetList returns a list including all subscribers
 func (m *Store) GetList(ctx context.Context, listID int) (List, error) {
-	l := List{}
+	var l List
+
 	err := m.db.GetContext(ctx, &l, `
 		SELECT list_id, name, description, alias, permission_id
 		FROM mail.lists

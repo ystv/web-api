@@ -12,7 +12,8 @@ import (
 
 // GetItem returns a VideoItem by its ID.
 func (s *Store) GetItem(ctx context.Context, videoID int) (video.Item, error) {
-	v := video.Item{}
+	var v video.Item
+
 	err := s.db.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
 		item.description, item.thumbnail, duration,	item.views, item.tags,

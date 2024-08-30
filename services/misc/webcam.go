@@ -64,8 +64,9 @@ func (m *Store) ListWebcams(ctx context.Context, permissions []string) ([]Webcam
 
 // GetWebcam returns a single webcam
 func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissions []string) (Webcam, error) {
-	webcam := AdminWebcam{}
-	publicWebcam := Webcam{}
+	var webcam AdminWebcam
+	var publicWebcam Webcam
+
 	err := m.db.GetContext(ctx, &webcam,
 		`SELECT	camera_id, name, url, file, mime_type, permission_id
 		FROM misc.webcams

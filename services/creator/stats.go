@@ -9,7 +9,8 @@ import (
 
 // GlobalVideo returns general information about a video library
 func (m *Store) GlobalVideo(ctx context.Context) (stats.VideoGlobalStats, error) {
-	s := stats.VideoGlobalStats{}
+	var s stats.VideoGlobalStats
+
 	err := m.db.GetContext(ctx, &s.TotalVideos,
 		`SELECT COUNT(*)
 		FROM video.items;`)

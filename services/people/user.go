@@ -12,7 +12,8 @@ var _ UserRepo = &Store{}
 
 // GetUserFull will return all user information to be used for profile and management.
 func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
-	u := UserFull{}
+	var u UserFull
+
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname,
 		avatar, use_gravatar, last_login, created_at, created_by, updated_at, updated_by,
@@ -52,12 +53,14 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
 	}
+
 	return u, nil
 }
 
 // GetUser returns basic user information to be used for other services.
 func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
-	u := User{}
+	var u User
+
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname, avatar, use_gravatar
 		FROM people.users

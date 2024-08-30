@@ -40,7 +40,8 @@ func (r *Repos) ListChannels(c echo.Context) error {
 // @Success 201 body int "Channel ID"
 // @Router /v1/internal/creator/playout/channels [post]
 func (r *Repos) NewChannel(c echo.Context) error {
-	ch := playout.Channel{}
+	var ch playout.Channel
+
 	err := c.Bind(&ch)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
@@ -66,7 +67,8 @@ func (r *Repos) NewChannel(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/creator/playout/channels [put]
 func (r *Repos) UpdateChannel(c echo.Context) error {
-	ch := playout.Channel{}
+	var ch playout.Channel
+
 	err := c.Bind(&ch)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)

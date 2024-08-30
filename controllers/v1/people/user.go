@@ -108,7 +108,8 @@ func (r *Repo) UserByTokenFull(c echo.Context) error {
 }
 
 func (r *Repo) AddUser(c echo.Context) error {
-	u := people.User{}
+	var u people.User
+
 	err := c.Bind(&u)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get user from request in AddUser: %w", err))

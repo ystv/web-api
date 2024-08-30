@@ -58,7 +58,8 @@ func (s *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMe
 
 // GetVideo returns a VideoItem, including the files, based on a given VideoItem ID.
 func (s *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
-	v := VideoItem{}
+	var v VideoItem
+
 	err := s.db.GetContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
 	views, duration, broadcast_date

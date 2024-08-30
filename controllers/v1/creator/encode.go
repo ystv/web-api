@@ -41,7 +41,8 @@ func (r *Repos) ListEncodeFormat(c echo.Context) error {
 // @Success 201 body int "Format ID"
 // @Router /v1/internal/creator/encode/format [post]
 func (r *Repos) NewEncodeFormat(c echo.Context) error {
-	format := encode.Format{}
+	var format encode.Format
+
 	err := c.Bind(&format)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
@@ -67,7 +68,8 @@ func (r *Repos) NewEncodeFormat(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/creator/encode/format [put]
 func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
-	format := encode.Format{}
+	var format encode.Format
+
 	err := c.Bind(&format)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
@@ -137,7 +139,8 @@ func (r *Repos) ListEncodePreset(c echo.Context) error {
 // @Success 201 body int "Preset ID"
 // @Router /v1/internal/creator/encode/preset [post]
 func (r *Repos) NewEncodePreset(c echo.Context) error {
-	p := encode.Preset{}
+	var p encode.Preset
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
@@ -163,7 +166,8 @@ func (r *Repos) NewEncodePreset(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/creator/encode/preset [put]
 func (r *Repos) UpdateEncodePreset(c echo.Context) error {
-	p := encode.Preset{}
+	var p encode.Preset
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)

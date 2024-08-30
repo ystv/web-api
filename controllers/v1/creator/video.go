@@ -52,7 +52,8 @@ type NewVideoOutput struct {
 // @Success 201 body int "Video ID"
 // @Router /v1/internal/creator/videos [post]
 func (r *Repos) NewVideo(c echo.Context) error {
-	v := video.New{}
+	var v video.New
+
 	err := c.Bind(&v)
 	if err != nil {
 		err = fmt.Errorf("VideoCreate bind fail: %w", err)
@@ -87,7 +88,8 @@ func (r *Repos) NewVideo(c echo.Context) error {
 // @Success 200 body int "Video ID"
 // @Router /v1/internal/creator/video/meta [put]
 func (r *Repos) UpdateVideoMeta(c echo.Context) error {
-	v := video.Meta{}
+	var v video.Meta
+
 	err := c.Bind(&v)
 	if err != nil {
 		err = fmt.Errorf("failed to bind video object: %w", err)

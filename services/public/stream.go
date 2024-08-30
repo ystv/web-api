@@ -44,7 +44,8 @@ func (s *Store) ListChannels(ctx context.Context) ([]Channel, error) {
 
 // GetChannel will get a public or unlisted channel
 func (s *Store) GetChannel(ctx context.Context, urlName string) (Channel, error) {
-	ch := Channel{}
+	var ch Channel
+
 	err := s.db.GetContext(ctx, &ch, `
 		SELECT url_name, name, description, thumbnail, output_type, output_url,
 		status, location, scheduled_start, scheduled_end

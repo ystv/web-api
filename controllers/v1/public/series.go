@@ -72,7 +72,8 @@ type SearchInput struct {
 // @Success 200 {array} public.Series
 // @Router /v1/public/search [post]
 func (r *Repos) Search(c echo.Context) error {
-	searchInput := SearchInput{}
+	var searchInput SearchInput
+
 	err := c.Bind(&searchInput)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)

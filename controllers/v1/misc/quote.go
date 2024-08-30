@@ -52,7 +52,8 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 // @Success 201 {object} int "Quote ID"
 // @Router /v1/internal/misc/quotes [post]
 func (r *Repos) NewQuote(c echo.Context) error {
-	q := misc.Quote{}
+	var q misc.Quote
+
 	err := c.Bind(&q)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -86,7 +87,8 @@ func (r *Repos) NewQuote(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/misc/quotes [put]
 func (r *Repos) UpdateQuote(c echo.Context) error {
-	q := misc.Quote{}
+	var q misc.Quote
+
 	err := c.Bind(&q)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)

@@ -40,7 +40,8 @@ func (r *Repos) ListPosition(c echo.Context) error {
 // @Success 201 body int "Position ID"
 // @Router /v1/internal/clapper/positions [post]
 func (r *Repos) NewPosition(c echo.Context) error {
-	p := clapper.Position{}
+	var p clapper.Position
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("NewPosition: failed to bind to request json: %w", err)
@@ -65,7 +66,8 @@ func (r *Repos) NewPosition(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/positions [put]
 func (r *Repos) UpdatePosition(c echo.Context) error {
-	p := clapper.Position{}
+	var p clapper.Position
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("UpdatePosition: failed to bind to request json: %w", err)
