@@ -42,11 +42,13 @@ func (r *Repo) ListRoleMembersByID(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid role id")
 	}
+
 	p, err := r.people.ListRoleMembersByID(c.Request().Context(), roleID)
 	if err != nil {
 		err = fmt.Errorf("ListRoleMembersByID failed to get users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 

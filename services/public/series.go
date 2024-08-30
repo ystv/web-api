@@ -57,6 +57,7 @@ func (s *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error)
 		FROM video.series
 		WHERE series_id = $1
 		AND status = 'public';`, seriesID)
+
 	return series, err
 }
 
@@ -93,6 +94,7 @@ func (s *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 			) AS queries
 			WHERE depth = 1 AND
 			status = 'public';`, seriesID)
+
 	return seriesMeta, err
 }
 

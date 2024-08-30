@@ -33,10 +33,12 @@ func (r *Repos) Find(c echo.Context) error {
 	if len(rawJoined) == 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid URL, format [series]/[series]/[video]")
 	}
+
 	clean, err := url.Parse(rawJoined)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid URL")
 	}
+
 	b, err := r.public.Find(c.Request().Context(), clean.Path)
 	if err != nil {
 		if errors.Is(err, public.ErrVideoNotFound) ||
@@ -46,6 +48,7 @@ func (r *Repos) Find(c echo.Context) error {
 		err = fmt.Errorf("public find failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return c.JSON(http.StatusOK, b)
 }
 

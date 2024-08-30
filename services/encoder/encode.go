@@ -33,6 +33,7 @@ func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (Vide
 	if err != nil {
 		return v, fmt.Errorf("failed to get video files: %w", err)
 	}
+
 	return v, nil
 }
 
@@ -123,5 +124,6 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	if err != nil {
 		return EncodeResult{}, fmt.Errorf("failed to decode vt task response: %w", err)
 	}
+
 	return EncodeResult{URI: dstURL, JobID: task.TaskID}, nil
 }

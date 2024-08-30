@@ -29,6 +29,7 @@ func (r *Repos) NewSignup(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad event ID")
 	}
+
 	// Bind request json to signup
 	s := clapper.NewSignup{}
 	err = c.Bind(&s)
@@ -53,6 +54,7 @@ func (r *Repos) NewSignup(c echo.Context) error {
 		err = fmt.Errorf("NewSignup: failed to insert new signup: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, signupID)
 }
 
@@ -75,11 +77,14 @@ func (r *Repos) UpdateSignup(c echo.Context) error {
 		err = fmt.Errorf("UpdateSignup: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	signupID, err := strconv.Atoi(c.Param("signupid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
 	}
+
 	s.SignupID = signupID
+
 	err = r.signup.Update(c.Request().Context(), s)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -88,6 +93,7 @@ func (r *Repos) UpdateSignup(c echo.Context) error {
 		err = fmt.Errorf("UpdateSignup failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -106,10 +112,12 @@ func (r *Repos) DeleteSignup(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
 	}
+
 	err = r.signup.Delete(c.Request().Context(), signupID)
 	if err != nil {
 		err = fmt.Errorf("DeleteSignup failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

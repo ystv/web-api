@@ -64,5 +64,6 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 			return fmt.Errorf("failed to refresh videoItem: %w", err)
 		}
 	}
+
 	return nil
 }

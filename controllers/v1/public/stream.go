@@ -43,5 +43,6 @@ func (r *Repos) GetChannel(c echo.Context) error {
 		err = fmt.Errorf("public getchannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, chs)
 }

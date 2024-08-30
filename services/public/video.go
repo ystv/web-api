@@ -39,6 +39,7 @@ var _ VideoRepo = &Store{}
 // ListVideo returns all video metadata
 func (s *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
 	var v []VideoMeta
+
 	// TODO Change pagination method
 	// TODO Do a double check on if we need to convert broadcast date
 	err := s.db.SelectContext(ctx, &v,
@@ -51,6 +52,7 @@ func (s *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMe
 	if err != nil {
 		return nil, err
 	}
+
 	return &v, nil
 }
 
@@ -68,6 +70,7 @@ func (s *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
 		err = fmt.Errorf("failed to get video meta: %w", err)
 		return nil, err
 	}
+
 	err = s.db.SelectContext(ctx, &v.Files,
 		`SELECT uri, mime_type, mode, width, height
 	FROM video.files file
@@ -78,12 +81,14 @@ func (s *Store) GetVideo(ctx context.Context, videoID int) (*VideoItem, error) {
 		err = fmt.Errorf("failed to get video files: %w", err)
 		return nil, err
 	}
+
 	return &v, nil
 }
 
 // VideoOfSeries returns all the videos belonging to a series
 func (s *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, error) {
 	var v []VideoMeta
+
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date,	views, duration
@@ -93,5 +98,6 @@ func (s *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, e
 	if err != nil {
 		return nil, err
 	}
+
 	return v, err
 }

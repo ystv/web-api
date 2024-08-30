@@ -46,11 +46,13 @@ func (r *Repos) NewPosition(c echo.Context) error {
 		err = fmt.Errorf("NewPosition: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	positionID, err := r.position.New(c.Request().Context(), &p)
 	if err != nil {
 		err = fmt.Errorf("NewPosition: failed to insert position: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, positionID)
 }
 
@@ -69,6 +71,7 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 		err = fmt.Errorf("UpdatePosition: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.position.Update(c.Request().Context(), &p)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -77,6 +80,7 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 		err = fmt.Errorf("UpdatePosition failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -94,9 +98,11 @@ func (r *Repos) DeletePosition(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
 	}
+
 	err = r.position.Delete(c.Request().Context(), positionID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to delete event: %w", err))
 	}
+
 	return c.NoContent(http.StatusOK)
 }

@@ -67,5 +67,6 @@ func (r *Repos) Stats(c echo.Context) error {
 		err = fmt.Errorf("stats failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusOK, s)
 }

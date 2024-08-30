@@ -27,11 +27,13 @@ func (r *Repos) GetVideo(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid video ID")
 	}
+
 	v, err := r.video.GetItem(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("failed to get video item: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusOK, v)
 }
 
@@ -56,17 +58,21 @@ func (r *Repos) NewVideo(c echo.Context) error {
 		err = fmt.Errorf("VideoCreate bind fail: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	v.CreatedBy = claims.UserID
+
 	videoID, err := r.video.NewItem(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to create new video item: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, NewVideoOutput{VideoID: videoID})
 }
 
@@ -87,19 +93,23 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 		err = fmt.Errorf("failed to bind video object: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	t, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	v.UpdatedByID = &t.UserID
 	currentDateTime := time.Now()
 	v.UpdatedAt = &currentDateTime
+
 	err = r.video.UpdateMeta(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to update meta: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 

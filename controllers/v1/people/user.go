@@ -25,11 +25,13 @@ func (r *Repo) UserByID(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
+
 	p, err := r.people.GetUser(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("UserByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -47,11 +49,13 @@ func (r *Repo) UserByIDFull(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
+
 	p, err := r.people.GetUserFull(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("UserByIDFull failed to get user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -69,11 +73,13 @@ func (r *Repo) UserByToken(c echo.Context) error {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	p, err := r.people.GetUser(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed getting user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -91,11 +97,13 @@ func (r *Repo) UserByTokenFull(c echo.Context) error {
 		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	p, err := r.people.GetUserFull(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("UserByTokenFull failed getting user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -105,6 +113,7 @@ func (r *Repo) AddUser(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get user from request in AddUser: %w", err))
 	}
+
 	return c.JSON(http.StatusOK, u)
 }
 

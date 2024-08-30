@@ -74,6 +74,7 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	// TODO verify user has permission
 
 	err = r.crew.DeleteUser(c.Request().Context(), crewID)

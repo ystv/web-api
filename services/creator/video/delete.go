@@ -22,6 +22,7 @@ func (s *Store) DeleteItem(ctx context.Context, videoID, userID int) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete video item: %w", err)
 	}
+
 	return nil
 }
 
@@ -73,5 +74,6 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 	if err != nil {
 		return fmt.Errorf("failed to permanently delete video \"%d\": %w", videoID, err)
 	}
+
 	return nil
 }

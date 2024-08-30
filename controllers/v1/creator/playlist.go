@@ -43,11 +43,13 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid playlist ID")
 	}
+
 	p, err := r.playlist.Get(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("playlist get failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -73,6 +75,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	p.CreatedBy = claims.UserID
 
 	res, err := r.playlist.New(c.Request().Context(), p)
@@ -80,6 +83,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistNew failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, res)
 }
 
@@ -99,20 +103,25 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 		err = fmt.Errorf("PlaylistUpdate: failed to bind json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	p.UpdatedBy = &claims.UserID
+
 	var videoIDs []int
 	for _, v := range p.Videos {
 		videoIDs = append(videoIDs, v.ID)
 	}
+
 	err = r.playlist.Update(c.Request().Context(), p.Meta, videoIDs)
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate: failed to update playlist: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

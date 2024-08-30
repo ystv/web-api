@@ -23,6 +23,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	if err != nil {
 		return UserFull{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
+
 	err = s.db.SelectContext(ctx, &u.Roles,
 		`SELECT r.role_id, r.name, r.description
 	FROM people.roles r
@@ -31,6 +32,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	if err != nil {
 		return UserFull{}, fmt.Errorf("failed to get roles: %w", err)
 	}
+
 	for idx := range u.Roles {
 		err := s.db.SelectContext(ctx, &u.Roles[idx].Permissions,
 			`SELECT p.permission_id, p.name, p.description
@@ -41,6 +43,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 			return UserFull{}, fmt.Errorf("failed to get permissions from roles: %w", err)
 		}
 	}
+
 	if u.Avatar != "" {
 		// TODO: sort this out
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
@@ -62,6 +65,7 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	if err != nil {
 		return User{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
+
 	err = s.db.SelectContext(ctx, &u.Permissions,
 		`SELECT p.permission_id, p.name
 		FROM people.permissions p
@@ -71,14 +75,17 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	if err != nil {
 		return User{}, fmt.Errorf("failed to get permissions: %w", err)
 	}
+
 	if u.Avatar != "" {
 		// TODO sort this out
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
 	}
+
 	if u.UseGravatar {
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
 	}
+
 	return u, nil
 }
 
@@ -91,11 +98,13 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 // a different function.
 func (s *Store) ListAllUsers(ctx context.Context) ([]User, error) {
 	var u []User
+
 	err := s.db.SelectContext(ctx, &u,
 		`SELECT user_id, avatar, use_gravatar, nickname, first_name, last_name
 		FROM people.users;`)
 	if err != nil {
 		return nil, fmt.Errorf("fialed to list all users: %w", err)
 	}
+
 	return u, nil
 }

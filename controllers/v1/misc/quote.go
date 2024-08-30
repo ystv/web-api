@@ -57,17 +57,21 @@ func (r *Repos) NewQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	q.CreatedBy = claims.UserID
+
 	err = r.misc.NewQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -87,11 +91,13 @@ func (r *Repos) UpdateQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.misc.UpdateQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("UpdateQuote failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -108,10 +114,12 @@ func (r *Repos) DeleteQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
+
 	err = r.misc.DeleteQuote(c.Request().Context(), quoteID)
 	if err != nil {
 		err = fmt.Errorf("DeleteQuote failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

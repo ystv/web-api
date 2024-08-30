@@ -25,11 +25,13 @@ func (r *Repos) Video(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")
 	}
+
 	v, err := r.public.GetVideo(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("public GetVideo failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, v)
 }
 

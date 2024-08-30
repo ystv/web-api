@@ -88,5 +88,6 @@ func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissions []strin
 			}
 		}
 	}
+
 	return publicWebcam, nil
 }

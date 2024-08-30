@@ -46,11 +46,13 @@ func (r *Repos) NewChannel(c echo.Context) error {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.channel.NewChannel(c.Request().Context(), ch)
 	if err != nil {
 		err = fmt.Errorf("NewChannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -70,6 +72,7 @@ func (r *Repos) UpdateChannel(c echo.Context) error {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.channel.UpdateChannel(c.Request().Context(), ch)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -78,6 +81,7 @@ func (r *Repos) UpdateChannel(c echo.Context) error {
 		err = fmt.Errorf("PresetChannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -95,5 +99,6 @@ func (r *Repos) DeleteChannel(c echo.Context) error {
 		err = fmt.Errorf("DeleteChannel failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

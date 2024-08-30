@@ -7,12 +7,14 @@ import (
 
 func (s *Store) ListAllRoles(ctx context.Context) ([]Role, error) {
 	var r []Role
+
 	err := s.db.SelectContext(ctx, &r, `
 		SELECT role_id, name, description
 		FROM people.roles;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select roles: %w", err)
 	}
+
 	for _, role := range r {
 		err = s.db.SelectContext(ctx, &role.Permissions, `
 			SELECT perm.permission_id, name, description
@@ -23,6 +25,7 @@ func (s *Store) ListAllRoles(ctx context.Context) ([]Role, error) {
 			return nil, fmt.Errorf("failed to get permissions for role \"%d\": %w", role.RoleID, err)
 		}
 	}
+
 	return r, nil
 }
 
@@ -35,6 +38,7 @@ func (s *Store) ListAllRoles(ctx context.Context) ([]Role, error) {
 // a different function.
 func (s *Store) ListRoleMembersByID(ctx context.Context, roleID int) ([]User, error) {
 	var u []User
+
 	err := s.db.SelectContext(ctx, &u,
 		`SELECT u.user_id, avatar, nickname, first_name, last_name
 		FROM people.users u
@@ -43,11 +47,13 @@ func (s *Store) ListRoleMembersByID(ctx context.Context, roleID int) ([]User, er
 	if err != nil {
 		return nil, fmt.Errorf("failed to list role users: %w", err)
 	}
+
 	return u, nil
 }
 
 func (s *Store) ListRolePermissionsByID(ctx context.Context, roleID int) ([]Permission, error) {
 	var p []Permission
+
 	err := s.db.SelectContext(ctx, &p, `
 		SELECT perms.permission_id, perms.name, perms.description
 		FROM people.permissions perms
@@ -56,5 +62,6 @@ func (s *Store) ListRolePermissionsByID(ctx context.Context, roleID int) ([]Perm
 	if err != nil {
 		return nil, fmt.Errorf("failed to get permissions for role \"%d\": %w", roleID, err)
 	}
+
 	return p, nil
 }

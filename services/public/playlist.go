@@ -29,6 +29,7 @@ func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, erro
 	if err != nil {
 		return p, fmt.Errorf("failed to get playlist meta: %w", err)
 	}
+
 	// Retrieve videos of playlist
 	err = s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
@@ -40,6 +41,7 @@ func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, erro
 	if err != nil {
 		return p, fmt.Errorf("failed to get associated videos: %w", err)
 	}
+
 	return p, nil
 }
 
@@ -148,5 +150,6 @@ func (s *Store) GetPlaylistRandom(ctx context.Context) (Playlist, error) {
 	if err != nil {
 		return p, fmt.Errorf("failed to get playlist videos: %w", err)
 	}
+
 	return p, nil
 }

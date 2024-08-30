@@ -45,11 +45,13 @@ func (r *Repos) GetListsByToken(c echo.Context) error {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	l, err := r.misc.GetListsByUserID(c.Request().Context(), p.UserID)
 	if err != nil {
 		err = fmt.Errorf("GetListsByToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, l)
 }
 
@@ -118,16 +120,19 @@ func (r *Repos) SubscribeByToken(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
+
 	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SubscribeByToken failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	err = r.misc.Subscribe(c.Request().Context(), claims.UserID, listID)
 	if err != nil {
 		err = fmt.Errorf("SubscribeByToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -147,15 +152,18 @@ func (r *Repos) SubscribeByID(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
+
 	userID, err := strconv.Atoi(c.Param("userid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad userID")
 	}
+
 	err = r.misc.Subscribe(c.Request().Context(), userID, listID)
 	if err != nil {
 		err = fmt.Errorf("SubscribeByToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -174,16 +182,19 @@ func (r *Repos) UnsubscribeByToken(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
+
 	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UnsubscribeByToken failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	err = r.misc.UnsubscribeByID(c.Request().Context(), claims.UserID, listID)
 	if err != nil {
 		err = fmt.Errorf("UnsubscribeByToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -203,15 +214,18 @@ func (r *Repos) UnsubscribeByID(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
+
 	userID, err := strconv.Atoi(c.Param("userid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad userID")
 	}
+
 	err = r.misc.UnsubscribeByID(c.Request().Context(), userID, listID)
 	if err != nil {
 		err = fmt.Errorf("UnsubscribeByToken failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -231,5 +245,6 @@ func (r *Repos) UnsubscribeByUUID(c echo.Context) error {
 		err = fmt.Errorf("UnsubscribeByUUID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

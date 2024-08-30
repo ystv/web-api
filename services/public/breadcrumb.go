@@ -35,6 +35,7 @@ var _ BreadcrumbRepo = &Store{}
 // VideoBreadcrumb returns the absolute path from a VideoID
 func (s *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error) {
 	var vB Breadcrumb // Video breadcrumb
+
 	err := s.db.GetContext(ctx, &vB,
 		`SELECT video_id as id, series_id, COALESCE(name, url) as name, url
 		FROM video.items
@@ -45,6 +46,7 @@ func (s *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb,
 		}
 		return nil, fmt.Errorf("failed to get video breadcrumb: %w", err)
 	}
+
 	sB, err := s.SeriesBreadcrumb(ctx, vB.SeriesID)
 	if err != nil {
 		// Interesting edge-case
@@ -52,6 +54,7 @@ func (s *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb,
 			return nil, fmt.Errorf("failed to get series breadcrumb: %w", err)
 		}
 	}
+
 	sB = append(sB, vB)
 
 	return sB, nil
@@ -60,6 +63,7 @@ func (s *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb,
 // SeriesBreadcrumb will return the breadcrumb from SeriesID to root
 func (s *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error) {
 	var b []Breadcrumb
+
 	// TODO Need a bool to indicate if series is in URL
 	err := s.db.SelectContext(ctx, &b,
 		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
@@ -78,6 +82,7 @@ func (s *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrum
 	if len(b) == 0 {
 		return []Breadcrumb{}, ErrSeriesNotFound
 	}
+
 	return b, err
 }
 
@@ -97,6 +102,7 @@ func (s *Store) Find(ctx context.Context, path string) (BreadcrumbItem, error) {
 			return BreadcrumbItem{}, fmt.Errorf("failed to get video: %w", err)
 		}
 	}
+
 	series, err := s.GetSeriesFromPath(ctx, path)
 	if err != nil {
 		// Might be a video, so we'll go one layer back and check for series
@@ -132,6 +138,7 @@ func (s *Store) Find(ctx context.Context, path string) (BreadcrumbItem, error) {
 			return BreadcrumbItem{}, fmt.Errorf("failed to get series from path: %w", err)
 		}
 	}
+
 	// Found series
 	return BreadcrumbItem{nil, &series}, nil
 }

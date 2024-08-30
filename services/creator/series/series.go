@@ -39,6 +39,7 @@ func (c *Controller) Get(ctx context.Context, seriesID int) (series.Series, erro
 		}
 		return series.Series{}, fmt.Errorf("failed to get series meta: %w", err)
 	}
+
 	s.Meta = meta
 
 	// Allowing these children not found errors to be ignored since they are optional
@@ -49,12 +50,14 @@ func (c *Controller) Get(ctx context.Context, seriesID int) (series.Series, erro
 			return series.Series{}, fmt.Errorf("failed to get child series: %w", err)
 		}
 	}
+
 	s.ChildVideos, err = c.video.OfSeries(ctx, seriesID)
 	if err != nil {
 		if !errors.Is(err, series.ErrChildrenVideosNotFound) {
 			return series.Series{}, fmt.Errorf("failed to get child videos: %w", err)
 		}
 	}
+
 	return s, nil
 }
 
@@ -71,12 +74,14 @@ func (c *Controller) GetMeta(ctx context.Context, seriesID int) (series.Meta, er
 		}
 		return series.Meta{}, err
 	}
+
 	return s, nil
 }
 
 // ImmediateChildrenSeries returns series directly below the chosen series
 func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) ([]series.Meta, error) {
 	var s []series.Meta
+
 	err := c.db.SelectContext(ctx, &s,
 		`SELECT * from (
 			SELECT 
@@ -111,6 +116,7 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) 
 	if len(s) == 0 {
 		return []series.Meta{}, series.ErrChildrenSeriesNotFound
 	}
+
 	return s, nil
 }
 
@@ -134,12 +140,14 @@ func (c *Controller) List(ctx context.Context) ([]series.Meta, error) {
 	if len(s) == 0 {
 		return []series.Meta{}, series.ErrNotFound
 	}
+
 	return s, nil
 }
 
 // AllBelow returns all series below a certain series including depth
 func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta, error) {
 	var s []series.Meta
+
 	err := c.db.SelectContext(ctx, &s,
 		`SELECT 
 			node.series_id, node.url node.name, node.description, node.thumbnail,
@@ -171,6 +179,7 @@ func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta,
 	if len(s) == 0 {
 		return []series.Meta{}, series.ErrNotFound
 	}
+
 	return s, nil
 }
 
@@ -184,10 +193,12 @@ func (c *Controller) FromPath(ctx context.Context, path string) (series.Series, 
 		}
 		return series.Series{}, fmt.Errorf("failed to get series from path: %w", err)
 	}
+
 	s, err = c.Get(ctx, s.SeriesID)
 	if err != nil {
 		err = fmt.Errorf("failed to get series data: %w", err)
 		return series.Series{}, err
 	}
+
 	return s, err
 }

@@ -99,5 +99,6 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 			return videoID, fmt.Errorf("failed to refresh video: %w", err)
 		}
 	}
+
 	return videoID, nil
 }

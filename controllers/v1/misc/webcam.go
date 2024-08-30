@@ -66,6 +66,7 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 		err = fmt.Errorf("failed to get camera: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	target, err := url.Parse(w.URL)
 	if err != nil {
 		err = fmt.Errorf("failed to parse webcam URL: %w", err)
