@@ -35,7 +35,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	}
 
 	for idx := range u.Roles {
-		err := s.db.SelectContext(ctx, &u.Roles[idx].Permissions,
+		err = s.db.SelectContext(ctx, &u.Roles[idx].Permissions,
 			`SELECT p.permission_id, p.name, p.description
 		FROM people.permissions p
 		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
