@@ -80,10 +80,11 @@ func (e *Repo) UploadRequest(c echo.Context) error {
 	_, err = e.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetToken failed: %w", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	// JSON response is required
+	return c.JSON(http.StatusOK, struct{}{})
 }
 
 // TranscodeFinished handles marking a transcode item as finished
