@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -45,13 +46,15 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		}
 	}
 
-	if u.Avatar != "" {
-		// TODO: sort this out
-		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
-	}
-	if u.UseGravatar {
+	switch avatar := u.Avatar; {
+	case u.UseGravatar:
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
+	case avatar == "":
+	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
+		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+	default:
+		log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", u.UserID, len(u.Avatar), u.Avatar)
 	}
 
 	return u, nil
@@ -79,14 +82,15 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 		return User{}, fmt.Errorf("failed to get permissions: %w", err)
 	}
 
-	if u.Avatar != "" {
-		// TODO sort this out
-		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + u.Avatar
-	}
-
-	if u.UseGravatar {
+	switch avatar := u.Avatar; {
+	case u.UseGravatar:
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
+	case avatar == "":
+	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
+		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+	default:
+		log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", u.UserID, len(u.Avatar), u.Avatar)
 	}
 
 	return u, nil
