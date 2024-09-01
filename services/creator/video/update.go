@@ -35,7 +35,7 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 			return fmt.Errorf("failed to copy thumbnail: %w", err)
 		}
 
-		m.Thumbnail = "https://cdn.ystv.co.uk/" + s.conf.ServeBucket + "/" + res
+		m.Thumbnail = s.cdn.Endpoint + "/" + s.conf.ServeBucket + "/" + res
 	} else {
 		m.Thumbnail = videoItem.Thumbnail
 	}
