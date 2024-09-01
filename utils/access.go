@@ -95,7 +95,6 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/test", a.conf.SecurityBaseURL), nil)
-	log.Printf("%s/api/test", a.conf.SecurityBaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL: %w", err)
 	}
