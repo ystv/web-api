@@ -107,10 +107,13 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 	}
 
 	if res.Status != "200 OK" {
-		b, err := io.ReadAll(res.Body)
+		var b []byte
+
+		b, err = io.ReadAll(res.Body)
 		if err != nil {
 			log.Printf("converting fail: %+v", err)
 		}
+
 		return nil, fmt.Errorf("invalid token: invalid status: %s: %s", res.Status, string(b))
 	}
 	return claims, nil
