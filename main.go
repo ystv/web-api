@@ -128,7 +128,7 @@ func main() {
 		Creator:    creator.NewRepos(db, cdn, enc, access, creatorConfig),
 		Encoder:    encoderPackage.NewEncoderController(enc, access),
 		Misc:       misc.NewRepos(db, access),
-		People:     people.NewRepo(db, access),
+		People:     people.NewRepo(db, cdn, access),
 		Public:     public.NewRepos(db),
 		Stream:     stream.NewRepos(db),
 	}).Start()

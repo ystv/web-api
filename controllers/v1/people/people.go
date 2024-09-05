@@ -1,6 +1,7 @@
 package people
 
 import (
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/ystv/web-api/services/people"
@@ -16,9 +17,9 @@ type (
 )
 
 // NewRepo creates our data store
-func NewRepo(db *sqlx.DB, access *utils.Accesser) *Repo {
+func NewRepo(db *sqlx.DB, cdn *s3.S3, access *utils.Accesser) *Repo {
 	return &Repo{
-		people: people.NewStore(db),
+		people: people.NewStore(db, cdn),
 		access: access,
 	}
 }
