@@ -191,8 +191,8 @@ func (r *Router) loadRoutes() {
 					seriesItem := series.Group("/:seriesid")
 					{
 						seriesItem.GET("", r.creator.GetSeries)
-						// seriesItem.PUT("", r.creator.UpdateSeries)
-						// seriesItem.DELETE("", r.creator.DeleteSeries)
+						seriesItem.PUT("", r.creator.UpdateSeries)
+						seriesItem.DELETE("", r.creator.DeleteSeries)
 					}
 				}
 				playlists := creator.Group("/playlist")
@@ -203,7 +203,7 @@ func (r *Router) loadRoutes() {
 					{
 						playlist.GET("", r.creator.GetPlaylist)
 						playlist.PUT("", r.creator.UpdatePlaylist)
-						// playlist.DELETE("", r.creator.DeletePlaylist)
+						playlist.DELETE("", r.creator.DeletePlaylist)
 					}
 				}
 				playout := creator.Group("/playout")
