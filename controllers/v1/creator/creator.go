@@ -46,7 +46,7 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Acces
 		video.NewStore(db, cdn, enc, config),
 		series.NewController(db, cdn, enc, config),
 		playlist.NewStore(db),
-		playout.NewStore(db),
+		playout.NewStore(db, cdn, config),
 		breadcrumb.NewController(db, cdn, enc, config),
 		encode.NewStore(db),
 		creator.NewStore(db),

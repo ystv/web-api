@@ -3,7 +3,10 @@ package playout
 import (
 	"context"
 	"fmt"
+	"regexp"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/ystv/web-api/services/creator"
@@ -15,12 +18,14 @@ var _ creator.ChannelRepo = &Store{}
 
 // Store contains our dependency
 type Store struct {
-	db *sqlx.DB
+	db   *sqlx.DB
+	cdn  *s3.S3
+	conf *creator.Config
 }
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
-	return &Store{db: db}
+func NewStore(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Store {
+	return &Store{db: db, cdn: cdn, conf: conf}
 }
 
 // ListChannels list all channels
@@ -54,7 +59,30 @@ func (s *Store) NewChannel(ctx context.Context, ch playout.Channel) error {
 
 // UpdateChannel update a channel
 func (s *Store) UpdateChannel(ctx context.Context, ch playout.Channel) error {
-	_, err := s.db.ExecContext(ctx,
+	channel, err := s.GetChannel(ctx, ch.URLName)
+	if err != nil {
+		return fmt.Errorf("failed to find channel to update: %w", err)
+	}
+
+	if ch.Thumbnail != "" {
+		reg := regexp.MustCompile(`.*/`)
+		res := reg.ReplaceAllString(ch.Thumbnail, "${1}")
+
+		_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
+			Bucket:     aws.String(s.conf.ServeBucket),
+			CopySource: aws.String(s.conf.IngestBucket + "/" + res),
+			Key:        aws.String(res),
+		})
+		if err != nil {
+			return fmt.Errorf("failed to copy thumbnail: %w", err)
+		}
+
+		ch.Thumbnail = s.cdn.Endpoint + "/" + s.conf.ServeBucket + "/" + res
+	} else {
+		ch.Thumbnail = channel.Thumbnail
+	}
+
+	_, err = s.db.ExecContext(ctx,
 		`UPDATE playout.channel SET
 			url_name = $1, name = $2, description = $3, thumbnail = $4,
 			output_type = $5, output_url = $6, visibility = $7,	status = $8,
