@@ -27,7 +27,7 @@ func NewStore(db *sqlx.DB) *Store {
 }
 
 // All lists all playlists metadata
-func (m *Store) All(ctx context.Context) ([]playlist.Playlist, error) {
+func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) {
 	var p []playlist.Playlist
 	err := m.db.SelectContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
@@ -36,7 +36,7 @@ func (m *Store) All(ctx context.Context) ([]playlist.Playlist, error) {
 }
 
 // Get returns a playlist and it's video's
-func (m *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, error) {
+func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playlist, error) {
 	p := playlist.Playlist{}
 	err := m.db.GetContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status,
@@ -59,7 +59,7 @@ func (m *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, err
 }
 
 // New makes a playlist item
-func (m *Store) New(ctx context.Context, p playlist.New) (int, error) {
+func (m *Store) NewPlaylist(ctx context.Context, p playlist.New) (int, error) {
 	_, err := m.db.ExecContext(ctx,
 		`INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
 		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, time.Now(), p.CreatedBy)
@@ -114,7 +114,7 @@ func (m *Store) AddVideos(ctx context.Context, playlistID int, videoIDs []int) e
 
 // Update will update a playlist
 // Accepts playlist metadata, video ID's that will be part of the playlist
-func (m *Store) Update(ctx context.Context, p playlist.Meta, videoIDs []int) error {
+func (m *Store) UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []int) error {
 	return utils.Transact(m.db, func(tx *sqlx.Tx) error {
 		_, err := tx.ExecContext(ctx,
 			`UPDATE video.playlists SET name = $1, description = $2,
@@ -151,4 +151,8 @@ func (m *Store) Update(ctx context.Context, p playlist.Meta, videoIDs []int) err
 		}
 		return nil
 	})
+}
+
+func (m *Store) DeletePlaylist(ctx context.Context, playlistID int) error {
+	panic("not implemented")
 }

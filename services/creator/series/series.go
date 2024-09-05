@@ -29,8 +29,8 @@ func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.
 	return &Controller{db: db, video: video.NewStore(db, cdn, enc, conf)}
 }
 
-// Get provides the immediate children of series and videos
-func (c *Controller) Get(ctx context.Context, seriesID int) (series.Series, error) {
+// GetSeries provides the immediate children of series and videos
+func (c *Controller) GetSeries(ctx context.Context, seriesID int) (series.Series, error) {
 	var s series.Series
 
 	meta, err := c.GetMeta(ctx, seriesID)
@@ -198,7 +198,7 @@ func (c *Controller) FromPath(ctx context.Context, path string) (series.Series, 
 		return series.Series{}, fmt.Errorf("failed to get series from path: %w", err)
 	}
 
-	s, err = c.Get(ctx, s.SeriesID)
+	s, err = c.GetSeries(ctx, s.SeriesID)
 	if err != nil {
 		err = fmt.Errorf("failed to get series data: %w", err)
 		return series.Series{}, err
