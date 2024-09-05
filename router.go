@@ -6,6 +6,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+
+	// Run `go generate` if your IDE gives an import error here.
+	// Swag CLI generates documentation, you have to import it.
+	echoSwagger "github.com/swaggo/echo-swagger"
+
 	clapperPackage "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
@@ -14,14 +19,9 @@ import (
 	publicPackage "github.com/ystv/web-api/controllers/v1/public"
 	streamV1 "github.com/ystv/web-api/controllers/v1/stream"
 	"github.com/ystv/web-api/middleware"
+	"github.com/ystv/web-api/utils"
 
 	_ "github.com/ystv/web-api/swagger"
-
-	echoSwagger "github.com/swaggo/echo-swagger"
-	// Swag CLI generates documentation, you have to import it.
-	// Run `go generate` if your IDE gives an import error here.
-	//_ "github.com/ystv/web-api/swagger"
-	"github.com/ystv/web-api/utils"
 )
 
 // TODO standardise on function names
