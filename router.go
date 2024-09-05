@@ -288,12 +288,15 @@ func (r *Router) loadRoutes() {
 				{
 					list.GET("s", r.misc.GetLists)
 					list.GET("s/my", r.misc.GetListsByToken)
-					list.GET("/:listid", r.misc.GetList)
-					list.GET("/:listid/subscribers", r.misc.GetSubscribers)
-					list.POST("/:listid/subscribe", r.misc.SubscribeByToken)
-					list.POST("/:listid/subscribe/:userid", r.misc.SubscribeByID)
-					list.DELETE("/:listid/unsubscribe", r.misc.UnsubscribeByToken)
-					list.DELETE("/:listid/unsubscribe/:userid", r.misc.UnsubscribeByID)
+					listID := list.Group("/:listid")
+					{
+						listID.GET("", r.misc.GetList)
+						listID.GET("/subscribers", r.misc.GetSubscribers)
+						listID.POST("/subscribe", r.misc.SubscribeByToken)
+						listID.POST("/subscribe/:userid", r.misc.SubscribeByID)
+						listID.DELETE("/unsubscribe", r.misc.UnsubscribeByToken)
+						listID.DELETE("/unsubscribe/:userid", r.misc.UnsubscribeByID)
+					}
 				}
 			}
 			streamsAuthed := internal.Group("/streams")
