@@ -59,7 +59,7 @@ func (r *Repos) GetSeries(c echo.Context) error {
 // @ID update-creator-series
 // @Tags creator-series
 // @Accept json
-// @Param quote body series.NewPlaylist true "Series object"
+// @Param quote body series.Series true "Series object"
 // @Success 200
 // @Router /v1/internal/creator/series [put]
 func (r *Repos) UpdateSeries(c echo.Context) error {
