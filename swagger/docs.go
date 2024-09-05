@@ -73,7 +73,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-events"
                 ],
-                "summary": "Update event",
+                "summary": "UpdatePlaylist event",
                 "operationId": "update-event",
                 "parameters": [
                     {
@@ -100,7 +100,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-events"
                 ],
-                "summary": "New event",
+                "summary": "NewPlaylist event",
                 "operationId": "new-event",
                 "parameters": [
                     {
@@ -125,14 +125,14 @@ const docTemplate = `{
         },
         "/v1/internal/clapper/event/{eventid}": {
             "get": {
-                "description": "Get an event including signup-sheets and roles.",
+                "description": "GetSeries an event including signup-sheets and roles.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "clapper-events"
                 ],
-                "summary": "Get event by ID",
+                "summary": "GetSeries event by ID",
                 "operationId": "get-event",
                 "parameters": [
                     {
@@ -187,7 +187,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-signups"
                 ],
-                "summary": "New signup sheet",
+                "summary": "NewPlaylist signup sheet",
                 "operationId": "new-signup",
                 "parameters": [
                     {
@@ -219,7 +219,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-signups"
                 ],
-                "summary": "Update signup",
+                "summary": "UpdatePlaylist signup",
                 "operationId": "update-signup",
                 "parameters": [
                     {
@@ -400,7 +400,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-positions"
                 ],
-                "summary": "Update position",
+                "summary": "UpdatePlaylist position",
                 "operationId": "update-position",
                 "parameters": [
                     {
@@ -426,7 +426,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-positions"
                 ],
-                "summary": "New position",
+                "summary": "NewPlaylist position",
                 "operationId": "new-position",
                 "parameters": [
                     {
@@ -615,7 +615,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "Update a format",
+                "summary": "UpdatePlaylist a format",
                 "operationId": "update-creator-encode-format",
                 "parameters": [
                     {
@@ -642,7 +642,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "New encode format",
+                "summary": "NewPlaylist encode format",
                 "operationId": "new-creator-encode-format",
                 "parameters": [
                     {
@@ -720,7 +720,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "Update a preset",
+                "summary": "UpdatePlaylist a preset",
                 "operationId": "update-creator-encode-preset",
                 "parameters": [
                     {
@@ -747,7 +747,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "New preset",
+                "summary": "NewPlaylist preset",
                 "operationId": "new-creator-encode-preset",
                 "parameters": [
                     {
@@ -818,14 +818,14 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update a playlist, video ID's required otherwise it will remove all videos.",
+                "description": "UpdatePlaylist a playlist, video ID's required otherwise it will remove all videos.",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-playlists"
                 ],
-                "summary": "Update playlist",
+                "summary": "UpdatePlaylist playlist",
                 "operationId": "update-creator-playlist",
                 "parameters": [
                     {
@@ -852,7 +852,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-playlists"
                 ],
-                "summary": "New playlist",
+                "summary": "NewPlaylist playlist",
                 "operationId": "new-creator-playlist",
                 "parameters": [
                     {
@@ -877,14 +877,14 @@ const docTemplate = `{
         },
         "/v1/internal/creator/playlist/{playlistid}": {
             "get": {
-                "description": "Get a playlist including its children videos.",
+                "description": "GetSeries a playlist including its children videos.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-playlists"
                 ],
-                "summary": "Get playlist by ID",
+                "summary": "GetSeries playlist by ID",
                 "operationId": "get-creator-playlist",
                 "parameters": [
                     {
@@ -936,7 +936,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-playout-channels"
                 ],
-                "summary": "Update a channel",
+                "summary": "UpdatePlaylist a channel",
                 "operationId": "update-creator-playout-channel",
                 "parameters": [
                     {
@@ -963,7 +963,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-playout-channels"
                 ],
-                "summary": "New channel",
+                "summary": "NewPlaylist channel",
                 "operationId": "new-creator-playout-channel",
                 "parameters": [
                     {
@@ -1036,14 +1036,14 @@ const docTemplate = `{
         },
         "/v1/internal/creator/series/{seriesid}": {
             "get": {
-                "description": "Get a series including its children videos.",
+                "description": "GetSeries a series including its children videos.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-series"
                 ],
-                "summary": "Get series by ID",
+                "summary": "GetSeries series by ID",
                 "operationId": "get-creator-series",
                 "parameters": [
                     {
@@ -1062,6 +1062,28 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete a series",
+                "tags": [
+                    "creator-series"
+                ],
+                "summary": "Delete a series",
+                "operationId": "delete-creator-series",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Series ID",
+                        "name": "seriesid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
         "/v1/internal/creator/stats": {
@@ -1073,7 +1095,7 @@ const docTemplate = `{
                 "tags": [
                     "creator"
                 ],
-                "summary": "Get global video library information",
+                "summary": "GetSeries global video library information",
                 "operationId": "get-creator-glob-stats",
                 "responses": {
                     "200": {
@@ -1118,7 +1140,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-videos"
                 ],
-                "summary": "Update video meta",
+                "summary": "UpdatePlaylist video meta",
                 "operationId": "update-creator-video-meta",
                 "parameters": [
                     {
@@ -1209,7 +1231,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-videos"
                 ],
-                "summary": "New video",
+                "summary": "NewPlaylist video",
                 "operationId": "new-creator-video",
                 "parameters": [
                     {
@@ -1234,14 +1256,14 @@ const docTemplate = `{
         },
         "/v1/internal/creator/videos/{videoid}": {
             "get": {
-                "description": "Get a playlist including its children files.",
+                "description": "GetSeries a playlist including its children files.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-videos"
                 ],
-                "summary": "Get video by ID",
+                "summary": "GetSeries video by ID",
                 "operationId": "get-creator-video",
                 "parameters": [
                     {
@@ -1298,7 +1320,7 @@ const docTemplate = `{
                 "tags": [
                     "encoder"
                 ],
-                "summary": "New upload request",
+                "summary": "NewPlaylist upload request",
                 "operationId": "new-encoder-upload-request",
                 "responses": {
                     "200": {
@@ -1309,14 +1331,14 @@ const docTemplate = `{
         },
         "/v1/internal/misc/list/{listid}": {
             "get": {
-                "description": "Get a mailing list. Provides list subscribers also",
+                "description": "GetSeries a mailing list. Provides list subscribers also",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "Get Mailing list",
+                "summary": "GetSeries Mailing list",
                 "operationId": "get-mailing-list-id",
                 "parameters": [
                     {
@@ -1400,14 +1422,14 @@ const docTemplate = `{
         },
         "/v1/internal/misc/list/{listid}/subscribers": {
             "get": {
-                "description": "Get a mailing list's subscribers",
+                "description": "GetSeries a mailing list's subscribers",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "Get subscribers",
+                "summary": "GetSeries subscribers",
                 "operationId": "get-mailing-list-subscribers-id",
                 "parameters": [
                     {
@@ -1498,7 +1520,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "Get Mailing lists",
+                "summary": "GetSeries Mailing lists",
                 "operationId": "get-mailing-lists",
                 "responses": {
                     "200": {
@@ -1522,7 +1544,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "Get Mailing lists by token",
+                "summary": "GetSeries Mailing lists by token",
                 "operationId": "get-mailing-lists-token",
                 "responses": {
                     "200": {
@@ -1546,7 +1568,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-quotes"
                 ],
-                "summary": "Update quote",
+                "summary": "UpdatePlaylist quote",
                 "operationId": "update-quote",
                 "parameters": [
                     {
@@ -1573,7 +1595,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-quotes"
                 ],
-                "summary": "New quote",
+                "summary": "NewPlaylist quote",
                 "operationId": "new-quote",
                 "parameters": [
                     {
@@ -1687,7 +1709,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-webcams"
                 ],
-                "summary": "Get webcam",
+                "summary": "GetSeries webcam",
                 "operationId": "get-webcam",
                 "parameters": [
                     {
@@ -1845,14 +1867,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user": {
             "get": {
-                "description": "Get a basic user object by JWT token generated by web-auth.",
+                "description": "GetSeries a basic user object by JWT token generated by web-auth.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "Get a user by token",
+                "summary": "GetSeries a user by token",
                 "operationId": "get-user-token",
                 "responses": {
                     "200": {
@@ -1866,14 +1888,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user/full": {
             "get": {
-                "description": "Get a complete user object by JWT token generated by web-auth.",
+                "description": "GetSeries a complete user object by JWT token generated by web-auth.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "Get a full user by token",
+                "summary": "GetSeries a full user by token",
                 "operationId": "get-user-token-full",
                 "responses": {
                     "200": {
@@ -1887,14 +1909,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user/{userid}": {
             "get": {
-                "description": "Get a basic user object by ID.",
+                "description": "GetSeries a basic user object by ID.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "Get a user by ID",
+                "summary": "GetSeries a user by ID",
                 "operationId": "get-user-id",
                 "parameters": [
                     {
@@ -1917,14 +1939,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user/{userid}/full": {
             "get": {
-                "description": "Get a complete user object by ID.",
+                "description": "GetSeries a complete user object by ID.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "Get a full user by ID",
+                "summary": "GetSeries a full user by ID",
                 "operationId": "get-user-id-full",
                 "parameters": [
                     {
@@ -1964,6 +1986,112 @@ const docTemplate = `{
                                 "$ref": "#/definitions/people.User"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/v1/internal/streams": {
+            "get": {
+                "description": "Lists all stream endpoints; this is for Nginx RTMP module\ncontaining the application, name, authentication and start and end times",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream-endpoints"
+                ],
+                "summary": "ListStreams stream endpoints",
+                "operationId": "get-stream",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/stream.Endpoint"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new stream endpoint; this is for Nginx RTMP module\ncontaining the application, name, authentication and start and end times",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream-endpoints"
+                ],
+                "summary": "NewStream stream endpoint",
+                "operationId": "new-stream",
+                "parameters": [
+                    {
+                        "description": "Stream endpoint object",
+                        "name": "endpoint",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/stream.NewEditEndpoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "EndpointDB ID",
+                        "schema": {
+                            "type": "body"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/streams/{endpointid}": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream-endpoints"
+                ],
+                "summary": "UpdateStream stream endpoint",
+                "operationId": "update-stream",
+                "parameters": [
+                    {
+                        "description": "Endpoint object",
+                        "name": "endpoint",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/stream.NewEditEndpoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream-endpoints"
+                ],
+                "summary": "Delete stream endpoint",
+                "operationId": "delete-stream",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Endpoint ID",
+                        "name": "endpointid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     }
                 }
             }
@@ -2376,7 +2504,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/email/{emailAlias}/{startYear}/{endYear}": {
             "get": {
-                "description": "Get the team and their members of that year",
+                "description": "GetSeries the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
@@ -2420,7 +2548,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/email/{emailAlias}/{year}": {
             "get": {
-                "description": "Get the team and their members of that year",
+                "description": "GetSeries the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
@@ -2511,7 +2639,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/teamid/{teamid}/{startYear}/{endYear}": {
             "get": {
-                "description": "Get the team and their members of that year",
+                "description": "GetSeries the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
@@ -2555,7 +2683,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/teamid/{teamid}/{year}": {
             "get": {
-                "description": "Get the team and their members of that year",
+                "description": "GetSeries the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
@@ -3709,6 +3837,87 @@ const docTemplate = `{
                 },
                 "totalVideos": {
                     "type": "integer"
+                }
+            }
+        },
+        "stream.Endpoint": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "description": "Active indicates if this endpoint is currently being used",
+                    "type": "boolean"
+                },
+                "application": {
+                    "description": "Application defines which RTMP application this is valid for",
+                    "type": "string"
+                },
+                "autoRemove": {
+                    "description": "AutoRemove indicates that this endpoint can be automatically removed when the end valid time comes, optional",
+                    "type": "boolean"
+                },
+                "blocked": {
+                    "description": "Blocked prevents the endpoint from going live",
+                    "type": "boolean"
+                },
+                "endValid": {
+                    "description": "EndValid defines the optional end time that this endpoint stops being valid",
+                    "type": "string"
+                },
+                "endpointId": {
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name is the unique name given in an application",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "Notes is an optional internal note for the endpoint",
+                    "type": "string"
+                },
+                "pwd": {
+                    "description": "Pwd defines an extra layer of security for authentication",
+                    "type": "string"
+                },
+                "startValid": {
+                    "description": "StartValid defines the optional start time that this endpoint becomes valid",
+                    "type": "string"
+                }
+            }
+        },
+        "stream.NewEditEndpoint": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "description": "Application defines which RTMP application this is valid for",
+                    "type": "string"
+                },
+                "autoRemove": {
+                    "description": "AutoRemove indicates that this endpoint can be automatically removed when the end valid time comes, optional",
+                    "type": "boolean"
+                },
+                "blocked": {
+                    "description": "Blocked prevents the endpoint from going live, optional defaults to false",
+                    "type": "boolean"
+                },
+                "endValid": {
+                    "description": "EndValid defines the optional end time that this endpoint stops being valid, RFC3339",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name is the unique name given in an application",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "Notes is an optional internal note for the endpoint",
+                    "type": "string"
+                },
+                "pwd": {
+                    "description": "Pwd defines an extra layer of security for authentication",
+                    "type": "string"
+                },
+                "startValid": {
+                    "description": "StartValid defines the optional start time that this endpoint becomes valid, RFC3339",
+                    "type": "string"
                 }
             }
         },
