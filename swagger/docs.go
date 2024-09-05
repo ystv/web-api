@@ -73,7 +73,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-events"
                 ],
-                "summary": "UpdatePlaylist event",
+                "summary": "Update event",
                 "operationId": "update-event",
                 "parameters": [
                     {
@@ -100,7 +100,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-events"
                 ],
-                "summary": "NewPlaylist event",
+                "summary": "New event",
                 "operationId": "new-event",
                 "parameters": [
                     {
@@ -125,14 +125,14 @@ const docTemplate = `{
         },
         "/v1/internal/clapper/event/{eventid}": {
             "get": {
-                "description": "GetSeries an event including signup-sheets and roles.",
+                "description": "Get an event including signup-sheets and roles.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "clapper-events"
                 ],
-                "summary": "GetSeries event by ID",
+                "summary": "Get event by ID",
                 "operationId": "get-event",
                 "parameters": [
                     {
@@ -187,7 +187,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-signups"
                 ],
-                "summary": "NewPlaylist signup sheet",
+                "summary": "New signup sheet",
                 "operationId": "new-signup",
                 "parameters": [
                     {
@@ -219,7 +219,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-signups"
                 ],
-                "summary": "UpdatePlaylist signup",
+                "summary": "Update signup",
                 "operationId": "update-signup",
                 "parameters": [
                     {
@@ -400,7 +400,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-positions"
                 ],
-                "summary": "UpdatePlaylist position",
+                "summary": "Update position",
                 "operationId": "update-position",
                 "parameters": [
                     {
@@ -426,7 +426,7 @@ const docTemplate = `{
                 "tags": [
                     "clapper-positions"
                 ],
-                "summary": "NewPlaylist position",
+                "summary": "New position",
                 "operationId": "new-position",
                 "parameters": [
                     {
@@ -615,7 +615,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "UpdatePlaylist a format",
+                "summary": "Update a format",
                 "operationId": "update-creator-encode-format",
                 "parameters": [
                     {
@@ -642,7 +642,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "NewPlaylist encode format",
+                "summary": "New encode format",
                 "operationId": "new-creator-encode-format",
                 "parameters": [
                     {
@@ -720,7 +720,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "UpdatePlaylist a preset",
+                "summary": "Update a preset",
                 "operationId": "update-creator-encode-preset",
                 "parameters": [
                     {
@@ -747,7 +747,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-encodes"
                 ],
-                "summary": "NewPlaylist preset",
+                "summary": "New preset",
                 "operationId": "new-creator-encode-preset",
                 "parameters": [
                     {
@@ -818,14 +818,14 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "UpdatePlaylist a playlist, video ID's required otherwise it will remove all videos.",
+                "description": "Update a playlist, video ID's required otherwise it will remove all videos.",
                 "consumes": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-playlists"
                 ],
-                "summary": "UpdatePlaylist playlist",
+                "summary": "Update playlist",
                 "operationId": "update-creator-playlist",
                 "parameters": [
                     {
@@ -852,7 +852,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-playlists"
                 ],
-                "summary": "NewPlaylist playlist",
+                "summary": "New playlist",
                 "operationId": "new-creator-playlist",
                 "parameters": [
                     {
@@ -877,14 +877,14 @@ const docTemplate = `{
         },
         "/v1/internal/creator/playlist/{playlistid}": {
             "get": {
-                "description": "GetSeries a playlist including its children videos.",
+                "description": "Get a playlist including its children videos.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-playlists"
                 ],
-                "summary": "GetSeries playlist by ID",
+                "summary": "Get playlist by ID",
                 "operationId": "get-creator-playlist",
                 "parameters": [
                     {
@@ -936,7 +936,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-playout-channels"
                 ],
-                "summary": "UpdatePlaylist a channel",
+                "summary": "Update a channel",
                 "operationId": "update-creator-playout-channel",
                 "parameters": [
                     {
@@ -963,7 +963,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-playout-channels"
                 ],
-                "summary": "NewPlaylist channel",
+                "summary": "New channel",
                 "operationId": "new-creator-playout-channel",
                 "parameters": [
                     {
@@ -1032,18 +1032,45 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "UpdatePlaylist a series, video ID's required otherwise it will remove all videos.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "creator-series"
+                ],
+                "summary": "UpdatePlaylist series",
+                "operationId": "update-creator-series",
+                "parameters": [
+                    {
+                        "description": "Series object",
+                        "name": "quote",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/series.Series"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
         "/v1/internal/creator/series/{seriesid}": {
             "get": {
-                "description": "GetSeries a series including its children videos.",
+                "description": "Get a series including its children videos.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-series"
                 ],
-                "summary": "GetSeries series by ID",
+                "summary": "Get series by ID",
                 "operationId": "get-creator-series",
                 "parameters": [
                     {
@@ -1095,7 +1122,7 @@ const docTemplate = `{
                 "tags": [
                     "creator"
                 ],
-                "summary": "GetSeries global video library information",
+                "summary": "Get global video library information",
                 "operationId": "get-creator-glob-stats",
                 "responses": {
                     "200": {
@@ -1140,7 +1167,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-videos"
                 ],
-                "summary": "UpdatePlaylist video meta",
+                "summary": "Update video meta",
                 "operationId": "update-creator-video-meta",
                 "parameters": [
                     {
@@ -1231,7 +1258,7 @@ const docTemplate = `{
                 "tags": [
                     "creator-videos"
                 ],
-                "summary": "NewPlaylist video",
+                "summary": "New video",
                 "operationId": "new-creator-video",
                 "parameters": [
                     {
@@ -1256,14 +1283,14 @@ const docTemplate = `{
         },
         "/v1/internal/creator/videos/{videoid}": {
             "get": {
-                "description": "GetSeries a playlist including its children files.",
+                "description": "Get a playlist including its children files.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "creator-videos"
                 ],
-                "summary": "GetSeries video by ID",
+                "summary": "Get video by ID",
                 "operationId": "get-creator-video",
                 "parameters": [
                     {
@@ -1320,7 +1347,7 @@ const docTemplate = `{
                 "tags": [
                     "encoder"
                 ],
-                "summary": "NewPlaylist upload request",
+                "summary": "New upload request",
                 "operationId": "new-encoder-upload-request",
                 "responses": {
                     "200": {
@@ -1331,14 +1358,14 @@ const docTemplate = `{
         },
         "/v1/internal/misc/list/{listid}": {
             "get": {
-                "description": "GetSeries a mailing list. Provides list subscribers also",
+                "description": "Get a mailing list. Provides list subscribers also",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "GetSeries Mailing list",
+                "summary": "Get Mailing list",
                 "operationId": "get-mailing-list-id",
                 "parameters": [
                     {
@@ -1422,14 +1449,14 @@ const docTemplate = `{
         },
         "/v1/internal/misc/list/{listid}/subscribers": {
             "get": {
-                "description": "GetSeries a mailing list's subscribers",
+                "description": "Get a mailing list's subscribers",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "GetSeries subscribers",
+                "summary": "Get subscribers",
                 "operationId": "get-mailing-list-subscribers-id",
                 "parameters": [
                     {
@@ -1520,7 +1547,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "GetSeries Mailing lists",
+                "summary": "Get Mailing lists",
                 "operationId": "get-mailing-lists",
                 "responses": {
                     "200": {
@@ -1544,7 +1571,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-list"
                 ],
-                "summary": "GetSeries Mailing lists by token",
+                "summary": "Get Mailing lists by token",
                 "operationId": "get-mailing-lists-token",
                 "responses": {
                     "200": {
@@ -1568,7 +1595,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-quotes"
                 ],
-                "summary": "UpdatePlaylist quote",
+                "summary": "Update quote",
                 "operationId": "update-quote",
                 "parameters": [
                     {
@@ -1595,7 +1622,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-quotes"
                 ],
-                "summary": "NewPlaylist quote",
+                "summary": "New quote",
                 "operationId": "new-quote",
                 "parameters": [
                     {
@@ -1709,7 +1736,7 @@ const docTemplate = `{
                 "tags": [
                     "misc-webcams"
                 ],
-                "summary": "GetSeries webcam",
+                "summary": "Get webcam",
                 "operationId": "get-webcam",
                 "parameters": [
                     {
@@ -1867,14 +1894,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user": {
             "get": {
-                "description": "GetSeries a basic user object by JWT token generated by web-auth.",
+                "description": "Get a basic user object by JWT token generated by web-auth.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "GetSeries a user by token",
+                "summary": "Get a user by token",
                 "operationId": "get-user-token",
                 "responses": {
                     "200": {
@@ -1888,14 +1915,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user/full": {
             "get": {
-                "description": "GetSeries a complete user object by JWT token generated by web-auth.",
+                "description": "Get a complete user object by JWT token generated by web-auth.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "GetSeries a full user by token",
+                "summary": "Get a full user by token",
                 "operationId": "get-user-token-full",
                 "responses": {
                     "200": {
@@ -1909,14 +1936,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user/{userid}": {
             "get": {
-                "description": "GetSeries a basic user object by ID.",
+                "description": "Get a basic user object by ID.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "GetSeries a user by ID",
+                "summary": "Get a user by ID",
                 "operationId": "get-user-id",
                 "parameters": [
                     {
@@ -1939,14 +1966,14 @@ const docTemplate = `{
         },
         "/v1/internal/people/user/{userid}/full": {
             "get": {
-                "description": "GetSeries a complete user object by ID.",
+                "description": "Get a complete user object by ID.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "people-user"
                 ],
-                "summary": "GetSeries a full user by ID",
+                "summary": "Get a full user by ID",
                 "operationId": "get-user-id-full",
                 "parameters": [
                     {
@@ -1985,6 +2012,38 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/people.User"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/stream/publish": {
+            "post": {
+                "description": "Creates a new stream endpoint; this is for Nginx RTMP module\ncontaining the application, name, authentication and start and end times",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream-endpoints"
+                ],
+                "summary": "Publish a stream",
+                "operationId": "publish-stream",
+                "parameters": [
+                    {
+                        "description": "Stream endpoint object",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/stream.NewEditEndpoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "EndpointDB ID",
+                        "schema": {
+                            "type": "body"
                         }
                     }
                 }
@@ -2504,7 +2563,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/email/{emailAlias}/{startYear}/{endYear}": {
             "get": {
-                "description": "GetSeries the team and their members of that year",
+                "description": "Get the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
@@ -2548,7 +2607,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/email/{emailAlias}/{year}": {
             "get": {
-                "description": "GetSeries the team and their members of that year",
+                "description": "Get the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
@@ -2639,7 +2698,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/teamid/{teamid}/{startYear}/{endYear}": {
             "get": {
-                "description": "GetSeries the team and their members of that year",
+                "description": "Get the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
@@ -2683,7 +2742,7 @@ const docTemplate = `{
         },
         "/v1/public/teams/teamid/{teamid}/{year}": {
             "get": {
-                "description": "GetSeries the team and their members of that year",
+                "description": "Get the team and their members of that year",
                 "produces": [
                     "application/json"
                 ],
