@@ -5,14 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/ystv/web-api/services/stream"
+	"github.com/ystv/web-api/utils"
 )
 
 // Repos encapsulates the dependency
@@ -25,7 +28,105 @@ func NewRepos(db *sqlx.DB) *Repos {
 	return &Repos{stream.NewStore(db)}
 }
 
-type SRSPublish struct {
+// PublishStream handles a stream publish request
+//
+// @Summary Publish a stream
+// @Description Creates a new stream endpoint; this is for Nginx RTMP module
+// @Description containing the application, name, authentication and start and end times
+// @ID publish-stream
+// @Tags stream-endpoints
+// @Accept json
+// @Param event body stream.NewEditEndpoint true "Stream endpoint object"
+// @Success 201 body int "EndpointDB ID"
+// @Error 400
+// @Router /v1/internal/stream/publish [post]
+func (r *Repos) PublishStream(c echo.Context) error {
+	var application, name, pwd, action string
+	var err error
+
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(c.Request().Body)
+
+	if c.Request().Header.Get("Content-Type") == "application/json" {
+		// SRS publish handler
+		application, name, pwd, action, err = _handleSRSPublish(c)
+		if action != "on_publish" {
+			err = errors.New("invalid action " + action)
+		}
+	} else {
+		// Form DATA from nginx-rtmp/srtrelay
+		application, name, pwd, action = _handleNginxPublish(c)
+
+		// only apply auth for publish
+		if action != "publish" {
+			return nil
+		}
+	}
+
+	if err != nil {
+		c.Logger().Warnf("PublishStream: failed to parse publish data: %+v", err)
+		return c.String(http.StatusUnauthorized, "401 Unauthorized")
+	}
+
+	endpoint, err := r.stream.GetEndpointByApplicationNamePwd(c.Request().Context(), application, name, pwd)
+	if err != nil {
+		c.Logger().Errorf("PublishStream: failed to get endpoint: %+v", err)
+		return c.String(http.StatusUnauthorized, "401 Unauthorized")
+	}
+
+	if endpoint.Active || endpoint.Blocked {
+		c.Logger().Warnf("PublishStream: endpoint active (%t) or blocked (%t)", endpoint.Active, endpoint.Blocked)
+		return c.String(http.StatusUnauthorized, "401 Unauthorized")
+	}
+
+	err = r.stream.SetEndpointActiveByID(c.Request().Context(), endpoint.EndpointID)
+	if err != nil {
+		c.Logger().Errorf("PublishStream: failed to set endpoint active: %+v", err)
+		return c.String(http.StatusUnauthorized, "401 Unauthorized")
+	} else {
+		c.Logger().Infof("PublishStream: published %d %s/%s", endpoint.EndpointID, application, name)
+	}
+
+	// SRS needs zero response
+	return c.String(http.StatusOK, "0")
+}
+
+func (r *Repos) UnpublishStream(c echo.Context) error {
+	var application, name, pwd, action string
+	var err error
+
+	if c.Request().Header.Get("Content-Type") == "application/json" {
+		// SRS publish handler
+		application, name, _, action, err = _handleSRSPublish(c)
+		if action != "on_unpublish" {
+			err = fmt.Errorf("invalid action %s", action)
+		}
+	} else {
+		// Form DATA from nginx-rtmp/srtrelay
+		application, name, pwd, action = _handleNginxPublish(c)
+		// ignore actions except unpublish
+		if action != "publish_done" {
+			return nil
+		}
+	}
+
+	if err != nil {
+		c.Logger().Warnf("UnpublishStream: failed to parse unpublish data: %+v", err)
+		return c.String(http.StatusUnauthorized, "401 Unauthorized")
+	}
+	err = r.stream.SetEndpointInactiveByApplicationNamePwd(c.Request().Context(), application, name, pwd)
+	if err != nil {
+		c.Logger().Errorf("UnpublishStream: failed to unpublish stream, continuing, %s/%s: %+v", application, name, err)
+	} else {
+		c.Logger().Infof("UnpublishStream: unpublished %s/%s", application, name)
+	}
+
+	// SRS needs zero response
+	return c.String(http.StatusOK, "0")
+}
+
+type _srsPublish struct {
 	Action      string `json:"action"`
 	IP          string `json:"ip"`
 	VHost       string `json:"vhost"`
@@ -35,8 +136,8 @@ type SRSPublish struct {
 	Param       string `json:"param"`
 }
 
-func handleSRSPublish(c echo.Context) (string, string, string, string, error) {
-	var publish SRSPublish
+func _handleSRSPublish(c echo.Context) (string, string, string, string, error) {
+	var publish _srsPublish
 	var application, name, pwd, action string
 	var err error
 
@@ -66,7 +167,7 @@ func handleSRSPublish(c echo.Context) (string, string, string, string, error) {
 	return application, pwd, name, action, nil
 }
 
-func handleNginxPublish(c echo.Context) (string, string, string, string) {
+func _handleNginxPublish(c echo.Context) (string, string, string, string) {
 	var application, name, pwd, action string
 	application = c.FormValue("app")
 	name = c.FormValue("name")
@@ -76,88 +177,268 @@ func handleNginxPublish(c echo.Context) (string, string, string, string) {
 	return application, pwd, name, action
 }
 
-func (r *Repos) PublishHandler(c echo.Context) error {
-	var application, name, pwd, action string
-	var err error
+// ListStreams handles a listing stream endpoints
+//
+// @Summary ListStreams stream endpoints
+// @Description Lists all stream endpoints; this is for Nginx RTMP module
+// @Description containing the application, name, authentication and start and end times
+// @ID get-stream
+// @Tags stream-endpoints
+// @Accept json
+// @Success 200 {array} stream.Endpoint
+// @Router /v1/internal/streams [get]
+func (r *Repos) ListStreams(c echo.Context) error {
+	e, err := r.stream.ListEndpoints(c.Request().Context())
+	if err != nil {
+		err = fmt.Errorf("ListStreams: failed to get: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
 
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(c.Request().Body)
+	endpoints := make([]stream.Endpoint, len(e))
 
-	if c.Request().Header.Get("Content-Type") == "application/json" {
-		// SRS publish handler
-		application, name, pwd, action, err = handleSRSPublish(c)
-		if action != "on_publish" {
-			err = errors.New("publish stream invalid action " + action)
+	for _, endpoint := range e {
+		var pwd, startValid, endValid, notes string
+
+		if endpoint.Pwd.Valid {
+			pwd = endpoint.Pwd.String
 		}
-	} else {
-		// Form DATA from nginx-rtmp/srtrelay
-		application, name, pwd, action = handleNginxPublish(c)
-
-		// only apply auth for publish
-		if action != "publish" {
-			return nil
+		if endpoint.StartValid.Valid {
+			startValid = endpoint.StartValid.Time.Format(time.RFC3339)
 		}
+		if endpoint.EndValid.Valid {
+			endValid = endpoint.EndValid.Time.Format(time.RFC3339)
+		}
+		if endpoint.Notes.Valid {
+			notes = endpoint.Notes.String
+		}
+
+		endpoints = append(endpoints, stream.Endpoint{
+			EndpointID:  endpoint.EndpointID,
+			Application: endpoint.Application,
+			Name:        endpoint.Name,
+			Pwd:         pwd,
+			StartValid:  startValid,
+			EndValid:    endValid,
+			Notes:       notes,
+			Active:      endpoint.Active,
+			Blocked:     endpoint.Blocked,
+		})
 	}
 
-	if err != nil {
-		log.Printf("failed to parse publish data: %+v", err)
-		return c.String(http.StatusUnauthorized, "401 Unauthorized")
-	}
-
-	endpoint, err := r.stream.GetEndpointByApplicationNamePwd(c.Request().Context(), application, name, pwd)
-	if err != nil {
-		log.Printf("failed to get endpoint: %+v", err)
-		return c.String(http.StatusUnauthorized, "401 Unauthorized")
-	}
-
-	if endpoint.Active || endpoint.Blocked {
-		log.Printf("endpoint active (%t) or blocked (%t)", endpoint.Active, endpoint.Blocked)
-		return c.String(http.StatusUnauthorized, "401 Unauthorized")
-	}
-
-	err = r.stream.SetEndpointActiveByID(c.Request().Context(), endpoint.EndpointID)
-	if err != nil {
-		log.Println(err)
-	} else {
-		log.Printf("publish stream %s %s/%s ok", endpoint.EndpointID, application, name)
-	}
-
-	// SRS needs zero response
-	return c.String(http.StatusOK, "0")
+	return c.JSON(http.StatusOK, utils.NonNil(endpoints))
 }
 
-func (r *Repos) UnpublishHandler(c echo.Context) error {
-	var application, name, pwd, action string
-	var err error
+// NewStream handles a creating a stream endpoint
+//
+// @Summary NewStream stream endpoint
+// @Description Creates a new stream endpoint; this is for Nginx RTMP module
+// @Description containing the application, name, authentication and start and end times
+// @ID new-stream
+// @Tags stream-endpoints
+// @Accept json
+// @Param endpoint body stream.NewEditEndpoint true "Stream endpoint object"
+// @Success 201 body int "EndpointDB ID"
+// @Error 400
+// @Router /v1/internal/streams [post]
+func (r *Repos) NewStream(c echo.Context) error {
+	var newEndpoint stream.NewEditEndpoint
 
-	if c.Request().Header.Get("Content-Type") == "application/json" {
-		// SRS publish handler
-		application, name, _, action, err = handleSRSPublish(c)
-		if action != "on_unpublish" {
-			err = fmt.Errorf("unpublish stream invalid action %s", action)
-		}
-	} else {
-		// Form DATA from nginx-rtmp/srtrelay
-		application, name, pwd, action = handleNginxPublish(c)
-		log.Println("unpublish action", action)
-		// ignore actions except unpublish
-		if action != "publish_done" {
-			return nil
-		}
-	}
-
+	err := c.Bind(&newEndpoint)
 	if err != nil {
-		log.Printf("failed to parse unpublish data: %+v", err)
-		return c.String(http.StatusUnauthorized, "401 Unauthorized")
-	}
-	err = r.stream.SetEndpointInactiveByApplicationNamePwd(c.Request().Context(), application, name, pwd)
-	if err != nil {
-		log.Printf("failed to unpublish stream, continuing, %s/%s: %+v", application, name, err)
-	} else {
-		log.Printf("unpublish stream %s/%s ok", application, name)
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Errorf("NewStream: failed to bind to request json: %w", err))
 	}
 
-	// SRS needs zero response
-	return c.String(http.StatusOK, "0")
+	if len(newEndpoint.Name) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: endpoint name must be set"))
+	}
+
+	if len(newEndpoint.Application) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: endpoint applicaiton must be set"))
+	}
+
+	startTime := null.NewTime(time.Time{}, false)
+
+	if newEndpoint.StartValid != "" {
+		var parseStart time.Time
+
+		parseStart, err = time.Parse(time.RFC3339, newEndpoint.StartValid)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: failed to parse start date: %w", err))
+		}
+
+		startTime = null.TimeFrom(parseStart)
+	}
+
+	endTime := null.NewTime(time.Time{}, false)
+
+	if newEndpoint.EndValid != "" {
+		var parseEnd time.Time
+
+		parseEnd, err = time.Parse(time.RFC3339, newEndpoint.EndValid)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: failed to parse end date: %w", err))
+		}
+
+		diffEnd := time.Now().Compare(parseEnd)
+		if diffEnd != -1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after now")
+		}
+
+		if startTime.Valid {
+			diffStartEnd := startTime.Time.Compare(parseEnd)
+			if diffStartEnd != -1 {
+				return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after start date")
+			}
+		}
+
+		endTime = null.TimeFrom(parseEnd)
+	}
+
+	pwd := null.NewString("", false)
+	notes := null.NewString("", false)
+
+	if newEndpoint.Pwd != "" {
+		pwd = null.StringFrom(newEndpoint.Pwd)
+	}
+
+	if newEndpoint.Notes != "" {
+		notes = null.StringFrom(newEndpoint.Notes)
+	}
+
+	endpoint, err := r.stream.NewEndpoint(c.Request().Context(), stream.EndpointDB{
+		Application: newEndpoint.Application,
+		Name:        newEndpoint.Name,
+		Pwd:         pwd,
+		StartValid:  startTime,
+		EndValid:    endTime,
+		Notes:       notes,
+		Blocked:     newEndpoint.Blocked,
+		AutoRemove:  newEndpoint.AutoRemove,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("NewStream: failed to insert stream endpoint: %w", err))
+	}
+
+	return c.JSON(http.StatusCreated, endpoint.EndpointID)
+}
+
+// UpdateStream updates an existing position
+// @Summary UpdateStream stream endpoint
+// @ID update-stream
+// @Tags stream-endpoints
+// @Accept json
+// @Param endpoint body stream.NewEditEndpoint true "Endpoint object"
+// @Success 200
+// @Router /v1/internal/streams/{endpointid} [put]
+func (r *Repos) UpdateStream(c echo.Context) error {
+	endpointID, err := strconv.Atoi(c.Param("endpointid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: invalid endpoint ID")
+	}
+
+	_, err = r.stream.GetEndpointByID(c.Request().Context(), endpointID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: endpoint not found")
+	}
+
+	var editEndpoint stream.NewEditEndpoint
+
+	err = c.Bind(&editEndpoint)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest,
+			fmt.Errorf("UpdateStream: failed to bind to request json: %w", err))
+	}
+
+	if len(editEndpoint.Name) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: endpoint name must be set"))
+	}
+
+	if len(editEndpoint.Application) == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: endpoint applicaiton must be set"))
+	}
+
+	startTime := null.NewTime(time.Time{}, false)
+
+	if editEndpoint.StartValid != "" {
+		var parseStart time.Time
+
+		parseStart, err = time.Parse(time.RFC3339, editEndpoint.StartValid)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: failed to parse start date: %w", err))
+		}
+
+		startTime = null.TimeFrom(parseStart)
+	}
+
+	endTime := null.NewTime(time.Time{}, false)
+
+	if editEndpoint.EndValid != "" {
+		var parseEnd time.Time
+
+		parseEnd, err = time.Parse(time.RFC3339, editEndpoint.EndValid)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: failed to parse end date: %w", err))
+		}
+
+		if startTime.Valid {
+			diffStartEnd := startTime.Time.Compare(parseEnd)
+			if diffStartEnd != -1 {
+				return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: end date must be after start date")
+			}
+		}
+
+		endTime = null.TimeFrom(parseEnd)
+	}
+
+	pwd := null.NewString("", false)
+	notes := null.NewString("", false)
+
+	if editEndpoint.Pwd != "" {
+		pwd = null.StringFrom(editEndpoint.Pwd)
+	}
+
+	if editEndpoint.Notes != "" {
+		notes = null.StringFrom(editEndpoint.Notes)
+	}
+
+	err = r.stream.EditEndpoint(c.Request().Context(), stream.EndpointDB{
+		EndpointID:  endpointID,
+		Application: editEndpoint.Application,
+		Name:        editEndpoint.Name,
+		Pwd:         pwd,
+		StartValid:  startTime,
+		EndValid:    endTime,
+		Notes:       notes,
+		Blocked:     editEndpoint.Blocked,
+		AutoRemove:  editEndpoint.AutoRemove,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("UpdateStream: failed to update stream endpoint: %w", err))
+	}
+
+	return c.NoContent(http.StatusOK)
+}
+
+// DeleteStream deletes a stream endpoint
+//
+// @Summary Delete stream endpoint
+// @ID delete-stream
+// @Tags stream-endpoints
+// @Accept json
+// @Param endpointid path int true "Endpoint ID"
+// @Success 200
+// @Router /v1/internal/streams/{endpointid} [delete]
+func (r *Repos) DeleteStream(c echo.Context) error {
+	endpointID, err := strconv.Atoi(c.Param("endpointid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "DeleteStream: invalid endpoint ID")
+	}
+
+	err = r.stream.DeleteEndpoint(c.Request().Context(), endpointID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("DeleteStream: failed to delete stream endpoint: %w", err))
+	}
+
+	return c.NoContent(http.StatusOK)
 }

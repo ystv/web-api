@@ -121,8 +121,8 @@ func (r *Router) loadRoutes() {
 		}
 		stream := internal.Group("/stream")
 		{
-			stream.POST("/publish", r.stream.PublishHandler)
-			stream.POST("/unpublish", r.stream.UnpublishHandler)
+			stream.POST("/publish", r.stream.PublishStream)
+			stream.POST("/unpublish", r.stream.UnpublishStream)
 		}
 		// Internal user endpoints
 		if !r.router.Debug {
@@ -294,6 +294,16 @@ func (r *Router) loadRoutes() {
 					list.POST("/:listid/subscribe/:userid", r.misc.SubscribeByID)
 					list.DELETE("/:listid/unsubscribe", r.misc.UnsubscribeByToken)
 					list.DELETE("/:listid/unsubscribe/:userid", r.misc.UnsubscribeByID)
+				}
+			}
+			streamsAuthed := internal.Group("/streams")
+			{
+				streamsAuthed.GET("", r.stream.ListStreams)
+				streamsAuthed.POST("", r.stream.NewStream)
+				streamAuthed := streamsAuthed.Group("/:endpointid")
+				{
+					streamAuthed.PUT("", r.stream.UpdateStream)
+					streamAuthed.DELETE("", r.stream.DeleteStream)
 				}
 			}
 		}
