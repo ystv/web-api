@@ -46,7 +46,7 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Acces
 		video.NewStore(db, cdn, enc, config),
 		series.NewController(db, cdn, enc, config),
 		playlist.NewStore(db),
-		playout.NewStore(db),
+		playout.NewStore(db, cdn, config),
 		breadcrumb.NewController(db, cdn, enc, config),
 		encode.NewStore(db),
 		creator.NewStore(db),
@@ -67,5 +67,6 @@ func (r *Repos) Stats(c echo.Context) error {
 		err = fmt.Errorf("stats failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusOK, s)
 }

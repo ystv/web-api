@@ -8,7 +8,9 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/creator/types/encode"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListEncodeFormat handles listing encode formats
@@ -25,7 +27,8 @@ func (r *Repos) ListEncodeFormat(c echo.Context) error {
 		err = fmt.Errorf("ListFormat failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, e)
+
+	return c.JSON(http.StatusOK, utils.NonNil(e))
 }
 
 // NewEncodeFormat handles creating a new encode format
@@ -38,17 +41,20 @@ func (r *Repos) ListEncodeFormat(c echo.Context) error {
 // @Success 201 body int "Format ID"
 // @Router /v1/internal/creator/encode/format [post]
 func (r *Repos) NewEncodeFormat(c echo.Context) error {
-	format := encode.Format{}
+	var format encode.Format
+
 	err := c.Bind(&format)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	formatID, err := r.encode.NewFormat(c.Request().Context(), format)
 	if err != nil {
 		err = fmt.Errorf("NewFormat failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, formatID)
 }
 
@@ -62,12 +68,14 @@ func (r *Repos) NewEncodeFormat(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/creator/encode/format [put]
 func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
-	format := encode.Format{}
+	var format encode.Format
+
 	err := c.Bind(&format)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.encode.UpdateFormat(c.Request().Context(), format)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -76,6 +84,7 @@ func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
 		err = fmt.Errorf("PresetUpdate failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -92,11 +101,13 @@ func (r *Repos) DeleteEncodeFormat(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
+
 	err = r.encode.DeleteFormat(c.Request().Context(), formatID)
 	if err != nil {
 		err = fmt.Errorf("DeleteFormat failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -114,7 +125,8 @@ func (r *Repos) ListEncodePreset(c echo.Context) error {
 		err = fmt.Errorf("ListPreset failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
 // NewEncodePreset handles creating a new preset
@@ -127,17 +139,20 @@ func (r *Repos) ListEncodePreset(c echo.Context) error {
 // @Success 201 body int "Preset ID"
 // @Router /v1/internal/creator/encode/preset [post]
 func (r *Repos) NewEncodePreset(c echo.Context) error {
-	p := encode.Preset{}
+	var p encode.Preset
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	presetID, err := r.encode.NewPreset(c.Request().Context(), p)
 	if err != nil {
 		err = fmt.Errorf("PresetNew failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, presetID)
 }
 
@@ -151,12 +166,14 @@ func (r *Repos) NewEncodePreset(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/creator/encode/preset [put]
 func (r *Repos) UpdateEncodePreset(c echo.Context) error {
-	p := encode.Preset{}
+	var p encode.Preset
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.encode.UpdatePreset(c.Request().Context(), p)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -165,6 +182,7 @@ func (r *Repos) UpdateEncodePreset(c echo.Context) error {
 		err = fmt.Errorf("PresetUpdate failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -181,10 +199,12 @@ func (r *Repos) DeleteEncodePreset(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
+
 	err = r.encode.DeletePreset(c.Request().Context(), presetID)
 	if err != nil {
 		err = fmt.Errorf("DeletePreset failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

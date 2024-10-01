@@ -2,6 +2,7 @@ package public
 
 import (
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/public"
 )
 

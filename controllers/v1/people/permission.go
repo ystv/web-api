@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
 // ListAllPermissions handles listing all permissions
@@ -22,7 +24,8 @@ func (r *Repo) ListAllPermissions(c echo.Context) error {
 		err = fmt.Errorf("ListAllPermissions failed to get permissions: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
 // ListPermissionMembersByID handles listing all members of a certain permission
@@ -39,10 +42,12 @@ func (r *Repo) ListPermissionMembersByID(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid permission id")
 	}
+
 	p, err := r.people.ListPermissionMembersByID(c.Request().Context(), permissionID)
 	if err != nil {
 		err = fmt.Errorf("ListPermissionMembersByID failed to get users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }

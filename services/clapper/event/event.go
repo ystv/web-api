@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/clapper"
 	"github.com/ystv/web-api/utils"
 )

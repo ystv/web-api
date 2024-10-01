@@ -47,11 +47,13 @@ func (r *Repos) SeriesByYear(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad year")
 	}
+
 	s, err := r.public.SeriesByYear(c.Request().Context(), year)
 	if err != nil {
 		err = fmt.Errorf("public ListSeriesByYear failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, s)
 }
 
@@ -70,15 +72,18 @@ type SearchInput struct {
 // @Success 200 {array} public.Series
 // @Router /v1/public/search [post]
 func (r *Repos) Search(c echo.Context) error {
-	searchInput := SearchInput{}
+	var searchInput SearchInput
+
 	err := c.Bind(&searchInput)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	s, err := r.public.Search(c.Request().Context(), searchInput.Query)
 	if err != nil {
 		err = fmt.Errorf("public Search failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, s)
 }

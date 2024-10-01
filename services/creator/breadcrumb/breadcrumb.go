@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
 	"github.com/ystv/web-api/services/creator/types/series"

@@ -3,9 +3,11 @@ package video
 import (
 	"context"
 	"fmt"
+	"regexp"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+
 	"github.com/ystv/web-api/services/creator/types/video"
 )
 
@@ -21,22 +23,25 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 	}
 
 	if m.Thumbnail != "" {
+		reg := regexp.MustCompile(`.*/`)
+		res := reg.ReplaceAllString(m.Thumbnail, "${1}")
+
 		_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
 			Bucket:     aws.String(s.conf.ServeBucket),
-			CopySource: aws.String(s.conf.IngestBucket + "/" + m.Thumbnail),
-			Key:        aws.String(m.Thumbnail),
+			CopySource: aws.String(s.conf.IngestBucket + "/" + res),
+			Key:        aws.String(res),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to copy thumbnail: %w", err)
 		}
 
-		m.Thumbnail = "https://cdn.ystv.co.uk/" + s.conf.ServeBucket + "/" + m.Thumbnail
+		m.Thumbnail = s.cdn.Endpoint + "/" + s.conf.ServeBucket + "/" + res
 	} else {
 		m.Thumbnail = videoItem.Thumbnail
 	}
 
 	_, err = s.db.ExecContext(ctx, `
-				UPDATE videoItem.items SET
+				UPDATE video.items SET
 					series_id = $1,
 					name = $2,
 					url = $3,
@@ -63,5 +68,6 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 			return fmt.Errorf("failed to refresh videoItem: %w", err)
 		}
 	}
+
 	return nil
 }

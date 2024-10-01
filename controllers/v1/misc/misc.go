@@ -2,6 +2,7 @@ package misc
 
 import (
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/misc"
 	"github.com/ystv/web-api/utils"
 )

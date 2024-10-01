@@ -28,14 +28,17 @@ func (r *Repos) SetCrew(c echo.Context) error {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	crewID, err := strconv.Atoi(c.Param("crewid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid crew ID")
 	}
+
 	err = r.crew.UpdateUserAndVerify(c.Request().Context(), crewID, p.UserID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -57,10 +60,12 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 		err = fmt.Errorf("ResetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	crewID, err := strconv.Atoi(c.Param("crewid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid crew ID")
 	}
+
 	// get crew object
 	_, err = r.crew.Get(c.Request().Context(), crewID)
 	if err != nil {
@@ -69,12 +74,14 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	// TODO verify user has permission
 
 	err = r.crew.DeleteUser(c.Request().Context(), crewID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -95,14 +102,17 @@ func (r *Repos) NewCrew(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
 	}
+
 	positionID, err := strconv.Atoi(c.Param("positionid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
 	}
+
 	err = r.crew.New(c.Request().Context(), signupID, positionID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to insert crew: ", err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -122,10 +132,12 @@ func (r *Repos) DeleteCrew(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid crew ID")
 	}
+
 	err = r.crew.Delete(c.Request().Context(), signupID)
 	if err != nil {
 		err = fmt.Errorf("DeleteCrew failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/encoder"
 	"github.com/ystv/web-api/utils"
 )
@@ -69,7 +70,8 @@ func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *Repo {
 // @Success 200
 // @Router /v1/internal/encoder/upload_request [post]
 func (e *Repo) UploadRequest(c echo.Context) error {
-	r := Request{}
+	var r Request
+
 	err := c.Bind(&r)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -78,10 +80,11 @@ func (e *Repo) UploadRequest(c echo.Context) error {
 	_, err = e.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetToken failed: %w", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	// JSON response is required
+	return c.JSON(http.StatusOK, struct{}{})
 }
 
 // TranscodeFinished handles marking a transcode item as finished

@@ -7,7 +7,9 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/creator/types/playout"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListChannels handles listing channels
@@ -24,7 +26,8 @@ func (r *Repos) ListChannels(c echo.Context) error {
 		err = fmt.Errorf("ListChannels failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, chs)
+
+	return c.JSON(http.StatusOK, utils.NonNil(chs))
 }
 
 // NewChannel handles creating a new channel
@@ -37,17 +40,20 @@ func (r *Repos) ListChannels(c echo.Context) error {
 // @Success 201 body int "Channel ID"
 // @Router /v1/internal/creator/playout/channels [post]
 func (r *Repos) NewChannel(c echo.Context) error {
-	ch := playout.Channel{}
+	var ch playout.Channel
+
 	err := c.Bind(&ch)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.channel.NewChannel(c.Request().Context(), ch)
 	if err != nil {
 		err = fmt.Errorf("NewChannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -61,12 +67,14 @@ func (r *Repos) NewChannel(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/creator/playout/channels [put]
 func (r *Repos) UpdateChannel(c echo.Context) error {
-	ch := playout.Channel{}
+	var ch playout.Channel
+
 	err := c.Bind(&ch)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.channel.UpdateChannel(c.Request().Context(), ch)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -75,6 +83,7 @@ func (r *Repos) UpdateChannel(c echo.Context) error {
 		err = fmt.Errorf("PresetChannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -92,5 +101,6 @@ func (r *Repos) DeleteChannel(c echo.Context) error {
 		err = fmt.Errorf("DeleteChannel failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

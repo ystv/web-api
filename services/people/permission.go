@@ -9,6 +9,7 @@ var _ PermissionRepo = &Store{}
 
 func (s *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
 	var p []Permission
+
 	for _, permission := range p {
 		err := s.db.SelectContext(ctx, &permission, `
 			SELECT permission_id, name, description
@@ -17,11 +18,13 @@ func (s *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
 			return nil, fmt.Errorf("failed to get permissions: %w", err)
 		}
 	}
+
 	return p, nil
 }
 
 func (s *Store) ListPermissionMembersByID(ctx context.Context, permissionID int) ([]User, error) {
 	var u []User
+
 	err := s.db.GetContext(ctx, &u,
 		`SELECT u.user_id, username, email, first_name, last_name, nickname, avatar
 		FROM people.users u
@@ -31,11 +34,13 @@ func (s *Store) ListPermissionMembersByID(ctx context.Context, permissionID int)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user meta: %w", err)
 	}
+
 	for _, user := range u {
 		if user.Avatar != "" {
 			// TODO: sort this out
 			user.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + user.Avatar
 		}
 	}
+
 	return u, nil
 }

@@ -8,7 +8,9 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/clapper"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListMonth returns all events for a month.
@@ -26,16 +28,19 @@ func (r *Repos) ListMonth(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
 	}
+
 	month, err := strconv.Atoi(c.Param("month"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
+
 	e, err := r.event.ListMonth(c.Request().Context(), year, month)
 	if err != nil {
 		err = fmt.Errorf("ListMonth failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	return c.JSON(http.StatusOK, e)
+
+	return c.JSON(http.StatusOK, utils.NonNil(e))
 }
 
 // GetEvent handles getting all signups and roles for a given event
@@ -52,11 +57,13 @@ func (r *Repos) GetEvent(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
 	}
+
 	e, err := r.event.Get(c.Request().Context(), eventID)
 	if err != nil {
 		err = fmt.Errorf("GetEvent failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, e)
 }
 
@@ -71,22 +78,26 @@ func (r *Repos) GetEvent(c echo.Context) error {
 // @Success 201 body int "Event ID"
 // @Router /v1/internal/clapper/event [post]
 func (r *Repos) NewEvent(c echo.Context) error {
-	e := clapper.NewEvent{}
+	var e clapper.NewEvent
+
 	err := c.Bind(&e)
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	p, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	eventID, err := r.event.New(c.Request().Context(), &e, p.UserID)
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to insert event: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, eventID)
 }
 
@@ -101,17 +112,20 @@ func (r *Repos) NewEvent(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/event [put]
 func (r *Repos) UpdateEvent(c echo.Context) error {
-	e := clapper.Event{}
+	var e clapper.Event
+
 	err := c.Bind(&e)
 	if err != nil {
 		err = fmt.Errorf("UpdateEvent: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	p, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UpdateEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	err = r.event.Update(c.Request().Context(), &e, p.UserID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -120,6 +134,7 @@ func (r *Repos) UpdateEvent(c echo.Context) error {
 		err = fmt.Errorf("UpdateEvent:  failed to update: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -138,9 +153,11 @@ func (r *Repos) DeleteEvent(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
 	}
+
 	err = r.event.Delete(c.Request().Context(), eventID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to delete event: %w", err))
 	}
+
 	return c.NoContent(http.StatusOK)
 }

@@ -6,7 +6,9 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/misc"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListQuotes handles listing quotes by pagination
@@ -24,16 +26,19 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad offset")
 	}
+
 	page, err := strconv.Atoi(c.Param("page"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad page")
 	}
+
 	q, err := r.misc.ListQuotes(c.Request().Context(), amount, page)
 	if err != nil {
 		err = fmt.Errorf("ListQuotes failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, q)
+
+	return c.JSON(http.StatusOK, utils.NonNil(q))
 }
 
 // NewQuote handles creating a quote
@@ -47,22 +52,27 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 // @Success 201 {object} int "Quote ID"
 // @Router /v1/internal/misc/quotes [post]
 func (r *Repos) NewQuote(c echo.Context) error {
-	q := misc.Quote{}
+	var q misc.Quote
+
 	err := c.Bind(&q)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	q.CreatedBy = claims.UserID
+
 	err = r.misc.NewQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusCreated)
 }
 
@@ -77,16 +87,19 @@ func (r *Repos) NewQuote(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/misc/quotes [put]
 func (r *Repos) UpdateQuote(c echo.Context) error {
-	q := misc.Quote{}
+	var q misc.Quote
+
 	err := c.Bind(&q)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.misc.UpdateQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("UpdateQuote failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -103,10 +116,12 @@ func (r *Repos) DeleteQuote(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
+
 	err = r.misc.DeleteQuote(c.Request().Context(), quoteID)
 	if err != nil {
 		err = fmt.Errorf("DeleteQuote failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

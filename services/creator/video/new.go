@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/video"
 	"github.com/ystv/web-api/services/encoder"
@@ -98,5 +99,6 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 			return videoID, fmt.Errorf("failed to refresh video: %w", err)
 		}
 	}
+
 	return videoID, nil
 }

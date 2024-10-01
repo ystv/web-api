@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -12,6 +13,8 @@ type (
 	UserRepo interface {
 		GetUser(ctx context.Context, userID int) (User, error)
 		GetUserFull(ctx context.Context, userID int) (UserFull, error)
+		GetUserByEmail(ctx context.Context, email string) (User, error)
+		GetUserByEmailFull(ctx context.Context, email string) (UserFull, error)
 		ListAllUsers(ctx context.Context) ([]User, error)
 	}
 
@@ -30,14 +33,15 @@ type (
 
 	// Store contains our dependency
 	Store struct {
-		db *sqlx.DB
+		db  *sqlx.DB
+		cdn *s3.S3
 	}
 )
 
 //TODO Sort out pointers. They are currently here so when the json is being marshalled it will "omitempty"
 
 type (
-	//User represents a user object to be used when not all data is required
+	// User represents a user object to be used when not all data is required
 	User struct {
 		UserID      int          `db:"user_id" json:"id"`
 		Username    string       `db:"username" json:"username,omitempty"`
@@ -79,6 +83,6 @@ type (
 )
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
-	return &Store{db: db}
+func NewStore(db *sqlx.DB, cdn *s3.S3) *Store {
+	return &Store{db: db, cdn: cdn}
 }

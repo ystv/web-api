@@ -3,14 +3,15 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/ystv/web-api/utils/permissions/users"
 	"io"
 	"log"
 	"net/http"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils/permissions/users"
 )
 
 type (
@@ -94,7 +95,6 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/test", a.conf.SecurityBaseURL), nil)
-	log.Printf("%s/api/test", a.conf.SecurityBaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL: %w", err)
 	}
@@ -107,10 +107,13 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 	}
 
 	if res.Status != "200 OK" {
-		b, err := io.ReadAll(res.Body)
+		var b []byte
+
+		b, err = io.ReadAll(res.Body)
 		if err != nil {
 			log.Printf("converting fail: %+v", err)
 		}
+
 		return nil, fmt.Errorf("invalid token: invalid status: %s: %s", res.Status, string(b))
 	}
 	return claims, nil

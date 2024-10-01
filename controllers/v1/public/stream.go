@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
 // ListChannels handles listing all channels
@@ -22,7 +24,8 @@ func (r *Repos) ListChannels(c echo.Context) error {
 		err = fmt.Errorf("public listchannels failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, chs)
+
+	return c.JSON(http.StatusOK, utils.NonNil(chs))
 }
 
 // GetChannel handles listing teams and their members and info
@@ -40,5 +43,6 @@ func (r *Repos) GetChannel(c echo.Context) error {
 		err = fmt.Errorf("public getchannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, chs)
 }

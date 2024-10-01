@@ -65,6 +65,7 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 			return fmt.Errorf("failed to insert RefreshVideo: %w", err)
 		}
 	}
+
 	return nil
 }
 

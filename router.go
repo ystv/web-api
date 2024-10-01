@@ -6,6 +6,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+
+	// Run `go generate` if your IDE gives an import error here.
+	// Swag CLI generates documentation, you have to import it.
+	echoSwagger "github.com/swaggo/echo-swagger"
+
 	clapperPackage "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
@@ -14,12 +19,9 @@ import (
 	publicPackage "github.com/ystv/web-api/controllers/v1/public"
 	streamV1 "github.com/ystv/web-api/controllers/v1/stream"
 	"github.com/ystv/web-api/middleware"
-
-	echoSwagger "github.com/swaggo/echo-swagger"
-	// Swag CLI generates documentation, you have to import it.
-	// Run `go generate` if your IDE gives an import error here.
-	//_ "github.com/ystv/web-api/swagger"
 	"github.com/ystv/web-api/utils"
+
+	_ "github.com/ystv/web-api/swagger"
 )
 
 // TODO standardise on function names
@@ -36,6 +38,7 @@ type Router struct {
 	misc    *miscPackage.Repos
 	people  *peoplePackage.Repo
 	public  *publicPackage.Repos
+	stream  *streamV1.Repos
 }
 
 // NewRouter is the required dependencies
@@ -51,6 +54,7 @@ type NewRouter struct {
 	Misc       *miscPackage.Repos
 	People     *peoplePackage.Repo
 	Public     *publicPackage.Repos
+	Stream     *streamV1.Repos
 }
 
 // New creates a new router instance
@@ -66,6 +70,7 @@ func New(conf *NewRouter) *Router {
 		misc:    conf.Misc,
 		people:  conf.People,
 		public:  conf.Public,
+		stream:  conf.Stream,
 	}
 	r.router.HideBanner = true
 
@@ -116,7 +121,8 @@ func (r *Router) loadRoutes() {
 		}
 		stream := internal.Group("/stream")
 		{
-			stream.POST("/auth", streamV1.CheckAuth)
+			stream.POST("/publish", r.stream.PublishStream)
+			stream.POST("/unpublish", r.stream.UnpublishStream)
 		}
 		// Internal user endpoints
 		if !r.router.Debug {
@@ -130,6 +136,8 @@ func (r *Router) loadRoutes() {
 					user.GET("/full", r.people.UserByTokenFull)
 					user.GET("/:id", r.people.UserByID)
 					user.GET("/:id/full", r.people.UserByIDFull)
+					user.GET("/:email", r.people.UserByEmail)
+					user.GET("/:email/full", r.people.UserByEmailFull)
 					user.GET("", r.people.UserByToken)
 					addUser := user.Group("/add")
 					{
@@ -185,8 +193,8 @@ func (r *Router) loadRoutes() {
 					seriesItem := series.Group("/:seriesid")
 					{
 						seriesItem.GET("", r.creator.GetSeries)
-						// seriesItem.PUT("", r.creator.UpdateSeries)
-						// seriesItem.DELETE("", r.creator.DeleteSeries)
+						seriesItem.PUT("", r.creator.UpdateSeries)
+						seriesItem.DELETE("", r.creator.DeleteSeries)
 					}
 				}
 				playlists := creator.Group("/playlist")
@@ -197,7 +205,7 @@ func (r *Router) loadRoutes() {
 					{
 						playlist.GET("", r.creator.GetPlaylist)
 						playlist.PUT("", r.creator.UpdatePlaylist)
-						// playlist.DELETE("", r.creator.DeletePlaylist)
+						playlist.DELETE("", r.creator.DeletePlaylist)
 					}
 				}
 				playout := creator.Group("/playout")
@@ -282,12 +290,25 @@ func (r *Router) loadRoutes() {
 				{
 					list.GET("s", r.misc.GetLists)
 					list.GET("s/my", r.misc.GetListsByToken)
-					list.GET("/:listid", r.misc.GetList)
-					list.GET("/:listid/subscribers", r.misc.GetSubscribers)
-					list.POST("/:listid/subscribe", r.misc.SubscribeByToken)
-					list.POST("/:listid/subscribe/:userid", r.misc.SubscribeByID)
-					list.DELETE("/:listid/unsubscribe", r.misc.UnsubscribeByToken)
-					list.DELETE("/:listid/unsubscribe/:userid", r.misc.UnsubscribeByID)
+					listID := list.Group("/:listid")
+					{
+						listID.GET("", r.misc.GetList)
+						listID.GET("/subscribers", r.misc.GetSubscribers)
+						listID.POST("/subscribe", r.misc.SubscribeByToken)
+						listID.POST("/subscribe/:userid", r.misc.SubscribeByID)
+						listID.DELETE("/unsubscribe", r.misc.UnsubscribeByToken)
+						listID.DELETE("/unsubscribe/:userid", r.misc.UnsubscribeByID)
+					}
+				}
+			}
+			streamsAuthed := internal.Group("/streams")
+			{
+				streamsAuthed.GET("", r.stream.ListStreams)
+				streamsAuthed.POST("", r.stream.NewStream)
+				streamAuthed := streamsAuthed.Group("/:endpointid")
+				{
+					streamAuthed.PUT("", r.stream.UpdateStream)
+					streamAuthed.DELETE("", r.stream.DeleteStream)
 				}
 			}
 		}
@@ -336,10 +357,10 @@ func (r *Router) loadRoutes() {
 					teamsId.GET("/:teamid", r.public.GetTeamById)
 				}
 			}
-			stream := public.Group("/playout/channel")
+			streamChannel := public.Group("/playout/channel")
 			{
-				stream.GET("", r.public.ListChannels)
-				stream.GET("/:channelShortName", r.public.GetChannel)
+				streamChannel.GET("", r.public.ListChannels)
+				streamChannel.GET("/:channelShortName", r.public.GetChannel)
 			}
 		}
 	}
