@@ -1934,6 +1934,66 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/internal/people/user/{email}": {
+            "get": {
+                "description": "Get a basic user object by email.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-user"
+                ],
+                "summary": "Get a user by email",
+                "operationId": "get-user-email",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Email",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/user/{email}/full": {
+            "get": {
+                "description": "Get a complete user object by email.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-user"
+                ],
+                "summary": "Get a full user by email",
+                "operationId": "get-user-email-full",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Email",
+                        "name": "email",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.User"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/people/user/{userid}": {
             "get": {
                 "description": "Get a basic user object by ID.",
