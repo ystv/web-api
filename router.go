@@ -136,6 +136,8 @@ func (r *Router) loadRoutes() {
 					user.GET("/full", r.people.UserByTokenFull)
 					user.GET("/:id", r.people.UserByID)
 					user.GET("/:id/full", r.people.UserByIDFull)
+					user.GET("/:email", r.people.UserByEmail)
+					user.GET("/:email/full", r.people.UserByEmailFull)
 					user.GET("", r.people.UserByToken)
 					addUser := user.Group("/add")
 					{

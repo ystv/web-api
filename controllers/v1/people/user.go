@@ -3,6 +3,7 @@ package people
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -53,6 +54,56 @@ func (r *Repo) UserByIDFull(c echo.Context) error {
 	p, err := r.people.GetUserFull(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("UserByIDFull failed to get user: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, p)
+}
+
+// UserByEmail finds a user by email
+// @Summary Get a user by email
+// @Description Get a basic user object by email.
+// @ID get-user-email
+// @Tags people-user
+// @Produce json
+// @Param email path int true "Email"
+// @Success 200 {object} people.User
+// @Router /v1/internal/people/user/{email} [get]
+func (r *Repo) UserByEmail(c echo.Context) error {
+	temp := c.Param("email")
+	email, err := url.QueryUnescape(temp)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid email")
+	}
+
+	p, err := r.people.GetUserByEmail(c.Request().Context(), email)
+	if err != nil {
+		err = fmt.Errorf("UserByEmail failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, p)
+}
+
+// UserByEmailFull finds a user by email returning all info
+// @Summary Get a full user by email
+// @Description Get a complete user object by email.
+// @ID get-user-email-full
+// @Tags people-user
+// @Produce json
+// @Param email path int true "Email"
+// @Success 200 {object} people.User
+// @Router /v1/internal/people/user/{email}/full [get]
+func (r *Repo) UserByEmailFull(c echo.Context) error {
+	temp := c.Param("email")
+	email, err := url.QueryUnescape(temp)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid email")
+	}
+
+	p, err := r.people.GetUserByEmailFull(c.Request().Context(), email)
+	if err != nil {
+		err = fmt.Errorf("UserByEmailFull failed to get user: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 

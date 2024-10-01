@@ -13,6 +13,8 @@ type (
 	UserRepo interface {
 		GetUser(ctx context.Context, userID int) (User, error)
 		GetUserFull(ctx context.Context, userID int) (UserFull, error)
+		GetUserByEmail(ctx context.Context, email string) (User, error)
+		GetUserByEmailFull(ctx context.Context, email string) (UserFull, error)
 		ListAllUsers(ctx context.Context) ([]User, error)
 	}
 
