@@ -41,7 +41,7 @@ type (
 //TODO Sort out pointers. They are currently here so when the json is being marshalled it will "omitempty"
 
 type (
-	//User represents a user object to be used when not all data is required
+	// User represents a user object to be used when not all data is required
 	User struct {
 		UserID      int          `db:"user_id" json:"id"`
 		Username    string       `db:"username" json:"username,omitempty"`
