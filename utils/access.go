@@ -194,3 +194,23 @@ func (a *Accesser) ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerF
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 }
+
+// ManageStreamAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can manage streams
+func (a *Accesser) ManageStreamAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     http.StatusBadRequest,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.Cobra {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+}

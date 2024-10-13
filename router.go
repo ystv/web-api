@@ -301,7 +301,7 @@ func (r *Router) loadRoutes() {
 					}
 				}
 			}
-			streamsAuthed := internal.Group("/streams")
+			streamsAuthed := internal.Group("/streams", r.access.ManageStreamAuthMiddleware)
 			{
 				streamsAuthed.GET("", r.stream.ListStreams)
 				streamsAuthed.POST("", r.stream.NewStream)
