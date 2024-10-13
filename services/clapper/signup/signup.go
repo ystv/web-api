@@ -32,7 +32,7 @@ func (m *Store) New(ctx context.Context, eventID int, s clapper.NewSignup) (int,
 		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING signup_id;`,
 			eventID, s.Title, s.Description, s.UnlockDate, s.ArrivalTime, s.StartTime, s.EndTime).Scan(&signupID)
 		if err != nil {
-			return fmt.Errorf("failed to insert new signup shee metat: %w", err)
+			return fmt.Errorf("failed to insert new signup sheet: %w", err)
 		}
 		// Check if positions have been added
 		// TODO I'm not too sure on using the signup struct for this,
