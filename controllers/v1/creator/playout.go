@@ -38,7 +38,7 @@ func (r *Repos) ListChannels(c echo.Context) error {
 // @Accept json
 // @Param channel body playout.Channel true "Channel object"
 // @Success 201 body int "Channel ID"
-// @Router /v1/internal/creator/playout/channels [post]
+// @Router /v1/internal/creator/playout/channel [post]
 func (r *Repos) NewChannel(c echo.Context) error {
 	var ch playout.Channel
 
@@ -65,7 +65,7 @@ func (r *Repos) NewChannel(c echo.Context) error {
 // @Accept json
 // @Param channel body playout.Channel true "Channel object"
 // @Success 200
-// @Router /v1/internal/creator/playout/channels [put]
+// @Router /v1/internal/creator/playout/channel [put]
 func (r *Repos) UpdateChannel(c echo.Context) error {
 	var ch playout.Channel
 
@@ -94,7 +94,7 @@ func (r *Repos) UpdateChannel(c echo.Context) error {
 // @Tags creator-playout-channels
 // @Param channelid path string true "Channel URL Name"
 // @Success 200
-// @Router /v1/internal/creator/playout/channels/{channelid} [delete]
+// @Router /v1/internal/creator/playout/channel/{channelid} [delete]
 func (r *Repos) DeleteChannel(c echo.Context) error {
 	err := r.channel.DeleteChannel(c.Request().Context(), c.Param("channelid"))
 	if err != nil {

@@ -208,10 +208,13 @@ func (r *Router) loadRoutes() {
 				}
 				playout := creator.Group("/playout")
 				{
-					playout.GET("/channels", r.creator.ListChannels)
-					playout.POST("/channels", r.creator.NewChannel)
-					playout.PUT("/channels", r.creator.UpdateChannel)
-					playout.DELETE("/channels/:channelid", r.creator.DeleteChannel)
+					channel := playout.Group("/channel")
+					{
+						channel.GET("s", r.creator.ListChannels)
+						channel.POST("", r.creator.NewChannel)
+						channel.PUT("", r.creator.UpdateChannel)
+						channel.DELETE("/:channelid", r.creator.DeleteChannel)
+					}
 				}
 				encode := creator.Group("/encode")
 				{

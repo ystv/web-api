@@ -927,29 +927,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/internal/creator/playout/channels": {
-            "get": {
-                "description": "Lists all channels, these are a rough implementation of what is to come (linear channels)",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "creator-playout-channels"
-                ],
-                "summary": "List all channels",
-                "operationId": "get-creator-playout-channels",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/playout.Channel"
-                            }
-                        }
-                    }
-                }
-            },
+        "/v1/internal/creator/playout/channel": {
             "put": {
                 "description": "updates a channel",
                 "consumes": [
@@ -1008,7 +986,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/internal/creator/playout/channels/{channelid}": {
+        "/v1/internal/creator/playout/channel/{channelid}": {
             "delete": {
                 "description": "deletes a channel by the short URL.",
                 "tags": [
@@ -1028,6 +1006,30 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/v1/internal/creator/playout/channels": {
+            "get": {
+                "description": "Lists all channels, these are a rough implementation of what is to come (linear channels)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "creator-playout-channels"
+                ],
+                "summary": "List all channels",
+                "operationId": "get-creator-playout-channels",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/playout.Channel"
+                            }
+                        }
                     }
                 }
             }
