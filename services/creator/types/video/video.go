@@ -97,15 +97,14 @@ func (t *Tag) Value() (driver.Value, error) {
 
 func (t *Tag) Scan(src interface{}) (err error) {
 	var tags []string
-	//nolint:gosimple
-	switch src.(type) {
+	switch s := src.(type) {
 	case string:
-		err = json.Unmarshal([]byte(src.(string)), &tags)
+		err = json.Unmarshal([]byte(s), &tags)
 		if err != nil {
 			return
 		}
 	case []byte:
-		temp := string(src.([]byte))
+		temp := string(s)
 		temp = strings.TrimLeft(temp, "{")
 		temp = strings.TrimRight(temp, "}")
 		tags = strings.Split(temp, ",")
