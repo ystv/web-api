@@ -20,8 +20,8 @@ The generation of usable JSON Web Tokens is available in [web-auth](https://gith
     - [x] Path to video
     - [x] Path to series
     - [ ] Thumbnail inheritance
-  - [ ] Live
-    - [x] Streams (currently static)
+  - [x] Live
+    - [x] Streams
   - [x] Teams
     - [x] Get current team
     - [x] List teams
@@ -78,7 +78,11 @@ The generation of usable JSON Web Tokens is available in [web-auth](https://gith
       - [ ] Delete
   - [ ] Encoder
     - [x] Video upload auth hook
-  - [x] Stream auth (experimental)
+  - [x] Live
+    - [x] List streams
+    - [x] Add a stream
+    - [x] Update stream
+    - [x] Delete stream
   - [ ] Misc internal services
 
 ### Services
