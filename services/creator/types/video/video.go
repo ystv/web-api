@@ -88,11 +88,11 @@ var (
 	ErrNotFound = errors.New("video not found")
 )
 
-func (t Tag) Value() (driver.Value, error) {
-	if len(t) == 0 {
+func (t *Tag) Value() (driver.Value, error) {
+	if len(*t) == 0 {
 		return "{}", nil
 	}
-	return fmt.Sprintf(`{"%s"}`, strings.Join(t, `","`)), nil
+	return fmt.Sprintf(`{"%s"}`, strings.Join(*t, `","`)), nil
 }
 
 func (t *Tag) Scan(src interface{}) (err error) {
