@@ -2,7 +2,6 @@ package encoder
 
 import (
 	"errors"
-	"net/http"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
@@ -28,7 +27,6 @@ type Encoder struct {
 	encode creator.EncodeRepo
 	db     *sqlx.DB
 	cdn    *s3.Client
-	c      *http.Client
 	conf   *Config
 }
 
@@ -42,7 +40,6 @@ func NewEncoder(db *sqlx.DB, cdn *s3.Client, conf *Config) *Encoder {
 		encode: encode.NewStore(db),
 		db:     db,
 		cdn:    cdn,
-		c:      &http.Client{},
 		conf:   conf,
 	}
 }
