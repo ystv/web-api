@@ -16,7 +16,7 @@ import (
 
 func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (VideoItem, error) {
 	v := VideoItem{VideoID: videoID}
-
+	//nolint:musttag
 	err := e.db.GetContext(ctx, &v, `
 		SELECT preset_id
 		FROM video.items

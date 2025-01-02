@@ -8,6 +8,7 @@ import (
 
 func (e *Encoder) TranscodeFinished(ctx context.Context, taskID string) error {
 	fileID := 0
+	//nolint:perfsprint
 	err := e.db.GetContext(ctx, &fileID, `
 		SELECT file_id
 		FROM video.files

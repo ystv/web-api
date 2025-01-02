@@ -24,7 +24,7 @@ func (s *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
 
 func (s *Store) ListPermissionMembersByID(ctx context.Context, permissionID int) ([]User, error) {
 	var u []User
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &u,
 		`SELECT u.user_id, username, email, first_name, last_name, nickname, avatar
 		FROM people.users u

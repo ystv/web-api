@@ -51,7 +51,7 @@ func (s *Store) GetSeries(ctx context.Context, seriesID int) (Series, error) {
 // TODO probably want to swap this to return SeriesMeta instead
 func (s *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error) {
 	var series Series
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &series,
 		`SELECT series_id, url, name, description, thumbnail
 		FROM video.series

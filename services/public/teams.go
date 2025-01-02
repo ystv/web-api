@@ -38,7 +38,7 @@ type (
 // ListTeams returns a list of the ystv teams and their current members.
 func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 	var t []Team
-
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &t, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams
@@ -218,7 +218,7 @@ func (s *Store) GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear
 
 func (s *Store) getTeamByEmail(ctx context.Context, emailAlias string) (Team, error) {
 	var team Team
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &team, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams
@@ -232,7 +232,7 @@ func (s *Store) getTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 
 func (s *Store) getTeamByID(ctx context.Context, teamID int) (Team, error) {
 	var team Team
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &team, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams

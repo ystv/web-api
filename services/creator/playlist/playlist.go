@@ -29,6 +29,7 @@ func NewStore(db *sqlx.DB) *Store {
 // All lists all playlists metadata
 func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) {
 	var p []playlist.Playlist
+	//nolint:musttag
 	err := m.db.SelectContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists;`)
@@ -38,6 +39,7 @@ func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) 
 // Get returns a playlist and it's video's
 func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playlist, error) {
 	p := playlist.Playlist{}
+	//nolint:musttag
 	err := m.db.GetContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status,
 		created_at, created_by, updated_at, updated_by

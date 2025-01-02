@@ -2,6 +2,7 @@ package people
 
 import (
 	"context"
+	//nolint:gosec
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -14,7 +15,7 @@ var _ UserRepo = &Store{}
 // GetUserFull will return all user information to be used for profile and management.
 func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	var u UserFull
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname,
 		avatar, use_gravatar, last_login, created_at, created_by, updated_at, updated_by,
@@ -26,6 +27,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		return UserFull{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
 
+	//nolint:musttag
 	err = s.db.SelectContext(ctx, &u.Roles,
 		`SELECT r.role_id, r.name, r.description
 	FROM people.roles r
@@ -48,6 +50,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
+		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
 	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
@@ -64,7 +67,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 // GetUserByEmailFull will return all user information to be used for profile and management.
 func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull, error) {
 	var u UserFull
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname,
 		avatar, use_gravatar, last_login, created_at, created_by, updated_at, updated_by,
@@ -76,6 +79,7 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 		return UserFull{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
 
+	//nolint:musttag
 	err = s.db.SelectContext(ctx, &u.Roles,
 		`SELECT r.role_id, r.name, r.description
 	FROM people.roles r
@@ -98,6 +102,7 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
+		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
 	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
@@ -114,7 +119,7 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 // GetUser returns basic user information to be used for other services.
 func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	var u User
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname, avatar, use_gravatar
 		FROM people.users
@@ -135,6 +140,7 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
+		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
 	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
@@ -151,7 +157,7 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 // GetUserByEmail returns basic user information to be used for other services.
 func (s *Store) GetUserByEmail(ctx context.Context, email string) (User, error) {
 	var u User
-
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname, avatar, use_gravatar
 		FROM people.users
@@ -172,6 +178,7 @@ func (s *Store) GetUserByEmail(ctx context.Context, email string) (User, error) 
 
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
+		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
 	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
@@ -194,7 +201,7 @@ func (s *Store) GetUserByEmail(ctx context.Context, email string) (User, error) 
 // a different function.
 func (s *Store) ListAllUsers(ctx context.Context) ([]User, error) {
 	var u []User
-
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &u,
 		`SELECT user_id, avatar, use_gravatar, nickname, first_name, last_name
 		FROM people.users;`)

@@ -49,6 +49,7 @@ func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, err
 // ListPreset returns all presets
 func (s *Store) ListPreset(ctx context.Context) ([]encode.Preset, error) {
 	var p []encode.Preset
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &p, `SELECT preset_id, name, description
 						FROM video.encode_presets;`)
 	if err != nil {

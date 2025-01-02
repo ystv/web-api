@@ -7,7 +7,7 @@ import (
 
 func (s *Store) ListAllRoles(ctx context.Context) ([]Role, error) {
 	var r []Role
-
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &r, `
 		SELECT role_id, name, description
 		FROM people.roles;`)
@@ -38,7 +38,7 @@ func (s *Store) ListAllRoles(ctx context.Context) ([]Role, error) {
 // a different function.
 func (s *Store) ListRoleMembersByID(ctx context.Context, roleID int) ([]User, error) {
 	var u []User
-
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &u,
 		`SELECT u.user_id, avatar, nickname, first_name, last_name
 		FROM people.users u

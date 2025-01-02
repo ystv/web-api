@@ -28,6 +28,7 @@ var _ clapper.EventRepo = &Store{}
 // ListMonth Lists all event meta's for a month
 func (m *Store) ListMonth(ctx context.Context, year, month int) (*[]clapper.Event, error) {
 	var e []clapper.Event
+	//nolint:musttag
 	err := m.db.SelectContext(ctx, &e,
 		`SELECT event_id, event_type, name, start_date, end_date, description,
 		location, is_private, is_cancelled, is_tentative
@@ -43,6 +44,7 @@ func (m *Store) ListMonth(ctx context.Context, year, month int) (*[]clapper.Even
 // Get returns an event including the signup sheets
 func (m *Store) Get(ctx context.Context, eventID int) (*clapper.Event, error) {
 	e := clapper.Event{}
+	//nolint:musttag
 	err := m.db.GetContext(ctx, &e,
 		`SELECT event_id, event_type, name, start_date, end_date, description,
 		location, is_private, is_cancelled, is_tentative
@@ -62,6 +64,7 @@ func (m *Store) Get(ctx context.Context, eventID int) (*clapper.Event, error) {
 		}
 		return &e, nil
 	}
+	//nolint:musttag
 	err = m.db.SelectContext(ctx, &e.Signups,
 		`SELECT signup_id, title, description, unlock_date, arrival_time, start_time, end_time
 		FROM event.signups

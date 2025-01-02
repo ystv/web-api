@@ -5,6 +5,7 @@ import "reflect"
 func NonNil[T any](k T) T {
 	v := reflect.ValueOf(k)
 
+	//nolint:exhaustive
 	switch v.Kind() {
 	case reflect.Slice:
 		if v.IsNil() {
