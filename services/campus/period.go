@@ -44,7 +44,7 @@ func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYe
 	ay.Year = t.Year()
 
 	err := c.db.SelectContext(ctx, &ay.TeachingCycle, `
-	SELECT teaching_period_id, period.year, name, start finish
+	SELECT period_id, period.year, name, start, finish
 	FROM misc.teaching_periods period
 	INNER JOIN (
 		SELECT year
@@ -66,7 +66,7 @@ func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYe
 func (c *Campuser) GetTeachingPeriod(ctx context.Context, t time.Time) (TeachingPeriod, error) {
 	tp := TeachingPeriod{}
 	err := c.db.GetContext(ctx, &tp, `
-		  SELECT teaching_period_id, year, name, start, finish
+		  SELECT period_id, year, name, start, finish
 		  FROM misc.teaching_periods
 		  WHERE $1 BETWEEN start AND finish;`, t)
 	if err != nil {
