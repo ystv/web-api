@@ -68,7 +68,7 @@ func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")
 	}
 
-	v, err := r.public.VideoBreadcrumb(c.Request().Context(), id)
+	v, err := r.public.GetVideoBreadcrumb(c.Request().Context(), id)
 	if err != nil {
 		if errors.Is(err, public.ErrVideoNotFound) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -80,7 +80,7 @@ func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 	return c.JSON(http.StatusOK, utils.NonNil(v))
 }
 
-// SeriesBreadcrumb returns the breadcrumb of a given series
+// GetSeriesBreadcrumb returns the breadcrumb of a given series
 //
 // @Summary Provides a breadcrumb for a series
 // @Description Returns a path of series to a series
@@ -90,13 +90,13 @@ func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Breadcrumb
 // @Router /v1/public/series/{seriesid}/breadcrumb [get]
-func (r *Repos) SeriesBreadcrumb(c echo.Context) error {
+func (r *Repos) GetSeriesBreadcrumb(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad series ID")
 	}
 
-	v, err := r.public.SeriesBreadcrumb(c.Request().Context(), id)
+	v, err := r.public.GetSeriesBreadcrumb(c.Request().Context(), id)
 	if err != nil {
 		if errors.Is(err, public.ErrSeriesNotFound) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())

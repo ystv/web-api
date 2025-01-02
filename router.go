@@ -24,8 +24,6 @@ import (
 	_ "github.com/ystv/web-api/swagger"
 )
 
-// TODO standardise on function names
-
 // Router provides an HTTP server for web-api
 type Router struct {
 	version string
@@ -176,7 +174,7 @@ func (r *Router) loadRoutes() {
 			{
 				videos := creator.Group("/video")
 				{
-					videos.GET("", r.creator.VideoList)
+					videos.GET("", r.creator.ListVideos)
 					videos.GET("/my", r.creator.ListVideosByUser)
 					videos.POST("", r.creator.NewVideo)
 					videos.PUT("/meta", r.creator.UpdateVideoMeta)
@@ -199,7 +197,7 @@ func (r *Router) loadRoutes() {
 				}
 				playlists := creator.Group("/playlist")
 				{
-					playlists.GET("", r.creator.ListPlaylist)
+					playlists.GET("", r.creator.ListPlaylists)
 					playlists.POST("", r.creator.NewPlaylist)
 					playlist := playlists.Group("/:id")
 					{
@@ -219,14 +217,14 @@ func (r *Router) loadRoutes() {
 				{
 					preset := encode.Group("/preset")
 					{
-						preset.GET("", r.creator.ListEncodePreset)
+						preset.GET("", r.creator.ListEncodePresets)
 						preset.POST("", r.creator.NewEncodePreset)
 						preset.PUT("", r.creator.UpdateEncodePreset) // We take the ID in the json request
 						preset.DELETE("", r.creator.DeleteEncodePreset)
 					}
 					format := encode.Group("/format")
 					{
-						format.GET("", r.creator.ListEncodeFormat)
+						format.GET("", r.creator.ListEncodeFormats)
 						format.PUT("", r.creator.UpdateEncodeFormat)
 						format.POST("", r.creator.NewEncodeFormat)
 						format.DELETE("/:formatid", r.creator.DeleteEncodeFormat)
@@ -266,7 +264,7 @@ func (r *Router) loadRoutes() {
 				}
 				positions := clapper.Group("/positions")
 				{
-					positions.GET("", r.clapper.ListPosition)                  // List crew positions
+					positions.GET("", r.clapper.ListPositions)                 // List crew positions
 					positions.POST("", r.clapper.NewPosition)                  // Create a new crew position
 					positions.PUT("", r.clapper.UpdatePosition)                // Update a position
 					positions.DELETE("/:positionid", r.clapper.DeletePosition) // Delete a position
@@ -323,14 +321,14 @@ func (r *Router) loadRoutes() {
 				// /videos
 				video.GET("s/:offset/:page", r.public.ListVideos)
 				// /video
-				video.GET("/:id", r.public.Video)
+				video.GET("/:id", r.public.GetVideo)
 				video.GET("/:id/breadcrumb", r.public.VideoBreadcrumb)
 			}
 			series := public.Group("/series")
 			{
-				series.GET("/:id", r.public.SeriesByID)
-				series.GET("/:id/breadcrumb", r.public.SeriesBreadcrumb)
-				series.GET("/yearly/:year", r.public.SeriesByYear)
+				series.GET("/:id", r.public.GetSeriesByID)
+				series.GET("/:id/breadcrumb", r.public.GetSeriesBreadcrumb)
+				series.GET("/yearly/:year", r.public.GetSeriesByYear)
 			}
 			playlist := public.Group("/playlist")
 			{

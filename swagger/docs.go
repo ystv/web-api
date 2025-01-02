@@ -907,7 +907,7 @@ const docTemplate = `{
         },
         "/v1/internal/creator/playout/channels": {
             "get": {
-                "description": "Lists all channels, these are a rough implementation of what is too come (linear channels)",
+                "description": "Lists all channels, these are a rough implementation of what is to come (linear channels)",
                 "produces": [
                     "application/json"
                 ],
@@ -929,7 +929,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "updates an channel",
+                "description": "updates a channel",
                 "consumes": [
                     "application/json"
                 ],
@@ -1564,7 +1564,7 @@ const docTemplate = `{
         },
         "/v1/internal/misc/lists/my": {
             "get": {
-                "description": "Lists all mailing lists. Provides extra context for what the user has subscribed too",
+                "description": "Lists all mailing lists, provides extra context for what the user has subscribed to",
                 "produces": [
                     "application/json"
                 ],

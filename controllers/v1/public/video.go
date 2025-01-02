@@ -10,7 +10,7 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// Video handles a video item, providing info
+// GetVideo handles a video item, providing info
 //
 // @Summary Provides a video item
 // @Description Returns a video item. Including the video files.
@@ -20,7 +20,7 @@ import (
 // @Produce json
 // @Success 200 {object} public.VideoItem
 // @Router /v1/public/video/{videoid} [get]
-func (r *Repos) Video(c echo.Context) error {
+func (r *Repos) GetVideo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")

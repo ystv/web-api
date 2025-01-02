@@ -32,8 +32,8 @@ var (
 
 var _ BreadcrumbRepo = &Store{}
 
-// VideoBreadcrumb returns the absolute path from a VideoID
-func (s *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error) {
+// GetVideoBreadcrumb returns the absolute path from a VideoID
+func (s *Store) GetVideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error) {
 	var vB Breadcrumb // Video breadcrumb
 
 	err := s.db.GetContext(ctx, &vB,
@@ -47,7 +47,7 @@ func (s *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb,
 		return nil, fmt.Errorf("failed to get video breadcrumb: %w", err)
 	}
 
-	sB, err := s.SeriesBreadcrumb(ctx, vB.SeriesID)
+	sB, err := s.GetSeriesBreadcrumb(ctx, vB.SeriesID)
 	if err != nil {
 		// Interesting edge-case
 		if !errors.Is(err, ErrSeriesNotFound) {
@@ -60,8 +60,8 @@ func (s *Store) VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb,
 	return sB, nil
 }
 
-// SeriesBreadcrumb will return the breadcrumb from SeriesID to root
-func (s *Store) SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error) {
+// GetSeriesBreadcrumb will return the breadcrumb from SeriesID to root
+func (s *Store) GetSeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error) {
 	var b []Breadcrumb
 
 	// TODO Need a bool to indicate if series is in URL

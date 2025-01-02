@@ -13,7 +13,7 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// ListEncodeFormat handles listing encode formats
+// ListEncodeFormats handles listing encode formats
 // @Summary List all encode formats
 // @Description Lists all encode formats, these are instructions for the encoder to create the video
 // @ID get-creator-encode-format
@@ -21,7 +21,7 @@ import (
 // @Produce json
 // @Success 200 {array} encode.Format
 // @Router /v1/internal/creator/encode/format [get]
-func (r *Repos) ListEncodeFormat(c echo.Context) error {
+func (r *Repos) ListEncodeFormats(c echo.Context) error {
 	e, err := r.encode.ListFormat(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListFormat failed: %w", err)
@@ -111,7 +111,7 @@ func (r *Repos) DeleteEncodeFormat(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// ListEncodePreset handles listing presets
+// ListEncodePresets handles listing presets
 // @Summary List all encode presets
 // @Description Lists all encode presets, these are groups of instructions (formats) for the encoder to create the video
 // @ID get-creator-encode-preset
@@ -119,7 +119,7 @@ func (r *Repos) DeleteEncodeFormat(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} encode.Preset
 // @Router /v1/internal/creator/encode/preset [get]
-func (r *Repos) ListEncodePreset(c echo.Context) error {
+func (r *Repos) ListEncodePresets(c echo.Context) error {
 	p, err := r.encode.ListPreset(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListPreset failed: %w", err)

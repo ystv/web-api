@@ -119,7 +119,7 @@ func (r *Repos) DeleteVideo(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// VideoList Handles listing all creations
+// ListVideos Handles listing all creations
 //
 // @Summary List all videos
 // @Description Lists all videos, doesn't include files inside.
@@ -128,7 +128,7 @@ func (r *Repos) DeleteVideo(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video [get]
-func (r *Repos) VideoList(c echo.Context) error {
+func (r *Repos) ListVideos(c echo.Context) error {
 	v, err := r.video.ListMeta(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("failed to list videos: %w", err)

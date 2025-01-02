@@ -13,7 +13,7 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// ListPosition handles listing all possible positions
+// ListPositions handles listing all possible positions
 // @Summary List positions
 // @Description Lists all positions.
 // @ID get-positions
@@ -21,10 +21,10 @@ import (
 // @Produce json
 // @Success 200 {array} clapper.Position
 // @Router /v1/internal/clapper/positions [get]
-func (r *Repos) ListPosition(c echo.Context) error {
+func (r *Repos) ListPositions(c echo.Context) error {
 	p, err := r.position.List(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListPosition: failed to list: %w", err)
+		err = fmt.Errorf("ListPositions: failed to list: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 

@@ -115,8 +115,8 @@ func (s *Store) GetSeriesFromPath(ctx context.Context, path string) (Series, err
 	return series, err
 }
 
-// SeriesByYear a virtual series containing child series / videos of content uploaded in that year
-func (s *Store) SeriesByYear(ctx context.Context, year int) (Series, error) {
+// GetSeriesByYear a virtual series containing child series / videos of content uploaded in that year
+func (s *Store) GetSeriesByYear(ctx context.Context, year int) (Series, error) {
 	var series Series
 	// Putting the child series on pause since it looks like we didn't historically store the
 	// created date of video_boxes, we will need to generate the created_at field at some point

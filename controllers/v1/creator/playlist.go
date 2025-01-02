@@ -11,7 +11,7 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// ListPlaylist handles listing all playlist metadata
+// ListPlaylists handles listing all playlist metadata
 // @Summary List all playlists
 // @Description Lists all playlists, doesn't include videos inside.
 // @ID get-creator-playlists-all
@@ -19,7 +19,7 @@ import (
 // @Produce json
 // @Success 200 {array} playlist.Playlist
 // @Router /v1/internal/creator/playlist [get]
-func (r *Repos) ListPlaylist(c echo.Context) error {
+func (r *Repos) ListPlaylists(c echo.Context) error {
 	p, err := r.playlist.ListPlaylists(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("PlaylistAll failed: %w", err)
