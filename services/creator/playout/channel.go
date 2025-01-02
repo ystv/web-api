@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/ystv/web-api/services/creator"
@@ -19,12 +19,12 @@ var _ creator.ChannelRepo = &Store{}
 // Store contains our dependency
 type Store struct {
 	db   *sqlx.DB
-	cdn  *s3.S3
+	cdn  *s3.Client
 	conf *creator.Config
 }
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Store {
+func NewStore(db *sqlx.DB, cdn *s3.Client, conf *creator.Config) *Store {
 	return &Store{db: db, cdn: cdn, conf: conf}
 }
 
@@ -81,7 +81,7 @@ func (s *Store) UpdateChannel(ctx context.Context, ch playout.Channel) error {
 		reg := regexp.MustCompile(`.*/`)
 		res := reg.ReplaceAllString(ch.Thumbnail, "${1}")
 
-		_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
+		_, err = s.cdn.CopyObject(ctx, &s3.CopyObjectInput{
 			Bucket:     aws.String(s.conf.ServeBucket),
 			CopySource: aws.String(s.conf.IngestBucket + "/" + res),
 			Key:        aws.String(res),
@@ -90,7 +90,7 @@ func (s *Store) UpdateChannel(ctx context.Context, ch playout.Channel) error {
 			return fmt.Errorf("failed to copy thumbnail: %w", err)
 		}
 
-		ch.Thumbnail = s.cdn.Endpoint + "/" + s.conf.ServeBucket + "/" + res
+		ch.Thumbnail = s.conf.Endpoint + "/" + s.conf.ServeBucket + "/" + res
 	} else {
 		ch.Thumbnail = channel.Thumbnail
 	}

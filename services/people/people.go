@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -33,8 +33,9 @@ type (
 
 	// Store contains our dependency
 	Store struct {
-		db  *sqlx.DB
-		cdn *s3.S3
+		db          *sqlx.DB
+		cdn         *s3.Client
+		cdnEndpoint string
 	}
 )
 
@@ -83,6 +84,6 @@ type (
 )
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3) *Store {
-	return &Store{db: db, cdn: cdn}
+func NewStore(db *sqlx.DB, cdn *s3.Client, cdnEndpoint string) *Store {
+	return &Store{db: db, cdn: cdn, cdnEndpoint: cdnEndpoint}
 }

@@ -19,6 +19,7 @@ type (
 	Config struct {
 		IngestBucket string
 		ServeBucket  string
+		Endpoint     string
 	}
 	// VideoRepo defines all creator video interactions
 	VideoRepo interface {

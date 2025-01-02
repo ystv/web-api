@@ -125,10 +125,10 @@ func main() {
 		Debug:      debug,
 		Access:     access,
 		Clapper:    clapper.NewRepos(db, access),
-		Creator:    creator.NewRepos(db, cdn, enc, access, creatorConfig),
+		Creator:    creator.NewRepos(db, cdn, enc, access, creatorConfig, cdnConfig.Endpoint),
 		Encoder:    encoderPackage.NewEncoderController(enc, access),
 		Misc:       misc.NewRepos(db, access),
-		People:     people.NewRepo(db, cdn, access),
+		People:     people.NewRepo(db, cdn, access, cdnConfig.Endpoint),
 		Public:     public.NewRepos(db),
 		Stream:     stream.NewRepos(db),
 	}).Start()

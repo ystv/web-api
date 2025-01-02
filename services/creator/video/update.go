@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/ystv/web-api/services/creator/types/video"
 )
@@ -26,7 +26,7 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 		reg := regexp.MustCompile(`.*/`)
 		res := reg.ReplaceAllString(m.Thumbnail, "${1}")
 
-		_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
+		_, err = s.cdn.CopyObject(ctx, &s3.CopyObjectInput{
 			Bucket:     aws.String(s.conf.ServeBucket),
 			CopySource: aws.String(s.conf.IngestBucket + "/" + res),
 			Key:        aws.String(res),
@@ -35,7 +35,7 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 			return fmt.Errorf("failed to copy thumbnail: %w", err)
 		}
 
-		m.Thumbnail = s.cdn.Endpoint + "/" + s.conf.ServeBucket + "/" + res
+		m.Thumbnail = s.conf.Endpoint + "/" + s.conf.ServeBucket + "/" + res
 	} else {
 		m.Thumbnail = videoItem.Thumbnail
 	}
