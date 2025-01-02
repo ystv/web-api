@@ -93,12 +93,13 @@ func (s *Store) Find(ctx context.Context, path string) (BreadcrumbItem, error) {
 	videoID, err := strconv.Atoi(path)
 	if err == nil {
 		// It's a raw video ID
-		foundVideo, err := s.GetVideo(ctx, videoID)
-		if err == nil {
+		foundVideo, err1 := s.GetVideo(ctx, videoID)
+		switch {
+		case err1 == nil:
 			return BreadcrumbItem{Video: foundVideo}, nil
-		} else if errors.Is(err, sql.ErrNoRows) {
+		case errors.Is(err1, sql.ErrNoRows):
 			return BreadcrumbItem{}, ErrVideoNotFound
-		} else {
+		default:
 			return BreadcrumbItem{}, fmt.Errorf("failed to get video: %w", err)
 		}
 	}
