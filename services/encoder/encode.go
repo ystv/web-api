@@ -100,17 +100,15 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, fmt.Errorf("failed to marshal json: %w", err)
 	}
 
-	res, err := e.c.Post(e.conf.VTEndpoint+"/task/video/vod", "application/json", bytes.NewReader(reqJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, e.conf.VTEndpoint+"/task/video/vod", bytes.NewReader(reqJSON))
 	if err != nil {
 		return EncodeResult{}, fmt.Errorf("failed to post to vt: %w", err)
 	}
-
-	defer func(Body io.ReadCloser) {
-		err = Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(res.Body)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return EncodeResult{}, fmt.Errorf("failed to post to vt: %w", err)
+	}
+	defer res.Body.Close()
 
 	switch status := res.StatusCode; {
 	case status == http.StatusCreated:
