@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+
 	"github.com/ystv/web-api/controllers/v1/clapper"
 	"github.com/ystv/web-api/controllers/v1/creator"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
@@ -14,7 +15,6 @@ import (
 	"github.com/ystv/web-api/controllers/v1/public"
 	"github.com/ystv/web-api/controllers/v1/stream"
 	"github.com/ystv/web-api/services/encoder"
-
 	"github.com/ystv/web-api/utils"
 )
 
