@@ -128,14 +128,14 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// DeletePlaylist handles deleting series
-// @Summary Delete a series
-// @Description Delete a series
-// @ID delete-creator-series
-// @Tags creator-series
-// @Param seriesid path int true "Series ID"
+// DeletePlaylist handles deleting playlist
+// @Summary Delete a playlist
+// @Description Delete a playlist
+// @ID delete-creator-playlist
+// @Tags creator-playlist
+// @Param playlistid path int true "Series ID"
 // @Success 200
-// @Router /v1/internal/creator/series/{seriesid} [delete]
+// @Router /v1/internal/creator/playlist/{playlistid} [delete]
 func (r *Repos) DeletePlaylist(c echo.Context) error {
 	playlistID, err := strconv.Atoi(c.Param("playlistid"))
 	if err != nil {

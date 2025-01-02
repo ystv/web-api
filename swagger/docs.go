@@ -903,6 +903,28 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Delete a playlist",
+                "tags": [
+                    "creator-playlist"
+                ],
+                "summary": "Delete a playlist",
+                "operationId": "delete-creator-playlist",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Series ID",
+                        "name": "playlistid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
             }
         },
         "/v1/internal/creator/playout/channels": {
