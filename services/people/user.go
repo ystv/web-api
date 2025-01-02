@@ -49,8 +49,8 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
-		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
-	case avatar == "", strings.Contains(avatar, s.cdn.Endpoint):
+		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:
@@ -99,8 +99,8 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
-		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
-	case avatar == "", strings.Contains(avatar, s.cdn.Endpoint):
+		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:
@@ -136,8 +136,8 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
-		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
-	case avatar == "", strings.Contains(avatar, s.cdn.Endpoint):
+		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:
@@ -173,8 +173,8 @@ func (s *Store) GetUserByEmail(ctx context.Context, email string) (User, error) 
 	switch avatar := u.Avatar; {
 	case u.UseGravatar:
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
-		u.Avatar = fmt.Sprintf("https://www.gravatar.com/avatar/%s", hex.EncodeToString(hash[:]))
-	case avatar == "", strings.Contains(avatar, s.cdn.Endpoint):
+		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:

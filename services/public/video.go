@@ -95,7 +95,7 @@ func (s *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, e
 		broadcast_date,	views, duration
 		FROM video.items
 		WHERE series_id = $1 AND status = 'public'
-		ORDER BY series_position ASC;`, seriesID)
+		ORDER BY series_position;`, seriesID)
 	if err != nil {
 		return nil, err
 	}

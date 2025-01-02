@@ -350,11 +350,11 @@ func (r *Router) loadRoutes() {
 					teamsEmail.GET("/:emailAlias/:year", r.public.GetTeamByYearByEmail)
 					teamsEmail.GET("/:emailAlias", r.public.GetTeamByEmail)
 				}
-				teamsId := teams.Group("/teamid")
+				teamsID := teams.Group("/teamid")
 				{
-					teamsId.GET("/:teamid/:startYear/:endYear", r.public.GetTeamByStartEndYearById)
-					teamsId.GET("/:teamid/:year", r.public.GetTeamByYearById)
-					teamsId.GET("/:teamid", r.public.GetTeamById)
+					teamsID.GET("/:teamid/:startYear/:endYear", r.public.GetTeamByStartEndYearByID)
+					teamsID.GET("/:teamid/:year", r.public.GetTeamByYearByID)
+					teamsID.GET("/:teamid", r.public.GetTeamByID)
 				}
 			}
 			streamChannel := public.Group("/playout/channel")

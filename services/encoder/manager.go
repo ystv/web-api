@@ -9,7 +9,7 @@ import (
 //
 //	ensuring the consistency of a video library.
 func Manager() {
-	//TODO Make the cool subroutine here
+	// TODO Make the cool subroutine here
 }
 
 // RefreshVideo will run CreateEncode() on a VideoItem for any
@@ -32,7 +32,7 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 	srcFileIdx := 0
 	for i, file := range v.Files {
 		if file.IsSource {
-			numOfSrcFiles += 1
+			numOfSrcFiles++
 			srcFileIdx = i
 		}
 	}
@@ -71,7 +71,7 @@ func (e *Encoder) RefreshVideo(ctx context.Context, videoID int) error {
 
 // Refresh will check all existing video items to ensure that they
 // match their preset, creating a new job
-func (e *Encoder) Refresh(ctx context.Context) error {
+func (e *Encoder) Refresh(_ context.Context) error {
 
 	return nil
 }

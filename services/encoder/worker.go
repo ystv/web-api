@@ -2,6 +2,7 @@ package encoder
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
 
@@ -17,7 +18,7 @@ func (e *Encoder) TranscodeFinished(ctx context.Context, taskID string) error {
 
 	_, err = e.db.ExecContext(ctx, `UPDATE video.files SET status = 'public' WHERE file_id = $1;`, fileID)
 	if err != nil {
-		return fmt.Errorf("failed to update video file")
+		return errors.New("failed to update video file")
 	}
 
 	return nil

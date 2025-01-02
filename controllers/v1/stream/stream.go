@@ -84,9 +84,9 @@ func (r *Repos) PublishStream(c echo.Context) error {
 	if err != nil {
 		c.Logger().Errorf("PublishStream: failed to set endpoint active: %+v", err)
 		return c.String(http.StatusUnauthorized, "401 Unauthorized")
-	} else {
-		c.Logger().Infof("PublishStream: published %d %s/%s", endpoint.EndpointID, application, name)
 	}
+
+	c.Logger().Infof("PublishStream: published %d %s/%s", endpoint.EndpointID, application, name)
 
 	// SRS needs zero response
 	return c.String(http.StatusOK, "0")
@@ -115,12 +115,13 @@ func (r *Repos) UnpublishStream(c echo.Context) error {
 		c.Logger().Warnf("UnpublishStream: failed to parse unpublish data: %+v", err)
 		return c.String(http.StatusUnauthorized, "401 Unauthorized")
 	}
+
 	err = r.stream.SetEndpointInactiveByApplicationNamePwd(c.Request().Context(), application, name, pwd)
 	if err != nil {
 		c.Logger().Errorf("UnpublishStream: failed to unpublish stream, continuing, %s/%s: %+v", application, name, err)
-	} else {
-		c.Logger().Infof("UnpublishStream: unpublished %s/%s", application, name)
 	}
+
+	c.Logger().Infof("UnpublishStream: unpublished %s/%s", application, name)
 
 	// SRS needs zero response
 	return c.String(http.StatusOK, "0")
@@ -131,7 +132,7 @@ type _srsPublish struct {
 	IP          string `json:"ip"`
 	VHost       string `json:"vhost"`
 	Application string `json:"app"`
-	Url         string `json:"tcUrl"`
+	URL         string `json:"tcUrl"`
 	Stream      string `json:"stream"`
 	Param       string `json:"param"`
 }
@@ -194,7 +195,7 @@ func (r *Repos) ListStreams(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	endpoints := make([]stream.Endpoint, len(e))
+	endpoints := make([]stream.Endpoint, 0)
 
 	for _, endpoint := range e {
 		var pwd, startValid, endValid, notes string
@@ -250,11 +251,11 @@ func (r *Repos) NewStream(c echo.Context) error {
 	}
 
 	if len(newEndpoint.Name) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: endpoint name must be set"))
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("NewStream: endpoint name must be set"))
 	}
 
 	if len(newEndpoint.Application) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: endpoint applicaiton must be set"))
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("NewStream: endpoint application must be set"))
 	}
 
 	startTime := null.NewTime(time.Time{}, false)
@@ -351,11 +352,11 @@ func (r *Repos) UpdateStream(c echo.Context) error {
 	}
 
 	if len(editEndpoint.Name) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: endpoint name must be set"))
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("UpdateStream: endpoint name must be set"))
 	}
 
 	if len(editEndpoint.Application) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: endpoint applicaiton must be set"))
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("UpdateStream: endpoint application must be set"))
 	}
 
 	startTime := null.NewTime(time.Time{}, false)

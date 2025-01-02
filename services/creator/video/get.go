@@ -86,8 +86,8 @@ func (s *Store) ListByCalendarMonth(ctx context.Context, year, month int) ([]vid
 func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error) {
 	var v []video.Meta
 
-	//TODO Update this select to fill all fields
-	err := s.db.Select(&v,
+	// TODO Update this select to fill all fields
+	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
 		duration, views, tags, status, broadcast_date, created_at
 		FROM video.items

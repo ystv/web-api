@@ -12,8 +12,8 @@ import (
 )
 
 type (
-	// StreamRepo represents all stream endpoint interactions
-	StreamRepo interface {
+	// Repo represents all stream endpoint interactions
+	Repo interface {
 		ListEndpoints(ctx context.Context) ([]EndpointDB, error)
 		GetEndpointByID(ctx context.Context, endpointID int) (EndpointDB, error)
 		GetEndpointByApplicationNamePwd(ctx context.Context, application, name, pwd string) (EndpointDB, error)

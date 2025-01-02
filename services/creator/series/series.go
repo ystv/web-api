@@ -81,7 +81,7 @@ func (c *Controller) GetMeta(ctx context.Context, seriesID int) (series.Meta, er
 }
 
 // ImmediateChildrenSeries returns series directly below the chosen series
-func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) ([]series.Meta, error) {
+func (c *Controller) ImmediateChildrenSeries(ctx context.Context, seriesID int) ([]series.Meta, error) {
 	var s []series.Meta
 
 	err := c.db.SelectContext(ctx, &s,
@@ -102,16 +102,16 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, SeriesID int) 
 								node.lft between parent.lft and parent.rgt
 								and node.series_id = $1
 							GROUP BY node.series_id
-							ORDER BY node.lft ASC
+							ORDER BY node.lft
 						) AS sub_tree
 					WHERE
 						node.lft BETWEEN parent.lft AND parent.rgt
 						AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
 						AND sub_parent.series_id = sub_tree.series_id
 					GROUP BY node.series_id, sub_tree.depth
-					ORDER BY node.lft asc
+					ORDER BY node.lft
 			) as queries
-			where depth = 1;`, SeriesID)
+			where depth = 1;`, seriesID)
 	if err != nil {
 		return []series.Meta{}, err
 	}
@@ -136,7 +136,7 @@ func (c *Controller) List(ctx context.Context) ([]series.Meta, error) {
 		WHERE
 			child.lft BETWEEN parent.lft AND parent.rgt
 		GROUP BY child.series_id
-		ORDER BY child.lft ASC;`)
+		ORDER BY child.lft;`)
 	if err != nil {
 		return []series.Meta{}, err
 	}
@@ -148,7 +148,7 @@ func (c *Controller) List(ctx context.Context) ([]series.Meta, error) {
 }
 
 // AllBelow returns all series below a certain series including depth
-func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta, error) {
+func (c *Controller) AllBelow(ctx context.Context, seriesID int) ([]series.Meta, error) {
 	var s []series.Meta
 
 	err := c.db.SelectContext(ctx, &s,
@@ -168,14 +168,14 @@ func (c *Controller) AllBelow(ctx context.Context, SeriesID int) ([]series.Meta,
 					node.lft between parent.lft and parent.rgt
 					and node.series_id = $1
 				GROUP BY node.series_id
-				ORDER BY node.lft ASC
+				ORDER BY node.lft
 			) AS sub_tree
 		WHERE
 			node.lft BETWEEN parent.lft AND parent.rgt
 			AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
 			AND sub_parent.series_id = sub_tree.series_id
 		GROUP BY node.series_id, sub_tree.depth
-		ORDER BY node.lft ASC;`, SeriesID)
+		ORDER BY node.lft;`, seriesID)
 	if err != nil {
 		return []series.Meta{}, err
 	}

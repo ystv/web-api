@@ -114,7 +114,7 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 
 	p.UpdatedBy = &claims.UserID
 
-	var videoIDs []int
+	videoIDs := make([]int, 0)
 	for _, v := range p.Videos {
 		videoIDs = append(videoIDs, v.ID)
 	}

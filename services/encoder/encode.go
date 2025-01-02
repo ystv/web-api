@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -74,7 +74,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, ErrNoArgs
 	}
 	if format.FileSuffix == "" {
-		format.FileSuffix = fmt.Sprint(formatID)
+		format.FileSuffix = strconv.Itoa(formatID)
 	}
 
 	// Splitting the URI again, this time on "." so we

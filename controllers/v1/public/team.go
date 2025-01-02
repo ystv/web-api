@@ -49,7 +49,7 @@ func (r *Repos) GetTeamByEmail(c echo.Context) error {
 	return c.JSON(http.StatusOK, t)
 }
 
-// GetTeamById handles getting a selected team
+// GetTeamByID handles getting a selected team
 //
 // @Summary Provides the team of that year from id
 // @Description Contains members and a range of descriptions
@@ -59,15 +59,15 @@ func (r *Repos) GetTeamByEmail(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid} [get]
-func (r *Repos) GetTeamById(c echo.Context) error {
+func (r *Repos) GetTeamByID(c echo.Context) error {
 	teamID, err := strconv.Atoi(c.Param("teamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad teamid")
 	}
 
-	t, err := r.public.GetTeamById(c.Request().Context(), teamID)
+	t, err := r.public.GetTeamByID(c.Request().Context(), teamID)
 	if err != nil {
-		err = fmt.Errorf("public GetTeamById failed: %w", err)
+		err = fmt.Errorf("public GetTeamByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
@@ -100,7 +100,7 @@ func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
 	return c.JSON(http.StatusOK, t)
 }
 
-// GetTeamByYearById handles getting teams by calendar year
+// GetTeamByYearByID handles getting teams by calendar year
 //
 // @Summary Provides the team of a selected year
 // @Description Get the team and their members of that year
@@ -111,7 +111,7 @@ func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid}/{year} [get]
-func (r *Repos) GetTeamByYearById(c echo.Context) error {
+func (r *Repos) GetTeamByYearByID(c echo.Context) error {
 	teamID, err := strconv.Atoi(c.Param("teamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad teamid")
@@ -122,9 +122,9 @@ func (r *Repos) GetTeamByYearById(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad year")
 	}
 
-	t, err := r.public.GetTeamByYearById(c.Request().Context(), teamID, year)
+	t, err := r.public.GetTeamByYearByID(c.Request().Context(), teamID, year)
 	if err != nil {
-		err = fmt.Errorf("public GetTeamByYearById failed: %w", err)
+		err = fmt.Errorf("public GetTeamByYearByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
@@ -163,7 +163,7 @@ func (r *Repos) GetTeamByStartEndYearByEmail(c echo.Context) error {
 	return c.JSON(http.StatusOK, t)
 }
 
-// GetTeamByStartEndYearById handles getting teams by educational year
+// GetTeamByStartEndYearByID handles getting teams by educational year
 //
 // @Summary Provides the team of a selected year
 // @Description Get the team and their members of that year
@@ -175,8 +175,8 @@ func (r *Repos) GetTeamByStartEndYearByEmail(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid}/{startYear}/{endYear} [get]
-func (r *Repos) GetTeamByStartEndYearById(c echo.Context) error {
-	teamId, err := strconv.Atoi(c.Param("teamid"))
+func (r *Repos) GetTeamByStartEndYearByID(c echo.Context) error {
+	teamID, err := strconv.Atoi(c.Param("teamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad team id")
 	}
@@ -191,9 +191,9 @@ func (r *Repos) GetTeamByStartEndYearById(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad end year")
 	}
 
-	t, err := r.public.GetTeamByStartEndYearById(c.Request().Context(), teamId, startYear, endYear)
+	t, err := r.public.GetTeamByStartEndYearByID(c.Request().Context(), teamID, startYear, endYear)
 	if err != nil {
-		err = fmt.Errorf("public GetTeamByStartEndYearById failed: %w", err)
+		err = fmt.Errorf("public GetTeamByStartEndYearByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 

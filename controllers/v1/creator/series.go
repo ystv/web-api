@@ -79,18 +79,18 @@ func (r *Repos) UpdateSeries(c echo.Context) error {
 
 	_ = claims
 
-	//s.UpdatedBy = &claims.UserID
+	// s.UpdatedBy = &claims.UserID
 	//
-	//var videoIDs []int
-	//for _, v := range s.Videos {
+	// var videoIDs []int
+	// for _, v := range s.Videos {
 	//	videoIDs = append(videoIDs, v.ID)
-	//}
+	// }
 	//
-	//err = r.series.Update(c.Request().Context(), s.Meta, videoIDs)
-	//if err != nil {
+	// err = r.series.Update(c.Request().Context(), s.Meta, videoIDs)
+	// if err != nil {
 	//	err = fmt.Errorf("SeriesUpdate: failed to update series: %w", err)
 	//	return echo.NewHTTPError(http.StatusInternalServerError, err)
-	//}
+	// }
 
 	return c.NoContent(http.StatusOK)
 }
@@ -109,11 +109,11 @@ func (r *Repos) DeleteSeries(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
-	//err = r.series.DeleteSeries(c.Request().Context(), seriesID)
-	//if err != nil {
+	// err = r.series.DeleteSeries(c.Request().Context(), seriesID)
+	// if err != nil {
 	//	err = fmt.Errorf("DeleteSeries failed: %w", err)
 	//	return c.JSON(http.StatusInternalServerError, err)
-	//}
+	// }
 
 	_ = seriesID
 

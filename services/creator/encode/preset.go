@@ -77,20 +77,25 @@ func (s *Store) NewPreset(ctx context.Context, p encode.Preset) (int, error) {
 		if err != nil {
 			return fmt.Errorf("failed to insert preset meta: %w", err)
 		}
+
 		// When they don't attach any formats
 		if len(p.Formats) == 0 {
 			return nil
 		}
+
 		stmt, err := tx.PrepareContext(ctx, "INSERT INTO video.encode_preset_formats(preset_id, format_id) VALUES ($1, $2);")
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to insert formats: %w", err)
 		}
+		defer stmt.Close()
+
 		for _, format := range p.Formats {
 			_, err := stmt.ExecContext(ctx, presetID, format.FormatID)
 			if err != nil {
 				return fmt.Errorf("failed to insert link between preset and formats: %w", err)
 			}
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -107,27 +112,33 @@ func (s *Store) UpdatePreset(ctx context.Context, p encode.Preset) error {
 		if err != nil {
 			return fmt.Errorf("failed to update preset meta: %w", err)
 		}
+
 		// Deleting old associated encode formats
 		_, err = tx.ExecContext(ctx, `DELETE FROM video.encode_preset_formats
 						WHERE preset_id = $1`, p.PresetID)
 		if err != nil {
 			return fmt.Errorf("failed to delete old format links: %w", err)
 		}
+
 		// When they don't attach any formats
 		if len(p.Formats) == 0 {
 			return nil
 		}
+
 		// Insert new formats
 		stmt, err := tx.PrepareContext(ctx, "INSERT INTO video.encode_preset_formats(preset_id, format_id) VALUES ($1, $2);")
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to insert formats: %w", err)
 		}
+		defer stmt.Close()
+
 		for _, format := range p.Formats {
 			_, err := stmt.ExecContext(ctx, p.PresetID, format.FormatID)
 			if err != nil {
 				return fmt.Errorf("failed to insert link between preset and formats: %w", err)
 			}
 		}
+
 		return nil
 	})
 }

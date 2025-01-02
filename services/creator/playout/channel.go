@@ -42,12 +42,12 @@ func (s *Store) ListChannels(ctx context.Context) ([]playout.Channel, error) {
 }
 
 // GetChannel gets a channel
-func (s *Store) GetChannel(ctx context.Context, URLName string) (playout.Channel, error) {
+func (s *Store) GetChannel(ctx context.Context, urlName string) (playout.Channel, error) {
 	var chs playout.Channel
 	err := s.db.GetContext(ctx, &chs, `
 		SELECT url_name, name, description, thumbnail, output_type, output_url,
 		visibility, status, location, scheduled_start, scheduled_end
-		FROM playout.channel WHERE url_name = $1;`, URLName)
+		FROM playout.channel WHERE url_name = $1;`, urlName)
 	if err != nil {
 		return playout.Channel{}, fmt.Errorf("failed to get channel: %w", err)
 	}

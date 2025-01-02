@@ -2,6 +2,7 @@ package event
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -116,7 +117,7 @@ func (m *Store) Update(ctx context.Context, e *clapper.Event, userID int) error 
 			&e.EndDate, &e.Description, &e.Location, &e.IsPrivate,
 			&e.IsTentative, time.Now(), userID, &e.EventID).Scan(&eventType)
 		if err != nil {
-			return fmt.Errorf("failed to update event meta")
+			return errors.New("failed to update event meta")
 		}
 		// Check if the event type is changed
 		if eventType == e.EventType {

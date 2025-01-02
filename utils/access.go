@@ -99,12 +99,13 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 		return nil, fmt.Errorf("failed to parse URL: %w", err)
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get responce: %w", err)
+		return nil, fmt.Errorf("failed to get response: %w", err)
 	}
+	defer res.Body.Close()
 
 	if res.Status != "200 OK" {
 		var b []byte

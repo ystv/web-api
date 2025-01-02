@@ -138,8 +138,7 @@ func (m *Store) UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []
 		stmt, err := tx.PrepareContext(ctx,
 			`INSERT INTO video.playlist_items(playlist_id, video_item_id, position)
 		VALUES ($1, $2, $3);`)
-		// TODO do we need position? We can get an order sort of for the order
-		// of how they were inserted?
+		// TODO do we need position? We can get an order sort of for the order of how they were inserted?
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to insert videos: %w", err)
 		}
@@ -153,6 +152,6 @@ func (m *Store) UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []
 	})
 }
 
-func (m *Store) DeletePlaylist(ctx context.Context, playlistID int) error {
+func (m *Store) DeletePlaylist(_ context.Context, _ int) error {
 	panic("not implemented")
 }

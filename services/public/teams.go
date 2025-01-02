@@ -33,7 +33,7 @@ type (
 	}
 )
 
-//var _ TeamRepo = &Store{}
+// var _ TeamRepo = &Store{}
 
 // ListTeams returns a list of the ystv teams and their current members.
 func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
@@ -65,9 +65,9 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 	return t, nil
 }
 
-// GetTeamById returns a single team including its members
-func (s *Store) GetTeamById(ctx context.Context, teamId int) (Team, error) {
-	t, err := s.getTeamById(ctx, teamId)
+// GetTeamByID returns a single team including its members
+func (s *Store) GetTeamByID(ctx context.Context, teamID int) (Team, error) {
+	t, err := s.getTeamByID(ctx, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by id: %w", err)
 	}
@@ -113,9 +113,9 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 	return t, nil
 }
 
-// GetTeamByYearById returns a team by a calendar year
-func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, error) {
-	t, err := s.getTeamById(ctx, teamId)
+// GetTeamByYearByID returns a team by a calendar year
+func (s *Store) GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, error) {
+	t, err := s.getTeamByID(ctx, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by year by id: %w", err)
 	}
@@ -138,7 +138,7 @@ func (s *Store) GetTeamByYearById(ctx context.Context, teamId, year int) (Team, 
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
 		    WHEN officer.name LIKE '%Head of%' THEN 5
-		    ELSE 6 END;`, year, teamId)
+		    ELSE 6 END;`, year, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by year by id: %w", err)
 	}
@@ -181,9 +181,9 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 	return t, nil
 }
 
-// GetTeamByStartEndYearById returns a team by an academic year
-func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear, endYear int) (Team, error) {
-	t, err := s.getTeamById(ctx, teamId)
+// GetTeamByStartEndYearByID returns a team by an academic year
+func (s *Store) GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear, endYear int) (Team, error) {
+	t, err := s.getTeamByID(ctx, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team by start end year by id: %w", err)
 	}
@@ -208,7 +208,7 @@ func (s *Store) GetTeamByStartEndYearById(ctx context.Context, teamId, startYear
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
 		    WHEN officer.name LIKE '%Head of%' THEN 5
-		    ELSE 6 END;`, startYear, endYear, teamId)
+		    ELSE 6 END;`, startYear, endYear, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by start end year by id: %w", err)
 	}
@@ -230,13 +230,13 @@ func (s *Store) getTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 	return team, nil
 }
 
-func (s *Store) getTeamById(ctx context.Context, teamId int) (Team, error) {
+func (s *Store) getTeamByID(ctx context.Context, teamID int) (Team, error) {
 	var team Team
 
 	err := s.db.GetContext(ctx, &team, `
 		SELECT team_id, name, email_alias, short_description, full_description
 		FROM people.officership_teams
-		WHERE team_id = $1;`, teamId)
+		WHERE team_id = $1;`, teamID)
 	if err != nil {
 		return team, err
 	}
