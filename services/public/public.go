@@ -17,7 +17,8 @@ type (
 	// SeriesRepo represents all series interactions
 	SeriesRepo interface {
 		GetSeries(ctx context.Context, seriesID int) (Series, error)
-		GetSeriesMeta(ctx context.Context, seriesID int) (Series, error)
+		GetSeriesMeta(ctx context.Context, seriesID int) (SeriesMeta, error)
+		GetSeriesFullMeta(ctx context.Context, seriesID int) (Series, error)
 		GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID int) ([]SeriesMeta, error)
 		GetSeriesFromPath(ctx context.Context, path string) (Series, error)
 		Search(ctx context.Context, query string) (Series, error)
@@ -33,15 +34,21 @@ type (
 	}
 	// BreadcrumbRepo represents all breadcrumb interactions
 	BreadcrumbRepo interface {
-		VideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error)
-		SeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error)
+		GetVideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error)
+		GetSeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error)
 		Find(ctx context.Context, path string) (BreadcrumbItem, error)
 	}
 	// TeamRepo represents all team interactions
 	TeamRepo interface {
 		ListTeams(ctx context.Context) ([]Team, error)
-		GetTeam(ctx context.Context, emailAlias string) (Team, error)
-		GetTeamByYear(ctx context.Context, teamID, year int) (Team, error)
+		GetTeamByEmail(ctx context.Context, emailAlias string) (Team, error)
+		GetTeamByID(ctx context.Context, teamID int) (Team, error)
+		GetTeamByYearByEmail(ctx context.Context, emailAlias string, year int) (Team, error)
+		GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, error)
+		GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias string, startYear, endYear int) (Team, error)
+		GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear, endYear int) (Team, error)
+		getTeamByEmail(ctx context.Context, emailAlias string) (Team, error)
+		getTeamByID(ctx context.Context, teamID int) (Team, error)
 		ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, error)
 		ListOfficers(ctx context.Context) ([]TeamMember, error)
 	}
