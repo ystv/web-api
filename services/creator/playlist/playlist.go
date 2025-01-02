@@ -26,7 +26,7 @@ func NewStore(db *sqlx.DB) *Store {
 	return &Store{db: db}
 }
 
-// All lists all playlists metadata
+// ListPlaylists lists all playlists metadata
 func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) {
 	var p []playlist.Playlist
 	//nolint:musttag
@@ -36,7 +36,7 @@ func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) 
 	return p, err
 }
 
-// Get returns a playlist and it's video's
+// GetPlaylist returns a playlist and it's video's
 func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playlist, error) {
 	p := playlist.Playlist{}
 	//nolint:musttag
@@ -60,7 +60,7 @@ func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playl
 	return p, err
 }
 
-// New makes a playlist item
+// NewPlaylist makes a playlist item
 func (m *Store) NewPlaylist(ctx context.Context, p playlist.New) (int, error) {
 	stmt, err := m.db.PrepareContext(ctx, `INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
 		VALUES ($1, $2, $3, $4, $5, $6) RETURNING playlist_id;`)
@@ -119,7 +119,7 @@ func (m *Store) AddVideos(ctx context.Context, playlistID int, videoIDs []int) e
 	})
 }
 
-// Update will update a playlist
+// UpdatePlaylist will update a playlist
 // Accepts playlist metadata, video ID's that will be part of the playlist
 func (m *Store) UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []int) error {
 	return utils.Transact(m.db, func(tx *sqlx.Tx) error {
