@@ -67,7 +67,7 @@ The generation of usable JSON Web Tokens is available in [web-auth](https://gith
     - [ ] Events
       - [x] List by month
       - [ ] List by term
-      - [ ] Sign ups
+      - [ ] Signups
         - [x] Listing including positions
         - [x] Creating
         - [x] Updating

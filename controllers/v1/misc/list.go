@@ -33,7 +33,7 @@ func (r *Repos) GetLists(c echo.Context) error {
 // enables IsSubscribed check
 //
 // @Summary Get Mailing lists by token
-// @Description Lists all mailing lists. Provides extra context for what the user has subscribed too
+// @Description Lists all mailing lists, provides extra context for what the user has subscribed to
 // @ID get-mailing-lists-token
 // @Tags misc-list
 // @Produce json

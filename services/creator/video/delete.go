@@ -47,7 +47,7 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 			return fmt.Errorf("failed to find video file URLs: %w", err)
 		}
 
-		// First delete from database
+		// First delete from the database
 		_, err = tx.ExecContext(ctx, `DELETE FROM video.files WHERE video_id = $1;`, videoID)
 		if err != nil {
 			return fmt.Errorf("failed to delete video file from database: %w", err)

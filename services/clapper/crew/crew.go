@@ -135,7 +135,7 @@ func (m *Store) UpdateUserAndVerify(ctx context.Context, crewID, userID int) err
 			return err
 		}
 		if crew.userID == nil {
-			// no-one has signed-up, check if locked
+			// no-one has signed up, check if locked
 			isLocked, err := m.checkRoleLocked(ctx, tx, crewID)
 			if err != nil {
 				return err

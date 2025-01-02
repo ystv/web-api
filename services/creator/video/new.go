@@ -24,7 +24,7 @@ func NewStore(db *sqlx.DB, cdn *s3.Client, enc *encoder.Encoder, conf *creator.C
 
 // NewItem creates a new video item
 func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
-	// Checking if video file exists
+	// Checking if a video file exists
 	obj, err := s.cdn.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s.conf.IngestBucket),
 		Key:    aws.String(v.FileID[:32]),
@@ -36,7 +36,7 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 	// Generating timestamp
 	v.CreatedAt = time.Now()
 
-	// New video ID, will be filled when created
+	// New video ID will be filled when created
 	var videoID int
 
 	err = utils.Transact(s.db, func(tx *sqlx.Tx) error {

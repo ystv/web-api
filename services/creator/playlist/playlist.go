@@ -53,7 +53,7 @@ func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playl
 		`SELECT video_id, series_id, name video_name, url, duration AS duration, views, tags, broadcast_date, created_at
 		FROM video.items
 		INNER JOIN video.playlist_items ON video_id = video_item_id
-		ORDER BY position ASC;`)
+		ORDER BY position;`)
 	if err != nil {
 		err = fmt.Errorf("failed to select videos: %w", err)
 	}

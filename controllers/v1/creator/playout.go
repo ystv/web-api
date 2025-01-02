@@ -14,7 +14,7 @@ import (
 
 // ListChannels handles listing channels
 // @Summary List all channels
-// @Description Lists all channels, these are a rough implementation of what is too come (linear channels)
+// @Description Lists all channels, these are a rough implementation of what is to come (linear channels)
 // @ID get-creator-playout-channels
 // @Tags creator-playout-channels
 // @Produce json
@@ -59,7 +59,7 @@ func (r *Repos) NewChannel(c echo.Context) error {
 
 // UpdateChannel handles updating a Channel
 // @Summary Update a channel
-// @Description updates an channel
+// @Description updates a channel
 // @ID update-creator-playout-channel
 // @Tags creator-playout-channels
 // @Accept json

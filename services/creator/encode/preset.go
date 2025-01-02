@@ -146,7 +146,7 @@ func (s *Store) UpdatePreset(ctx context.Context, p encode.Preset) error {
 	})
 }
 
-// DeletePreset deletes a preset, this won't affected any formats that are part of the preset
+// DeletePreset deletes a preset, this won't affect any formats that are part of the preset
 func (s *Store) DeletePreset(ctx context.Context, presetID int) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM video.encode_presets WHERE preset_id = $1`, presetID)
 	return err

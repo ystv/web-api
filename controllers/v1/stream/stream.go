@@ -58,7 +58,7 @@ func (r *Repos) PublishStream(c echo.Context) error {
 		// Form DATA from nginx-rtmp/srtrelay
 		application, name, pwd, action = _handleNginxPublish(c)
 
-		// only apply auth for publish
+		// only apply auth for a publish request
 		if action != "publish" {
 			return nil
 		}

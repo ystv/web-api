@@ -1,6 +1,6 @@
 # Architecture
 
-This document aims to assist developers on understanding the codebase.
+This document aims to assist developers in understanding the codebase.
 
 This application follows the MVC architecture (sort of) at a high level.
 With the `controllers` packages containing the code handling HTTP responses
