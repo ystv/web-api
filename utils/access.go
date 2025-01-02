@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -78,13 +79,13 @@ func (a *Accesser) GetToken(r *http.Request) (*AccessClaims, error) {
 	if token == "" {
 		return nil, ErrNoToken
 	}
-	return a.getClaims(token)
+	return a.getClaims(r.Context(), token)
 }
 
-func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
+func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, error) {
 	claims := &AccessClaims{}
 
-	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(token, claims, func(_ *jwt.Token) (interface{}, error) {
 		return a.conf.SigningKey, nil
 	})
 	if err != nil {
@@ -94,7 +95,7 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/test", a.conf.SecurityBaseURL), nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", a.conf.SecurityBaseURL+"/api/test", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL: %w", err)
 	}
