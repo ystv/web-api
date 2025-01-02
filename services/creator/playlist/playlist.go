@@ -62,23 +62,28 @@ func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playl
 
 // New makes a playlist item
 func (m *Store) NewPlaylist(ctx context.Context, p playlist.New) (int, error) {
-	_, err := m.db.ExecContext(ctx,
-		`INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
-		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, time.Now(), p.CreatedBy)
-	// TODO do we want to use the time here, or what is passed?
+	stmt, err := m.db.PrepareContext(ctx, `INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING playlist_id;`)
 	if err != nil {
-		err = fmt.Errorf("failed to insert playlist: %w", err)
-		return 0, err // Null video ID?
+		return 0, fmt.Errorf("failed to prepare new playlist: %w", err)
+	}
+
+	defer stmt.Close()
+
+	var id int
+	err = stmt.QueryRow(p.Name, p.Description, p.Thumbnail, p.Status, time.Now(), p.CreatedBy).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert playlist: %w", err)
 	}
 	if len(p.VideoIDs) == 0 {
-		return 0, nil
+		return id, nil
 	}
-	err = m.AddVideos(ctx, 0, p.VideoIDs)
+	err = m.AddVideos(ctx, id, p.VideoIDs)
 	if err != nil {
 		err = fmt.Errorf("failed to add videos to playlist: %w", err)
 		return 0, err
 	}
-	return 0, nil // TODO return playlist ID
+	return id, nil
 }
 
 // AddVideo adds a single video to a playlist
