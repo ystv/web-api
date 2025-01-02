@@ -2,10 +2,10 @@ package people
 
 import (
 	"context"
-	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
+	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -39,8 +39,6 @@ type (
 	}
 )
 
-// TODO Sort out pointers. They are currently here so when the json is being marshalled it will "omitempty"
-
 type (
 	// User represents a user object to be used when not all data is required
 	User struct {
@@ -57,14 +55,14 @@ type (
 	// UserFull represents a user and all columns
 	UserFull struct {
 		User
-		LastLogin *time.Time `db:"last_login" json:"lastLogin,omitempty"`
-		CreatedAt *time.Time `db:"created_at" json:"createdAt,omitempty"`
-		CreatedBy int        `db:"created_by" json:"createdBy,omitempty"`
-		UpdatedAt *time.Time `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedBy *int       `db:"updated_by" json:"updatedBy,omitempty"`
-		DeletedAt *time.Time `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedBy *int       `db:"deleted_by" json:"deletedBy,omitempty"`
-		Roles     []Role     `json:"roles,omitempty"`
+		LastLogin null.Time `db:"last_login" json:"lastLogin,omitempty"`
+		CreatedAt null.Time `db:"created_at" json:"createdAt,omitempty"`
+		CreatedBy int       `db:"created_by" json:"createdBy,omitempty"`
+		UpdatedAt null.Time `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedBy null.Int  `db:"updated_by" json:"updatedBy,omitempty"`
+		DeletedAt null.Time `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedBy null.Int  `db:"deleted_by" json:"deletedBy,omitempty"`
+		Roles     []Role    `json:"roles,omitempty"`
 	}
 	// Role represents a "group" of permissions where multiple users
 	// can have this role, and they will inherit these permissions.

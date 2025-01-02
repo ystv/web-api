@@ -29,7 +29,7 @@ var _ SeriesRepo = &Store{}
 
 // GetSeries provides the immediate children of children and videos
 func (s *Store) GetSeries(ctx context.Context, seriesID int) (Series, error) {
-	series, err := s.GetSeriesMeta(ctx, seriesID)
+	series, err := s.GetSeriesFullMeta(ctx, seriesID)
 	if err != nil {
 		return series, fmt.Errorf("failed to get series meta: %w", err)
 	}
@@ -48,9 +48,8 @@ func (s *Store) GetSeries(ctx context.Context, seriesID int) (Series, error) {
 }
 
 // GetSeriesMeta provides basic information for only the selected series
-// TODO probably want to swap this to return SeriesMeta instead
-func (s *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error) {
-	var series Series
+func (s *Store) GetSeriesMeta(ctx context.Context, seriesID int) (SeriesMeta, error) {
+	var series SeriesMeta
 	//nolint:musttag
 	err := s.db.GetContext(ctx, &series,
 		`SELECT series_id, url, name, description, thumbnail
@@ -59,6 +58,31 @@ func (s *Store) GetSeriesMeta(ctx context.Context, seriesID int) (Series, error)
 		AND status = 'public';`, seriesID)
 
 	return series, err
+}
+
+// GetSeriesFullMeta provides basic information for only the selected series
+func (s *Store) GetSeriesFullMeta(ctx context.Context, seriesID int) (Series, error) {
+	var series Series
+	//nolint:musttag
+	err := s.db.GetContext(ctx, &series,
+		`SELECT series_id, url, name, description, thumbnail
+		FROM video.series
+		WHERE series_id = $1
+		AND status = 'public';`, seriesID)
+	if err != nil {
+		return Series{}, fmt.Errorf("failed to get series: %w", err)
+	}
+
+	err = s.db.GetContext(ctx, &series.ChildVideos,
+		`SELECT video_id, series_id, name, url, description, thumbnail, broadcast_date, views, duration
+		FROM video.items
+		WHERE series_id = $1
+		AND status = 'public';`, seriesID)
+	if err != nil {
+		return Series{}, fmt.Errorf("failed to get child videos: %w", err)
+	}
+
+	return series, nil
 }
 
 // GetSeriesImmediateChildrenSeries returns series directly below the chosen series

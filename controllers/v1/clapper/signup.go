@@ -40,7 +40,6 @@ func (r *Repos) NewSignup(c echo.Context) error {
 	}
 
 	// Check event exists
-	// TODO we might want to move this inside the service
 	e, err := r.event.Get(c.Request().Context(), eventID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

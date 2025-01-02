@@ -2,7 +2,12 @@ package people
 
 import (
 	"context"
+	//nolint:gosec
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"log"
+	"strings"
 )
 
 var _ PermissionRepo = &Store{}
@@ -36,9 +41,17 @@ func (s *Store) ListPermissionMembersByID(ctx context.Context, permissionID int)
 	}
 
 	for _, user := range u {
-		if user.Avatar != "" {
-			// TODO: sort this out
-			user.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + user.Avatar
+		switch avatar := user.Avatar; {
+		case user.UseGravatar:
+			//nolint:gosec
+			hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(user.Email))))
+			user.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+		case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
+		case strings.Contains(avatar, fmt.Sprintf("%d.", user.UserID)):
+			user.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+		default:
+			log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", user.UserID, len(user.Avatar), user.Avatar)
+			user.Avatar = ""
 		}
 	}
 

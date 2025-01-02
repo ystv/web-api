@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/ystv/web-api/services/creator/types/video"
 	"github.com/ystv/web-api/utils"
@@ -102,9 +103,15 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	v.UpdatedByID = &t.UserID
+	parsed, err := strconv.ParseInt(strconv.Itoa(t.UserID), 10, 64)
+	if err != nil {
+		err = fmt.Errorf("failed to parse user id: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	v.UpdatedByID = null.IntFrom(parsed)
 	currentDateTime := time.Now()
-	v.UpdatedAt = &currentDateTime
+	v.UpdatedAt = null.TimeFrom(currentDateTime)
 
 	err = r.video.UpdateMeta(c.Request().Context(), v)
 	if err != nil {

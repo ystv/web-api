@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -38,16 +40,16 @@ type (
 		Tags          Tag    `db:"tags" json:"tags"`
 		Status        string `db:"status" json:"status"`
 		Preset        `json:"preset"`
-		BroadcastDate time.Time  `db:"broadcast_date" json:"broadcastDate"`
-		CreatedAt     time.Time  `db:"created_at" json:"createdAt"`
-		CreatedByID   int        `db:"created_by_id" json:"createdByID"`
-		CreatedByNick string     `db:"created_by_nick" json:"createdByNick"`
-		UpdatedAt     *time.Time `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedByID   *int       `db:"updated_by_nick" json:"updatedByID,omitempty"`
-		UpdatedByNick *string    `db:"updated_by_nick" json:"updatedByNick,omitempty"`
-		DeletedAt     *time.Time `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedByID   *int       `db:"deleted_by_id" json:"deleteByID,omitempty"`
-		DeletedByNick *string    `db:"deleted_by_nick" json:"deleteByNick,omitempty"`
+		BroadcastDate time.Time   `db:"broadcast_date" json:"broadcastDate"`
+		CreatedAt     time.Time   `db:"created_at" json:"createdAt"`
+		CreatedByID   int         `db:"created_by_id" json:"createdByID"`
+		CreatedByNick string      `db:"created_by_nick" json:"createdByNick"`
+		UpdatedAt     null.Time   `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedByID   null.Int    `db:"updated_by_nick" json:"updatedByID,omitempty"`
+		UpdatedByNick null.String `db:"updated_by_nick" json:"updatedByNick,omitempty"`
+		DeletedAt     null.Time   `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedByID   null.Int    `db:"deleted_by_id" json:"deleteByID,omitempty"`
+		DeletedByNick null.String `db:"deleted_by_nick" json:"deleteByNick,omitempty"`
 	}
 	// MetaCal represents simple metadata for a calendar
 	MetaCal struct {
@@ -63,8 +65,8 @@ type (
 	}
 	// Preset represents the name and ID of a preset
 	Preset struct {
-		PresetID   *int    `db:"preset_id" json:"presetID"`
-		PresetName *string `db:"preset_name" json:"name"`
+		PresetID   null.Int    `db:"preset_id" json:"presetID"`
+		PresetName null.String `db:"preset_name" json:"name"`
 	}
 	// New is the basic information to create a video
 	New struct {

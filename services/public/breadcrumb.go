@@ -64,9 +64,8 @@ func (s *Store) GetVideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcru
 func (s *Store) GetSeriesBreadcrumb(ctx context.Context, seriesID int) ([]Breadcrumb, error) {
 	var b []Breadcrumb
 
-	// TODO Need a bool to indicate if series is in URL
 	err := s.db.SelectContext(ctx, &b,
-		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
+		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name, parent.in_url as use
 		FROM
 			video.series node,
 			video.series parent

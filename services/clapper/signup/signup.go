@@ -35,8 +35,6 @@ func (m *Store) New(ctx context.Context, eventID int, s clapper.NewSignup) (int,
 			return fmt.Errorf("failed to insert new signup sheet: %w", err)
 		}
 		// Check if positions have been added
-		// TODO I'm not too sure on using the signup struct for this,
-		// maybe another input variable instead?
 		if len(s.Crew) == 0 {
 			return nil
 		}
