@@ -87,7 +87,8 @@ func (m *Store) GetSubscribers(ctx context.Context, listID int) ([]Subscriber, e
 	err := m.db.SelectContext(ctx, &s, `
 		SELECT subscribe_id, sub.user_id, username, email, first_name, last_name, nickname, avatar
 		FROM mail.subscribers sub
-		INNER JOIN people.users u ON sub.user_id = u.user_id;`)
+		INNER JOIN people.users u ON sub.user_id = u.user_id
+		WHERE sub.list_id = $1;`, listID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get subscribers: %w", err)
 	}
