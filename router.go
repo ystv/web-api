@@ -305,6 +305,7 @@ func (r *Router) loadRoutes() {
 			streamsAuthed := internal.Group("/streams", r.access.ManageStreamAuthMiddleware)
 			{
 				streamsAuthed.GET("", r.stream.ListStreams)
+				streamsAuthed.GET("/find", r.stream.FindStream)
 				streamsAuthed.POST("", r.stream.NewStream)
 				streamAuthed := streamsAuthed.Group("/:endpointid")
 				{

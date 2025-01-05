@@ -15,6 +15,7 @@ type (
 	// Repo represents all stream endpoint interactions
 	Repo interface {
 		ListEndpoints(ctx context.Context) ([]EndpointDB, error)
+		FindEndpoint(ctx context.Context, findEndpoint FindEndpoint) (EndpointDB, error)
 		GetEndpointByID(ctx context.Context, endpointID int) (EndpointDB, error)
 		GetEndpointByApplicationNamePwd(ctx context.Context, application, name, pwd string) (EndpointDB, error)
 
@@ -61,6 +62,18 @@ type (
 		Blocked bool `json:"blocked"`
 		// AutoRemove indicates that this endpoint can be automatically removed when the end valid time comes, optional
 		AutoRemove bool `json:"autoRemove,omitempty"`
+	}
+
+	// FindEndpoint used to find an endpoint
+	FindEndpoint struct {
+		// EndpointID is the unique database id of the stream
+		EndpointID int `json:"endpointId,omitempty"`
+		// Application defines which RTMP application this is valid for
+		Application string `json:"application,omitempty"`
+		// Name is the unique name given in an application
+		Name string `json:"name,omitempty"`
+		// Pwd defines an extra layer of security for authentication
+		Pwd string `json:"pwd,omitempty"`
 	}
 
 	// NewEditEndpoint encapsulates the creation of a stream endpoint
@@ -110,6 +123,37 @@ func (s *Store) ListEndpoints(ctx context.Context) ([]EndpointDB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get endpoints: %w", err)
 	}
+
+	return e, nil
+}
+
+func (s *Store) FindEndpoint(ctx context.Context, findEndpoint *FindEndpoint) (EndpointDB, error) {
+	var e EndpointDB
+
+	builder := utils.PSQL().Select("*").
+		From("web_api.stream_endpoints").
+		Where(sq.Or{
+			sq.Eq{"endpoint_id": findEndpoint.EndpointID},
+			sq.And{
+				sq.Eq{"application": findEndpoint.Application},
+				sq.Eq{"name": findEndpoint.Name},
+				sq.Eq{"pwd": findEndpoint.Pwd},
+			},
+		})
+
+	sql, args, err := builder.ToSql()
+	if err != nil {
+		panic(fmt.Errorf("failed to build sql for FindEndpoint: %w", err))
+	}
+
+	err = s.db.GetContext(ctx, &e, sql, args...)
+	if err != nil {
+		return EndpointDB{}, fmt.Errorf("failed to find endpoint: %w", err)
+	}
+
+	findEndpoint.EndpointID = e.EndpointID
+	findEndpoint.Application = e.Application
+	findEndpoint.Name = e.Name
 
 	return e, nil
 }

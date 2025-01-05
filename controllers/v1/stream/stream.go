@@ -229,6 +229,38 @@ func (r *Repos) ListStreams(c echo.Context) error {
 	return c.JSON(http.StatusOK, utils.NonNil(endpoints))
 }
 
+// FindStream handles finding a stream
+// @Summary Finds stream
+// @Description finds existing stream
+// @ID find-stream
+// @Tags stream-endpoints
+// @Accept json
+// @Param endpoint body stream.FindEndpoint true "Find Endpoint object"
+// @Success 200 body stream.FindEndpoint
+// @Router /v1/internal/streams/find [get]
+func (r *Repos) FindStream(c echo.Context) error {
+	var findEndpoint stream.FindEndpoint
+
+	err := c.Bind(&findEndpoint)
+	if err != nil {
+		err = fmt.Errorf("failed to bind to request json: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	if findEndpoint.EndpointID == 0 && (len(findEndpoint.Application) == 0 || len(findEndpoint.Name) == 0) {
+		err = fmt.Errorf("failed to bind to request json: missing application, name or endpoint id")
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	_, err = r.stream.FindEndpoint(c.Request().Context(), &findEndpoint)
+	if err != nil {
+		err = fmt.Errorf("failed to find endpoint: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(findEndpoint))
+}
+
 // NewStream handles a creating a stream endpoint
 //
 // @Summary NewStream stream endpoint

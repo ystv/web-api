@@ -2187,6 +2187,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/internal/streams/find": {
+            "get": {
+                "description": "finds existing stream",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "stream-endpoints"
+                ],
+                "summary": "Finds stream",
+                "operationId": "find-stream",
+                "parameters": [
+                    {
+                        "description": "Find Endpoint object",
+                        "name": "endpoint",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/stream.FindEndpoint"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "body"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/streams/{endpointid}": {
             "put": {
                 "consumes": [
@@ -4023,6 +4055,27 @@ const docTemplate = `{
                 },
                 "startValid": {
                     "description": "StartValid defines the optional start time that this endpoint becomes valid",
+                    "type": "string"
+                }
+            }
+        },
+        "stream.FindEndpoint": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "description": "Application defines which RTMP application this is valid for",
+                    "type": "string"
+                },
+                "endpointId": {
+                    "description": "EndpointID is the unique database id of the stream",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name is the unique name given in an application",
+                    "type": "string"
+                },
+                "pwd": {
+                    "description": "Pwd defines an extra layer of security for authentication",
                     "type": "string"
                 }
             }
