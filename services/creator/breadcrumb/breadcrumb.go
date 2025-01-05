@@ -36,9 +36,8 @@ func NewController(db *sqlx.DB, cdn *s3.Client, enc *encoder.Encoder, conf *crea
 // Series will return the breadcrumb from SeriesID to root
 func (c *Controller) Series(ctx context.Context, seriesID int) ([]breadcrumb.Breadcrumb, error) {
 	var s []breadcrumb.Breadcrumb
-	// TODO Need a bool to indicate if series is in URL
 	err := c.db.SelectContext(ctx, &s,
-		`SELECT parent.series_id as id, parent.url as url, COALESCE(parent.name, parent.url) as name
+		`SELECT parent.series_id AS id, parent.url AS url, COALESCE(parent.name, parent.url) AS name, parent.in_url AS use 
 		FROM
 			video.series node,
 			video.series parent
