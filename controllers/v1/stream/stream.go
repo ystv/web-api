@@ -248,7 +248,7 @@ func (r *Repos) FindStream(c echo.Context) error {
 	}
 
 	if findEndpoint.EndpointID == 0 && (len(findEndpoint.Application) == 0 || len(findEndpoint.Name) == 0) {
-		err = fmt.Errorf("failed to bind to request json: missing application, name or endpoint id")
+		err = errors.New("failed to bind to request json: missing application, name or endpoint id")
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
