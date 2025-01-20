@@ -16,7 +16,7 @@ func NonNil[T any](k T) T {
 			return reflect.New(v.Type().Elem()).Interface().(T)
 		}
 	default:
-		panic("unhandled default case")
+		panic("unhandled default case: " + v.Kind().String())
 	}
 
 	return k
