@@ -80,6 +80,7 @@ The generation of usable JSON Web Tokens is available in [web-auth](https://gith
     - [x] Video upload auth hook
   - [x] Live
     - [x] List streams
+    - [x] Find a stream
     - [x] Add a stream
     - [x] Update stream
     - [x] Delete stream
