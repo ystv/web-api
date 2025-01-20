@@ -266,13 +266,13 @@ func (r *Repos) FindStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	_, err = r.stream.FindEndpoint(c.Request().Context(), &findEndpoint)
+	foundStream, err := r.stream.FindEndpoint(c.Request().Context(), &findEndpoint)
 	if err != nil {
 		err = fmt.Errorf("failed to find endpoint: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(http.StatusNotFound, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(findEndpoint))
+	return c.JSON(http.StatusOK, foundStream)
 }
 
 // NewStream handles a creating a stream endpoint
