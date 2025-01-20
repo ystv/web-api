@@ -182,6 +182,8 @@ func _handleSRSPublish(c echo.Context) (string, string, string, string, error) {
 
 func _handleNginxPublish(c echo.Context) (string, string, string, string) {
 	var application, name, pwd, action string
+	params, err := c.FormParams()
+	fmt.Printf("%#v\n%v\n", params, err)
 	application = c.FormValue("app")
 	name = c.FormValue("name")
 	pwd = c.FormValue("pwd")
