@@ -2103,7 +2103,7 @@ const docTemplate = `{
         },
         "/v1/internal/stream/publish": {
             "post": {
-                "description": "Creates a new stream endpoint; this is for Nginx RTMP module\ncontaining the application, name, authentication and start and end times",
+                "description": "Checks existing stream endpoints and changes it to active; this is for Nginx RTMP module\ncontaining the application, name and pwd",
                 "consumes": [
                     "application/json"
                 ],
@@ -2112,20 +2112,30 @@ const docTemplate = `{
                 ],
                 "summary": "Publish a stream",
                 "operationId": "publish-stream",
-                "parameters": [
-                    {
-                        "description": "Stream endpoint object",
-                        "name": "event",
-                        "in": "body",
-                        "required": true,
+                "responses": {
+                    "200": {
+                        "description": "EndpointDB ID",
                         "schema": {
-                            "$ref": "#/definitions/stream.NewEditEndpoint"
+                            "type": "body"
                         }
                     }
+                }
+            }
+        },
+        "/v1/internal/stream/unpublish": {
+            "post": {
+                "description": "Checks existing stream endpoints and changes it to inactive; this is for Nginx RTMP module\ncontaining the application, name, authentication and start and end times",
+                "consumes": [
+                    "application/json"
                 ],
+                "tags": [
+                    "stream-endpoints"
+                ],
+                "summary": "Unpublish a stream",
+                "operationId": "unpublish-stream",
                 "responses": {
-                    "201": {
-                        "description": "EndpointDB ID",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "type": "body"
                         }
@@ -2213,7 +2223,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "body"
+                            "$ref": "#/definitions/stream.EndpointDB"
                         }
                     }
                 }
@@ -4055,6 +4065,41 @@ const docTemplate = `{
                 },
                 "startValid": {
                     "description": "StartValid defines the optional start time that this endpoint becomes valid",
+                    "type": "string"
+                }
+            }
+        },
+        "stream.EndpointDB": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "application": {
+                    "type": "string"
+                },
+                "autoRemove": {
+                    "type": "boolean"
+                },
+                "blocked": {
+                    "type": "boolean"
+                },
+                "endValid": {
+                    "type": "string"
+                },
+                "endpointId": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "pwd": {
+                    "type": "string"
+                },
+                "startValid": {
                     "type": "string"
                 }
             }

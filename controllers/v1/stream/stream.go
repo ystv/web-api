@@ -31,14 +31,14 @@ func NewRepos(db *sqlx.DB) *Repos {
 // PublishStream handles a stream publish request
 //
 // @Summary Publish a stream
-// @Description Creates a new stream endpoint; this is for Nginx RTMP module
-// @Description containing the application, name, authentication and start and end times
+// @Description Checks existing stream endpoints and changes it to active; this is for Nginx RTMP module
+// @Description containing the application, name and pwd
 // @ID publish-stream
 // @Tags stream-endpoints
 // @Accept json
-// @Param event body stream.NewEditEndpoint true "Stream endpoint object"
-// @Success 201 body int "EndpointDB ID"
-// @Error 400
+// @P aram event body
+// @Success 200 body int "EndpointDB ID"
+// @Error 401
 // @Router /v1/internal/stream/publish [post]
 func (r *Repos) PublishStream(c echo.Context) error {
 	var application, name, pwd, action string
@@ -92,6 +92,18 @@ func (r *Repos) PublishStream(c echo.Context) error {
 	return c.String(http.StatusOK, "0")
 }
 
+// UnpublishStream handles a stream unpublish request
+//
+// @Summary Unpublish a stream
+// @Description Checks existing stream endpoints and changes it to inactive; this is for Nginx RTMP module
+// @Description containing the application, name, authentication and start and end times
+// @ID unpublish-stream
+// @Tags stream-endpoints
+// @Accept json
+// @P aram event body
+// @Success 200 body int
+// @Error 401
+// @Router /v1/internal/stream/unpublish [post]
 func (r *Repos) UnpublishStream(c echo.Context) error {
 	var application, name, pwd, action string
 	var err error
@@ -236,7 +248,9 @@ func (r *Repos) ListStreams(c echo.Context) error {
 // @Tags stream-endpoints
 // @Accept json
 // @Param endpoint body stream.FindEndpoint true "Find Endpoint object"
-// @Success 200 body stream.FindEndpoint
+// @Success 200 {object} stream.EndpointDB
+// @Error 400
+// @Error 404
 // @Router /v1/internal/streams/find [get]
 func (r *Repos) FindStream(c echo.Context) error {
 	var findEndpoint stream.FindEndpoint

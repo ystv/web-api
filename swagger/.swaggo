@@ -1,2 +1,3 @@
 replace null.String string
 replace null.Int int
+replace null.Time time.Time
