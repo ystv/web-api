@@ -149,10 +149,8 @@ type _srsPublish struct {
 	Param       string `json:"param"`
 }
 
-func _handleSRSPublish(c echo.Context) (string, string, string, string, error) {
+func _handleSRSPublish(c echo.Context) (application, name, pwd, action string, err error) {
 	var publish _srsPublish
-	var application, name, pwd, action string
-	var err error
 
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
@@ -160,7 +158,7 @@ func _handleSRSPublish(c echo.Context) (string, string, string, string, error) {
 	dec := json.NewDecoder(c.Request().Body)
 	err = dec.Decode(&publish)
 	if err != nil {
-		return "", "", "", "", err
+		return
 	}
 
 	// skip question mark
@@ -170,28 +168,23 @@ func _handleSRSPublish(c echo.Context) (string, string, string, string, error) {
 
 	val, err := url.ParseQuery(publish.Param)
 	if err != nil {
-		return "", "", "", "", err
+		return
 	}
 	application = publish.Application
 	name = publish.Stream
 	pwd = val.Get("pwd")
 	action = publish.Action
 
-	return application, name, pwd, action, nil
+	return
 }
 
-func _handleNginxPublish(c echo.Context) (string, string, string, string) {
-	var application, name, pwd, action string
-	params, err := c.FormParams()
-	fmt.Printf("%#v\n%v\n", params, err)
+func _handleNginxPublish(c echo.Context) (application, name, pwd, action string) {
 	application = c.FormValue("app")
 	name = c.FormValue("name")
 	pwd = c.FormValue("pwd")
 	action = c.FormValue("call")
 
-	fmt.Println(application, name, pwd, action, params)
-
-	return application, name, pwd, action
+	return
 }
 
 // ListStreams handles a listing stream endpoints
