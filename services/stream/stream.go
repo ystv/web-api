@@ -262,7 +262,7 @@ func (s *Store) SetEndpointInactiveByApplicationNamePwd(ctx context.Context, app
 }
 
 func (s *Store) NewEndpoint(ctx context.Context, e EndpointDB) (EndpointDB, error) {
-	builder := utils.PSQL().Insert("web_api.stream_endpoint").
+	builder := utils.PSQL().Insert("web_api.stream_endpoints").
 		Columns("application", "name", "pwd", "start_valid", "end_valid", "notes", "active", "blocked",
 			"auto_remove").
 		Values(e.Application, e.Name, e.Pwd, e.StartValid, e.EndValid, e.Notes, e.Active, e.Blocked, e.AutoRemove).
@@ -327,7 +327,7 @@ func (s *Store) EditEndpoint(ctx context.Context, e EndpointDB) error {
 }
 
 func (s *Store) DeleteEndpoint(ctx context.Context, endpointID int) error {
-	builder := utils.PSQL().Delete("web_api.stream_endpoint").
+	builder := utils.PSQL().Delete("web_api.stream_endpoints").
 		Where(sq.Eq{"endpoint_id": endpointID})
 
 	sql, args, err := builder.ToSql()
