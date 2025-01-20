@@ -177,7 +177,7 @@ func _handleSRSPublish(c echo.Context) (string, string, string, string, error) {
 	pwd = val.Get("pwd")
 	action = publish.Action
 
-	return application, pwd, name, action, nil
+	return application, name, pwd, action, nil
 }
 
 func _handleNginxPublish(c echo.Context) (string, string, string, string) {
@@ -189,7 +189,9 @@ func _handleNginxPublish(c echo.Context) (string, string, string, string) {
 	pwd = c.FormValue("pwd")
 	action = c.FormValue("call")
 
-	return application, pwd, name, action
+	fmt.Println(application, name, pwd, action, params)
+
+	return application, name, pwd, action
 }
 
 // ListStreams handles a listing stream endpoints
