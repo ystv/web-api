@@ -367,7 +367,13 @@ func (r *Repos) NewStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("NewStream: failed to insert stream endpoint: %w", err))
 	}
 
-	return c.JSON(http.StatusCreated, endpoint.EndpointID)
+	endpointCreated := struct {
+		EndpointID int `db:"endpointId"`
+	}{
+		EndpointID: endpoint.EndpointID,
+	}
+
+	return c.JSON(http.StatusCreated, endpointCreated)
 }
 
 // UpdateStream updates an existing position
