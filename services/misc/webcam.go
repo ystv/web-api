@@ -31,7 +31,7 @@ func (m *Store) ListWebcams(ctx context.Context, permissions []string) ([]Webcam
 	var publicWebcams []Webcam
 	// Fetch all enabled webcams from DB
 	err := m.db.SelectContext(ctx, &webcams,
-		`SELECT	camera_id, name, file, mime_type, permission
+		`SELECT	camera_id, name, file, mime_type, permission_id
 		FROM misc.webcams
 		WHERE ENABLED;`)
 	if err != nil {

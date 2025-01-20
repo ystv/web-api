@@ -122,7 +122,7 @@ func (m *Store) UnsubscribeByID(ctx context.Context, userID, listID int) error {
 func (m *Store) UnsubscribeByUUID(ctx context.Context, uuid string) error {
 	_, err := m.db.ExecContext(ctx, `
 		DELETE FROM mail.subscribers
-		WHERE subscriber_id = $1`, uuid)
+		WHERE subscribe_id = $1`, uuid)
 	if err != nil {
 		return fmt.Errorf("failed to unscribe user by uuid \"%s\": %w", uuid, err)
 	}
