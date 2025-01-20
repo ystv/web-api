@@ -7,7 +7,10 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"gopkg.in/guregu/null.v4"
+
 	"github.com/ystv/web-api/services/creator/types/video"
+	"github.com/ystv/web-api/utils"
 )
 
 // GetVideo finds a video by ID
@@ -25,11 +28,13 @@ func (r *Repos) GetVideo(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid video ID")
 	}
+
 	v, err := r.video.GetItem(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("failed to get video item: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusOK, v)
 }
 
@@ -48,23 +53,28 @@ type NewVideoOutput struct {
 // @Success 201 body int "Video ID"
 // @Router /v1/internal/creator/videos [post]
 func (r *Repos) NewVideo(c echo.Context) error {
-	v := video.New{}
+	var v video.New
+
 	err := c.Bind(&v)
 	if err != nil {
 		err = fmt.Errorf("VideoCreate bind fail: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	claims, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	v.CreatedBy = claims.UserID
+
 	videoID, err := r.video.NewItem(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to create new video item: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, NewVideoOutput{VideoID: videoID})
 }
 
@@ -79,25 +89,36 @@ func (r *Repos) NewVideo(c echo.Context) error {
 // @Success 200 body int "Video ID"
 // @Router /v1/internal/creator/video/meta [put]
 func (r *Repos) UpdateVideoMeta(c echo.Context) error {
-	v := video.Meta{}
+	var v video.Meta
+
 	err := c.Bind(&v)
 	if err != nil {
 		err = fmt.Errorf("failed to bind video object: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	t, err := r.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	v.UpdatedByID = &t.UserID
+
+	parsed, err := strconv.ParseInt(strconv.Itoa(t.UserID), 10, 64)
+	if err != nil {
+		err = fmt.Errorf("failed to parse user id: %w", err)
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	v.UpdatedByID = null.IntFrom(parsed)
 	currentDateTime := time.Now()
-	v.UpdatedAt = &currentDateTime
+	v.UpdatedAt = null.TimeFrom(currentDateTime)
+
 	err = r.video.UpdateMeta(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to update meta: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -105,7 +126,7 @@ func (r *Repos) DeleteVideo(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-// VideoList Handles listing all creations
+// ListVideos Handles listing all creations
 //
 // @Summary List all videos
 // @Description Lists all videos, doesn't include files inside.
@@ -114,13 +135,14 @@ func (r *Repos) DeleteVideo(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video [get]
-func (r *Repos) VideoList(c echo.Context) error {
+func (r *Repos) ListVideos(c echo.Context) error {
 	v, err := r.video.ListMeta(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("failed to list videos: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, v)
+
+	return c.JSON(http.StatusOK, utils.NonNil(v))
 }
 
 // ListVideosByUser Handles retrieving a user's videos using their userid in their token.
@@ -139,12 +161,14 @@ func (r *Repos) ListVideosByUser(c echo.Context) error {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	v, err := r.video.ListMetaByUser(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("failed to list videos: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, v)
+
+	return c.JSON(http.StatusOK, utils.NonNil(v))
 }
 
 // ListVideosByMonth Handles listing all videos from a calendar year/month
@@ -163,16 +187,19 @@ func (r *Repos) ListVideosByMonth(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
 	}
+
 	month, err := strconv.Atoi(c.Param("month"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
+
 	v, err := r.video.ListByCalendarMonth(c.Request().Context(), year, month)
 	if err != nil {
 		err = fmt.Errorf("failed to list by calendar month: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, v)
+
+	return c.JSON(http.StatusOK, utils.NonNil(v))
 }
 
 type searchInput struct {
@@ -190,15 +217,18 @@ type searchInput struct {
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video/search [post]
 func (r *Repos) SearchVideo(c echo.Context) error {
-	searchInput := searchInput{}
-	err := c.Bind(&searchInput)
+	var input searchInput
+
+	err := c.Bind(&input)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
-	s, err := r.video.Search(c.Request().Context(), searchInput.Query)
+
+	s, err := r.video.Search(c.Request().Context(), input.Query)
 	if err != nil {
 		err = fmt.Errorf("public Search failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, s)
+
+	return c.JSON(http.StatusOK, utils.NonNil(s))
 }

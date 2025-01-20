@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/utils"
 )
 
@@ -21,6 +22,7 @@ func (s *Store) DeleteItem(ctx context.Context, videoID, userID int) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete video item: %w", err)
 	}
+
 	return nil
 }
 
@@ -45,7 +47,7 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 			return fmt.Errorf("failed to find video file URLs: %w", err)
 		}
 
-		// First delete from database
+		// First delete from the database
 		_, err = tx.ExecContext(ctx, `DELETE FROM video.files WHERE video_id = $1;`, videoID)
 		if err != nil {
 			return fmt.Errorf("failed to delete video file from database: %w", err)
@@ -53,7 +55,7 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 
 		// Then deleting from object store
 		for _, file := range fileURLs {
-			_, err := s.cdn.DeleteObject(&s3.DeleteObjectInput{
+			_, err := s.cdn.DeleteObject(ctx, &s3.DeleteObjectInput{
 				Bucket: aws.String(s.conf.ServeBucket),
 				Key:    aws.String(file),
 			})
@@ -72,5 +74,6 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 	if err != nil {
 		return fmt.Errorf("failed to permanently delete video \"%d\": %w", videoID, err)
 	}
+
 	return nil
 }

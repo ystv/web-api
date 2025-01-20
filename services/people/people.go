@@ -2,9 +2,10 @@ package people
 
 import (
 	"context"
-	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
+	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -12,6 +13,8 @@ type (
 	UserRepo interface {
 		GetUser(ctx context.Context, userID int) (User, error)
 		GetUserFull(ctx context.Context, userID int) (UserFull, error)
+		GetUserByEmail(ctx context.Context, email string) (User, error)
+		GetUserByEmailFull(ctx context.Context, email string) (UserFull, error)
 		ListAllUsers(ctx context.Context) ([]User, error)
 	}
 
@@ -30,14 +33,14 @@ type (
 
 	// Store contains our dependency
 	Store struct {
-		db *sqlx.DB
+		db          *sqlx.DB
+		cdn         *s3.Client
+		cdnEndpoint string
 	}
 )
 
-//TODO Sort out pointers. They are currently here so when the json is being marshalled it will "omitempty"
-
 type (
-	//User represents a user object to be used when not all data is required
+	// User represents a user object to be used when not all data is required
 	User struct {
 		UserID      int          `db:"user_id" json:"id"`
 		Username    string       `db:"username" json:"username,omitempty"`
@@ -52,14 +55,14 @@ type (
 	// UserFull represents a user and all columns
 	UserFull struct {
 		User
-		LastLogin *time.Time `db:"last_login" json:"lastLogin,omitempty"`
-		CreatedAt *time.Time `db:"created_at" json:"createdAt,omitempty"`
-		CreatedBy int        `db:"created_by" json:"createdBy,omitempty"`
-		UpdatedAt *time.Time `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedBy *int       `db:"updated_by" json:"updatedBy,omitempty"`
-		DeletedAt *time.Time `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedBy *int       `db:"deleted_by" json:"deletedBy,omitempty"`
-		Roles     []Role     `json:"roles,omitempty"`
+		LastLogin null.Time `db:"last_login" json:"lastLogin,omitempty"`
+		CreatedAt null.Time `db:"created_at" json:"createdAt,omitempty"`
+		CreatedBy int       `db:"created_by" json:"createdBy,omitempty"`
+		UpdatedAt null.Time `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedBy null.Int  `db:"updated_by" json:"updatedBy,omitempty"`
+		DeletedAt null.Time `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedBy null.Int  `db:"deleted_by" json:"deletedBy,omitempty"`
+		Roles     []Role    `json:"roles,omitempty"`
 	}
 	// Role represents a "group" of permissions where multiple users
 	// can have this role, and they will inherit these permissions.
@@ -79,6 +82,6 @@ type (
 )
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
-	return &Store{db: db}
+func NewStore(db *sqlx.DB, cdn *s3.Client, cdnEndpoint string) *Store {
+	return &Store{db: db, cdn: cdn, cdnEndpoint: cdnEndpoint}
 }

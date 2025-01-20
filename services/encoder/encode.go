@@ -5,19 +5,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (VideoItem, error) {
-	v := VideoItem{}
-	v.VideoID = videoID
-
+	v := VideoItem{VideoID: videoID}
+	//nolint:musttag
 	err := e.db.GetContext(ctx, &v, `
 		SELECT preset_id
 		FROM video.items
@@ -33,6 +32,7 @@ func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (Vide
 	if err != nil {
 		return v, fmt.Errorf("failed to get video files: %w", err)
 	}
+
 	return v, nil
 }
 
@@ -52,7 +52,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	bucket := URI[0]
 	// URI[1] - Key (we have this joiner in the scenario there are multiple slashes in the name)
 	key := strings.Join(URI[1:], "")
-	_, err := e.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
+	_, err := e.cdn.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})
@@ -61,7 +61,8 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, fmt.Errorf("failed to get object: %w", err)
 	}
 
-	format := EncodeFormat{}
+	var format EncodeFormat
+
 	err = e.db.GetContext(ctx, &format, `
 			SELECT arguments, file_suffix
 			FROM video.encode_formats
@@ -73,7 +74,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, ErrNoArgs
 	}
 	if format.FileSuffix == "" {
-		format.FileSuffix = fmt.Sprint(formatID)
+		format.FileSuffix = strconv.Itoa(formatID)
 	}
 
 	// Splitting the URI again, this time on "." so we
@@ -99,17 +100,16 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, fmt.Errorf("failed to marshal json: %w", err)
 	}
 
-	res, err := e.c.Post(e.conf.VTEndpoint+"/task/video/vod", "application/json", bytes.NewReader(reqJSON))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, e.conf.VTEndpoint+"/task/video/vod", bytes.NewReader(reqJSON))
 	if err != nil {
 		return EncodeResult{}, fmt.Errorf("failed to post to vt: %w", err)
 	}
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return EncodeResult{}, fmt.Errorf("failed to post to vt: %w", err)
+	}
+	defer res.Body.Close()
 
-	defer func(Body io.ReadCloser) {
-		err = Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(res.Body)
 	switch status := res.StatusCode; {
 	case status == http.StatusCreated:
 	case status == http.StatusUnauthorized:
@@ -118,10 +118,13 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 		return EncodeResult{}, ErrVTUnknownResponse
 	}
 	dec := json.NewDecoder(res.Body)
-	task := TaskIdentification{}
+
+	var task TaskIdentification
+
 	err = dec.Decode(&task)
 	if err != nil {
 		return EncodeResult{}, fmt.Errorf("failed to decode vt task response: %w", err)
 	}
+
 	return EncodeResult{URI: dstURL, JobID: task.TaskID}, nil
 }

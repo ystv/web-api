@@ -6,18 +6,19 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+
 	"github.com/ystv/web-api/controllers/v1/clapper"
 	"github.com/ystv/web-api/controllers/v1/creator"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
 	"github.com/ystv/web-api/controllers/v1/misc"
 	"github.com/ystv/web-api/controllers/v1/people"
 	"github.com/ystv/web-api/controllers/v1/public"
+	"github.com/ystv/web-api/controllers/v1/stream"
 	"github.com/ystv/web-api/services/encoder"
-
 	"github.com/ystv/web-api/utils"
 )
 
-//go:generate swag init -o swagger/
+//go:generate swag init -o swagger/ --overridesFile swagger/.swaggo
 
 // Version returns web-api's current version
 var Version = "dev (0.8.0)"
@@ -25,6 +26,19 @@ var Version = "dev (0.8.0)"
 // Commit returns latest commit hash
 var Commit = "unknown"
 
+// @title YSTV Web API
+// @version 1.0
+// @description This is YSTV's API for public and backend sites
+// @termsOfService http://swagger.io/terms/
+//
+// @contact.name API Support
+// @contact.url https://comp.ystv.co.uk
+// @contact.email computing@ystv.co.uk
+//
+// @license.name GPL-3.0
+// @license.url https://www.gnu.org/licenses/gpl-3.0.en.html
+//
+// @host api.ystv.co.uk
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -111,10 +125,11 @@ func main() {
 		Debug:      debug,
 		Access:     access,
 		Clapper:    clapper.NewRepos(db, access),
-		Creator:    creator.NewRepos(db, cdn, enc, access, creatorConfig),
+		Creator:    creator.NewRepos(db, cdn, enc, access, creatorConfig, cdnConfig.Endpoint),
 		Encoder:    encoderPackage.NewEncoderController(enc, access),
 		Misc:       misc.NewRepos(db, access),
-		People:     people.NewRepo(db, access),
+		People:     people.NewRepo(db, cdn, access, cdnConfig.Endpoint),
 		Public:     public.NewRepos(db),
+		Stream:     stream.NewRepos(db),
 	}).Start()
 }

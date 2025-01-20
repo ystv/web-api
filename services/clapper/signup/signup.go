@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/clapper"
 	"github.com/ystv/web-api/utils"
 )
@@ -31,11 +32,9 @@ func (m *Store) New(ctx context.Context, eventID int, s clapper.NewSignup) (int,
 		VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING signup_id;`,
 			eventID, s.Title, s.Description, s.UnlockDate, s.ArrivalTime, s.StartTime, s.EndTime).Scan(&signupID)
 		if err != nil {
-			return fmt.Errorf("failed to insert new signup shee metat: %w", err)
+			return fmt.Errorf("failed to insert new signup sheet: %w", err)
 		}
 		// Check if positions have been added
-		// TODO I'm not too sure on using the signup struct for this,
-		// maybe another input variable instead?
 		if len(s.Crew) == 0 {
 			return nil
 		}
@@ -128,7 +127,7 @@ func (m *Store) updateCrew(ctx context.Context, tx *sqlx.Tx, s clapper.Signup) e
 }
 
 func (m *Store) crewPositionToNewCrew(crewPosition []clapper.CrewPosition) []clapper.NewCrew {
-	var newCrew []clapper.NewCrew
+	newCrew := make([]clapper.NewCrew, 0)
 	for _, crew := range crewPosition {
 		newCrew = append(newCrew, clapper.NewCrew{
 			PositionID: crew.PositionID,

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/breadcrumb"
 	"github.com/ystv/web-api/services/creator/encode"
@@ -36,17 +37,18 @@ type Config struct {
 }
 
 // NewRepos creates our data repositories
-func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Accesser, conf *Config) *Repos {
+func NewRepos(db *sqlx.DB, cdn *s3.Client, enc *encoder.Encoder, access *utils.Accesser, conf *Config, cdnEndpoint string) *Repos {
 	config := &creator.Config{
 		IngestBucket: conf.IngestBucket,
 		ServeBucket:  conf.ServeBucket,
+		Endpoint:     cdnEndpoint,
 	}
 	return &Repos{
 		access,
 		video.NewStore(db, cdn, enc, config),
 		series.NewController(db, cdn, enc, config),
 		playlist.NewStore(db),
-		playout.NewStore(db),
+		playout.NewStore(db, cdn, config),
 		breadcrumb.NewController(db, cdn, enc, config),
 		encode.NewStore(db),
 		creator.NewStore(db),
@@ -67,5 +69,6 @@ func (r *Repos) Stats(c echo.Context) error {
 		err = fmt.Errorf("stats failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	return c.JSON(http.StatusOK, s)
 }

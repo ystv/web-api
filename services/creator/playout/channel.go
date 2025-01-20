@@ -3,8 +3,12 @@ package playout
 import (
 	"context"
 	"fmt"
+	"regexp"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/playout"
 )
@@ -14,12 +18,14 @@ var _ creator.ChannelRepo = &Store{}
 
 // Store contains our dependency
 type Store struct {
-	db *sqlx.DB
+	db   *sqlx.DB
+	cdn  *s3.Client
+	conf *creator.Config
 }
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
-	return &Store{db: db}
+func NewStore(db *sqlx.DB, cdn *s3.Client, conf *creator.Config) *Store {
+	return &Store{db: db, cdn: cdn, conf: conf}
 }
 
 // ListChannels list all channels
@@ -31,6 +37,19 @@ func (s *Store) ListChannels(ctx context.Context) ([]playout.Channel, error) {
 		FROM playout.channel;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get channels: %w", err)
+	}
+	return chs, nil
+}
+
+// GetChannel gets a channel
+func (s *Store) GetChannel(ctx context.Context, urlName string) (playout.Channel, error) {
+	var chs playout.Channel
+	err := s.db.GetContext(ctx, &chs, `
+		SELECT url_name, name, description, thumbnail, output_type, output_url,
+		visibility, status, location, scheduled_start, scheduled_end
+		FROM playout.channel WHERE url_name = $1;`, urlName)
+	if err != nil {
+		return playout.Channel{}, fmt.Errorf("failed to get channel: %w", err)
 	}
 	return chs, nil
 }
@@ -53,7 +72,30 @@ func (s *Store) NewChannel(ctx context.Context, ch playout.Channel) error {
 
 // UpdateChannel update a channel
 func (s *Store) UpdateChannel(ctx context.Context, ch playout.Channel) error {
-	_, err := s.db.ExecContext(ctx,
+	channel, err := s.GetChannel(ctx, ch.URLName)
+	if err != nil {
+		return fmt.Errorf("failed to find channel to update: %w", err)
+	}
+
+	if ch.Thumbnail != "" {
+		reg := regexp.MustCompile(`.*/`)
+		res := reg.ReplaceAllString(ch.Thumbnail, "${1}")
+
+		_, err = s.cdn.CopyObject(ctx, &s3.CopyObjectInput{
+			Bucket:     aws.String(s.conf.ServeBucket),
+			CopySource: aws.String(s.conf.IngestBucket + "/" + res),
+			Key:        aws.String(res),
+		})
+		if err != nil {
+			return fmt.Errorf("failed to copy thumbnail: %w", err)
+		}
+
+		ch.Thumbnail = s.conf.Endpoint + "/" + s.conf.ServeBucket + "/" + res
+	} else {
+		ch.Thumbnail = channel.Thumbnail
+	}
+
+	_, err = s.db.ExecContext(ctx,
 		`UPDATE playout.channel SET
 			url_name = $1, name = $2, description = $3, thumbnail = $4,
 			output_type = $5, output_url = $6, visibility = $7,	status = $8,

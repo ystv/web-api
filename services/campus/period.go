@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-
 	"time"
 )
 
@@ -45,7 +44,7 @@ func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYe
 	ay.Year = t.Year()
 
 	err := c.db.SelectContext(ctx, &ay.TeachingCycle, `
-	SELECT teaching_period_id, period.year, name, start finish
+	SELECT period_id, period.year, name, start, finish
 	FROM misc.teaching_periods period
 	INNER JOIN (
 		SELECT year
@@ -67,7 +66,7 @@ func (c *Campuser) GetAcademicYear(ctx context.Context, t time.Time) (AcademicYe
 func (c *Campuser) GetTeachingPeriod(ctx context.Context, t time.Time) (TeachingPeriod, error) {
 	tp := TeachingPeriod{}
 	err := c.db.GetContext(ctx, &tp, `
-		  SELECT teaching_period_id, year, name, start, finish
+		  SELECT period_id, year, name, start, finish
 		  FROM misc.teaching_periods
 		  WHERE $1 BETWEEN start AND finish;`, t)
 	if err != nil {
@@ -91,8 +90,7 @@ func (c *Campuser) GetWeek(ctx context.Context, t time.Time) (Week, error) {
 		return Week{}, fmt.Errorf("failed to get teaching period: %w", err)
 	}
 
-	// TODO: Need to convert time from what's given to
-	// that times Monday and return a better week no.
+	// TODO: Need to convert time from what's given to that times Monday and return a better week no.
 	w.WeekNo = (int(t.Sub(w.TeachingPeriod.Start).Hours()) / 24 / 7) + 1
 
 	return w, nil

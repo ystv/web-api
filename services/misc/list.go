@@ -31,12 +31,14 @@ var _ ListRepo = &Store{}
 // Doesn't include individual subscribers
 func (m *Store) GetLists(ctx context.Context) ([]List, error) {
 	var l []List
+	//nolint:musttag
 	err := m.db.SelectContext(ctx, &l, `
 		SELECT list_id, name, description, alias, permission_id
 		FROM mail.lists;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get mailing lists: %w", err)
 	}
+
 	return l, nil
 }
 
@@ -44,6 +46,7 @@ func (m *Store) GetLists(ctx context.Context) ([]List, error) {
 // mailing lists for a user don't include individual subscribers
 func (m *Store) GetListsByUserID(ctx context.Context, userID int) ([]List, error) {
 	var l []List
+	//nolint:musttag
 	err := m.db.SelectContext(ctx, &l, `
 		SELECT DISTINCT list.list_id, name, description, alias, permission_id,
 		CASE WHEN sub.user_id = $1 THEN true ELSE false END AS is_subscribed
@@ -52,12 +55,14 @@ func (m *Store) GetListsByUserID(ctx context.Context, userID int) ([]List, error
 	if err != nil {
 		return nil, fmt.Errorf("failed to get mailing lists by user ID: %w", err)
 	}
+
 	return l, nil
 }
 
 // GetList returns a list including all subscribers
 func (m *Store) GetList(ctx context.Context, listID int) (List, error) {
-	l := List{}
+	var l List
+	//nolint:musttag
 	err := m.db.GetContext(ctx, &l, `
 		SELECT list_id, name, description, alias, permission_id
 		FROM mail.lists
@@ -66,23 +71,28 @@ func (m *Store) GetList(ctx context.Context, listID int) (List, error) {
 	if err != nil {
 		return l, fmt.Errorf("failed to get list meta: %w", err)
 	}
+
 	l.Subscribers, err = m.GetSubscribers(ctx, listID)
 	if err != nil {
 		return l, fmt.Errorf("failed to get list subscribers: %w", err)
 	}
+
 	return l, nil
 }
 
 // GetSubscribers returns all subscribers of a list
 func (m *Store) GetSubscribers(ctx context.Context, listID int) ([]Subscriber, error) {
 	var s []Subscriber
+	//nolint:musttag
 	err := m.db.SelectContext(ctx, &s, `
 		SELECT subscribe_id, sub.user_id, username, email, first_name, last_name, nickname, avatar
 		FROM mail.subscribers sub
-		INNER JOIN people.users u ON sub.user_id = u.user_id;`)
+		INNER JOIN people.users u ON sub.user_id = u.user_id
+		WHERE sub.list_id = $1;`, listID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get subscribers: %w", err)
 	}
+
 	return s, nil
 }
 
@@ -92,6 +102,7 @@ func (m *Store) Subscribe(ctx context.Context, userID, listID int) error {
 	if err != nil {
 		return fmt.Errorf("failed to subscribe to mailing list \"%d\": %w", listID, err)
 	}
+
 	return nil
 }
 
@@ -103,6 +114,7 @@ func (m *Store) UnsubscribeByID(ctx context.Context, userID, listID int) error {
 	if err != nil {
 		return fmt.Errorf("failed to unscribe user \"%d\" from list \"%d\" %w", userID, listID, err)
 	}
+
 	return nil
 }
 
@@ -114,5 +126,6 @@ func (m *Store) UnsubscribeByUUID(ctx context.Context, uuid string) error {
 	if err != nil {
 		return fmt.Errorf("failed to unscribe user by uuid \"%s\": %w", uuid, err)
 	}
+
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/utils"
@@ -27,7 +28,9 @@ func NewStore(db *sqlx.DB) *Store {
 // GetPreset returns a preset by ID
 func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, error) {
 	p := encode.Preset{}
-	err := s.db.GetContext(ctx, &p, `SELECT preset_id, name, description FROM video.encode_presets;`)
+	//nolint:musttag
+	err := s.db.GetContext(ctx, &p, `SELECT preset_id, name, description FROM video.encode_presets
+		WHERE preset_id = $1;`, presetID)
 	if err != nil {
 		return p, fmt.Errorf("failed to get preset meta: %w", err)
 	}
@@ -48,6 +51,7 @@ func (s *Store) GetPreset(ctx context.Context, presetID int) (encode.Preset, err
 // ListPreset returns all presets
 func (s *Store) ListPreset(ctx context.Context) ([]encode.Preset, error) {
 	var p []encode.Preset
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &p, `SELECT preset_id, name, description
 						FROM video.encode_presets;`)
 	if err != nil {
@@ -76,20 +80,25 @@ func (s *Store) NewPreset(ctx context.Context, p encode.Preset) (int, error) {
 		if err != nil {
 			return fmt.Errorf("failed to insert preset meta: %w", err)
 		}
+
 		// When they don't attach any formats
 		if len(p.Formats) == 0 {
 			return nil
 		}
+
 		stmt, err := tx.PrepareContext(ctx, "INSERT INTO video.encode_preset_formats(preset_id, format_id) VALUES ($1, $2);")
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to insert formats: %w", err)
 		}
+		defer stmt.Close()
+
 		for _, format := range p.Formats {
 			_, err := stmt.ExecContext(ctx, presetID, format.FormatID)
 			if err != nil {
 				return fmt.Errorf("failed to insert link between preset and formats: %w", err)
 			}
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -106,32 +115,38 @@ func (s *Store) UpdatePreset(ctx context.Context, p encode.Preset) error {
 		if err != nil {
 			return fmt.Errorf("failed to update preset meta: %w", err)
 		}
+
 		// Deleting old associated encode formats
 		_, err = tx.ExecContext(ctx, `DELETE FROM video.encode_preset_formats
 						WHERE preset_id = $1`, p.PresetID)
 		if err != nil {
 			return fmt.Errorf("failed to delete old format links: %w", err)
 		}
+
 		// When they don't attach any formats
 		if len(p.Formats) == 0 {
 			return nil
 		}
+
 		// Insert new formats
 		stmt, err := tx.PrepareContext(ctx, "INSERT INTO video.encode_preset_formats(preset_id, format_id) VALUES ($1, $2);")
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to insert formats: %w", err)
 		}
+		defer stmt.Close()
+
 		for _, format := range p.Formats {
 			_, err := stmt.ExecContext(ctx, p.PresetID, format.FormatID)
 			if err != nil {
 				return fmt.Errorf("failed to insert link between preset and formats: %w", err)
 			}
 		}
+
 		return nil
 	})
 }
 
-// DeletePreset deletes a preset, this won't affected any formats that are part of the preset
+// DeletePreset deletes a preset, this won't affect any formats that are part of the preset
 func (s *Store) DeletePreset(ctx context.Context, presetID int) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM video.encode_presets WHERE preset_id = $1`, presetID)
 	return err

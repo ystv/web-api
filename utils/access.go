@@ -1,16 +1,18 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/ystv/web-api/utils/permissions/users"
 	"io"
 	"log"
 	"net/http"
 	"strings"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils/permissions/users"
 )
 
 type (
@@ -77,13 +79,13 @@ func (a *Accesser) GetToken(r *http.Request) (*AccessClaims, error) {
 	if token == "" {
 		return nil, ErrNoToken
 	}
-	return a.getClaims(token)
+	return a.getClaims(r.Context(), token)
 }
 
-func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
+func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, error) {
 	claims := &AccessClaims{}
 
-	_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.ParseWithClaims(token, claims, func(_ *jwt.Token) (interface{}, error) {
 		return a.conf.SigningKey, nil
 	})
 	if err != nil {
@@ -93,24 +95,27 @@ func (a *Accesser) getClaims(token string) (*AccessClaims, error) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/test", a.conf.SecurityBaseURL), nil)
-	log.Printf("%s/api/test", a.conf.SecurityBaseURL)
+	req, err := http.NewRequestWithContext(ctx, "GET", a.conf.SecurityBaseURL+"/api/test", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL: %w", err)
 	}
 
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get responce: %w", err)
+		return nil, fmt.Errorf("failed to get response: %w", err)
 	}
+	defer res.Body.Close()
 
 	if res.Status != "200 OK" {
-		b, err := io.ReadAll(res.Body)
+		var b []byte
+
+		b, err = io.ReadAll(res.Body)
 		if err != nil {
 			log.Printf("converting fail: %+v", err)
 		}
+
 		return nil, fmt.Errorf("invalid token: invalid status: %s: %s", res.Status, string(b))
 	}
 	return claims, nil
@@ -185,6 +190,26 @@ func (a *Accesser) ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerF
 		}
 		for _, p := range claims.Permissions {
 			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersMembersAdmin {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+}
+
+// ManageStreamAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can manage streams
+func (a *Accesser) ManageStreamAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     http.StatusBadRequest,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.Cobra {
 				return next(c)
 			}
 		}

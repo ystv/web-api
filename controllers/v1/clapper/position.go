@@ -8,10 +8,12 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/clapper"
+	"github.com/ystv/web-api/utils"
 )
 
-// ListPosition handles listing all possible positions
+// ListPositions handles listing all possible positions
 // @Summary List positions
 // @Description Lists all positions.
 // @ID get-positions
@@ -19,13 +21,14 @@ import (
 // @Produce json
 // @Success 200 {array} clapper.Position
 // @Router /v1/internal/clapper/positions [get]
-func (r *Repos) ListPosition(c echo.Context) error {
+func (r *Repos) ListPositions(c echo.Context) error {
 	p, err := r.position.List(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListPosition: failed to list: %w", err)
+		err = fmt.Errorf("ListPositions: failed to list: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, p)
+
+	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
 // NewPosition handles creating a new position
@@ -37,17 +40,20 @@ func (r *Repos) ListPosition(c echo.Context) error {
 // @Success 201 body int "Position ID"
 // @Router /v1/internal/clapper/positions [post]
 func (r *Repos) NewPosition(c echo.Context) error {
-	p := clapper.Position{}
+	var p clapper.Position
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("NewPosition: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	positionID, err := r.position.New(c.Request().Context(), &p)
 	if err != nil {
 		err = fmt.Errorf("NewPosition: failed to insert position: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusCreated, positionID)
 }
 
@@ -60,12 +66,14 @@ func (r *Repos) NewPosition(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/positions [put]
 func (r *Repos) UpdatePosition(c echo.Context) error {
-	p := clapper.Position{}
+	var p clapper.Position
+
 	err := c.Bind(&p)
 	if err != nil {
 		err = fmt.Errorf("UpdatePosition: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.position.Update(c.Request().Context(), &p)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -74,6 +82,7 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 		err = fmt.Errorf("UpdatePosition failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -91,9 +100,11 @@ func (r *Repos) DeletePosition(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
 	}
+
 	err = r.position.Delete(c.Request().Context(), positionID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to delete event: %w", err))
 	}
+
 	return c.NoContent(http.StatusOK)
 }

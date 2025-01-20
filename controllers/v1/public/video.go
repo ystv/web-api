@@ -6,9 +6,11 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
-// Video handles a video item, providing info
+// GetVideo handles a video item, providing info
 //
 // @Summary Provides a video item
 // @Description Returns a video item. Including the video files.
@@ -18,16 +20,18 @@ import (
 // @Produce json
 // @Success 200 {object} public.VideoItem
 // @Router /v1/public/video/{videoid} [get]
-func (r *Repos) Video(c echo.Context) error {
+func (r *Repos) GetVideo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")
 	}
+
 	v, err := r.public.GetVideo(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("public GetVideo failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, v)
 }
 
@@ -47,14 +51,17 @@ func (r *Repos) ListVideos(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad offset")
 	}
+
 	page, err := strconv.Atoi(c.Param("page"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad page")
 	}
+
 	v, err := r.public.ListVideo(c.Request().Context(), offset, page)
 	if err != nil {
 		err = fmt.Errorf("public ListVideos failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, v)
+
+	return c.JSON(http.StatusOK, utils.NonNil(v))
 }

@@ -2,10 +2,12 @@ package event
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/clapper"
 	"github.com/ystv/web-api/utils"
 )
@@ -26,6 +28,7 @@ var _ clapper.EventRepo = &Store{}
 // ListMonth Lists all event meta's for a month
 func (m *Store) ListMonth(ctx context.Context, year, month int) (*[]clapper.Event, error) {
 	var e []clapper.Event
+	//nolint:musttag
 	err := m.db.SelectContext(ctx, &e,
 		`SELECT event_id, event_type, name, start_date, end_date, description,
 		location, is_private, is_cancelled, is_tentative
@@ -41,6 +44,7 @@ func (m *Store) ListMonth(ctx context.Context, year, month int) (*[]clapper.Even
 // Get returns an event including the signup sheets
 func (m *Store) Get(ctx context.Context, eventID int) (*clapper.Event, error) {
 	e := clapper.Event{}
+	//nolint:musttag
 	err := m.db.GetContext(ctx, &e,
 		`SELECT event_id, event_type, name, start_date, end_date, description,
 		location, is_private, is_cancelled, is_tentative
@@ -60,6 +64,7 @@ func (m *Store) Get(ctx context.Context, eventID int) (*clapper.Event, error) {
 		}
 		return &e, nil
 	}
+	//nolint:musttag
 	err = m.db.SelectContext(ctx, &e.Signups,
 		`SELECT signup_id, title, description, unlock_date, arrival_time, start_time, end_time
 		FROM event.signups
@@ -115,7 +120,7 @@ func (m *Store) Update(ctx context.Context, e *clapper.Event, userID int) error 
 			&e.EndDate, &e.Description, &e.Location, &e.IsPrivate,
 			&e.IsTentative, time.Now(), userID, &e.EventID).Scan(&eventType)
 		if err != nil {
-			return fmt.Errorf("failed to update event meta")
+			return errors.New("failed to update event meta")
 		}
 		// Check if the event type is changed
 		if eventType == e.EventType {

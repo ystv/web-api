@@ -23,11 +23,13 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad playlist ID")
 	}
+
 	p, err := r.public.GetPlaylist(c.Request().Context(), playlistID)
 	if err != nil {
 		err = fmt.Errorf("public GetPlaylist failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -46,6 +48,7 @@ func (r *Repos) GetPlaylistPopularByAllTime(c echo.Context) error {
 		err = fmt.Errorf("public GetPlaylistByAllTime failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -64,6 +67,7 @@ func (r *Repos) GetPlaylistPopularByPastYear(c echo.Context) error {
 		err = fmt.Errorf("public GetPlaylistByPastYear failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -82,6 +86,7 @@ func (r *Repos) GetPlaylistPopularByPastMonth(c echo.Context) error {
 		err = fmt.Errorf("public GetPlaylistByPastMonth failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }
 
@@ -100,5 +105,6 @@ func (r *Repos) GetPlaylistRandom(c echo.Context) error {
 		err = fmt.Errorf("public GetPlaylistByRandom failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.JSON(http.StatusOK, p)
 }

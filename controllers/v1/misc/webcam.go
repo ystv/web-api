@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+
+	"github.com/ystv/web-api/utils"
 )
 
 // ListWebcams handles listing all webcams a user can access
@@ -34,7 +36,7 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 		err = fmt.Errorf("failed to list webcams: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, w)
+	return c.JSON(http.StatusOK, utils.NonNil(w))
 }
 
 // GetWebcam handles reverse proxying a webcam
@@ -64,6 +66,7 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 		err = fmt.Errorf("failed to get camera: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	target, err := url.Parse(w.URL)
 	if err != nil {
 		err = fmt.Errorf("failed to parse webcam URL: %w", err)

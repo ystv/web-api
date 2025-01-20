@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/creator/types/breadcrumb"
 	"github.com/ystv/web-api/services/creator/types/encode"
 	"github.com/ystv/web-api/services/creator/types/playlist"
@@ -18,6 +19,7 @@ type (
 	Config struct {
 		IngestBucket string
 		ServeBucket  string
+		Endpoint     string
 	}
 	// VideoRepo defines all creator video interactions
 	VideoRepo interface {
@@ -41,7 +43,7 @@ type (
 	}
 	// SeriesRepo defines all creator series interactions
 	SeriesRepo interface {
-		Get(ctx context.Context, seriesID int) (series.Series, error)
+		GetSeries(ctx context.Context, seriesID int) (series.Series, error)
 		GetMeta(ctx context.Context, seriesID int) (series.Meta, error)
 		ImmediateChildrenSeries(ctx context.Context, seriesID int) ([]series.Meta, error)
 		List(ctx context.Context) ([]series.Meta, error)
@@ -56,10 +58,11 @@ type (
 	}
 	// PlaylistRepo defines all playlist interactions
 	PlaylistRepo interface {
-		All(ctx context.Context) ([]playlist.Playlist, error)
-		Get(ctx context.Context, playlistID int) (playlist.Playlist, error)
-		New(ctx context.Context, p playlist.New) (int, error)
-		Update(ctx context.Context, p playlist.Meta, videoIDs []int) error
+		ListPlaylists(ctx context.Context) ([]playlist.Playlist, error)
+		GetPlaylist(ctx context.Context, playlistID int) (playlist.Playlist, error)
+		NewPlaylist(ctx context.Context, p playlist.New) (int, error)
+		UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []int) error
+		DeletePlaylist(ctx context.Context, playlistID int) error
 		AddVideo(ctx context.Context, playlistID, videoID int) error
 		DeleteVideo(ctx context.Context, playlistID, videoID int) error
 		AddVideos(ctx context.Context, playlistID int, videoIDs []int) error

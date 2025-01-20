@@ -1,8 +1,14 @@
 package video
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
+
+	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -23,27 +29,27 @@ type (
 
 	// Meta represents just the metadata of a video, used for listing.
 	Meta struct {
-		ID            int      `db:"video_id" json:"id"`
-		SeriesID      int      `db:"series_id" json:"seriesID"`
-		Name          string   `db:"video_name" json:"name"`
-		URL           string   `db:"url" json:"url"`
-		Description   string   `db:"description" json:"description,omitempty"` // when listing description isn't included
-		Thumbnail     string   `db:"thumbnail" json:"thumbnail"`
-		Duration      int      `db:"duration" json:"duration"`
-		Views         int      `db:"views" json:"views"`
-		Tags          []string `db:"tags" json:"tags"`
-		Status        string   `db:"status" json:"status"`
+		ID            int    `db:"video_id" json:"id"`
+		SeriesID      int    `db:"series_id" json:"seriesID"`
+		Name          string `db:"video_name" json:"name"`
+		URL           string `db:"url" json:"url"`
+		Description   string `db:"description" json:"description,omitempty"` // when listing description isn't included
+		Thumbnail     string `db:"thumbnail" json:"thumbnail"`
+		Duration      int    `db:"duration" json:"duration"`
+		Views         int    `db:"views" json:"views"`
+		Tags          Tag    `db:"tags" json:"tags"`
+		Status        string `db:"status" json:"status"`
 		Preset        `json:"preset"`
-		BroadcastDate time.Time  `db:"broadcast_date" json:"broadcastDate"`
-		CreatedAt     time.Time  `db:"created_at" json:"createdAt"`
-		CreatedByID   int        `db:"created_by_id" json:"createdByID"`
-		CreatedByNick string     `db:"created_by_nick" json:"createdByNick"`
-		UpdatedAt     *time.Time `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedByID   *int       `db:"updated_by_nick" json:"updatedByID,omitempty"`
-		UpdatedByNick *string    `db:"updated_by_nick" json:"updatedByNick,omitempty"`
-		DeletedAt     *time.Time `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedByID   *int       `db:"deleted_by_id" json:"deleteByID,omitempty"`
-		DeletedByNick *string    `db:"deleted_by_nick" json:"deleteByNick,omitempty"`
+		BroadcastDate time.Time   `db:"broadcast_date" json:"broadcastDate"`
+		CreatedAt     time.Time   `db:"created_at" json:"createdAt"`
+		CreatedByID   int         `db:"created_by_id" json:"createdByID"`
+		CreatedByNick string      `db:"created_by_nick" json:"createdByNick"`
+		UpdatedAt     null.Time   `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedByID   null.Int    `db:"updated_by_nick" json:"updatedByID,omitempty"`
+		UpdatedByNick null.String `db:"updated_by_nick" json:"updatedByNick,omitempty"`
+		DeletedAt     null.Time   `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedByID   null.Int    `db:"deleted_by_id" json:"deleteByID,omitempty"`
+		DeletedByNick null.String `db:"deleted_by_nick" json:"deleteByNick,omitempty"`
 	}
 	// MetaCal represents simple metadata for a calendar
 	MetaCal struct {
@@ -59,8 +65,8 @@ type (
 	}
 	// Preset represents the name and ID of a preset
 	Preset struct {
-		PresetID   *int    `db:"preset_id" json:"presetID"`
-		PresetName *string `db:"preset_name" json:"name"`
+		PresetID   null.Int    `db:"preset_id" json:"presetID"`
+		PresetName null.String `db:"preset_name" json:"name"`
 	}
 	// New is the basic information to create a video
 	New struct {
@@ -76,8 +82,38 @@ type (
 		CreatedBy     int       `json:"createdBy" db:"created_by"`
 		BroadcastDate time.Time `json:"broadcastDate" db:"broadcast_date"`
 	}
+
+	Tag []string
 )
 
 var (
 	ErrNotFound = errors.New("video not found")
 )
+
+func (t *Tag) Value() (driver.Value, error) {
+	if len(*t) == 0 {
+		return "{}", nil
+	}
+	return fmt.Sprintf(`{"%s"}`, strings.Join(*t, `","`)), nil
+}
+
+func (t *Tag) Scan(src interface{}) (err error) {
+	var tags []string
+	switch s := src.(type) {
+	case string:
+		err = json.Unmarshal([]byte(s), &tags)
+		if err != nil {
+			return
+		}
+	case []byte:
+		temp := string(s)
+		temp = strings.TrimLeft(temp, "{")
+		temp = strings.TrimRight(temp, "}")
+		tags = strings.Split(temp, ",")
+	default:
+		return errors.New("incompatible type for Tag")
+	}
+
+	*t = tags
+	return nil
+}

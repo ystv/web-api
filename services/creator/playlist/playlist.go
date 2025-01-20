@@ -7,6 +7,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/playlist"
 	"github.com/ystv/web-api/utils"
@@ -25,18 +26,20 @@ func NewStore(db *sqlx.DB) *Store {
 	return &Store{db: db}
 }
 
-// All lists all playlists metadata
-func (m *Store) All(ctx context.Context) ([]playlist.Playlist, error) {
+// ListPlaylists lists all playlists metadata
+func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) {
 	var p []playlist.Playlist
+	//nolint:musttag
 	err := m.db.SelectContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
 		FROM video.playlists;`)
 	return p, err
 }
 
-// Get returns a playlist and it's video's
-func (m *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, error) {
+// GetPlaylist returns a playlist and it's video's
+func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playlist, error) {
 	p := playlist.Playlist{}
+	//nolint:musttag
 	err := m.db.GetContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status,
 		created_at, created_by, updated_at, updated_by
@@ -50,32 +53,37 @@ func (m *Store) Get(ctx context.Context, playlistID int) (playlist.Playlist, err
 		`SELECT video_id, series_id, name video_name, url, duration AS duration, views, tags, broadcast_date, created_at
 		FROM video.items
 		INNER JOIN video.playlist_items ON video_id = video_item_id
-		ORDER BY position ASC;`)
+		ORDER BY position;`)
 	if err != nil {
 		err = fmt.Errorf("failed to select videos: %w", err)
 	}
 	return p, err
 }
 
-// New makes a playlist item
-func (m *Store) New(ctx context.Context, p playlist.New) (int, error) {
-	_, err := m.db.ExecContext(ctx,
-		`INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
-		VALUES ($1, $2, $3, $4, $5, $6);`, p.Name, p.Description, p.Thumbnail, p.Status, time.Now(), p.CreatedBy)
-	// TODO do we want to use the time here, or what is passed?
+// NewPlaylist makes a playlist item
+func (m *Store) NewPlaylist(ctx context.Context, p playlist.New) (int, error) {
+	stmt, err := m.db.PrepareContext(ctx, `INSERT INTO video.playlists(name, description, thumbnail, status, created_at, created_by)
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING playlist_id;`)
 	if err != nil {
-		err = fmt.Errorf("failed to insert playlist: %w", err)
-		return 0, err // Null video ID?
+		return 0, fmt.Errorf("failed to prepare new playlist: %w", err)
+	}
+
+	defer stmt.Close()
+
+	var id int
+	err = stmt.QueryRow(p.Name, p.Description, p.Thumbnail, p.Status, time.Now(), p.CreatedBy).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert playlist: %w", err)
 	}
 	if len(p.VideoIDs) == 0 {
-		return 0, nil
+		return id, nil
 	}
-	err = m.AddVideos(ctx, 0, p.VideoIDs)
+	err = m.AddVideos(ctx, id, p.VideoIDs)
 	if err != nil {
 		err = fmt.Errorf("failed to add videos to playlist: %w", err)
 		return 0, err
 	}
-	return 0, nil // TODO return playlist ID
+	return id, nil
 }
 
 // AddVideo adds a single video to a playlist
@@ -111,9 +119,9 @@ func (m *Store) AddVideos(ctx context.Context, playlistID int, videoIDs []int) e
 	})
 }
 
-// Update will update a playlist
+// UpdatePlaylist will update a playlist
 // Accepts playlist metadata, video ID's that will be part of the playlist
-func (m *Store) Update(ctx context.Context, p playlist.Meta, videoIDs []int) error {
+func (m *Store) UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []int) error {
 	return utils.Transact(m.db, func(tx *sqlx.Tx) error {
 		_, err := tx.ExecContext(ctx,
 			`UPDATE video.playlists SET name = $1, description = $2,
@@ -137,8 +145,7 @@ func (m *Store) Update(ctx context.Context, p playlist.Meta, videoIDs []int) err
 		stmt, err := tx.PrepareContext(ctx,
 			`INSERT INTO video.playlist_items(playlist_id, video_item_id, position)
 		VALUES ($1, $2, $3);`)
-		// TODO do we need position? We can get an order sort of for the order
-		// of how they were inserted?
+		// TODO do we need position? We can get an order sort of for the order of how they were inserted?
 		if err != nil {
 			return fmt.Errorf("failed to prepare statement to insert videos: %w", err)
 		}
@@ -150,4 +157,8 @@ func (m *Store) Update(ctx context.Context, p playlist.Meta, videoIDs []int) err
 		}
 		return nil
 	})
+}
+
+func (m *Store) DeletePlaylist(_ context.Context, _ int) error {
+	panic("not implemented")
 }

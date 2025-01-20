@@ -6,6 +6,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+
+	// Run `go generate` if your IDE gives an import error here.
+	// Swag CLI generates documentation, you have to import it.
+	echoSwagger "github.com/swaggo/echo-swagger"
+
 	clapperPackage "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
@@ -14,15 +19,10 @@ import (
 	publicPackage "github.com/ystv/web-api/controllers/v1/public"
 	streamV1 "github.com/ystv/web-api/controllers/v1/stream"
 	"github.com/ystv/web-api/middleware"
-
-	echoSwagger "github.com/swaggo/echo-swagger"
-	// Swag CLI generates documentation, you have to import it.
-	// Run `go generate` if your IDE gives an import error here.
-	//_ "github.com/ystv/web-api/swagger"
 	"github.com/ystv/web-api/utils"
-)
 
-// TODO standardise on function names
+	_ "github.com/ystv/web-api/swagger"
+)
 
 // Router provides an HTTP server for web-api
 type Router struct {
@@ -36,6 +36,7 @@ type Router struct {
 	misc    *miscPackage.Repos
 	people  *peoplePackage.Repo
 	public  *publicPackage.Repos
+	stream  *streamV1.Repos
 }
 
 // NewRouter is the required dependencies
@@ -51,6 +52,7 @@ type NewRouter struct {
 	Misc       *miscPackage.Repos
 	People     *peoplePackage.Repo
 	Public     *publicPackage.Repos
+	Stream     *streamV1.Repos
 }
 
 // New creates a new router instance
@@ -66,6 +68,7 @@ func New(conf *NewRouter) *Router {
 		misc:    conf.Misc,
 		people:  conf.People,
 		public:  conf.Public,
+		stream:  conf.Stream,
 	}
 	r.router.HideBanner = true
 
@@ -116,7 +119,8 @@ func (r *Router) loadRoutes() {
 		}
 		stream := internal.Group("/stream")
 		{
-			stream.POST("/auth", streamV1.CheckAuth)
+			stream.POST("/publish", r.stream.PublishStream)
+			stream.POST("/unpublish", r.stream.UnpublishStream)
 		}
 		// Internal user endpoints
 		if !r.router.Debug {
@@ -130,6 +134,8 @@ func (r *Router) loadRoutes() {
 					user.GET("/full", r.people.UserByTokenFull)
 					user.GET("/:id", r.people.UserByID)
 					user.GET("/:id/full", r.people.UserByIDFull)
+					user.GET("/:email", r.people.UserByEmail)
+					user.GET("/:email/full", r.people.UserByEmailFull)
 					user.GET("", r.people.UserByToken)
 					addUser := user.Group("/add")
 					{
@@ -168,7 +174,7 @@ func (r *Router) loadRoutes() {
 			{
 				videos := creator.Group("/video")
 				{
-					videos.GET("", r.creator.VideoList)
+					videos.GET("", r.creator.ListVideos)
 					videos.GET("/my", r.creator.ListVideosByUser)
 					videos.POST("", r.creator.NewVideo)
 					videos.PUT("/meta", r.creator.UpdateVideoMeta)
@@ -185,40 +191,43 @@ func (r *Router) loadRoutes() {
 					seriesItem := series.Group("/:seriesid")
 					{
 						seriesItem.GET("", r.creator.GetSeries)
-						// seriesItem.PUT("", r.creator.UpdateSeries)
-						// seriesItem.DELETE("", r.creator.DeleteSeries)
+						seriesItem.PUT("", r.creator.UpdateSeries)
+						seriesItem.DELETE("", r.creator.DeleteSeries)
 					}
 				}
 				playlists := creator.Group("/playlist")
 				{
-					playlists.GET("", r.creator.ListPlaylist)
+					playlists.GET("", r.creator.ListPlaylists)
 					playlists.POST("", r.creator.NewPlaylist)
 					playlist := playlists.Group("/:id")
 					{
 						playlist.GET("", r.creator.GetPlaylist)
 						playlist.PUT("", r.creator.UpdatePlaylist)
-						// playlist.DELETE("", r.creator.DeletePlaylist)
+						playlist.DELETE("", r.creator.DeletePlaylist)
 					}
 				}
 				playout := creator.Group("/playout")
 				{
-					playout.GET("/channels", r.creator.ListChannels)
-					playout.POST("/channels", r.creator.NewChannel)
-					playout.PUT("/channels", r.creator.UpdateChannel)
-					playout.DELETE("/channels/:channelid", r.creator.DeleteChannel)
+					channel := playout.Group("/channel")
+					{
+						channel.GET("s", r.creator.ListChannels)
+						channel.POST("", r.creator.NewChannel)
+						channel.PUT("", r.creator.UpdateChannel)
+						channel.DELETE("/:channelid", r.creator.DeleteChannel)
+					}
 				}
 				encode := creator.Group("/encode")
 				{
 					preset := encode.Group("/preset")
 					{
-						preset.GET("", r.creator.ListEncodePreset)
+						preset.GET("", r.creator.ListEncodePresets)
 						preset.POST("", r.creator.NewEncodePreset)
 						preset.PUT("", r.creator.UpdateEncodePreset) // We take the ID in the json request
 						preset.DELETE("", r.creator.DeleteEncodePreset)
 					}
 					format := encode.Group("/format")
 					{
-						format.GET("", r.creator.ListEncodeFormat)
+						format.GET("", r.creator.ListEncodeFormats)
 						format.PUT("", r.creator.UpdateEncodeFormat)
 						format.POST("", r.creator.NewEncodeFormat)
 						format.DELETE("/:formatid", r.creator.DeleteEncodeFormat)
@@ -258,7 +267,7 @@ func (r *Router) loadRoutes() {
 				}
 				positions := clapper.Group("/positions")
 				{
-					positions.GET("", r.clapper.ListPosition)                  // List crew positions
+					positions.GET("", r.clapper.ListPositions)                 // List crew positions
 					positions.POST("", r.clapper.NewPosition)                  // Create a new crew position
 					positions.PUT("", r.clapper.UpdatePosition)                // Update a position
 					positions.DELETE("/:positionid", r.clapper.DeletePosition) // Delete a position
@@ -282,12 +291,26 @@ func (r *Router) loadRoutes() {
 				{
 					list.GET("s", r.misc.GetLists)
 					list.GET("s/my", r.misc.GetListsByToken)
-					list.GET("/:listid", r.misc.GetList)
-					list.GET("/:listid/subscribers", r.misc.GetSubscribers)
-					list.POST("/:listid/subscribe", r.misc.SubscribeByToken)
-					list.POST("/:listid/subscribe/:userid", r.misc.SubscribeByID)
-					list.DELETE("/:listid/unsubscribe", r.misc.UnsubscribeByToken)
-					list.DELETE("/:listid/unsubscribe/:userid", r.misc.UnsubscribeByID)
+					listID := list.Group("/:listid")
+					{
+						listID.GET("", r.misc.GetList)
+						listID.GET("/subscribers", r.misc.GetSubscribers)
+						listID.POST("/subscribe", r.misc.SubscribeByToken)
+						listID.POST("/subscribe/:userid", r.misc.SubscribeByID)
+						listID.DELETE("/unsubscribe", r.misc.UnsubscribeByToken)
+						listID.DELETE("/unsubscribe/:userid", r.misc.UnsubscribeByID)
+					}
+				}
+			}
+			streamsAuthed := internal.Group("/streams", r.access.ManageStreamAuthMiddleware)
+			{
+				streamsAuthed.GET("", r.stream.ListStreams)
+				streamsAuthed.GET("/find", r.stream.FindStream)
+				streamsAuthed.POST("", r.stream.NewStream)
+				streamAuthed := streamsAuthed.Group("/:endpointid")
+				{
+					streamAuthed.PUT("", r.stream.UpdateStream)
+					streamAuthed.DELETE("", r.stream.DeleteStream)
 				}
 			}
 		}
@@ -302,14 +325,14 @@ func (r *Router) loadRoutes() {
 				// /videos
 				video.GET("s/:offset/:page", r.public.ListVideos)
 				// /video
-				video.GET("/:id", r.public.Video)
+				video.GET("/:id", r.public.GetVideo)
 				video.GET("/:id/breadcrumb", r.public.VideoBreadcrumb)
 			}
 			series := public.Group("/series")
 			{
-				series.GET("/:id", r.public.SeriesByID)
-				series.GET("/:id/breadcrumb", r.public.SeriesBreadcrumb)
-				series.GET("/yearly/:year", r.public.SeriesByYear)
+				series.GET("/:id", r.public.GetSeriesByID)
+				series.GET("/:id/breadcrumb", r.public.GetSeriesBreadcrumb)
+				series.GET("/yearly/:year", r.public.GetSeriesByYear)
 			}
 			playlist := public.Group("/playlist")
 			{
@@ -329,17 +352,17 @@ func (r *Router) loadRoutes() {
 					teamsEmail.GET("/:emailAlias/:year", r.public.GetTeamByYearByEmail)
 					teamsEmail.GET("/:emailAlias", r.public.GetTeamByEmail)
 				}
-				teamsId := teams.Group("/teamid")
+				teamsID := teams.Group("/teamid")
 				{
-					teamsId.GET("/:teamid/:startYear/:endYear", r.public.GetTeamByStartEndYearById)
-					teamsId.GET("/:teamid/:year", r.public.GetTeamByYearById)
-					teamsId.GET("/:teamid", r.public.GetTeamById)
+					teamsID.GET("/:teamid/:startYear/:endYear", r.public.GetTeamByStartEndYearByID)
+					teamsID.GET("/:teamid/:year", r.public.GetTeamByYearByID)
+					teamsID.GET("/:teamid", r.public.GetTeamByID)
 				}
 			}
-			stream := public.Group("/playout/channel")
+			streamChannel := public.Group("/playout/channel")
 			{
-				stream.GET("", r.public.ListChannels)
-				stream.GET("/:channelShortName", r.public.GetChannel)
+				streamChannel.GET("", r.public.ListChannels)
+				streamChannel.GET("/:channelShortName", r.public.GetChannel)
 			}
 		}
 	}

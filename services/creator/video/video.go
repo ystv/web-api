@@ -3,8 +3,9 @@ package video
 import (
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/encoder"
 )
@@ -14,7 +15,7 @@ var _ creator.VideoRepo = &Store{}
 // Store encapsulates our dependencies
 type Store struct {
 	db   *sqlx.DB
-	cdn  *s3.S3
+	cdn  *s3.Client
 	enc  *encoder.Encoder
 	conf *creator.Config
 }

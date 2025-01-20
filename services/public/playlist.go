@@ -20,8 +20,10 @@ var _ PlaylistRepo = &Store{}
 
 // GetPlaylist returns a playlist object containing a list of videos and metadata
 func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, error) {
-	p := Playlist{}
+	var p Playlist
+
 	// Retrieve playlist metadata information
+	//nolint:musttag
 	err := s.db.GetContext(ctx, &p, `
 		SELECT playlist_id, name, description, thumbnail
 		FROM video.playlists
@@ -29,7 +31,9 @@ func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, erro
 	if err != nil {
 		return p, fmt.Errorf("failed to get playlist meta: %w", err)
 	}
+
 	// Retrieve videos of playlist
+	//nolint:musttag
 	err = s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
@@ -40,6 +44,7 @@ func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, erro
 	if err != nil {
 		return p, fmt.Errorf("failed to get associated videos: %w", err)
 	}
+
 	return p, nil
 }
 
@@ -51,6 +56,7 @@ func (s *Store) GetPlaylistPopular(ctx context.Context, fromPeriod time.Time) (P
 		Description: "Popular videos",
 	}
 
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
@@ -73,6 +79,7 @@ func (s *Store) GetPlaylistPopularByAllTime(ctx context.Context) (Playlist, erro
 		Description: "Popular videos",
 	}
 
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
@@ -94,6 +101,7 @@ func (s *Store) GetPlaylistPopularByPastYear(ctx context.Context) (Playlist, err
 		Description: "Popular videos",
 	}
 
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT DISTINCT item.video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
@@ -117,6 +125,7 @@ func (s *Store) GetPlaylistPopularByPastMonth(ctx context.Context) (Playlist, er
 		Description: "Popular videos",
 	}
 
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT DISTINCT item.video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
@@ -140,6 +149,7 @@ func (s *Store) GetPlaylistRandom(ctx context.Context) (Playlist, error) {
 		Description: "Random videos",
 	}
 
+	//nolint:musttag
 	err := s.db.SelectContext(ctx, &p.Videos, `
 		SELECT video_id, series_id, name, url, description, thumbnail,
 		broadcast_date, views, duration
@@ -148,5 +158,6 @@ func (s *Store) GetPlaylistRandom(ctx context.Context) (Playlist, error) {
 	if err != nil {
 		return p, fmt.Errorf("failed to get playlist videos: %w", err)
 	}
+
 	return p, nil
 }

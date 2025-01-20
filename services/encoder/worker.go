@@ -2,11 +2,13 @@ package encoder
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
 
 func (e *Encoder) TranscodeFinished(ctx context.Context, taskID string) error {
 	fileID := 0
+	//nolint:perfsprint
 	err := e.db.GetContext(ctx, &fileID, `
 		SELECT file_id
 		FROM video.files
@@ -14,9 +16,11 @@ func (e *Encoder) TranscodeFinished(ctx context.Context, taskID string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get video files: %w", err)
 	}
+
 	_, err = e.db.ExecContext(ctx, `UPDATE video.files SET status = 'public' WHERE file_id = $1;`, fileID)
 	if err != nil {
-		return fmt.Errorf("failed to update video file")
+		return errors.New("failed to update video file")
 	}
+
 	return nil
 }

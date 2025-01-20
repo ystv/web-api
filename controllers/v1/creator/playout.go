@@ -7,12 +7,14 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+
 	"github.com/ystv/web-api/services/creator/types/playout"
+	"github.com/ystv/web-api/utils"
 )
 
 // ListChannels handles listing channels
 // @Summary List all channels
-// @Description Lists all channels, these are a rough implementation of what is too come (linear channels)
+// @Description Lists all channels, these are a rough implementation of what is to come (linear channels)
 // @ID get-creator-playout-channels
 // @Tags creator-playout-channels
 // @Produce json
@@ -24,7 +26,8 @@ func (r *Repos) ListChannels(c echo.Context) error {
 		err = fmt.Errorf("ListChannels failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, chs)
+
+	return c.JSON(http.StatusOK, utils.NonNil(chs))
 }
 
 // NewChannel handles creating a new channel
@@ -35,38 +38,43 @@ func (r *Repos) ListChannels(c echo.Context) error {
 // @Accept json
 // @Param channel body playout.Channel true "Channel object"
 // @Success 201 body int "Channel ID"
-// @Router /v1/internal/creator/playout/channels [post]
+// @Router /v1/internal/creator/playout/channel [post]
 func (r *Repos) NewChannel(c echo.Context) error {
-	ch := playout.Channel{}
+	var ch playout.Channel
+
 	err := c.Bind(&ch)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.channel.NewChannel(c.Request().Context(), ch)
 	if err != nil {
 		err = fmt.Errorf("NewChannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusCreated)
 }
 
 // UpdateChannel handles updating a Channel
 // @Summary Update a channel
-// @Description updates an channel
+// @Description updates a channel
 // @ID update-creator-playout-channel
 // @Tags creator-playout-channels
 // @Accept json
 // @Param channel body playout.Channel true "Channel object"
 // @Success 200
-// @Router /v1/internal/creator/playout/channels [put]
+// @Router /v1/internal/creator/playout/channel [put]
 func (r *Repos) UpdateChannel(c echo.Context) error {
-	ch := playout.Channel{}
+	var ch playout.Channel
+
 	err := c.Bind(&ch)
 	if err != nil {
 		err = fmt.Errorf("failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
+
 	err = r.channel.UpdateChannel(c.Request().Context(), ch)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -75,6 +83,7 @@ func (r *Repos) UpdateChannel(c echo.Context) error {
 		err = fmt.Errorf("PresetChannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }
 
@@ -85,12 +94,13 @@ func (r *Repos) UpdateChannel(c echo.Context) error {
 // @Tags creator-playout-channels
 // @Param channelid path string true "Channel URL Name"
 // @Success 200
-// @Router /v1/internal/creator/playout/channels/{channelid} [delete]
+// @Router /v1/internal/creator/playout/channel/{channelid} [delete]
 func (r *Repos) DeleteChannel(c echo.Context) error {
 	err := r.channel.DeleteChannel(c.Request().Context(), c.Param("channelid"))
 	if err != nil {
 		err = fmt.Errorf("DeleteChannel failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
 	}
+
 	return c.NoContent(http.StatusOK)
 }

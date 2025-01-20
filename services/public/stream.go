@@ -29,6 +29,7 @@ type Channel struct {
 // ListChannels will list all public channels
 func (s *Store) ListChannels(ctx context.Context) ([]Channel, error) {
 	var chs []Channel
+
 	err := s.db.SelectContext(ctx, &chs, `
 		SELECT url_name, name, description, thumbnail, output_type, output_url,
 		status, location, scheduled_start, scheduled_end
@@ -37,12 +38,14 @@ func (s *Store) ListChannels(ctx context.Context) ([]Channel, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get channels: %w", err)
 	}
+
 	return chs, nil
 }
 
 // GetChannel will get a public or unlisted channel
 func (s *Store) GetChannel(ctx context.Context, urlName string) (Channel, error) {
-	ch := Channel{}
+	var ch Channel
+
 	err := s.db.GetContext(ctx, &ch, `
 		SELECT url_name, name, description, thumbnail, output_type, output_url,
 		status, location, scheduled_start, scheduled_end
@@ -52,5 +55,6 @@ func (s *Store) GetChannel(ctx context.Context, urlName string) (Channel, error)
 	if err != nil {
 		return Channel{}, fmt.Errorf("failed to get channels: %w", err)
 	}
+
 	return ch, nil
 }
