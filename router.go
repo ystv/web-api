@@ -361,7 +361,7 @@ func (r *Router) loadRoutes() {
 			}
 			streamChannel := public.Group("/playout/channel")
 			{
-				streamChannel.GET("", r.public.ListChannels)
+				streamChannel.GET("s", r.public.ListChannels)
 				streamChannel.GET("/:channelShortName", r.public.GetChannel)
 			}
 		}
