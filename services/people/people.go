@@ -3,7 +3,7 @@ package people
 import (
 	"context"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 	"gopkg.in/guregu/null.v4"
 )
@@ -34,7 +34,7 @@ type (
 	// Store contains our dependency
 	Store struct {
 		db          *sqlx.DB
-		cdn         *s3.Client
+		cdn         *s3.S3
 		cdnEndpoint string
 	}
 )
@@ -82,6 +82,6 @@ type (
 )
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB, cdn *s3.Client, cdnEndpoint string) *Store {
+func NewStore(db *sqlx.DB, cdn *s3.S3, cdnEndpoint string) *Store {
 	return &Store{db: db, cdn: cdn, cdnEndpoint: cdnEndpoint}
 }

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 
@@ -18,14 +18,14 @@ import (
 )
 
 // NewStore returns a new store
-func NewStore(db *sqlx.DB, cdn *s3.Client, enc *encoder.Encoder, conf *creator.Config) *Store {
+func NewStore(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Store {
 	return &Store{db: db, cdn: cdn, enc: enc, conf: conf}
 }
 
 // NewItem creates a new video item
 func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 	// Checking if a video file exists
-	obj, err := s.cdn.GetObject(ctx, &s3.GetObjectInput{
+	obj, err := s.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s.conf.IngestBucket),
 		Key:    aws.String(v.FileID[:32]),
 	})
@@ -52,11 +52,11 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 			err = fmt.Errorf("failed to insert video item: %w", err)
 			return err
 		}
-		extension := strings.Split(obj.Metadata["Filename"], ".")
+		extension := strings.Split(*obj.Metadata["Filename"], ".")
 		key := fmt.Sprintf("%d_%d_%s_%s.%s", v.BroadcastDate.Year(), videoID, v.URLName, getSeason(v.BroadcastDate), extension[1])
 
 		// Copy from pending bucket to the main video bucket
-		_, err = s.cdn.CopyObject(ctx, &s3.CopyObjectInput{
+		_, err = s.cdn.CopyObjectWithContext(ctx, &s3.CopyObjectInput{
 			Bucket:     aws.String(s.conf.ServeBucket),
 			CopySource: aws.String(s.conf.IngestBucket + "/" + v.FileID[:32]),
 			Key:        aws.String(key),
@@ -80,7 +80,7 @@ func (s *Store) NewItem(ctx context.Context, v video.New) (int, error) {
 	})
 	if err != nil {
 		// Since we've wrapped in transaction the DB is safe, will just need to make sure s3 is back to original state
-		_, err = s.cdn.DeleteObject(ctx, &s3.DeleteObjectInput{
+		_, err = s.cdn.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 			Bucket: aws.String(s.conf.ServeBucket),
 			Key:    aws.String(s.conf.IngestBucket + "/" + v.FileID[:32]),
 		})

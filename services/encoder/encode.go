@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 func (e *Encoder) getVideoFilesAndPreset(ctx context.Context, videoID int) (VideoItem, error) {
@@ -52,7 +52,7 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	bucket := URI[0]
 	// URI[1] - Key (we have this joiner in the scenario there are multiple slashes in the name)
 	key := strings.Join(URI[1:], "")
-	_, err := e.cdn.GetObject(ctx, &s3.GetObjectInput{
+	_, err := e.cdn.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	})

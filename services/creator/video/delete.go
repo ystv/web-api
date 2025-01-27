@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/ystv/web-api/utils"
@@ -55,7 +55,7 @@ func (s *Store) DeleteItemPermanently(ctx context.Context, videoID int) error {
 
 		// Then deleting from object store
 		for _, file := range fileURLs {
-			_, err := s.cdn.DeleteObject(ctx, &s3.DeleteObjectInput{
+			_, err = s.cdn.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 				Bucket: aws.String(s.conf.ServeBucket),
 				Key:    aws.String(file),
 			})

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/ystv/web-api/services/creator"
@@ -25,7 +25,7 @@ type Controller struct {
 }
 
 // NewController creates a new controller
-func NewController(db *sqlx.DB, cdn *s3.Client, enc *encoder.Encoder, conf *creator.Config) *Controller {
+func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Controller {
 	return &Controller{db: db, video: video.NewStore(db, cdn, enc, conf)}
 }
 

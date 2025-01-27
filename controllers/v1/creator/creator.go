@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
 
@@ -37,7 +37,7 @@ type Config struct {
 }
 
 // NewRepos creates our data repositories
-func NewRepos(db *sqlx.DB, cdn *s3.Client, enc *encoder.Encoder, access *utils.Accesser, conf *Config, cdnEndpoint string) *Repos {
+func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Accesser, conf *Config, cdnEndpoint string) *Repos {
 	config := &creator.Config{
 		IngestBucket: conf.IngestBucket,
 		ServeBucket:  conf.ServeBucket,
