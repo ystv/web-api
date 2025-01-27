@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -77,7 +78,7 @@ func (s *Store) UpdateChannel(ctx context.Context, ch playout.Channel) error {
 		return fmt.Errorf("failed to find channel to update: %w", err)
 	}
 
-	if ch.Thumbnail != "" {
+	if ch.Thumbnail != "" && !strings.Contains(ch.Thumbnail, s.cdn.Endpoint) {
 		reg := regexp.MustCompile(`.*/`)
 		res := reg.ReplaceAllString(ch.Thumbnail, "${1}")
 
