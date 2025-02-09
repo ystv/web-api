@@ -15,7 +15,7 @@ type (
 	// Repo represents all stream endpoint interactions
 	Repo interface {
 		ListEndpoints(ctx context.Context) ([]EndpointDB, error)
-		FindEndpoint(ctx context.Context, findEndpoint FindEndpoint) (EndpointDB, error)
+		FindEndpoint(ctx context.Context, findEndpoint *FindEndpoint) (EndpointDB, error)
 		GetEndpointByID(ctx context.Context, endpointID int) (EndpointDB, error)
 		GetEndpointByApplicationNamePwd(ctx context.Context, application, name, pwd string) (EndpointDB, error)
 
@@ -101,6 +101,8 @@ type (
 		db *sqlx.DB
 	}
 )
+
+var _ Repo = &Store{}
 
 // NewStore creates our data store
 func NewStore(db *sqlx.DB) *Store {
