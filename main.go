@@ -61,7 +61,7 @@ func main() {
 		}
 	}
 	if debug {
-		log.Println("Debug Mode - Disabled auth - don't run in production")
+		log.Println("debug Mode - disabled auth - don't run in production")
 	}
 
 	// Initialise backend connections
@@ -76,9 +76,9 @@ func main() {
 	}
 	db, err := utils.NewDB(dbConfig)
 	if err != nil {
-		log.Fatalf("failed to connect DB: %+v", err)
+		log.Fatalf("failed to connect db: %+v", err)
 	}
-	log.Printf("Connected to DB: %s@%s", dbConfig.Username, dbConfig.Host)
+	log.Printf("Connected to db: %s@%s", dbConfig.Username, dbConfig.Host)
 
 	// CDN
 	cdnConfig := utils.CDNConfig{
@@ -89,9 +89,9 @@ func main() {
 	}
 	cdn, err := utils.NewCDN(cdnConfig)
 	if err != nil {
-		log.Fatalf("Unable to connect to CDN: %v", err)
+		log.Fatalf("unable to connect to cdn: %v", err)
 	}
-	log.Printf("Connected to CDN: %s@%s", cdnConfig.AccessKeyID, cdnConfig.Endpoint)
+	log.Printf("connected to cdn: %s", cdnConfig.Endpoint)
 
 	bucketConf := struct {
 		IngestBucket string
