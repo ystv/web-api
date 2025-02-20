@@ -18,7 +18,7 @@ type (
 	AdminWebcam struct {
 		Webcam
 		Enabled    bool   `db:"enabled" json:"enabled"`
-		Permission string `db:"permission" json:"permission"`
+		Permission string `db:"permission_id" json:"permissionID"`
 	}
 )
 
@@ -31,7 +31,7 @@ func (m *Store) ListWebcams(ctx context.Context, permissions []string) ([]Webcam
 	var publicWebcams []Webcam
 	// Fetch all enabled webcams from DB
 	err := m.db.SelectContext(ctx, &webcams,
-		`SELECT	camera_id, name, file, mime_type, permission_id
+		`SELECT camera_id, name, file, mime_type, permission_id
 		FROM misc.webcams
 		WHERE ENABLED;`)
 	if err != nil {
@@ -68,7 +68,7 @@ func (m *Store) GetWebcam(ctx context.Context, cameraID int, permissions []strin
 	var publicWebcam Webcam
 
 	err := m.db.GetContext(ctx, &webcam,
-		`SELECT	camera_id, name, url, file, mime_type, permission_id
+		`SELECT camera_id, name, url, file, mime_type, permission_id
 		FROM misc.webcams
 		WHERE ENABLED AND
 		camera_id = $1;`, cameraID)
