@@ -40,13 +40,29 @@ var Commit = "unknown"
 //
 // @host api.ystv.co.uk
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Printf("Failed to load global env file: %v", err)
-	} // Load .env file for production
-	err = godotenv.Load(".env.local") // Load .env.local for developing
-	if err != nil {
-		log.Printf("Failed to load env file, using global env: %v\n", err)
+	var local, global bool
+
+	var err error
+	err = godotenv.Load(".env") // Load .env
+	global = err == nil
+
+	err = godotenv.Overload(".env.local") // Load .env.local
+	local = err == nil
+
+	dbHost := os.Getenv("WAPI_DB_HOST")
+
+	if !local && !global && dbHost == "" {
+		log.Fatal("unable to find env files and no env variables have been supplied")
+	}
+	//nolint:gocritic
+	if !local && !global {
+		log.Println("using env variables")
+	} else if local && global {
+		log.Println("using global and local env files")
+	} else if !local {
+		log.Println("using global env file")
+	} else {
+		log.Println("using local env file")
 	}
 
 	log.Printf("web-api version: %s, commit: %s\n", Version, Commit)
@@ -67,7 +83,7 @@ func main() {
 	// Initialise backend connections
 	// Database
 	dbConfig := utils.DatabaseConfig{
-		Host:     os.Getenv("WAPI_DB_HOST"),
+		Host:     dbHost,
 		Port:     os.Getenv("WAPI_DB_PORT"),
 		SSLMode:  os.Getenv("WAPI_DB_SSLMODE"),
 		Name:     os.Getenv("WAPI_DB_NAME"),
@@ -78,7 +94,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect db: %+v", err)
 	}
-	log.Printf("Connected to db: %s@%s", dbConfig.Username, dbConfig.Host)
+	log.Printf("connected to db: %s", dbConfig.Host)
 
 	// CDN
 	cdnConfig := utils.CDNConfig{
