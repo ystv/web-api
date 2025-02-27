@@ -160,7 +160,7 @@ func (r *Router) loadRoutes() {
 				}
 				role := people.Group("/role")
 				{
-					role.GET("", r.people.ListAllRoles)
+					role.GET("s", r.people.ListAllRoles)
 					role.GET("/:roleid/members", r.people.ListRoleMembersByID)
 					role.GET("/:roleid/permissions", r.people.ListRolePermissionsByID)
 				}
@@ -174,7 +174,7 @@ func (r *Router) loadRoutes() {
 			{
 				videos := creator.Group("/video")
 				{
-					videos.GET("", r.creator.ListVideos)
+					videos.GET("s", r.creator.ListVideos)
 					videos.GET("/my", r.creator.ListVideosByUser)
 					videos.POST("", r.creator.NewVideo)
 					videos.PUT("/meta", r.creator.UpdateVideoMeta)
@@ -197,7 +197,7 @@ func (r *Router) loadRoutes() {
 				}
 				playlists := creator.Group("/playlist")
 				{
-					playlists.GET("", r.creator.ListPlaylists)
+					playlists.GET("s", r.creator.ListPlaylists)
 					playlists.POST("", r.creator.NewPlaylist)
 					playlist := playlists.Group("/:id")
 					{
@@ -220,14 +220,14 @@ func (r *Router) loadRoutes() {
 				{
 					preset := encode.Group("/preset")
 					{
-						preset.GET("", r.creator.ListEncodePresets)
+						preset.GET("s", r.creator.ListEncodePresets)
 						preset.POST("", r.creator.NewEncodePreset)
 						preset.PUT("", r.creator.UpdateEncodePreset) // We take the ID in the json request
 						preset.DELETE("", r.creator.DeleteEncodePreset)
 					}
 					format := encode.Group("/format")
 					{
-						format.GET("", r.creator.ListEncodeFormats)
+						format.GET("s", r.creator.ListEncodeFormats)
 						format.PUT("", r.creator.UpdateEncodeFormat)
 						format.POST("", r.creator.NewEncodeFormat)
 						format.DELETE("/:formatid", r.creator.DeleteEncodeFormat)
@@ -265,9 +265,9 @@ func (r *Router) loadRoutes() {
 						}
 					}
 				}
-				positions := clapper.Group("/positions")
+				positions := clapper.Group("/position")
 				{
-					positions.GET("", r.clapper.ListPositions)                 // List crew positions
+					positions.GET("s", r.clapper.ListPositions)                // List crew positions
 					positions.POST("", r.clapper.NewPosition)                  // Create a new crew position
 					positions.PUT("", r.clapper.UpdatePosition)                // Update a position
 					positions.DELETE("/:positionid", r.clapper.DeletePosition) // Delete a position
@@ -282,10 +282,10 @@ func (r *Router) loadRoutes() {
 					quotes.PUT("", r.misc.UpdateQuote)
 					quotes.DELETE("/:id", r.misc.DeleteQuote)
 				}
-				webcams := misc.Group("/webcams")
+				webcams := misc.Group("/webcam")
 				{
 					webcams.GET("/:id/*", r.misc.GetWebcam)
-					webcams.GET("", r.misc.ListWebcams)
+					webcams.GET("s", r.misc.ListWebcams)
 				}
 				list := misc.Group("/list")
 				{
