@@ -5,8 +5,8 @@ import (
 	"fmt"
 )
 
-func (s *Store) ListAllRolesWithPermissions(ctx context.Context) ([]Role, error) {
-	var r []Role
+func (s *Store) ListAllRolesWithPermissions(ctx context.Context) ([]RoleWithPermissions, error) {
+	var r []RoleWithPermissions
 	//nolint:musttag
 	err := s.db.SelectContext(ctx, &r, `
 		SELECT role_id, name, description

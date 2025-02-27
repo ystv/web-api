@@ -26,7 +26,8 @@ type (
 
 	// RoleRepo defines all role interaction
 	RoleRepo interface {
-		ListAllRolesWithPermissions(ctx context.Context) ([]Role, error)
+		ListAllRolesWithPermissions(ctx context.Context) ([]RoleWithPermissions, error)
+		ListAllRolesWithCount(ctx context.Context) ([]RoleWithCount, error)
 		ListRoleMembersByID(ctx context.Context, roleID int) ([]User, error)
 		ListRolePermissionsByID(ctx context.Context, roleID int) ([]Permission, error)
 	}
@@ -58,21 +59,23 @@ type (
 		LastName    string       `db:"last_name" json:"lastName"`
 		Permissions []Permission `json:"permissions,omitempty"`
 	}
+
 	// UserFull represents a user and all columns
 	UserFull struct {
 		User
-		LastLogin null.Time `db:"last_login" json:"lastLogin,omitempty"`
-		CreatedAt null.Time `db:"created_at" json:"createdAt,omitempty"`
-		CreatedBy int       `db:"created_by" json:"createdBy,omitempty"`
-		UpdatedAt null.Time `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedBy null.Int  `db:"updated_by" json:"updatedBy,omitempty"`
-		DeletedAt null.Time `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedBy null.Int  `db:"deleted_by" json:"deletedBy,omitempty"`
-		Roles     []Role    `json:"roles,omitempty"`
+		LastLogin null.Time             `db:"last_login" json:"lastLogin,omitempty"`
+		CreatedAt null.Time             `db:"created_at" json:"createdAt,omitempty"`
+		CreatedBy int                   `db:"created_by" json:"createdBy,omitempty"`
+		UpdatedAt null.Time             `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedBy null.Int              `db:"updated_by" json:"updatedBy,omitempty"`
+		DeletedAt null.Time             `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedBy null.Int              `db:"deleted_by" json:"deletedBy,omitempty"`
+		Roles     []RoleWithPermissions `json:"roles,omitempty"`
 	}
-	// Role represents a "group" of permissions where multiple users
+
+	// RoleWithPermissions represents a "group" of permissions where multiple users
 	// can have this role, and they will inherit these permissions.
-	Role struct {
+	RoleWithPermissions struct {
 		RoleID      int          `db:"role_id" json:"id"`
 		Name        string       `db:"name" json:"name"`
 		Description string       `db:"description" json:"description"`

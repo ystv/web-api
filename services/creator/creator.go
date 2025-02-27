@@ -90,7 +90,7 @@ type (
 	}
 	// StatRepo defines all statistical interactions
 	StatRepo interface {
-		GlobalVideo(ctx context.Context) (stats.VideoGlobalStats, error)
+		GlobalVideoStats(ctx context.Context) (stats.VideoGlobalStats, error)
 	}
 )
 

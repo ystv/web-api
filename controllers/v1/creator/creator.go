@@ -64,7 +64,7 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3, enc encoder.Repo, access utils.Repo, conf
 // @Success 200 {object} stats.VideoGlobalStats
 // @Router /v1/internal/creator/stats [get]
 func (r *Repos) Stats(c echo.Context) error {
-	s, err := r.creator.GlobalVideo(c.Request().Context())
+	stats, err := s.creator.GlobalVideoStats(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("stats failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)

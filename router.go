@@ -30,13 +30,13 @@ type Router struct {
 	commit  string
 	router  *echo.Echo
 	access  utils.Repo
-	clapper *clapperPackage.Repos
-	creator *creatorPackage.Repos
-	encoder *encoderPackage.Repo
-	misc    *miscPackage.Repos
-	people  *peoplePackage.Repo
-	public  *publicPackage.Repos
-	stream  *streamV1.Repos
+	clapper clapperPackage.Repos
+	creator creatorPackage.Repos
+	encoder encoderPackage.Repo
+	misc    miscPackage.Repos
+	people  peoplePackage.Repos
+	public  publicPackage.Repos
+	stream  streamV1.Repos
 }
 
 // NewRouter is the required dependencies
@@ -46,13 +46,13 @@ type NewRouter struct {
 	DomainName string
 	Debug      bool
 	Access     utils.Repo
-	Clapper    *clapperPackage.Repos
-	Creator    *creatorPackage.Repos
-	Encoder    *encoderPackage.Repo
-	Misc       *miscPackage.Repos
-	People     *peoplePackage.Repo
-	Public     *publicPackage.Repos
-	Stream     *streamV1.Repos
+	Clapper    clapperPackage.Repos
+	Creator    creatorPackage.Repos
+	Encoder    encoderPackage.Repo
+	Misc       miscPackage.Repos
+	People     peoplePackage.Repos
+	Public     publicPackage.Repos
+	Stream     streamV1.Repos
 }
 
 // New creates a new router instance
