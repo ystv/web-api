@@ -10,7 +10,7 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// ListAllRoles handles listing all roles
+// ListAllRolesWithPermissions handles listing all roles
 //
 // @Summary List all roles
 // @ID get-people-roles
@@ -18,14 +18,32 @@ import (
 // @Produce json
 // @Success 200 {array} people.Role
 // @Router /v1/internal/people/roles [get]
-func (s *Store) ListAllRoles(c echo.Context) error {
-	p, err := s.people.ListAllRolesWithPermissions(c.Request().Context())
+func (s *Store) ListAllRolesWithPermissions(c echo.Context) error {
+	r, err := s.people.ListAllRolesWithPermissions(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListAllRolesWithPermissions failed to get roles: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(p))
+	return c.JSON(http.StatusOK, utils.NonNil(r))
+}
+
+// ListAllRolesWithCount handles listing all roles
+//
+// @Summary List all roles with count
+// @ID get-people-roles
+// @Tags people-roles
+// @Produce json
+// @Success 200 {array} people.Role
+// @Router /v1/internal/people/roles/count [get]
+func (s *Store) ListAllRolesWithCount(c echo.Context) error {
+	r, err := s.people.ListAllRolesWithCount(c.Request().Context())
+	if err != nil {
+		err = fmt.Errorf("ListAllRolesWithCount failed to get roles: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(r))
 }
 
 // ListRoleMembersByID handles listing all members of a certain role

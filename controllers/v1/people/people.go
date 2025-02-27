@@ -22,7 +22,8 @@ type (
 	}
 
 	RoleRepo interface {
-		ListAllRoles(c echo.Context) error
+		ListAllRolesWithPermissions(c echo.Context) error
+		ListAllRolesWithCount(c echo.Context) error
 		ListRoleMembersByID(c echo.Context) error
 		ListRolePermissionsByID(c echo.Context) error
 	}

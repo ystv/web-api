@@ -160,7 +160,8 @@ func (r *Router) loadRoutes() {
 				}
 				role := people.Group("/role")
 				{
-					role.GET("s", r.people.ListAllRoles)
+					role.GET("s", r.people.ListAllRolesWithPermissions)
+					role.GET("s/count", r.people.ListAllRolesWithCount)
 					role.GET("/:roleid/members", r.people.ListRoleMembersByID)
 					role.GET("/:roleid/permissions", r.people.ListRolePermissionsByID)
 				}
