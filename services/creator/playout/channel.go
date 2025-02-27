@@ -14,9 +14,6 @@ import (
 	"github.com/ystv/web-api/services/creator/types/playout"
 )
 
-// Here for validation to ensure we are meeting the interface
-var _ creator.ChannelRepo = &Store{}
-
 // Store contains our dependency
 type Store struct {
 	db   *sqlx.DB
@@ -25,7 +22,7 @@ type Store struct {
 }
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) *Store {
+func NewStore(db *sqlx.DB, cdn *s3.S3, conf *creator.Config) creator.ChannelRepo {
 	return &Store{db: db, cdn: cdn, conf: conf}
 }
 

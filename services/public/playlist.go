@@ -16,8 +16,6 @@ type Playlist struct {
 	Videos      []VideoItem `json:"videos"`
 }
 
-var _ PlaylistRepo = &Store{}
-
 // GetPlaylist returns a playlist object containing a list of videos and metadata
 func (s *Store) GetPlaylist(ctx context.Context, playlistID int) (Playlist, error) {
 	var p Playlist

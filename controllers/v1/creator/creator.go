@@ -21,7 +21,7 @@ import (
 
 // Repos represents all our data repositories
 type Repos struct {
-	access     *utils.Accesser
+	access     utils.Repo
 	video      creator.VideoRepo
 	series     creator.SeriesRepo
 	playlist   creator.PlaylistRepo
@@ -37,7 +37,7 @@ type Config struct {
 }
 
 // NewRepos creates our data repositories
-func NewRepos(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, access *utils.Accesser, conf *Config, cdnEndpoint string) *Repos {
+func NewRepos(db *sqlx.DB, cdn *s3.S3, enc encoder.Repo, access utils.Repo, conf *Config, cdnEndpoint string) *Repos {
 	config := &creator.Config{
 		IngestBucket: conf.IngestBucket,
 		ServeBucket:  conf.ServeBucket,

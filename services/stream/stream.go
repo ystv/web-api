@@ -102,10 +102,8 @@ type (
 	}
 )
 
-var _ Repo = &Store{}
-
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) Repo {
 	return &Store{db}
 }
 

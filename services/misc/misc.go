@@ -7,6 +7,12 @@ import (
 )
 
 type (
+	Repos interface {
+		QuoteRepo
+		WebcamRepo
+		ListRepo
+	}
+
 	// QuoteRepo defines all quote interactions
 	QuoteRepo interface {
 		ListQuotes(ctx context.Context, amount, page int) (QuotePage, error)
@@ -41,6 +47,6 @@ type (
 )
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) Repos {
 	return &Store{db: db}
 }

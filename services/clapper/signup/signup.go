@@ -16,12 +16,9 @@ type Store struct {
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) clapper.SignupRepo {
 	return &Store{db}
 }
-
-// Here to verify we are meeting the interface
-var _ clapper.SignupRepo = &Store{}
 
 // New creates a new signup sheet
 func (m *Store) New(ctx context.Context, eventID int, s clapper.NewSignup) (int, error) {

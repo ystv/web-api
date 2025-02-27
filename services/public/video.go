@@ -34,8 +34,6 @@ type (
 	}
 )
 
-var _ VideoRepo = &Store{}
-
 // ListVideo returns all video metadata
 func (s *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
 	var v []VideoMeta

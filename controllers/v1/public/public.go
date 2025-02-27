@@ -8,7 +8,7 @@ import (
 
 // Repos encapsulates the dependency
 type Repos struct {
-	public *public.Store
+	public public.Repos
 }
 
 // NewRepos creates our data store

@@ -33,8 +33,6 @@ type (
 	}
 )
 
-var _ TeamRepo = &Store{}
-
 // ListTeams returns a list of the ystv teams and their current members.
 func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 	var t []Team

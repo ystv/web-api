@@ -1,6 +1,7 @@
 package encoder
 
 import (
+	"context"
 	"errors"
 
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -23,19 +24,28 @@ var (
 	_                         = ErrVTFailedToCreate
 )
 
-type Encoder struct {
-	encode creator.EncodeRepo
-	db     *sqlx.DB
-	cdn    *s3.S3
-	conf   *Config
-}
+type (
+	Repo interface {
+		CreateEncode(ctx context.Context, file VideoFile, formatID int) (EncodeResult, error)
+		RefreshVideo(ctx context.Context, videoID int) error
+		Refresh(_ context.Context) error
+		TranscodeFinished(ctx context.Context, taskID string) error
+	}
 
-type Config struct {
-	VTEndpoint  string
-	ServeBucket string
-}
+	Encoder struct {
+		encode creator.EncodeRepo
+		db     *sqlx.DB
+		cdn    *s3.S3
+		conf   *Config
+	}
 
-func NewEncoder(db *sqlx.DB, cdn *s3.S3, conf *Config) *Encoder {
+	Config struct {
+		VTEndpoint  string
+		ServeBucket string
+	}
+)
+
+func NewEncoder(db *sqlx.DB, cdn *s3.S3, conf *Config) Repo {
 	return &Encoder{
 		encode: encode.NewStore(db),
 		db:     db,

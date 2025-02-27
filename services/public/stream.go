@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-var _ StreamRepo = &Store{}
-
 // This is currently quite bare bones; it is hoped it will integrate with
 // ystv/playout to provide more data
 

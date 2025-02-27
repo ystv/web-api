@@ -13,16 +13,13 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// Here for validation to ensure we are meeting the interface
-var _ creator.PlaylistRepo = &Store{}
-
 // Store contains our dependency
 type Store struct {
 	db *sqlx.DB
 }
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) creator.PlaylistRepo {
 	return &Store{db: db}
 }
 

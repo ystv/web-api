@@ -11,13 +11,13 @@ import (
 type (
 	// Repo stores our dependencies
 	Repo struct {
-		people *people.Store
-		access *utils.Accesser
+		people people.Repo
+		access utils.Repo
 	}
 )
 
 // NewRepo creates our data store
-func NewRepo(db *sqlx.DB, cdn *s3.S3, access *utils.Accesser, cdnEndpoint string) *Repo {
+func NewRepo(db *sqlx.DB, cdn *s3.S3, access utils.Repo, cdnEndpoint string) *Repo {
 	return &Repo{
 		people: people.NewStore(db, cdn, cdnEndpoint),
 		access: access,

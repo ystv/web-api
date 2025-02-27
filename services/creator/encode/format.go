@@ -3,11 +3,8 @@ package encode
 import (
 	"context"
 
-	"github.com/ystv/web-api/services/creator"
 	"github.com/ystv/web-api/services/creator/types/encode"
 )
-
-var _ creator.EncodeRepo = &Store{}
 
 // ListFormat lists all encode formats
 func (s *Store) ListFormat(ctx context.Context) ([]encode.Format, error) {

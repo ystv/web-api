@@ -30,8 +30,6 @@ var (
 	ErrSeriesNotFound = errors.New("series not found")
 )
 
-var _ BreadcrumbRepo = &Store{}
-
 // GetVideoBreadcrumb returns the absolute path from a VideoID
 func (s *Store) GetVideoBreadcrumb(ctx context.Context, videoID int) ([]Breadcrumb, error) {
 	var vB Breadcrumb // Video breadcrumb

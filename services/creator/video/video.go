@@ -10,13 +10,11 @@ import (
 	"github.com/ystv/web-api/services/encoder"
 )
 
-var _ creator.VideoRepo = &Store{}
-
 // Store encapsulates our dependencies
 type Store struct {
 	db   *sqlx.DB
 	cdn  *s3.S3
-	enc  *encoder.Encoder
+	enc  encoder.Repo
 	conf *creator.Config
 }
 

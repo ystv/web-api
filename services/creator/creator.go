@@ -15,6 +15,10 @@ import (
 )
 
 type (
+	Repo interface {
+		StatRepo
+	}
+
 	// Config configures where creator will use as its bucket sources
 	Config struct {
 		IngestBucket string
@@ -30,15 +34,13 @@ type (
 		ListByCalendarMonth(ctx context.Context, year, month int) ([]video.MetaCal, error)
 		OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error)
 		Search(ctx context.Context, query string) ([]video.Meta, error)
-
 		// NewItem inserts a new video
 		NewItem(ctx context.Context, v video.New) (int, error)
-
 		// UpdateMeta updates the video metadata
 		UpdateMeta(ctx context.Context, meta video.Meta) error
-
 		// DeleteItem removes a video
 		DeleteItem(ctx context.Context, videoID, userID int) error
+		DeleteItemPermanently(ctx context.Context, videoID int) error
 		// DeleteFile(ctx context.Context, fileID, userID int) error
 	}
 	// SeriesRepo defines all creator series interactions
@@ -52,6 +54,7 @@ type (
 	// ChannelRepo defines all channel interactions
 	ChannelRepo interface {
 		ListChannels(ctx context.Context) ([]playout.Channel, error)
+		GetChannel(ctx context.Context, urlName string) (playout.Channel, error)
 		NewChannel(ctx context.Context, ch playout.Channel) error
 		UpdateChannel(ctx context.Context, ch playout.Channel) error
 		DeleteChannel(ctx context.Context, urlName string) error
@@ -91,15 +94,14 @@ type (
 	}
 )
 
-// Here for validation to ensure we are meeting the interface
-var _ StatRepo = &Store{}
-
 // Store contains our dependency
 type Store struct {
 	db *sqlx.DB
 }
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB) *Store {
-	return &Store{db: db}
+func NewStore(db *sqlx.DB) Repo {
+	return &Store{
+		db: db,
+	}
 }

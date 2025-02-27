@@ -13,7 +13,7 @@ import (
 
 // Repos encapsulates the dependency
 type Repos struct {
-	access   *utils.Accesser
+	access   utils.Repo
 	crew     clapper.CrewRepo
 	event    clapper.EventRepo
 	signup   clapper.SignupRepo
@@ -21,7 +21,7 @@ type Repos struct {
 }
 
 // NewRepos creates our data store
-func NewRepos(db *sqlx.DB, access *utils.Accesser) *Repos {
+func NewRepos(db *sqlx.DB, access utils.Repo) *Repos {
 	return &Repos{
 		access,
 		crew.NewStore(db),

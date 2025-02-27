@@ -20,9 +20,6 @@ type (
 	}
 )
 
-// Here for validation to ensure we are meeting the interface
-var _ QuoteRepo = &Store{}
-
 // ListQuotes returns a section of quotes
 func (m *Store) ListQuotes(ctx context.Context, amount, page int) (QuotePage, error) {
 	q := QuotePage{LastPageIndex: 20}

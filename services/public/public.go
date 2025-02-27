@@ -8,6 +8,15 @@ import (
 )
 
 type (
+	Repos interface {
+		VideoRepo
+		SeriesRepo
+		PlaylistRepo
+		BreadcrumbRepo
+		TeamRepo
+		StreamRepo
+	}
+
 	// VideoRepo represents all video interactions
 	VideoRepo interface {
 		ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error)
@@ -21,6 +30,7 @@ type (
 		GetSeriesFullMeta(ctx context.Context, seriesID int) (Series, error)
 		GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID int) ([]SeriesMeta, error)
 		GetSeriesFromPath(ctx context.Context, path string) (Series, error)
+		GetSeriesByYear(ctx context.Context, year int) (Series, error)
 		Search(ctx context.Context, query string) (Series, error)
 	}
 	// PlaylistRepo represents all playlist interactions
@@ -64,6 +74,6 @@ type (
 )
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) Repos {
 	return &Store{db}
 }

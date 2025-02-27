@@ -25,8 +25,6 @@ type (
 	}
 )
 
-var _ ListRepo = &Store{}
-
 // GetLists returns all available mailing lists
 // Doesn't include individual subscribers
 func (m *Store) GetLists(ctx context.Context) ([]List, error) {

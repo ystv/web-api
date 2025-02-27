@@ -15,9 +15,6 @@ import (
 	"github.com/ystv/web-api/services/encoder"
 )
 
-// Here for validation to ensure we are meeting the interface
-var _ creator.SeriesRepo = &Controller{}
-
 // Controller contains our dependencies
 type Controller struct {
 	db    *sqlx.DB
@@ -25,7 +22,7 @@ type Controller struct {
 }
 
 // NewController creates a new controller
-func NewController(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Controller {
+func NewController(db *sqlx.DB, cdn *s3.S3, enc encoder.Repo, conf *creator.Config) creator.SeriesRepo {
 	return &Controller{db: db, video: video.NewStore(db, cdn, enc, conf)}
 }
 

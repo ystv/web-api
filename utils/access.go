@@ -16,6 +16,15 @@ import (
 )
 
 type (
+	Repo interface {
+		GetToken(r *http.Request) (*AccessClaims, error)
+		AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+		AddUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+		ListUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+		ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+		ManageStreamAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+	}
+
 	Accesser struct {
 		conf Config
 	}
@@ -46,7 +55,7 @@ var (
 
 // NewAccesser allows the validation of web-auth JWT tokens both as
 // headers and as cookies
-func NewAccesser(conf Config) *Accesser {
+func NewAccesser(conf Config) Repo {
 	return &Accesser{
 		conf: conf,
 	}

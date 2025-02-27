@@ -17,12 +17,9 @@ type Store struct {
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) clapper.CrewRepo {
 	return &Store{db}
 }
-
-// Here to verify we are meeting the interface
-var _ clapper.CrewRepo = &Store{}
 
 // Crew a small version used for helper functions
 // that can be used in transactions.

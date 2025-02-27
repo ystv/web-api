@@ -18,7 +18,7 @@ import (
 )
 
 // NewStore returns a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3, enc *encoder.Encoder, conf *creator.Config) *Store {
+func NewStore(db *sqlx.DB, cdn *s3.S3, enc encoder.Repo, conf *creator.Config) creator.VideoRepo {
 	return &Store{db: db, cdn: cdn, enc: enc, conf: conf}
 }
 

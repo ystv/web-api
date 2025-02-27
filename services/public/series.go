@@ -25,8 +25,6 @@ type (
 	}
 )
 
-var _ SeriesRepo = &Store{}
-
 // GetSeries provides the immediate children of children and videos
 func (s *Store) GetSeries(ctx context.Context, seriesID int) (Series, error) {
 	series, err := s.GetSeriesFullMeta(ctx, seriesID)

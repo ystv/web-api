@@ -15,12 +15,9 @@ type Store struct {
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) clapper.PositionRepo {
 	return &Store{db}
 }
-
-// Here to verify we are meeting the interface
-var _ clapper.PositionRepo = &Store{}
 
 // List returns all positions
 func (m *Store) List(ctx context.Context) (*[]clapper.Position, error) {

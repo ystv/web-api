@@ -11,8 +11,8 @@ import (
 )
 
 type Repo struct {
-	enc    *encoder.Encoder
-	access *utils.Accesser
+	enc    encoder.Repo
+	access utils.Repo
 }
 
 type (
@@ -47,7 +47,7 @@ type (
 	}
 )
 
-func NewEncoderController(enc *encoder.Encoder, access *utils.Accesser) *Repo {
+func NewEncoderController(enc encoder.Repo, access utils.Repo) *Repo {
 	return &Repo{
 		enc:    enc,
 		access: access,

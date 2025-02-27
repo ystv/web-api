@@ -13,15 +13,13 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-var _ creator.EncodeRepo = &Store{}
-
 // Store contains our dependency
 type Store struct {
 	db *sqlx.DB
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) creator.EncodeRepo {
 	return &Store{db: db}
 }
 

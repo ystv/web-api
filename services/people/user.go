@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-var _ UserRepo = &Store{}
-
 // GetUserFull will return all user information to be used for profile and management.
 func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	var u UserFull

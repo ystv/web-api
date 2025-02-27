@@ -9,6 +9,12 @@ import (
 )
 
 type (
+	Repo interface {
+		UserRepo
+		RoleRepo
+		PermissionRepo
+	}
+
 	// UserRepo defines all user interactions
 	UserRepo interface {
 		GetUser(ctx context.Context, userID int) (User, error)
@@ -82,6 +88,6 @@ type (
 )
 
 // NewStore creates a new store
-func NewStore(db *sqlx.DB, cdn *s3.S3, cdnEndpoint string) *Store {
+func NewStore(db *sqlx.DB, cdn *s3.S3, cdnEndpoint string) Repo {
 	return &Store{db: db, cdn: cdn, cdnEndpoint: cdnEndpoint}
 }

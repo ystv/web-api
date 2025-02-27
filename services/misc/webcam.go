@@ -22,9 +22,6 @@ type (
 	}
 )
 
-// Here for validation to ensure we are meeting the interface
-var _ WebcamRepo = &Store{}
-
 // ListWebcams returns all webcams a user can access
 func (m *Store) ListWebcams(ctx context.Context, permissions []string) ([]Webcam, error) {
 	var webcams []AdminWebcam

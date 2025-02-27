@@ -18,12 +18,9 @@ type Store struct {
 }
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) *Store {
+func NewStore(db *sqlx.DB) clapper.EventRepo {
 	return &Store{db}
 }
-
-// Here to verify we are meeting the interface
-var _ clapper.EventRepo = &Store{}
 
 // ListMonth Lists all event meta's for a month
 func (m *Store) ListMonth(ctx context.Context, year, month int) (*[]clapper.Event, error) {

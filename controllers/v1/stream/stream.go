@@ -20,7 +20,7 @@ import (
 
 // Repos encapsulates the dependency
 type Repos struct {
-	stream *stream.Store
+	stream stream.Repo
 }
 
 // NewRepos creates our data store

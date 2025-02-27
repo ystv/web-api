@@ -29,7 +29,7 @@ type Router struct {
 	version string
 	commit  string
 	router  *echo.Echo
-	access  *utils.Accesser
+	access  utils.Repo
 	clapper *clapperPackage.Repos
 	creator *creatorPackage.Repos
 	encoder *encoderPackage.Repo
@@ -45,7 +45,7 @@ type NewRouter struct {
 	Commit     string
 	DomainName string
 	Debug      bool
-	Access     *utils.Accesser
+	Access     utils.Repo
 	Clapper    *clapperPackage.Repos
 	Creator    *creatorPackage.Repos
 	Encoder    *encoderPackage.Repo
