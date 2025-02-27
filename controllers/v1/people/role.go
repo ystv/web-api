@@ -19,9 +19,9 @@ import (
 // @Success 200 {array} people.Role
 // @Router /v1/internal/people/role [get]
 func (r *Repo) ListAllRoles(c echo.Context) error {
-	p, err := r.people.ListAllRoles(c.Request().Context())
+	p, err := r.people.ListAllRolesWithPermissions(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListAllRoles failed to get roles: %w", err)
+		err = fmt.Errorf("ListAllRolesWithPermissions failed to get roles: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 

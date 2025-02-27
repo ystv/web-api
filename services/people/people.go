@@ -20,7 +20,7 @@ type (
 
 	// RoleRepo defines all role interaction
 	RoleRepo interface {
-		ListAllRoles(ctx context.Context) ([]Role, error)
+		ListAllRolesWithPermissions(ctx context.Context) ([]Role, error)
 		ListRoleMembersByID(ctx context.Context, roleID int) ([]User, error)
 		ListRolePermissionsByID(ctx context.Context, roleID int) ([]Permission, error)
 	}
