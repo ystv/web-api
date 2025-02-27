@@ -18,8 +18,8 @@ import (
 // @Produce json
 // @Success 200 {array} people.Permission
 // @Router /v1/internal/people/permission [get]
-func (r *Repo) ListAllPermissions(c echo.Context) error {
-	p, err := r.people.ListAllPermissions(c.Request().Context())
+func (s *Store) ListAllPermissions(c echo.Context) error {
+	p, err := s.people.ListAllPermissions(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListAllPermissions failed to get permissions: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -37,13 +37,13 @@ func (r *Repo) ListAllPermissions(c echo.Context) error {
 // @Param permId path int true "Permission ID"
 // @Success 200 {array} people.Permission
 // @Router /v1/internal/people/permission/{permId}/members [get]
-func (r *Repo) ListPermissionMembersByID(c echo.Context) error {
+func (s *Store) ListPermissionMembersByID(c echo.Context) error {
 	permissionID, err := strconv.Atoi(c.Param("permissionid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid permission id")
 	}
 
-	p, err := r.people.ListPermissionMembersByID(c.Request().Context(), permissionID)
+	p, err := s.people.ListPermissionMembersByID(c.Request().Context(), permissionID)
 	if err != nil {
 		err = fmt.Errorf("ListPermissionMembersByID failed to get users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

@@ -21,7 +21,7 @@ import (
 // @Param page path int true "Page"
 // @Success 200 {array} misc.QuotePage
 // @Router /v1/internal/misc/quotes/{amount}/{page} [get]
-func (r *Repos) ListQuotes(c echo.Context) error {
+func (s *Store) ListQuotes(c echo.Context) error {
 	amount, err := strconv.Atoi(c.Param("amount"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad offset")
@@ -32,7 +32,7 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad page")
 	}
 
-	q, err := r.misc.ListQuotes(c.Request().Context(), amount, page)
+	q, err := s.misc.ListQuotes(c.Request().Context(), amount, page)
 	if err != nil {
 		err = fmt.Errorf("ListQuotes failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -51,7 +51,7 @@ func (r *Repos) ListQuotes(c echo.Context) error {
 // @Param quote body misc.Quote true "Quote object"
 // @Success 201 {object} int "Quote ID"
 // @Router /v1/internal/misc/quotes [post]
-func (r *Repos) NewQuote(c echo.Context) error {
+func (s *Store) NewQuote(c echo.Context) error {
 	var q misc.Quote
 
 	err := c.Bind(&q)
@@ -59,7 +59,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := r.access.GetToken(c.Request())
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -67,7 +67,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 
 	q.CreatedBy = claims.UserID
 
-	err = r.misc.NewQuote(c.Request().Context(), q)
+	err = s.misc.NewQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("NewQuote failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -86,7 +86,7 @@ func (r *Repos) NewQuote(c echo.Context) error {
 // @Param quote body misc.Quote true "Quote object"
 // @Success 200
 // @Router /v1/internal/misc/quotes [put]
-func (r *Repos) UpdateQuote(c echo.Context) error {
+func (s *Store) UpdateQuote(c echo.Context) error {
 	var q misc.Quote
 
 	err := c.Bind(&q)
@@ -94,7 +94,7 @@ func (r *Repos) UpdateQuote(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	err = r.misc.UpdateQuote(c.Request().Context(), q)
+	err = s.misc.UpdateQuote(c.Request().Context(), q)
 	if err != nil {
 		err = fmt.Errorf("UpdateQuote failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
@@ -111,13 +111,13 @@ func (r *Repos) UpdateQuote(c echo.Context) error {
 // @Param quoteid path int true "Quote ID"
 // @Success 200
 // @Router /v1/internal/misc/quotes/{quoteid} [delete]
-func (r *Repos) DeleteQuote(c echo.Context) error {
+func (s *Store) DeleteQuote(c echo.Context) error {
 	quoteID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid ID")
 	}
 
-	err = r.misc.DeleteQuote(c.Request().Context(), quoteID)
+	err = s.misc.DeleteQuote(c.Request().Context(), quoteID)
 	if err != nil {
 		err = fmt.Errorf("DeleteQuote failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)

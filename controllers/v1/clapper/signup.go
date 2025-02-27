@@ -23,7 +23,7 @@ import (
 // @Param event body clapper.NewSignup true "Signup object"
 // @Success 201 body int "Event ID"
 // @Router /v1/internal/clapper/event/{eventid}/signup [post]
-func (r *Repos) NewSignup(c echo.Context) error {
+func (s *Store) NewSignup(c echo.Context) error {
 	// Validate event ID
 	eventID, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
@@ -31,16 +31,16 @@ func (r *Repos) NewSignup(c echo.Context) error {
 	}
 
 	// Bind request json to signup
-	var s clapper.NewSignup
+	var signup clapper.NewSignup
 
-	err = c.Bind(&s)
+	err = c.Bind(&signup)
 	if err != nil {
 		err = fmt.Errorf("NewSignup: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
 	// Check event exists
-	e, err := r.event.Get(c.Request().Context(), eventID)
+	e, err := s.event.Get(c.Request().Context(), eventID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "No event found")
@@ -49,7 +49,7 @@ func (r *Repos) NewSignup(c echo.Context) error {
 	}
 
 	// Insert a new signup sheet
-	signupID, err := r.signup.New(c.Request().Context(), e.EventID, s)
+	signupID, err := s.signup.New(c.Request().Context(), e.EventID, signup)
 	if err != nil {
 		err = fmt.Errorf("NewSignup: failed to insert new signup: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -70,10 +70,10 @@ func (r *Repos) NewSignup(c echo.Context) error {
 // @Param quote body clapper.Signup true "Signup object"
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid}/{signupid} [put]
-func (r *Repos) UpdateSignup(c echo.Context) error {
-	var s clapper.Signup
+func (s *Store) UpdateSignup(c echo.Context) error {
+	var signup clapper.Signup
 
-	err := c.Bind(&s)
+	err := c.Bind(&signup)
 	if err != nil {
 		err = fmt.Errorf("UpdateSignup: failed to bind to request json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -84,9 +84,9 @@ func (r *Repos) UpdateSignup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
 	}
 
-	s.SignupID = signupID
+	signup.SignupID = signupID
 
-	err = r.signup.Update(c.Request().Context(), s)
+	err = s.signup.Update(c.Request().Context(), signup)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -108,13 +108,13 @@ func (r *Repos) UpdateSignup(c echo.Context) error {
 // @Param signupid path int true "Signup ID"
 // @Success 200
 // @Router /v1/internal/clapper/{eventid}/{signupid} [delete]
-func (r *Repos) DeleteSignup(c echo.Context) error {
+func (s *Store) DeleteSignup(c echo.Context) error {
 	signupID, err := strconv.Atoi(c.Param("signupid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
 	}
 
-	err = r.signup.Delete(c.Request().Context(), signupID)
+	err = s.signup.Delete(c.Request().Context(), signupID)
 	if err != nil {
 		err = fmt.Errorf("DeleteSignup failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)

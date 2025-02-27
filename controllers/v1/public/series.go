@@ -18,17 +18,17 @@ import (
 // @Produce json
 // @Success 200 {object} public.Series
 // @Router /v1/public/series/{seriesid} [get]
-func (r *Repos) GetSeriesByID(c echo.Context) error {
+func (s *Store) GetSeriesByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad series ID")
 	}
-	s, err := r.public.GetSeries(c.Request().Context(), id)
+	series, err := s.public.GetSeries(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("public SeriesByID failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, series)
 }
 
 // GetSeriesByYear returns a virtual series containing series / videos made in that year
@@ -42,19 +42,19 @@ func (r *Repos) GetSeriesByID(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} public.Series
 // @Router /v1/public/series/yearly/{year} [get]
-func (r *Repos) GetSeriesByYear(c echo.Context) error {
+func (s *Store) GetSeriesByYear(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad year")
 	}
 
-	s, err := r.public.GetSeriesByYear(c.Request().Context(), year)
+	series, err := s.public.GetSeriesByYear(c.Request().Context(), year)
 	if err != nil {
 		err = fmt.Errorf("public ListSeriesByYear failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, series)
 }
 
 type SearchInput struct {
@@ -71,7 +71,7 @@ type SearchInput struct {
 // @Produce json
 // @Success 200 {array} public.Series
 // @Router /v1/public/search [post]
-func (r *Repos) Search(c echo.Context) error {
+func (s *Store) Search(c echo.Context) error {
 	var searchInput SearchInput
 
 	err := c.Bind(&searchInput)
@@ -79,11 +79,11 @@ func (r *Repos) Search(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	s, err := r.public.Search(c.Request().Context(), searchInput.Query)
+	series, err := s.public.Search(c.Request().Context(), searchInput.Query)
 	if err != nil {
 		err = fmt.Errorf("public Search failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, series)
 }

@@ -18,13 +18,13 @@ import (
 // @Produce json
 // @Success 200 {object} public.Playlist
 // @Router /v1/public/playlist/{seriesid} [get]
-func (r *Repos) GetPlaylist(c echo.Context) error {
+func (s *Store) GetPlaylist(c echo.Context) error {
 	playlistID, err := strconv.Atoi(c.Param("playlistid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad playlist ID")
 	}
 
-	p, err := r.public.GetPlaylist(c.Request().Context(), playlistID)
+	p, err := s.public.GetPlaylist(c.Request().Context(), playlistID)
 	if err != nil {
 		err = fmt.Errorf("public GetPlaylist failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -42,8 +42,8 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Playlist
 // @Router /v1/public/playlist/popular/all [get]
-func (r *Repos) GetPlaylistPopularByAllTime(c echo.Context) error {
-	p, err := r.public.GetPlaylistPopularByAllTime(c.Request().Context())
+func (s *Store) GetPlaylistPopularByAllTime(c echo.Context) error {
+	p, err := s.public.GetPlaylistPopularByAllTime(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public GetPlaylistByAllTime failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -61,8 +61,8 @@ func (r *Repos) GetPlaylistPopularByAllTime(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Playlist
 // @Router /v1/public/playlist/popular/year [get]
-func (r *Repos) GetPlaylistPopularByPastYear(c echo.Context) error {
-	p, err := r.public.GetPlaylistPopularByPastYear(c.Request().Context())
+func (s *Store) GetPlaylistPopularByPastYear(c echo.Context) error {
+	p, err := s.public.GetPlaylistPopularByPastYear(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public GetPlaylistByPastYear failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -80,8 +80,8 @@ func (r *Repos) GetPlaylistPopularByPastYear(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Playlist
 // @Router /v1/public/playlist/popular/month [get]
-func (r *Repos) GetPlaylistPopularByPastMonth(c echo.Context) error {
-	p, err := r.public.GetPlaylistPopularByPastMonth(c.Request().Context())
+func (s *Store) GetPlaylistPopularByPastMonth(c echo.Context) error {
+	p, err := s.public.GetPlaylistPopularByPastMonth(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public GetPlaylistByPastMonth failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -99,8 +99,8 @@ func (r *Repos) GetPlaylistPopularByPastMonth(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Playlist
 // @Router /v1/public/playlist/random [get]
-func (r *Repos) GetPlaylistRandom(c echo.Context) error {
-	p, err := r.public.GetPlaylistRandom(c.Request().Context())
+func (s *Store) GetPlaylistRandom(c echo.Context) error {
+	p, err := s.public.GetPlaylistRandom(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public GetPlaylistByRandom failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

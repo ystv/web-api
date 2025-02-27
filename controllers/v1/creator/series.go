@@ -19,14 +19,14 @@ import (
 // @Produce json
 // @Success 200 {array} series.Meta
 // @Router /v1/internal/creator/series [get]
-func (r *Repos) ListSeries(c echo.Context) error {
-	s, err := r.series.List(c.Request().Context())
+func (s *Store) ListSeries(c echo.Context) error {
+	series1, err := s.series.List(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("failed to list series: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(s))
+	return c.JSON(http.StatusOK, utils.NonNil(series1))
 }
 
 // GetSeries finds a video by ID
@@ -38,19 +38,19 @@ func (r *Repos) ListSeries(c echo.Context) error {
 // @Param seriesid path int true "Series ID"
 // @Success 200 {object} series.Series
 // @Router /v1/internal/creator/series/{seriesid} [get]
-func (r *Repos) GetSeries(c echo.Context) error {
+func (s *Store) GetSeries(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, "Number pls")
 	}
 
-	s, err := r.series.GetSeries(c.Request().Context(), id)
+	series1, err := s.series.GetSeries(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("failed to get series: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, series1)
 }
 
 // UpdateSeries handles updating a series
@@ -62,16 +62,16 @@ func (r *Repos) GetSeries(c echo.Context) error {
 // @Param quote body series.Series true "Series object"
 // @Success 200
 // @Router /v1/internal/creator/series [put]
-func (r *Repos) UpdateSeries(c echo.Context) error {
-	var s series.Series
+func (s *Store) UpdateSeries(c echo.Context) error {
+	var series1 series.Series
 
-	err := c.Bind(&s)
+	err := c.Bind(&series1)
 	if err != nil {
 		err = fmt.Errorf("SeriesUpdate: failed to bind json: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := r.access.GetToken(c.Request())
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SeriesUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -103,7 +103,7 @@ func (r *Repos) UpdateSeries(c echo.Context) error {
 // @Param seriesid path int true "Series ID"
 // @Success 200
 // @Router /v1/internal/creator/series/{seriesid} [delete]
-func (r *Repos) DeleteSeries(c echo.Context) error {
+func (s *Store) DeleteSeries(c echo.Context) error {
 	seriesID, err := strconv.Atoi(c.Param("seriesid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")

@@ -21,8 +21,8 @@ import (
 // @Produce json
 // @Success 200 {array} encode.Format
 // @Router /v1/internal/creator/encode/format [get]
-func (r *Repos) ListEncodeFormats(c echo.Context) error {
-	e, err := r.encode.ListFormat(c.Request().Context())
+func (s *Store) ListEncodeFormats(c echo.Context) error {
+	e, err := s.encode.ListFormat(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListFormat failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -40,7 +40,7 @@ func (r *Repos) ListEncodeFormats(c echo.Context) error {
 // @Param format body encode.Format true "Encode format object"
 // @Success 201 body int "Format ID"
 // @Router /v1/internal/creator/encode/format [post]
-func (r *Repos) NewEncodeFormat(c echo.Context) error {
+func (s *Store) NewEncodeFormat(c echo.Context) error {
 	var format encode.Format
 
 	err := c.Bind(&format)
@@ -49,7 +49,7 @@ func (r *Repos) NewEncodeFormat(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	formatID, err := r.encode.NewFormat(c.Request().Context(), format)
+	formatID, err := s.encode.NewFormat(c.Request().Context(), format)
 	if err != nil {
 		err = fmt.Errorf("NewFormat failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -67,7 +67,7 @@ func (r *Repos) NewEncodeFormat(c echo.Context) error {
 // @Param format body encode.Format true "Format object"
 // @Success 200
 // @Router /v1/internal/creator/encode/format [put]
-func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
+func (s *Store) UpdateEncodeFormat(c echo.Context) error {
 	var format encode.Format
 
 	err := c.Bind(&format)
@@ -76,7 +76,7 @@ func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	err = r.encode.UpdateFormat(c.Request().Context(), format)
+	err = s.encode.UpdateFormat(c.Request().Context(), format)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, "no preset found")
@@ -96,13 +96,13 @@ func (r *Repos) UpdateEncodeFormat(c echo.Context) error {
 // @Param formatid path int true "Format ID"
 // @Success 200
 // @Router /v1/internal/creator/encode/format/{formatid} [delete]
-func (r *Repos) DeleteEncodeFormat(c echo.Context) error {
+func (s *Store) DeleteEncodeFormat(c echo.Context) error {
 	formatID, err := strconv.Atoi(c.Param("formatid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
-	err = r.encode.DeleteFormat(c.Request().Context(), formatID)
+	err = s.encode.DeleteFormat(c.Request().Context(), formatID)
 	if err != nil {
 		err = fmt.Errorf("DeleteFormat failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)
@@ -119,8 +119,8 @@ func (r *Repos) DeleteEncodeFormat(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} encode.Preset
 // @Router /v1/internal/creator/encode/preset [get]
-func (r *Repos) ListEncodePresets(c echo.Context) error {
-	p, err := r.encode.ListPreset(c.Request().Context())
+func (s *Store) ListEncodePresets(c echo.Context) error {
+	p, err := s.encode.ListPreset(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListPreset failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -138,7 +138,7 @@ func (r *Repos) ListEncodePresets(c echo.Context) error {
 // @Param event body encode.Preset true "Preset object"
 // @Success 201 body int "Preset ID"
 // @Router /v1/internal/creator/encode/preset [post]
-func (r *Repos) NewEncodePreset(c echo.Context) error {
+func (s *Store) NewEncodePreset(c echo.Context) error {
 	var p encode.Preset
 
 	err := c.Bind(&p)
@@ -147,7 +147,7 @@ func (r *Repos) NewEncodePreset(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	presetID, err := r.encode.NewPreset(c.Request().Context(), p)
+	presetID, err := s.encode.NewPreset(c.Request().Context(), p)
 	if err != nil {
 		err = fmt.Errorf("PresetNew failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -165,7 +165,7 @@ func (r *Repos) NewEncodePreset(c echo.Context) error {
 // @Param quote body encode.Preset true "Preset object"
 // @Success 200
 // @Router /v1/internal/creator/encode/preset [put]
-func (r *Repos) UpdateEncodePreset(c echo.Context) error {
+func (s *Store) UpdateEncodePreset(c echo.Context) error {
 	var p encode.Preset
 
 	err := c.Bind(&p)
@@ -174,7 +174,7 @@ func (r *Repos) UpdateEncodePreset(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	err = r.encode.UpdatePreset(c.Request().Context(), p)
+	err = s.encode.UpdatePreset(c.Request().Context(), p)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, "no preset found")
@@ -194,13 +194,13 @@ func (r *Repos) UpdateEncodePreset(c echo.Context) error {
 // @Param presetid path int true "Preset ID"
 // @Success 200
 // @Router /v1/internal/creator/encode/preset/{presetid} [delete]
-func (r *Repos) DeleteEncodePreset(c echo.Context) error {
+func (s *Store) DeleteEncodePreset(c echo.Context) error {
 	presetID, err := strconv.Atoi(c.Param("presetid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
-	err = r.encode.DeletePreset(c.Request().Context(), presetID)
+	err = s.encode.DeletePreset(c.Request().Context(), presetID)
 	if err != nil {
 		err = fmt.Errorf("DeletePreset failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)

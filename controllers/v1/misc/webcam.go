@@ -21,8 +21,8 @@ import (
 // @Tags misc-webcams
 // @Success 200 {array} misc.Webcam
 // @Router /v1/internal/misc/webcams [get]
-func (r *Repos) ListWebcams(c echo.Context) error {
-	claims, err := r.access.GetToken(c.Request())
+func (s *Store) ListWebcams(c echo.Context) error {
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("ListWebcams failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -31,7 +31,7 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 	var perms []string
 	perms = append(perms, claims.Permissions...)
 
-	w, err := r.misc.ListWebcams(c.Request().Context(), perms)
+	w, err := s.misc.ListWebcams(c.Request().Context(), perms)
 	if err != nil {
 		err = fmt.Errorf("failed to list webcams: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -46,13 +46,13 @@ func (r *Repos) ListWebcams(c echo.Context) error {
 // @Tags misc-webcams
 // @Param cameraID path int true "Camera ID"
 // @Router /v1/internal/misc/webcams/{cameraID} [get]
-func (r *Repos) GetWebcam(c echo.Context) error {
+func (s *Store) GetWebcam(c echo.Context) error {
 	cameraID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid camera ID")
 	}
 
-	claims, err := r.access.GetToken(c.Request())
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetWebcam failed to get user token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -61,7 +61,7 @@ func (r *Repos) GetWebcam(c echo.Context) error {
 	var perms []string
 	perms = append(perms, claims.Permissions...)
 
-	w, err := r.misc.GetWebcam(c.Request().Context(), cameraID, perms)
+	w, err := s.misc.GetWebcam(c.Request().Context(), cameraID, perms)
 	if err != nil {
 		err = fmt.Errorf("failed to get camera: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

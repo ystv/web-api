@@ -19,8 +19,8 @@ import (
 // @Produce json
 // @Success 200 {array} playlist.Playlist
 // @Router /v1/internal/creator/playlist [get]
-func (r *Repos) ListPlaylists(c echo.Context) error {
-	p, err := r.playlist.ListPlaylists(c.Request().Context())
+func (s *Store) ListPlaylists(c echo.Context) error {
+	p, err := s.playlist.ListPlaylists(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("PlaylistAll failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -38,13 +38,13 @@ func (r *Repos) ListPlaylists(c echo.Context) error {
 // @Param playlistid path int true "Playlist ID"
 // @Success 200 {object} playlist.Playlist
 // @Router /v1/internal/creator/playlist/{playlistid} [get]
-func (r *Repos) GetPlaylist(c echo.Context) error {
+func (s *Store) GetPlaylist(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid playlist ID")
 	}
 
-	p, err := r.playlist.GetPlaylist(c.Request().Context(), id)
+	p, err := s.playlist.GetPlaylist(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("playlist get failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -62,7 +62,7 @@ func (r *Repos) GetPlaylist(c echo.Context) error {
 // @Param event body playlist.Playlist true "Playlist object"
 // @Success 201 body int "Playlist ID"
 // @Router /v1/internal/creator/playlist [post]
-func (r *Repos) NewPlaylist(c echo.Context) error {
+func (s *Store) NewPlaylist(c echo.Context) error {
 	var p playlist.New
 
 	err := c.Bind(&p)
@@ -71,7 +71,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := r.access.GetToken(c.Request())
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -79,7 +79,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 
 	p.CreatedBy = claims.UserID
 
-	res, err := r.playlist.NewPlaylist(c.Request().Context(), p)
+	res, err := s.playlist.NewPlaylist(c.Request().Context(), p)
 	if err != nil {
 		err = fmt.Errorf("PlaylistNew failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -97,7 +97,7 @@ func (r *Repos) NewPlaylist(c echo.Context) error {
 // @Param quote body playlist.New true "Playlist object"
 // @Success 200
 // @Router /v1/internal/creator/playlist [put]
-func (r *Repos) UpdatePlaylist(c echo.Context) error {
+func (s *Store) UpdatePlaylist(c echo.Context) error {
 	var p playlist.Playlist
 
 	err := c.Bind(&p)
@@ -106,7 +106,7 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := r.access.GetToken(c.Request())
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -119,7 +119,7 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 		videoIDs = append(videoIDs, v.ID)
 	}
 
-	err = r.playlist.UpdatePlaylist(c.Request().Context(), p.Meta, videoIDs)
+	err = s.playlist.UpdatePlaylist(c.Request().Context(), p.Meta, videoIDs)
 	if err != nil {
 		err = fmt.Errorf("PlaylistUpdate: failed to update playlist: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -136,13 +136,13 @@ func (r *Repos) UpdatePlaylist(c echo.Context) error {
 // @Param playlistid path int true "Series ID"
 // @Success 200
 // @Router /v1/internal/creator/playlist/{playlistid} [delete]
-func (r *Repos) DeletePlaylist(c echo.Context) error {
+func (s *Store) DeletePlaylist(c echo.Context) error {
 	playlistID, err := strconv.Atoi(c.Param("playlistid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 
-	err = r.playlist.DeletePlaylist(c.Request().Context(), playlistID)
+	err = s.playlist.DeletePlaylist(c.Request().Context(), playlistID)
 	if err != nil {
 		err = fmt.Errorf("DeletePlaylist failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)

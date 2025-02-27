@@ -23,13 +23,13 @@ import (
 // @Param videoid path int true "Video ID"
 // @Success 200 {object} video.Item
 // @Router /v1/internal/creator/videos/{videoid} [get]
-func (r *Repos) GetVideo(c echo.Context) error {
+func (s *Store) GetVideo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid video ID")
 	}
 
-	v, err := r.video.GetItem(c.Request().Context(), id)
+	v, err := s.video.GetItem(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("failed to get video item: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -52,7 +52,7 @@ type NewVideoOutput struct {
 // @Param event body video.New true "NewVideo object"
 // @Success 201 body int "Video ID"
 // @Router /v1/internal/creator/videos [post]
-func (r *Repos) NewVideo(c echo.Context) error {
+func (s *Store) NewVideo(c echo.Context) error {
 	var v video.New
 
 	err := c.Bind(&v)
@@ -61,7 +61,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := r.access.GetToken(c.Request())
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -69,7 +69,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 
 	v.CreatedBy = claims.UserID
 
-	videoID, err := r.video.NewItem(c.Request().Context(), v)
+	videoID, err := s.video.NewItem(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to create new video item: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -88,7 +88,7 @@ func (r *Repos) NewVideo(c echo.Context) error {
 // @Param event body video.Item true "VideoItem object"
 // @Success 200 body int "Video ID"
 // @Router /v1/internal/creator/video/meta [put]
-func (r *Repos) UpdateVideoMeta(c echo.Context) error {
+func (s *Store) UpdateVideoMeta(c echo.Context) error {
 	var v video.Meta
 
 	err := c.Bind(&v)
@@ -97,7 +97,7 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	t, err := r.access.GetToken(c.Request())
+	t, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -113,7 +113,7 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 	currentDateTime := time.Now()
 	v.UpdatedAt = null.TimeFrom(currentDateTime)
 
-	err = r.video.UpdateMeta(c.Request().Context(), v)
+	err = s.video.UpdateMeta(c.Request().Context(), v)
 	if err != nil {
 		err = fmt.Errorf("failed to update meta: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -122,7 +122,7 @@ func (r *Repos) UpdateVideoMeta(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
-func (r *Repos) DeleteVideo(c echo.Context) error {
+func (s *Store) DeleteVideo(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
@@ -135,8 +135,8 @@ func (r *Repos) DeleteVideo(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video [get]
-func (r *Repos) ListVideos(c echo.Context) error {
-	v, err := r.video.ListMeta(c.Request().Context())
+func (s *Store) ListVideos(c echo.Context) error {
+	v, err := s.video.ListMeta(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("failed to list videos: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -155,14 +155,14 @@ func (r *Repos) ListVideos(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video/my [get]
-func (r *Repos) ListVideosByUser(c echo.Context) error {
-	claims, err := r.access.GetToken(c.Request())
+func (s *Store) ListVideosByUser(c echo.Context) error {
+	claims, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	v, err := r.video.ListMetaByUser(c.Request().Context(), claims.UserID)
+	v, err := s.video.ListMetaByUser(c.Request().Context(), claims.UserID)
 	if err != nil {
 		err = fmt.Errorf("failed to list videos: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -182,7 +182,7 @@ func (r *Repos) ListVideosByUser(c echo.Context) error {
 // @Param month path int true "month"
 // @Success 200 {array} video.MetaCal
 // @Router /v1/internal/creator/calendar/{year}/{month} [get]
-func (r *Repos) ListVideosByMonth(c echo.Context) error {
+func (s *Store) ListVideosByMonth(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
@@ -193,7 +193,7 @@ func (r *Repos) ListVideosByMonth(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
 
-	v, err := r.video.ListByCalendarMonth(c.Request().Context(), year, month)
+	v, err := s.video.ListByCalendarMonth(c.Request().Context(), year, month)
 	if err != nil {
 		err = fmt.Errorf("failed to list by calendar month: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -216,7 +216,7 @@ type searchInput struct {
 // @Param searchInput body searchInput true "Search Input object"
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video/search [post]
-func (r *Repos) SearchVideo(c echo.Context) error {
+func (s *Store) SearchVideo(c echo.Context) error {
 	var input searchInput
 
 	err := c.Bind(&input)
@@ -224,11 +224,11 @@ func (r *Repos) SearchVideo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	s, err := r.video.Search(c.Request().Context(), input.Query)
+	v, err := s.video.Search(c.Request().Context(), input.Query)
 	if err != nil {
 		err = fmt.Errorf("public Search failed : %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(s))
+	return c.JSON(http.StatusOK, utils.NonNil(v))
 }

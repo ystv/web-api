@@ -23,7 +23,7 @@ import (
 // @Param month path int true "month"
 // @Success 200 {array} clapper.Event
 // @Router /v1/internal/clapper/calendar/monthly/{year}/{month} [get]
-func (r *Repos) ListMonth(c echo.Context) error {
+func (s *Store) ListMonth(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Year incorrect, format /yyyy/mm")
@@ -34,7 +34,7 @@ func (r *Repos) ListMonth(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Month incorrect, format /yyyy/mm")
 	}
 
-	e, err := r.event.ListMonth(c.Request().Context(), year, month)
+	e, err := s.event.ListMonth(c.Request().Context(), year, month)
 	if err != nil {
 		err = fmt.Errorf("ListMonth failed: %w", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -52,13 +52,13 @@ func (r *Repos) ListMonth(c echo.Context) error {
 // @Param eventid path int true "Event ID"
 // @Success 200 {object} clapper.Event
 // @Router /v1/internal/clapper/event/{eventid} [get]
-func (r *Repos) GetEvent(c echo.Context) error {
+func (s *Store) GetEvent(c echo.Context) error {
 	eventID, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
 	}
 
-	e, err := r.event.Get(c.Request().Context(), eventID)
+	e, err := s.event.Get(c.Request().Context(), eventID)
 	if err != nil {
 		err = fmt.Errorf("GetEvent failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -77,7 +77,7 @@ func (r *Repos) GetEvent(c echo.Context) error {
 // @Param event body clapper.NewEvent true "Event object"
 // @Success 201 body int "Event ID"
 // @Router /v1/internal/clapper/event [post]
-func (r *Repos) NewEvent(c echo.Context) error {
+func (s *Store) NewEvent(c echo.Context) error {
 	var e clapper.NewEvent
 
 	err := c.Bind(&e)
@@ -86,13 +86,13 @@ func (r *Repos) NewEvent(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	p, err := r.access.GetToken(c.Request())
+	p, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	eventID, err := r.event.New(c.Request().Context(), &e, p.UserID)
+	eventID, err := s.event.New(c.Request().Context(), &e, p.UserID)
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to insert event: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -111,7 +111,7 @@ func (r *Repos) NewEvent(c echo.Context) error {
 // @Param quote body clapper.Event true "Event object"
 // @Success 200
 // @Router /v1/internal/clapper/event [put]
-func (r *Repos) UpdateEvent(c echo.Context) error {
+func (s *Store) UpdateEvent(c echo.Context) error {
 	var e clapper.Event
 
 	err := c.Bind(&e)
@@ -120,13 +120,13 @@ func (r *Repos) UpdateEvent(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	p, err := r.access.GetToken(c.Request())
+	p, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UpdateEvent: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	err = r.event.Update(c.Request().Context(), &e, p.UserID)
+	err = s.event.Update(c.Request().Context(), &e, p.UserID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -148,13 +148,13 @@ func (r *Repos) UpdateEvent(c echo.Context) error {
 // @Param eventid path int true "Event ID"
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid} [delete]
-func (r *Repos) DeleteEvent(c echo.Context) error {
+func (s *Store) DeleteEvent(c echo.Context) error {
 	eventID, err := strconv.Atoi(c.Param("eventid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid event ID")
 	}
 
-	err = r.event.Delete(c.Request().Context(), eventID)
+	err = s.event.Delete(c.Request().Context(), eventID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to delete event: %w", err))
 	}

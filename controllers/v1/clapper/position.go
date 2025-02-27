@@ -21,8 +21,8 @@ import (
 // @Produce json
 // @Success 200 {array} clapper.Position
 // @Router /v1/internal/clapper/positions [get]
-func (r *Repos) ListPositions(c echo.Context) error {
-	p, err := r.position.List(c.Request().Context())
+func (s *Store) ListPositions(c echo.Context) error {
+	p, err := s.position.List(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListPositions: failed to list: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -39,7 +39,7 @@ func (r *Repos) ListPositions(c echo.Context) error {
 // @Param event body clapper.Position true "Position object"
 // @Success 201 body int "Position ID"
 // @Router /v1/internal/clapper/positions [post]
-func (r *Repos) NewPosition(c echo.Context) error {
+func (s *Store) NewPosition(c echo.Context) error {
 	var p clapper.Position
 
 	err := c.Bind(&p)
@@ -48,7 +48,7 @@ func (r *Repos) NewPosition(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	positionID, err := r.position.New(c.Request().Context(), &p)
+	positionID, err := s.position.New(c.Request().Context(), &p)
 	if err != nil {
 		err = fmt.Errorf("NewPosition: failed to insert position: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -65,7 +65,7 @@ func (r *Repos) NewPosition(c echo.Context) error {
 // @Param quote body clapper.Position true "Position object"
 // @Success 200
 // @Router /v1/internal/clapper/positions [put]
-func (r *Repos) UpdatePosition(c echo.Context) error {
+func (s *Store) UpdatePosition(c echo.Context) error {
 	var p clapper.Position
 
 	err := c.Bind(&p)
@@ -74,7 +74,7 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	err = r.position.Update(c.Request().Context(), &p)
+	err = s.position.Update(c.Request().Context(), &p)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
@@ -95,13 +95,13 @@ func (r *Repos) UpdatePosition(c echo.Context) error {
 // @Param positionid path int true "Position ID"
 // @Success 200
 // @Router /v1/internal/clapper/positions/{positionid} [delete]
-func (r *Repos) DeletePosition(c echo.Context) error {
+func (s *Store) DeletePosition(c echo.Context) error {
 	positionID, err := strconv.Atoi(c.Param("positionid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
 	}
 
-	err = r.position.Delete(c.Request().Context(), positionID)
+	err = s.position.Delete(c.Request().Context(), positionID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to delete event: %w", err))
 	}

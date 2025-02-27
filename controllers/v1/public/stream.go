@@ -18,8 +18,8 @@ import (
 // @Produce json
 // @Success 200 {array} public.Channel
 // @Router /v1/public/playout/channels [get]
-func (r *Repos) ListChannels(c echo.Context) error {
-	chs, err := r.public.ListChannels(c.Request().Context())
+func (s *Store) ListChannels(c echo.Context) error {
+	chs, err := s.public.ListChannels(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public listchannels failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -37,8 +37,8 @@ func (r *Repos) ListChannels(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Channel
 // @Router /v1/public/playout/channel/{channelShortName} [get]
-func (r *Repos) GetChannel(c echo.Context) error {
-	chs, err := r.public.GetChannel(c.Request().Context(), c.Param("channelShortName"))
+func (s *Store) GetChannel(c echo.Context) error {
+	chs, err := s.public.GetChannel(c.Request().Context(), c.Param("channelShortName"))
 	if err != nil {
 		err = fmt.Errorf("public getchannel failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

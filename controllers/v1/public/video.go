@@ -20,13 +20,13 @@ import (
 // @Produce json
 // @Success 200 {object} public.VideoItem
 // @Router /v1/public/video/{videoid} [get]
-func (r *Repos) GetVideo(c echo.Context) error {
+func (s *Store) GetVideo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")
 	}
 
-	v, err := r.public.GetVideo(c.Request().Context(), id)
+	v, err := s.public.GetVideo(c.Request().Context(), id)
 	if err != nil {
 		err = fmt.Errorf("public GetVideo failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -46,7 +46,7 @@ func (r *Repos) GetVideo(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} public.VideoMeta
 // @Router /v1/public/videos/{offset}/{page} [get]
-func (r *Repos) ListVideos(c echo.Context) error {
+func (s *Store) ListVideos(c echo.Context) error {
 	offset, err := strconv.Atoi(c.Param("offset"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad offset")
@@ -57,7 +57,7 @@ func (r *Repos) ListVideos(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad page")
 	}
 
-	v, err := r.public.ListVideo(c.Request().Context(), offset, page)
+	v, err := s.public.ListVideo(c.Request().Context(), offset, page)
 	if err != nil {
 		err = fmt.Errorf("public ListVideos failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

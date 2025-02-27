@@ -19,13 +19,25 @@ import (
 )
 
 // Repos encapsulates the dependency
-type Repos struct {
-	stream stream.Repo
-}
+type (
+	Repos interface {
+		PublishStream(c echo.Context) error
+		UnpublishStream(c echo.Context) error
+		ListStreams(c echo.Context) error
+		FindStream(c echo.Context) error
+		NewStream(c echo.Context) error
+		UpdateStream(c echo.Context) error
+		DeleteStream(c echo.Context) error
+	}
+
+	Store struct {
+		stream stream.Repo
+	}
+)
 
 // NewRepos creates our data store
-func NewRepos(db *sqlx.DB) *Repos {
-	return &Repos{stream.NewStore(db)}
+func NewRepos(db *sqlx.DB) Repos {
+	return &Store{stream.NewStore(db)}
 }
 
 // PublishStream handles a stream publish request
@@ -40,7 +52,7 @@ func NewRepos(db *sqlx.DB) *Repos {
 // @Success 200 body int "EndpointDB ID"
 // @Error 401
 // @Router /v1/internal/stream/publish [post]
-func (r *Repos) PublishStream(c echo.Context) error {
+func (s *Store) PublishStream(c echo.Context) error {
 	var application, name, pwd, action string
 	var err error
 
@@ -69,7 +81,7 @@ func (r *Repos) PublishStream(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "401 Unauthorized")
 	}
 
-	endpoint, err := r.stream.GetEndpointByApplicationNamePwd(c.Request().Context(), application, name, pwd)
+	endpoint, err := s.stream.GetEndpointByApplicationNamePwd(c.Request().Context(), application, name, pwd)
 	if err != nil {
 		c.Logger().Errorf("PublishStream: failed to get endpoint: %+v", err)
 		return c.String(http.StatusUnauthorized, "401 Unauthorized")
@@ -80,7 +92,7 @@ func (r *Repos) PublishStream(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "401 Unauthorized")
 	}
 
-	err = r.stream.SetEndpointActiveByID(c.Request().Context(), endpoint.EndpointID)
+	err = s.stream.SetEndpointActiveByID(c.Request().Context(), endpoint.EndpointID)
 	if err != nil {
 		c.Logger().Errorf("PublishStream: failed to set endpoint active: %+v", err)
 		return c.String(http.StatusUnauthorized, "401 Unauthorized")
@@ -104,7 +116,7 @@ func (r *Repos) PublishStream(c echo.Context) error {
 // @Success 200 body int
 // @Error 401
 // @Router /v1/internal/stream/unpublish [post]
-func (r *Repos) UnpublishStream(c echo.Context) error {
+func (s *Store) UnpublishStream(c echo.Context) error {
 	var application, name, pwd, action string
 	var err error
 
@@ -128,7 +140,7 @@ func (r *Repos) UnpublishStream(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "401 Unauthorized")
 	}
 
-	err = r.stream.SetEndpointInactiveByApplicationNamePwd(c.Request().Context(), application, name, pwd)
+	err = s.stream.SetEndpointInactiveByApplicationNamePwd(c.Request().Context(), application, name, pwd)
 	if err != nil {
 		c.Logger().Errorf("UnpublishStream: failed to unpublish stream, continuing, %s/%s: %+v", application, name, err)
 	}
@@ -197,8 +209,8 @@ func _handleNginxPublish(c echo.Context) (application, name, pwd, action string)
 // @Accept json
 // @Success 200 {array} stream.Endpoint
 // @Router /v1/internal/streams [get]
-func (r *Repos) ListStreams(c echo.Context) error {
-	e, err := r.stream.ListEndpoints(c.Request().Context())
+func (s *Store) ListStreams(c echo.Context) error {
+	e, err := s.stream.ListEndpoints(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListStreams: failed to get: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -249,7 +261,7 @@ func (r *Repos) ListStreams(c echo.Context) error {
 // @Error 400
 // @Error 404
 // @Router /v1/internal/streams/find [get]
-func (r *Repos) FindStream(c echo.Context) error {
+func (s *Store) FindStream(c echo.Context) error {
 	var findEndpoint stream.FindEndpoint
 
 	err := c.Bind(&findEndpoint)
@@ -263,7 +275,7 @@ func (r *Repos) FindStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	foundStream, err := r.stream.FindEndpoint(c.Request().Context(), &findEndpoint)
+	foundStream, err := s.stream.FindEndpoint(c.Request().Context(), &findEndpoint)
 	if err != nil {
 		err = fmt.Errorf("failed to find endpoint: %w", err)
 		return echo.NewHTTPError(http.StatusNotFound, err)
@@ -284,7 +296,7 @@ func (r *Repos) FindStream(c echo.Context) error {
 // @Success 201 body int "EndpointDB ID"
 // @Error 400
 // @Router /v1/internal/streams [post]
-func (r *Repos) NewStream(c echo.Context) error {
+func (s *Store) NewStream(c echo.Context) error {
 	var newEndpoint stream.NewEditEndpoint
 
 	err := c.Bind(&newEndpoint)
@@ -350,7 +362,7 @@ func (r *Repos) NewStream(c echo.Context) error {
 		notes = null.StringFrom(newEndpoint.Notes)
 	}
 
-	endpoint, err := r.stream.NewEndpoint(c.Request().Context(), stream.EndpointDB{
+	endpoint, err := s.stream.NewEndpoint(c.Request().Context(), stream.EndpointDB{
 		Application: newEndpoint.Application,
 		Name:        newEndpoint.Name,
 		Pwd:         pwd,
@@ -381,13 +393,13 @@ func (r *Repos) NewStream(c echo.Context) error {
 // @Param endpoint body stream.NewEditEndpoint true "Endpoint object"
 // @Success 200
 // @Router /v1/internal/streams/{endpointid} [put]
-func (r *Repos) UpdateStream(c echo.Context) error {
+func (s *Store) UpdateStream(c echo.Context) error {
 	endpointID, err := strconv.Atoi(c.Param("endpointid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: invalid endpoint ID")
 	}
 
-	_, err = r.stream.GetEndpointByID(c.Request().Context(), endpointID)
+	_, err = s.stream.GetEndpointByID(c.Request().Context(), endpointID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: endpoint not found")
 	}
@@ -452,7 +464,7 @@ func (r *Repos) UpdateStream(c echo.Context) error {
 		notes = null.StringFrom(editEndpoint.Notes)
 	}
 
-	err = r.stream.EditEndpoint(c.Request().Context(), stream.EndpointDB{
+	err = s.stream.EditEndpoint(c.Request().Context(), stream.EndpointDB{
 		EndpointID:  endpointID,
 		Application: editEndpoint.Application,
 		Name:        editEndpoint.Name,
@@ -479,13 +491,13 @@ func (r *Repos) UpdateStream(c echo.Context) error {
 // @Param endpointid path int true "Endpoint ID"
 // @Success 200
 // @Router /v1/internal/streams/{endpointid} [delete]
-func (r *Repos) DeleteStream(c echo.Context) error {
+func (s *Store) DeleteStream(c echo.Context) error {
 	endpointID, err := strconv.Atoi(c.Param("endpointid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "DeleteStream: invalid endpoint ID")
 	}
 
-	err = r.stream.DeleteEndpoint(c.Request().Context(), endpointID)
+	err = s.stream.DeleteEndpoint(c.Request().Context(), endpointID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("DeleteStream: failed to delete stream endpoint: %w", err))
 	}

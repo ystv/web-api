@@ -10,12 +10,12 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-type Repo struct {
-	enc    encoder.Repo
-	access utils.Repo
-}
-
 type (
+	Repo interface {
+		UploadRequest(c echo.Context) error
+		TranscodeFinished(c echo.Context) error
+	}
+
 	// These structs are for binding to tusd's request
 
 	// Request represents the upload and a normal HTTP request
@@ -45,10 +45,15 @@ type (
 		Bucket string
 		Key    string
 	}
+
+	Store struct {
+		enc    encoder.Repo
+		access utils.Repo
+	}
 )
 
-func NewEncoderController(enc encoder.Repo, access utils.Repo) *Repo {
-	return &Repo{
+func NewEncoderController(enc encoder.Repo, access utils.Repo) Repo {
+	return &Store{
 		enc:    enc,
 		access: access,
 	}
@@ -69,7 +74,7 @@ func NewEncoderController(enc encoder.Repo, access utils.Repo) *Repo {
 // @Accept json
 // @Success 200
 // @Router /v1/internal/encoder/upload_request [post]
-func (e *Repo) UploadRequest(c echo.Context) error {
+func (e *Store) UploadRequest(c echo.Context) error {
 	var r Request
 
 	err := c.Bind(&r)
@@ -97,7 +102,7 @@ func (e *Repo) UploadRequest(c echo.Context) error {
 // @Param taskid path int true "Task ID"
 // @Success 200
 // @Router /v1/internal/encoder/transcode_finished/{taskid} [post]
-func (e *Repo) TranscodeFinished(c echo.Context) error {
+func (e *Store) TranscodeFinished(c echo.Context) error {
 	err := e.enc.TranscodeFinished(c.Request().Context(), c.Param("taskid"))
 	if err != nil {
 		err = fmt.Errorf("transcode finished failed: %w", err)

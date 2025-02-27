@@ -17,9 +17,9 @@ import (
 // @Tags people-roles
 // @Produce json
 // @Success 200 {array} people.Role
-// @Router /v1/internal/people/role [get]
-func (r *Repo) ListAllRoles(c echo.Context) error {
-	p, err := r.people.ListAllRolesWithPermissions(c.Request().Context())
+// @Router /v1/internal/people/roles [get]
+func (s *Store) ListAllRoles(c echo.Context) error {
+	p, err := s.people.ListAllRolesWithPermissions(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListAllRolesWithPermissions failed to get roles: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -37,13 +37,13 @@ func (r *Repo) ListAllRoles(c echo.Context) error {
 // @Param roleId path int true "Role ID"
 // @Success 200 {array} people.Role
 // @Router /v1/internal/people/role/{roleId}/members [get]
-func (r *Repo) ListRoleMembersByID(c echo.Context) error {
+func (s *Store) ListRoleMembersByID(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid role id")
 	}
 
-	p, err := r.people.ListRoleMembersByID(c.Request().Context(), roleID)
+	p, err := s.people.ListRoleMembersByID(c.Request().Context(), roleID)
 	if err != nil {
 		err = fmt.Errorf("ListRoleMembersByID failed to get users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -61,13 +61,13 @@ func (r *Repo) ListRoleMembersByID(c echo.Context) error {
 // @Param roleId path int true "Role ID"
 // @Success 200 {array} people.Role
 // @Router /v1/internal/people/role/{roleId}/permissions [get]
-func (r *Repo) ListRolePermissionsByID(c echo.Context) error {
+func (s *Store) ListRolePermissionsByID(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid role id")
 	}
 
-	p, err := r.people.ListRolePermissionsByID(c.Request().Context(), roleID)
+	p, err := s.people.ListRolePermissionsByID(c.Request().Context(), roleID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("ListRolePermissionsByID failed to get permission: %w", err))
 	}

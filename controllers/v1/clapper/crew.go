@@ -22,8 +22,8 @@ import (
 // @Param crewid path int true "Position ID"
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid}/{signupid}/{crewid} [put]
-func (r *Repos) SetCrew(c echo.Context) error {
-	p, err := r.access.GetToken(c.Request())
+func (s *Store) SetCrew(c echo.Context) error {
+	p, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -34,7 +34,7 @@ func (r *Repos) SetCrew(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid crew ID")
 	}
 
-	err = r.crew.UpdateUserAndVerify(c.Request().Context(), crewID, p.UserID)
+	err = s.crew.UpdateUserAndVerify(c.Request().Context(), crewID, p.UserID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -54,8 +54,8 @@ func (r *Repos) SetCrew(c echo.Context) error {
 // @Param crewid path int true "Position ID"
 // @Success 200
 // @Router /v1/internal/clapper/event/{signupid}/{crewid}/reset [put]
-func (r *Repos) ResetCrew(c echo.Context) error {
-	_, err := r.access.GetToken(c.Request())
+func (s *Store) ResetCrew(c echo.Context) error {
+	_, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("ResetCrew: failed to get token: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -67,7 +67,7 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 	}
 
 	// get crew object
-	_, err = r.crew.Get(c.Request().Context(), crewID)
+	_, err = s.crew.Get(c.Request().Context(), crewID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusBadRequest, "Crew not found")
@@ -77,7 +77,7 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 
 	// TODO verify user has permission
 
-	err = r.crew.DeleteUser(c.Request().Context(), crewID)
+	err = s.crew.DeleteUser(c.Request().Context(), crewID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
@@ -97,7 +97,7 @@ func (r *Repos) ResetCrew(c echo.Context) error {
 // @Param crewid path int true "Position ID"
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid}/{signupid}/{positionid} [post]
-func (r *Repos) NewCrew(c echo.Context) error {
+func (s *Store) NewCrew(c echo.Context) error {
 	signupID, err := strconv.Atoi(c.Param("signupid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid signup ID")
@@ -108,7 +108,7 @@ func (r *Repos) NewCrew(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid position ID")
 	}
 
-	err = r.crew.New(c.Request().Context(), signupID, positionID)
+	err = s.crew.New(c.Request().Context(), signupID, positionID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Failed to insert crew: ", err)
 	}
@@ -127,13 +127,13 @@ func (r *Repos) NewCrew(c echo.Context) error {
 // @Param signupid path int true "Crew ID"
 // @Success 200
 // @Router /v1/internal/clapper/{eventid}/{signupid}/{crewid} [delete]
-func (r *Repos) DeleteCrew(c echo.Context) error {
+func (s *Store) DeleteCrew(c echo.Context) error {
 	signupID, err := strconv.Atoi(c.Param("crewid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid crew ID")
 	}
 
-	err = r.crew.Delete(c.Request().Context(), signupID)
+	err = s.crew.Delete(c.Request().Context(), signupID)
 	if err != nil {
 		err = fmt.Errorf("DeleteCrew failed: %w", err)
 		return c.JSON(http.StatusInternalServerError, err)

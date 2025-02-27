@@ -19,8 +19,8 @@ import (
 // @Produce json
 // @Success 200 {array} public.Team
 // @Router /v1/public/teams [get]
-func (r *Repos) ListTeams(c echo.Context) error {
-	t, err := r.public.ListTeams(c.Request().Context())
+func (s *Store) ListTeams(c echo.Context) error {
+	t, err := s.public.ListTeams(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public ListTeams failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -39,8 +39,8 @@ func (r *Repos) ListTeams(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/email/{emailAlias} [get]
-func (r *Repos) GetTeamByEmail(c echo.Context) error {
-	t, err := r.public.GetTeamByEmail(c.Request().Context(), c.Param("emailAlias"))
+func (s *Store) GetTeamByEmail(c echo.Context) error {
+	t, err := s.public.GetTeamByEmail(c.Request().Context(), c.Param("emailAlias"))
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByEmail failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -59,13 +59,13 @@ func (r *Repos) GetTeamByEmail(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid} [get]
-func (r *Repos) GetTeamByID(c echo.Context) error {
+func (s *Store) GetTeamByID(c echo.Context) error {
 	teamID, err := strconv.Atoi(c.Param("teamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad teamid")
 	}
 
-	t, err := r.public.GetTeamByID(c.Request().Context(), teamID)
+	t, err := s.public.GetTeamByID(c.Request().Context(), teamID)
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -85,13 +85,13 @@ func (r *Repos) GetTeamByID(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/email/{emailAlias}/{year} [get]
-func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
+func (s *Store) GetTeamByYearByEmail(c echo.Context) error {
 	year, err := strconv.Atoi(c.Param("year"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad year")
 	}
 
-	t, err := r.public.GetTeamByYearByEmail(c.Request().Context(), c.Param("emailAlias"), year)
+	t, err := s.public.GetTeamByYearByEmail(c.Request().Context(), c.Param("emailAlias"), year)
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByYearByEmail failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -111,7 +111,7 @@ func (r *Repos) GetTeamByYearByEmail(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid}/{year} [get]
-func (r *Repos) GetTeamByYearByID(c echo.Context) error {
+func (s *Store) GetTeamByYearByID(c echo.Context) error {
 	teamID, err := strconv.Atoi(c.Param("teamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad teamid")
@@ -122,7 +122,7 @@ func (r *Repos) GetTeamByYearByID(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad year")
 	}
 
-	t, err := r.public.GetTeamByYearByID(c.Request().Context(), teamID, year)
+	t, err := s.public.GetTeamByYearByID(c.Request().Context(), teamID, year)
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByYearByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -143,7 +143,7 @@ func (r *Repos) GetTeamByYearByID(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/email/{emailAlias}/{startYear}/{endYear} [get]
-func (r *Repos) GetTeamByStartEndYearByEmail(c echo.Context) error {
+func (s *Store) GetTeamByStartEndYearByEmail(c echo.Context) error {
 	startYear, err := strconv.Atoi(c.Param("startYear"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad start year")
@@ -154,7 +154,7 @@ func (r *Repos) GetTeamByStartEndYearByEmail(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad end year")
 	}
 
-	t, err := r.public.GetTeamByStartEndYearByEmail(c.Request().Context(), c.Param("emailAlias"), startYear, endYear)
+	t, err := s.public.GetTeamByStartEndYearByEmail(c.Request().Context(), c.Param("emailAlias"), startYear, endYear)
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByStartEndYearByEmail failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -175,7 +175,7 @@ func (r *Repos) GetTeamByStartEndYearByEmail(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Team
 // @Router /v1/public/teams/teamid/{teamid}/{startYear}/{endYear} [get]
-func (r *Repos) GetTeamByStartEndYearByID(c echo.Context) error {
+func (s *Store) GetTeamByStartEndYearByID(c echo.Context) error {
 	teamID, err := strconv.Atoi(c.Param("teamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad team id")
@@ -191,7 +191,7 @@ func (r *Repos) GetTeamByStartEndYearByID(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad end year")
 	}
 
-	t, err := r.public.GetTeamByStartEndYearByID(c.Request().Context(), teamID, startYear, endYear)
+	t, err := s.public.GetTeamByStartEndYearByID(c.Request().Context(), teamID, startYear, endYear)
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByStartEndYearByID failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -209,8 +209,8 @@ func (r *Repos) GetTeamByStartEndYearByID(c echo.Context) error {
 // @Produce json
 // @Success 200 {array} public.TeamMember
 // @Router /v1/public/teams/officers [get]
-func (r *Repos) ListOfficers(c echo.Context) error {
-	o, err := r.public.ListOfficers(c.Request().Context())
+func (s *Store) ListOfficers(c echo.Context) error {
+	o, err := s.public.ListOfficers(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByYearByEmail failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

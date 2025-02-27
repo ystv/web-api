@@ -24,7 +24,7 @@ import (
 // @Produce json
 // @Success 200 {object} public.BreadcrumbItem
 // @Router /v1/public/find/{url} [get]
-func (r *Repos) Find(c echo.Context) error {
+func (s *Store) Find(c echo.Context) error {
 	raw := c.Request().URL
 	rawSplit := strings.Split(raw.Path, "/")
 	rawSplit = rawSplit[4:]
@@ -39,7 +39,7 @@ func (r *Repos) Find(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid URL")
 	}
 
-	b, err := r.public.Find(c.Request().Context(), clean.Path)
+	b, err := s.public.Find(c.Request().Context(), clean.Path)
 	if err != nil {
 		if errors.Is(err, public.ErrVideoNotFound) ||
 			errors.Is(err, public.ErrSeriesNotFound) {
@@ -62,13 +62,13 @@ func (r *Repos) Find(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Breadcrumb
 // @Router /v1/public/video/{videoid}/breadcrumb [get]
-func (r *Repos) VideoBreadcrumb(c echo.Context) error {
+func (s *Store) VideoBreadcrumb(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad video ID")
 	}
 
-	v, err := r.public.GetVideoBreadcrumb(c.Request().Context(), id)
+	v, err := s.public.GetVideoBreadcrumb(c.Request().Context(), id)
 	if err != nil {
 		if errors.Is(err, public.ErrVideoNotFound) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -90,13 +90,13 @@ func (r *Repos) VideoBreadcrumb(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} public.Breadcrumb
 // @Router /v1/public/series/{seriesid}/breadcrumb [get]
-func (r *Repos) GetSeriesBreadcrumb(c echo.Context) error {
+func (s *Store) GetSeriesBreadcrumb(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad series ID")
 	}
 
-	v, err := r.public.GetSeriesBreadcrumb(c.Request().Context(), id)
+	v, err := s.public.GetSeriesBreadcrumb(c.Request().Context(), id)
 	if err != nil {
 		if errors.Is(err, public.ErrSeriesNotFound) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
