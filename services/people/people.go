@@ -82,6 +82,16 @@ type (
 		Permissions []Permission `json:"permissions"`
 	}
 
+	// RoleWithCount represents a "group" of permissions where multiple users
+	// can have this role, and they will inherit these permissions.
+	RoleWithCount struct {
+		RoleID      int    `db:"role_id" json:"id"`
+		Name        string `db:"name" json:"name"`
+		Description string `db:"description" json:"description"`
+		Users       int    `db:"users" json:"users"`
+		Permissions int    `db:"permissions" json:"permissions"`
+	}
+
 	// Permission represents an individual permission. Attempting to implement some RBAC here.
 	Permission struct {
 		PermissionID int    `db:"permission_id" json:"id"`

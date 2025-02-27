@@ -29,6 +29,23 @@ func (s *Store) ListAllRolesWithPermissions(ctx context.Context) ([]RoleWithPerm
 	return r, nil
 }
 
+func (s *Store) ListAllRolesWithCount(ctx context.Context) ([]RoleWithCount, error) {
+	var r []RoleWithCount
+	//nolint:musttag
+	err := s.db.SelectContext(ctx, &r, `SELECT r.*, COUNT(DISTINCT rm.user_id) AS users, 
+        COUNT(DISTINCT rp.permission_id) AS permissions
+		FROM people.roles r
+		LEFT JOIN people.role_members rm ON r.role_id = rm.role_id
+		LEFT JOIN people.role_permissions rp ON r.role_id = rp.role_id
+		GROUP BY r, r.role_id, name, description
+		ORDER BY r.name`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select roles: %w", err)
+	}
+
+	return r, nil
+}
+
 // ListRoleMembersByID returns all users who have a certain role.
 // It doesn't return the full User object.
 // Returns user_id, avatar, nickname, first_name, last_name.
