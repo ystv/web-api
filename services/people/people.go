@@ -47,9 +47,14 @@ type (
 		cdn         *s3.S3
 		cdnEndpoint string
 	}
-)
 
-type (
+	CountUsers struct {
+		TotalUsers             int `db:"total_users" json:"totalUsers"`
+		ActiveUsers            int `db:"active_users" json:"activeUsers"`
+		ActiveUsersPast24Hours int `db:"active_users_past_24_hours" json:"activeUsersPast24Hours"`
+		ActiveUsersPastYear    int `db:"active_users_past_year" json:"activeUsersPastYear"`
+	}
+
 	// User represents a user object to be used when not all data is required
 	User struct {
 		UserID      int          `db:"user_id" json:"id"`
