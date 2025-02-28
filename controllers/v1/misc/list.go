@@ -40,10 +40,10 @@ func (s *Store) GetLists(c echo.Context) error {
 // @Success 200 {array} misc.List
 // @Router /v1/internal/misc/lists/my [get]
 func (s *Store) GetListsByToken(c echo.Context) error {
-	p, err := s.access.GetToken(c.Request())
+	p, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	l, err := s.misc.GetListsByUserID(c.Request().Context(), p.UserID)
@@ -121,10 +121,10 @@ func (s *Store) SubscribeByToken(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
 
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SubscribeByToken failed to get user ID: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	err = s.misc.Subscribe(c.Request().Context(), claims.UserID, listID)
@@ -183,10 +183,10 @@ func (s *Store) UnsubscribeByToken(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad listID")
 	}
 
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UnsubscribeByToken failed to get user ID: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	err = s.misc.UnsubscribeByID(c.Request().Context(), claims.UserID, listID)

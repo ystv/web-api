@@ -17,10 +17,12 @@ import (
 
 type (
 	Repo interface {
-		GetToken(r *http.Request) (*AccessClaims, error)
+		GetToken(r *http.Request) (*AccessClaims, int, error)
 		AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		AddUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		ListUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+		GroupAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+		PermissionsAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		ManageStreamAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 	}
@@ -65,33 +67,33 @@ func NewAccesser(conf Config) Repo {
 //
 // First will check the Authorization header, if unset will
 // check the access cookie
-func (a *Accesser) GetToken(r *http.Request) (*AccessClaims, error) {
+func (a *Accesser) GetToken(r *http.Request) (*AccessClaims, int, error) {
 	token := r.Header.Get("Authorization")
 
 	if len(token) == 0 {
 		cookie, err := r.Cookie(a.conf.AccessCookieName)
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
-				return nil, ErrNoToken
+				return nil, http.StatusUnauthorized, ErrNoToken
 			}
-			return nil, fmt.Errorf("failed to get cookie: %w", err)
+			return nil, http.StatusBadRequest, fmt.Errorf("failed to get cookie: %w", err)
 		}
 		token = cookie.Value
 	} else {
 		splitToken := strings.Split(token, "Bearer ")
 		if len(splitToken) != 2 {
-			return nil, ErrInvalidToken
+			return nil, http.StatusBadRequest, ErrInvalidToken
 		}
 		token = splitToken[1]
 	}
 
 	if token == "" {
-		return nil, ErrNoToken
+		return nil, http.StatusUnauthorized, ErrNoToken
 	}
 	return a.getClaims(r.Context(), token)
 }
 
-func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, error) {
+func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, int, error) {
 	claims := &AccessClaims{}
 
 	_, err := jwt.ParseWithClaims(token, claims, func(_ *jwt.Token) (interface{}, error) {
@@ -99,21 +101,21 @@ func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, 
 	})
 	if err != nil {
 		log.Printf("error with signing: %+v", err)
-		return nil, ErrInvalidToken
+		return nil, http.StatusUnauthorized, ErrInvalidToken
 	}
 
 	client := &http.Client{}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", a.conf.SecurityBaseURL+"/api/test", nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse URL: %w", err)
+		return nil, http.StatusInternalServerError, fmt.Errorf("failed to parse URL: %w", err)
 	}
 
 	req.Header.Set("Authorization", "Bearer "+token)
 
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get response: %w", err)
+		return nil, http.StatusInternalServerError, fmt.Errorf("failed to get response: %w", err)
 	}
 	defer res.Body.Close()
 
@@ -125,18 +127,18 @@ func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, 
 			log.Printf("converting fail: %+v", err)
 		}
 
-		return nil, fmt.Errorf("invalid token: invalid status: %s: %s", res.Status, string(b))
+		return nil, http.StatusUnauthorized, fmt.Errorf("invalid token: invalid status: %s: %s", res.Status, string(b))
 	}
-	return claims, nil
+	return claims, http.StatusOK, nil
 }
 
 // AuthMiddleware checks an HTTP request for a valid token either in the header or cookie
 func (a *Accesser) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		_, err := a.GetToken(c.Request())
+		_, status, err := a.GetToken(c.Request())
 		if err != nil {
 			return &echo.HTTPError{
-				Code:     http.StatusBadRequest,
+				Code:     status,
 				Message:  err.Error(),
 				Internal: err,
 			}
@@ -149,10 +151,10 @@ func (a *Accesser) AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 // and if the user can add a user
 func (a *Accesser) AddUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		claims, err := a.GetToken(c.Request())
+		claims, status, err := a.GetToken(c.Request())
 		if err != nil {
 			return &echo.HTTPError{
-				Code:     http.StatusBadRequest,
+				Code:     status,
 				Message:  err.Error(),
 				Internal: err,
 			}
@@ -162,17 +164,17 @@ func (a *Accesser) AddUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 				return next(c)
 			}
 		}
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
 	}
 }
 
 // ListUserAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can list users
 func (a *Accesser) ListUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		claims, err := a.GetToken(c.Request())
+		claims, status, err := a.GetToken(c.Request())
 		if err != nil {
 			return &echo.HTTPError{
-				Code:     http.StatusBadRequest,
+				Code:     status,
 				Message:  err.Error(),
 				Internal: err,
 			}
@@ -182,17 +184,57 @@ func (a *Accesser) ListUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFun
 				return next(c)
 			}
 		}
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
+}
+
+// GroupAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can modify groups
+func (a *Accesser) GroupAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, status, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     status,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersGroup {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
+}
+
+// PermissionsAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can modify permissions
+func (a *Accesser) PermissionsAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, status, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     status,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersPermissions {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
 	}
 }
 
 // ModifyUserAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can list users
 func (a *Accesser) ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		claims, err := a.GetToken(c.Request())
+		claims, status, err := a.GetToken(c.Request())
 		if err != nil {
 			return &echo.HTTPError{
-				Code:     http.StatusBadRequest,
+				Code:     status,
 				Message:  err.Error(),
 				Internal: err,
 			}
@@ -202,17 +244,17 @@ func (a *Accesser) ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerF
 				return next(c)
 			}
 		}
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
 	}
 }
 
 // ManageStreamAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can manage streams
 func (a *Accesser) ManageStreamAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		claims, err := a.GetToken(c.Request())
+		claims, status, err := a.GetToken(c.Request())
 		if err != nil {
 			return &echo.HTTPError{
-				Code:     http.StatusBadRequest,
+				Code:     status,
 				Message:  err.Error(),
 				Internal: err,
 			}
@@ -222,6 +264,6 @@ func (a *Accesser) ManageStreamAuthMiddleware(next echo.HandlerFunc) echo.Handle
 				return next(c)
 			}
 		}
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
 	}
 }

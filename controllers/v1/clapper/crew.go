@@ -23,10 +23,10 @@ import (
 // @Success 200
 // @Router /v1/internal/clapper/event/{eventid}/{signupid}/{crewid} [put]
 func (s *Store) SetCrew(c echo.Context) error {
-	p, err := s.access.GetToken(c.Request())
+	p, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SetCrew: failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	crewID, err := strconv.Atoi(c.Param("crewid"))
@@ -55,10 +55,10 @@ func (s *Store) SetCrew(c echo.Context) error {
 // @Success 200
 // @Router /v1/internal/clapper/event/{signupid}/{crewid}/reset [put]
 func (s *Store) ResetCrew(c echo.Context) error {
-	_, err := s.access.GetToken(c.Request())
+	_, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("ResetCrew: failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	crewID, err := strconv.Atoi(c.Param("crewid"))

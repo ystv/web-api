@@ -71,10 +71,10 @@ func (s *Store) UpdateSeries(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("SeriesUpdate failed to get user ID: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	_ = claims

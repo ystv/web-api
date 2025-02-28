@@ -61,10 +61,10 @@ func (s *Store) NewVideo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	v.CreatedBy = claims.UserID
@@ -97,10 +97,10 @@ func (s *Store) UpdateVideoMeta(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	t, err := s.access.GetToken(c.Request())
+	t, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	parsed, err := strconv.ParseInt(strconv.Itoa(t.UserID), 10, 64)
@@ -156,10 +156,10 @@ func (s *Store) ListVideos(c echo.Context) error {
 // @Success 200 {array} video.Meta
 // @Router /v1/internal/creator/video/my [get]
 func (s *Store) ListVideosByUser(c echo.Context) error {
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("VideoNew failed to get user ID: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	v, err := s.video.ListMetaByUser(c.Request().Context(), claims.UserID)

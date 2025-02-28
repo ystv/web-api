@@ -82,10 +82,10 @@ func (e *Store) UploadRequest(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	_, err = e.access.GetToken(c.Request())
+	_, status, err := e.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetToken failed: %w", err)
-		return echo.NewHTTPError(http.StatusUnauthorized, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	// JSON response is required

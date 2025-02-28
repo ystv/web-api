@@ -138,10 +138,10 @@ func (s *Store) UserByEmailFull(c echo.Context) error {
 // @Success 200 {object} people.User
 // @Router /v1/internal/people/user [get]
 func (s *Store) UserByToken(c echo.Context) error {
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UserByToken failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	p, err := s.people.GetUser(c.Request().Context(), claims.UserID)
@@ -162,10 +162,10 @@ func (s *Store) UserByToken(c echo.Context) error {
 // @Success 200 {object} people.UserFull
 // @Router /v1/internal/people/user/full [get]
 func (s *Store) UserByTokenFull(c echo.Context) error {
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UserByTokenFull failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	p, err := s.people.GetUserFull(c.Request().Context(), claims.UserID)

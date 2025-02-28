@@ -86,10 +86,10 @@ func (s *Store) NewEvent(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	p, err := s.access.GetToken(c.Request())
+	p, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("NewEvent: failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	eventID, err := s.event.New(c.Request().Context(), &e, p.UserID)
@@ -120,10 +120,10 @@ func (s *Store) UpdateEvent(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	p, err := s.access.GetToken(c.Request())
+	p, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("UpdateEvent: failed to get token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	err = s.event.Update(c.Request().Context(), &e, p.UserID)

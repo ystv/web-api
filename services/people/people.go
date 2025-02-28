@@ -31,7 +31,8 @@ type (
 	RoleRepo interface {
 		ListAllRolesWithPermissions(ctx context.Context) ([]RoleWithPermissions, error)
 		ListAllRolesWithCount(ctx context.Context) ([]RoleWithCount, error)
-		ListRoleMembersByID(ctx context.Context, roleID int) ([]User, error)
+		GetRoleFull(ctx context.Context, roleID int) (RoleFull, error)
+		ListRoleMembersByID(ctx context.Context, roleID int) ([]User, int, error)
 		ListRolePermissionsByID(ctx context.Context, roleID int) ([]Permission, error)
 	}
 

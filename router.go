@@ -202,10 +202,11 @@ func (r *Router) loadRoutes() {
 					users.GET("", r.people.ListAllPeople)
 					users.GET("/pagination", r.people.ListPeoplePagination)
 				}
-				role := people.Group("/role")
+				role := people.Group("/role", r.access.GroupAuthMiddleware)
 				{
 					role.GET("s", r.people.ListAllRolesWithPermissions)
 					role.GET("s/count", r.people.ListAllRolesWithCount)
+					role.GET("/:roleid/full", r.people.GetRoleFull)
 					role.GET("/:roleid/members", r.people.ListRoleMembersByID)
 					role.GET("/:roleid/permissions", r.people.ListRolePermissionsByID)
 				}

@@ -22,10 +22,10 @@ import (
 // @Success 200 {array} misc.Webcam
 // @Router /v1/internal/misc/webcams [get]
 func (s *Store) ListWebcams(c echo.Context) error {
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("ListWebcams failed to get user token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	var perms []string
@@ -52,10 +52,10 @@ func (s *Store) GetWebcam(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid camera ID")
 	}
 
-	claims, err := s.access.GetToken(c.Request())
+	claims, status, err := s.access.GetToken(c.Request())
 	if err != nil {
 		err = fmt.Errorf("GetWebcam failed to get user token: %w", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err)
+		return echo.NewHTTPError(status, err)
 	}
 
 	var perms []string
