@@ -1,6 +1,7 @@
 package people
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -203,4 +204,86 @@ func (s *Store) ListAllPeople(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, utils.NonNil(p))
+}
+
+// ListPeoplePagination handles listing users with pagination
+//
+// @Summary List users with pagination
+// @ID get-people-users-pagination
+// @Tags people-users
+// @Produce json
+// @Param size path int false "Page size"
+// @Param page path int false "Page number"
+// @Param search path string false "Search string"
+// @Param column path string false "Ordering column"
+// @Param direction path string false "Ordering direction"
+// @Param enabled path string false "Is user enabled"
+// @Param deleted path string false "Is user deleted"
+// @Success 200 {array} people.UserFull
+// @Router /v1/internal/people/users/pagination [get]
+func (s *Store) ListPeoplePagination(c echo.Context) error {
+	column := c.QueryParam("column")
+	direction := c.QueryParam("direction")
+	search := c.QueryParam("search")
+
+	search, err := url.QueryUnescape(search)
+	if err != nil {
+		return fmt.Errorf("ListPeoplePagination failed to unescape query: %w", err)
+	}
+
+	enabled := c.QueryParam("enabled")
+	deleted := c.QueryParam("deleted")
+
+	var size, page int
+
+	sizeRaw := c.QueryParam("size")
+
+	if sizeRaw == "all" {
+		size = 0
+	} else if len(sizeRaw) != 0 {
+		page, err = strconv.Atoi(c.QueryParam("page"))
+		if err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				fmt.Errorf("ListPeoplePagination unable to parse page for users: %w", err))
+		}
+
+		size, err = strconv.Atoi(sizeRaw)
+		//nolint:gocritic
+		if err != nil {
+			size = 0
+		} else if size <= 0 {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				errors.New("ListPeoplePagination invalid size, must be positive"))
+		} else if size != 5 && size != 10 && size != 25 && size != 50 && size != 75 && size != 100 {
+			size = 0
+		}
+	}
+
+	switch column {
+	case "userId", "name", "username", "email", "lastLogin":
+		switch direction {
+		case "asc", "desc":
+			break
+		default:
+			column = ""
+			direction = ""
+		}
+	default:
+		column = ""
+		direction = ""
+	}
+
+	dbUsers, fullCount, err := s.people.GetUsersPagination(c.Request().Context(), size, page, search, column,
+		direction, enabled, deleted)
+	if err != nil {
+		err = fmt.Errorf("ListPeoplePagination failed to get paginated users: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	u := people.UserFullPagination{
+		Users:     dbUsers,
+		FullCount: fullCount,
+	}
+
+	return c.JSON(http.StatusOK, u)
 }

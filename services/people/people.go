@@ -17,11 +17,14 @@ type (
 
 	// UserRepo defines all user interactions
 	UserRepo interface {
+		CountUsersAll(ctx context.Context) (CountUsers, error)
+		ListAllUsers(ctx context.Context) ([]User, error)
 		GetUser(ctx context.Context, userID int) (User, error)
 		GetUserFull(ctx context.Context, userID int) (UserFull, error)
 		GetUserByEmail(ctx context.Context, email string) (User, error)
 		GetUserByEmailFull(ctx context.Context, email string) (UserFull, error)
-		ListAllUsers(ctx context.Context) ([]User, error)
+		GetUsersPagination(ctx context.Context, size, page int, search, sortBy, direction, enabled,
+			deleted string) ([]UserFull, int, error)
 	}
 
 	// RoleRepo defines all role interaction

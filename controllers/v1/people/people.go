@@ -38,6 +38,7 @@ type (
 		UserByTokenFull(c echo.Context) error
 		AddUser(c echo.Context) error
 		ListAllPeople(c echo.Context) error
+		ListPeoplePagination(c echo.Context) error
 	}
 
 	// Store stores our dependencies

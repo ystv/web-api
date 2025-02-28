@@ -200,6 +200,7 @@ func (r *Router) loadRoutes() {
 						users.Use(r.access.ListUserAuthMiddleware)
 					}
 					users.GET("", r.people.ListAllPeople)
+					users.GET("/pagination", r.people.ListPeoplePagination)
 				}
 				role := people.Group("/role")
 				{
