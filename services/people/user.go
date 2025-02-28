@@ -14,8 +14,8 @@ import (
 func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	var u UserFull
 	//nolint:musttag
-	err := s.db.GetContext(ctx, &u,
-		`SELECT user_id, username, email, first_name, last_name, nickname,
+	err := s.db.GetContext(ctx, &u, `
+		SELECT user_id, username, email, first_name, last_name, nickname,
 		avatar, use_gravatar, last_login, created_at, created_by, updated_at, updated_by,
 		deleted_at, deleted_by
 		FROM people.users
@@ -26,24 +26,24 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 	}
 
 	//nolint:musttag
-	err = s.db.SelectContext(ctx, &u.Roles,
-		`SELECT r.role_id, r.name, r.description
-	FROM people.roles r
-	INNER JOIN people.role_members rm ON rm.role_id = r.role_id
-	WHERE user_id = $1;`, userID)
+	err = s.db.SelectContext(ctx, &u.Roles, `
+		SELECT r.role_id, r.name, r.description
+		FROM people.roles r
+		INNER JOIN people.role_members rm ON rm.role_id = r.role_id
+		WHERE user_id = $1;`, userID)
 	if err != nil {
 		return UserFull{}, fmt.Errorf("failed to get roles: %w", err)
 	}
 
-	for idx := range u.Roles {
-		err = s.db.SelectContext(ctx, &u.Roles[idx].Permissions,
-			`SELECT p.permission_id, p.name, p.description
+	err = s.db.SelectContext(ctx, &u.Permissions, `
+		SELECT DISTINCT p.permission_id, p.name, p.description
 		FROM people.permissions p
-		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
-		WHERE rp.role_id = $1;`, u.Roles[idx].RoleID)
-		if err != nil {
-			return UserFull{}, fmt.Errorf("failed to get permissions from roles: %w", err)
-		}
+		INNER JOIN people.role_permissions rp on rp.permission_id = p.permission_id
+		INNER JOIN people.role_members rm ON rm.role_id = rp.role_id
+		WHERE rm.user_id = $1
+		ORDER BY name;`, userID)
+	if err != nil {
+		return UserFull{}, fmt.Errorf("failed to get permissions: %w", err)
 	}
 
 	switch avatar := u.Avatar; {
@@ -51,7 +51,9 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
-	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
+	case avatar == "":
+		u.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+	case strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:
@@ -87,15 +89,15 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 		return UserFull{}, fmt.Errorf("failed to get roles: %w", err)
 	}
 
-	for idx := range u.Roles {
-		err = s.db.SelectContext(ctx, &u.Roles[idx].Permissions,
-			`SELECT p.permission_id, p.name, p.description
+	err = s.db.SelectContext(ctx, &u.Permissions, `
+		SELECT DISTINCT p.permission_id, p.name, p.description
 		FROM people.permissions p
-		INNER JOIN people.role_permissions rp ON rp.permission_id = p.permission_id
-		WHERE rp.role_id = $1;`, u.Roles[idx].RoleID)
-		if err != nil {
-			return UserFull{}, fmt.Errorf("failed to get permissions from roles: %w", err)
-		}
+		INNER JOIN people.role_permissions rp on rp.permission_id = p.permission_id
+		INNER JOIN people.role_members rm ON rm.role_id = rp.role_id
+		WHERE rm.user_id = $1
+		ORDER BY name;`, u.UserID)
+	if err != nil {
+		return UserFull{}, fmt.Errorf("failed to get permissions: %w", err)
 	}
 
 	switch avatar := u.Avatar; {
@@ -103,7 +105,9 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
-	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
+	case avatar == "":
+		u.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+	case strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:
@@ -141,7 +145,9 @@ func (s *Store) GetUser(ctx context.Context, userID int) (User, error) {
 		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
-	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
+	case avatar == "":
+		u.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+	case strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:
@@ -179,7 +185,9 @@ func (s *Store) GetUserByEmail(ctx context.Context, email string) (User, error) 
 		//nolint:gosec
 		hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(u.Email))))
 		u.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
-	case avatar == "", strings.Contains(avatar, s.cdnEndpoint):
+	case avatar == "":
+		u.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+	case strings.Contains(avatar, s.cdnEndpoint):
 	case strings.Contains(avatar, fmt.Sprintf("%d.", u.UserID)):
 		u.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
 	default:

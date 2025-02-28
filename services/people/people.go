@@ -63,33 +63,47 @@ type (
 	// UserFull represents a user and all columns
 	UserFull struct {
 		User
-		LastLogin null.Time             `db:"last_login" json:"lastLogin,omitempty"`
-		CreatedAt null.Time             `db:"created_at" json:"createdAt,omitempty"`
-		CreatedBy int                   `db:"created_by" json:"createdBy,omitempty"`
-		UpdatedAt null.Time             `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedBy null.Int              `db:"updated_by" json:"updatedBy,omitempty"`
-		DeletedAt null.Time             `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedBy null.Int              `db:"deleted_by" json:"deletedBy,omitempty"`
-		Roles     []RoleWithPermissions `json:"roles,omitempty"`
+		LastLogin null.Time `db:"last_login" json:"lastLogin,omitempty"`
+		Enabled   bool      `db:"enabled" json:"enabled"`
+		CreatedAt null.Time `db:"created_at" json:"createdAt,omitempty"`
+		CreatedBy int       `db:"created_by" json:"createdBy,omitempty"`
+		UpdatedAt null.Time `db:"updated_at" json:"updatedAt,omitempty"`
+		UpdatedBy null.Int  `db:"updated_by" json:"updatedBy,omitempty"`
+		DeletedAt null.Time `db:"deleted_at" json:"deletedAt,omitempty"`
+		DeletedBy null.Int  `db:"deleted_by" json:"deletedBy,omitempty"`
+		Roles     []Role    `json:"roles,omitempty"`
+	}
+
+	UserFullPagination struct {
+		Users     []UserFull `json:"users"`
+		FullCount int        `json:"fullCount"`
+	}
+
+	Role struct {
+		RoleID      int    `db:"role_id" json:"id"`
+		Name        string `db:"name" json:"name"`
+		Description string `db:"description" json:"description"`
 	}
 
 	// RoleWithPermissions represents a "group" of permissions where multiple users
 	// can have this role, and they will inherit these permissions.
 	RoleWithPermissions struct {
-		RoleID      int          `db:"role_id" json:"id"`
-		Name        string       `db:"name" json:"name"`
-		Description string       `db:"description" json:"description"`
+		Role
 		Permissions []Permission `json:"permissions"`
 	}
 
 	// RoleWithCount represents a "group" of permissions where multiple users
 	// can have this role, and they will inherit these permissions.
 	RoleWithCount struct {
-		RoleID      int    `db:"role_id" json:"id"`
-		Name        string `db:"name" json:"name"`
-		Description string `db:"description" json:"description"`
-		Users       int    `db:"users" json:"users"`
-		Permissions int    `db:"permissions" json:"permissions"`
+		Role
+		Users       int `db:"users" json:"users"`
+		Permissions int `db:"permissions" json:"permissions"`
+	}
+
+	RoleFull struct {
+		Role
+		Permissions []Permission `json:"permissions"`
+		Users       []User       `json:"users"`
 	}
 
 	// Permission represents an individual permission. Attempting to implement some RBAC here.
