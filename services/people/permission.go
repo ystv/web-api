@@ -15,13 +15,11 @@ var _ PermissionRepo = &Store{}
 func (s *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
 	var p []Permission
 
-	for _, permission := range p {
-		err := s.db.SelectContext(ctx, &permission, `
-			SELECT permission_id, name, description
-			FROM people.permissions;`)
-		if err != nil {
-			return nil, fmt.Errorf("failed to get permissions: %w", err)
-		}
+	err := s.db.SelectContext(ctx, &p, `
+		SELECT permission_id, name, description
+		FROM people.permissions;`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get permissions: %w", err)
 	}
 
 	return p, nil
