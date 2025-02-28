@@ -17,7 +17,7 @@ import (
 // @Tags people-permissions
 // @Produce json
 // @Success 200 {array} people.Permission
-// @Router /v1/internal/people/permission [get]
+// @Router /v1/internal/people/permissions [get]
 func (s *Store) ListAllPermissions(c echo.Context) error {
 	p, err := s.people.ListAllPermissions(c.Request().Context())
 	if err != nil {

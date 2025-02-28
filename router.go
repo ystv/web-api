@@ -210,9 +210,9 @@ func (r *Router) loadRoutes() {
 					role.GET("/:roleid/members", r.people.ListRoleMembersByID)
 					role.GET("/:roleid/permissions", r.people.ListRolePermissionsByID)
 				}
-				permission := people.Group("/permission")
+				permission := people.Group("/permission", r.access.PermissionsAuthMiddleware)
 				{
-					permission.GET("", r.people.ListAllPermissions)
+					permission.GET("s", r.people.ListAllPermissions)
 					permission.GET("/:permissionid/members", r.people.ListPermissionMembersByID)
 				}
 			}
