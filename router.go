@@ -195,6 +195,7 @@ func (r *Router) loadRoutes() {
 				}
 				users := people.Group("/users")
 				{
+					users.GET("/stats", r.people.UserStats)
 					if !r.router.Debug {
 						users.Use(r.access.ListUserAuthMiddleware)
 					}

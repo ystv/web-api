@@ -12,6 +12,24 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
+// UserStats lists the user stats
+// @Summary Get user stats
+// @Description Get an overview of users.
+// @ID get-user-stats
+// @Tags people-user
+// @Produce json
+// @Success 200 {object} people.CountUsers
+// @Router /v1/internal/people/users/stats [get]
+func (s *Store) UserStats(c echo.Context) error {
+	stat, err := s.people.CountUsersAll(c.Request().Context())
+	if err != nil {
+		err = fmt.Errorf("UserStats failed: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, stat)
+}
+
 // UserByID finds a user by ID
 // @Summary Get a user by ID
 // @Description Get a basic user object by ID.

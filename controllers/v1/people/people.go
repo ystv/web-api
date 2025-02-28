@@ -29,6 +29,7 @@ type (
 	}
 
 	UserRepo interface {
+		UserStats(c echo.Context) error
 		UserByID(c echo.Context) error
 		UserByIDFull(c echo.Context) error
 		UserByEmail(c echo.Context) error
