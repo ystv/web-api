@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -76,6 +78,44 @@ func New(conf *NewRouter) *Router {
 
 	// Enabling debugging
 	r.router.Debug = conf.Debug
+
+	r.router.HTTPErrorHandler = func(err error, c echo.Context) {
+		c.Logger().Warn(err)
+
+		var he *echo.HTTPError
+
+		var status int
+		if errors.As(err, &he) {
+			status = he.Code
+		} else {
+			status = 500
+		}
+
+		var message interface{}
+		message = err
+
+		if he != nil {
+			message = he.Message
+		}
+
+		c.Response().WriteHeader(status)
+		c.Response().Header().Set("Content-Type", "application/json")
+
+		data := utils.HTTPError{
+			Status:  status,
+			Message: fmt.Sprintf("%+v", message),
+		}
+
+		b, err := json.Marshal(data)
+		if err != nil {
+			c.Logger().Error(err)
+		}
+
+		_, err = c.Response().Write(b)
+		if err != nil {
+			c.Logger().Error(err)
+		}
+	}
 
 	// Authentication middleware
 	middleware.New(r.router, conf.DomainName)
