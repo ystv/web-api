@@ -25,35 +25,37 @@ import (
 )
 
 // Router provides an HTTP server for web-api
-type Router struct {
-	version string
-	commit  string
-	router  *echo.Echo
-	access  utils.Repo
-	clapper clapperPackage.Repos
-	creator creatorPackage.Repos
-	encoder encoderPackage.Repo
-	misc    miscPackage.Repos
-	people  peoplePackage.Repos
-	public  publicPackage.Repos
-	stream  streamV1.Repos
-}
+type (
+	Router struct {
+		version string
+		commit  string
+		router  *echo.Echo
+		access  utils.Repo
+		clapper clapperPackage.Repos
+		creator creatorPackage.Repos
+		encoder encoderPackage.Repo
+		misc    miscPackage.Repos
+		people  peoplePackage.Repos
+		public  publicPackage.Repos
+		stream  streamV1.Repos
+	}
 
-// NewRouter is the required dependencies
-type NewRouter struct {
-	Version    string
-	Commit     string
-	DomainName string
-	Debug      bool
-	Access     utils.Repo
-	Clapper    clapperPackage.Repos
-	Creator    creatorPackage.Repos
-	Encoder    encoderPackage.Repo
-	Misc       miscPackage.Repos
-	People     peoplePackage.Repos
-	Public     publicPackage.Repos
-	Stream     streamV1.Repos
-}
+	// NewRouter is the required dependencies
+	NewRouter struct {
+		Version    string
+		Commit     string
+		DomainName string
+		Debug      bool
+		Access     utils.Repo
+		Clapper    clapperPackage.Repos
+		Creator    creatorPackage.Repos
+		Encoder    encoderPackage.Repo
+		Misc       miscPackage.Repos
+		People     peoplePackage.Repos
+		Public     publicPackage.Repos
+		Stream     streamV1.Repos
+	}
+)
 
 // New creates a new router instance
 func New(conf *NewRouter) *Router {
