@@ -1829,7 +1829,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/internal/people/role": {
+        "/v1/internal/people/role/{roleId}/full": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1837,15 +1837,24 @@ const docTemplate = `{
                 "tags": [
                     "people-roles"
                 ],
-                "summary": "List all roles",
-                "operationId": "get-people-roles",
+                "summary": "List all users and permissions of a given role",
+                "operationId": "get-people-role-full",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "roleId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/people.Role"
+                                "$ref": "#/definitions/people.RoleFull"
                             }
                         }
                     }
@@ -1877,8 +1886,20 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/people.Role"
+                                "$ref": "#/definitions/people.User"
                             }
+                        }
+                    },
+                    "404": {
+                        "description": "Role Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Server Side Role Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     }
                 }
@@ -1909,7 +1930,53 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/people.Role"
+                                "$ref": "#/definitions/people.Permission"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/roles": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-roles"
+                ],
+                "summary": "List all roles",
+                "operationId": "get-people-roles-permissions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.RoleWithPermissions"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/roles/count": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-roles"
+                ],
+                "summary": "List all roles with count",
+                "operationId": "get-people-roles-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.RoleWithCount"
                             }
                         }
                     }
@@ -2096,6 +2163,94 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/people.User"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/users/pagination": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-users"
+                ],
+                "summary": "List users with pagination",
+                "operationId": "get-people-users-pagination",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "size",
+                        "in": "path"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search string",
+                        "name": "search",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ordering column",
+                        "name": "column",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ordering direction",
+                        "name": "direction",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Is user enabled",
+                        "name": "enabled",
+                        "in": "path"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Is user deleted",
+                        "name": "deleted",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.UserFull"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/users/stats": {
+            "get": {
+                "description": "Get an overview of users.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-user"
+                ],
+                "summary": "Get user stats",
+                "operationId": "get-user-stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.CountUsers"
                         }
                     }
                 }
@@ -3410,6 +3565,23 @@ const docTemplate = `{
                 }
             }
         },
+        "people.CountUsers": {
+            "type": "object",
+            "properties": {
+                "activeUsers": {
+                    "type": "integer"
+                },
+                "activeUsersPast24Hours": {
+                    "type": "integer"
+                },
+                "activeUsersPastYear": {
+                    "type": "integer"
+                },
+                "totalUsers": {
+                    "type": "integer"
+                }
+            }
+        },
         "people.Permission": {
             "type": "object",
             "properties": {
@@ -3425,6 +3597,66 @@ const docTemplate = `{
             }
         },
         "people.Role": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "people.RoleFull": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/people.Permission"
+                    }
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/people.User"
+                    }
+                }
+            }
+        },
+        "people.RoleWithCount": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "integer"
+                },
+                "users": {
+                    "type": "integer"
+                }
+            }
+        },
+        "people.RoleWithPermissions": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3499,6 +3731,9 @@ const docTemplate = `{
                 },
                 "email": {
                     "type": "string"
+                },
+                "enabled": {
+                    "type": "boolean"
                 },
                 "firstName": {
                     "type": "string"
@@ -4167,6 +4402,17 @@ const docTemplate = `{
             "properties": {
                 "null.Time": {
                     "type": "string"
+                }
+            }
+        },
+        "utils.HTTPError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
                 }
             }
         },

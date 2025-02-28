@@ -13,10 +13,10 @@ import (
 // ListAllRolesWithPermissions handles listing all roles
 //
 // @Summary List all roles
-// @ID get-people-roles
+// @ID get-people-roles-permissions
 // @Tags people-roles
 // @Produce json
-// @Success 200 {array} people.Role
+// @Success 200 {array} people.RoleWithPermissions
 // @Router /v1/internal/people/roles [get]
 func (s *Store) ListAllRolesWithPermissions(c echo.Context) error {
 	r, err := s.people.ListAllRolesWithPermissions(c.Request().Context())
@@ -31,10 +31,10 @@ func (s *Store) ListAllRolesWithPermissions(c echo.Context) error {
 // ListAllRolesWithCount handles listing all roles
 //
 // @Summary List all roles with count
-// @ID get-people-roles
+// @ID get-people-roles-count
 // @Tags people-roles
 // @Produce json
-// @Success 200 {array} people.Role
+// @Success 200 {array} people.RoleWithCount
 // @Router /v1/internal/people/roles/count [get]
 func (s *Store) ListAllRolesWithCount(c echo.Context) error {
 	r, err := s.people.ListAllRolesWithCount(c.Request().Context())
@@ -77,7 +77,9 @@ func (s *Store) GetRoleFull(c echo.Context) error {
 // @Tags people-roles
 // @Produce json
 // @Param roleId path int true "Role ID"
-// @Success 200 {array} people.Role
+// @Success 200 {array} people.User
+// @Failure 404 {object} utils.HTTPError "Role Not Found"
+// @Failure 500 {object} utils.HTTPError "Server Side Role Error"
 // @Router /v1/internal/people/role/{roleId}/members [get]
 func (s *Store) ListRoleMembersByID(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
@@ -101,7 +103,7 @@ func (s *Store) ListRoleMembersByID(c echo.Context) error {
 // @Tags people-roles
 // @Produce json
 // @Param roleId path int true "Role ID"
-// @Success 200 {array} people.Role
+// @Success 200 {array} people.Permission
 // @Router /v1/internal/people/role/{roleId}/permissions [get]
 func (s *Store) ListRolePermissionsByID(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
