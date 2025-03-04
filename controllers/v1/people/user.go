@@ -185,7 +185,7 @@ func (s *Store) AddUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get user from request in AddUser: %w", err))
 	}
 
-	return c.JSON(http.StatusOK, u)
+	return c.JSON(http.StatusNotImplemented, u)
 }
 
 // ListAllPeople handles listing all users
