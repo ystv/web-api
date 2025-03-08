@@ -117,8 +117,13 @@ func main() {
 		ServeBucket:  os.Getenv("WAPI_BUCKET_VOD_SERVE"),
 	}
 
+	jwtCookieName := os.Getenv("WAUTH_JWT_COOKIE_NAME")
+	if jwtCookieName == "" {
+		jwtCookieName = "wauth_jwt"
+	}
+
 	access := utils.NewAccesser(utils.Config{
-		AccessCookieName: "token",
+		AccessCookieName: jwtCookieName,
 		SecurityBaseURL:  os.Getenv("WAPI_SECURITY_BASEURL"),
 		SigningKey:       []byte(os.Getenv("WAPI_SIGNING_KEY")),
 	})
