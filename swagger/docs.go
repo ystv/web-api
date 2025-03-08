@@ -1774,29 +1774,6 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/v1/internal/people/permission": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "people-permissions"
-                ],
-                "summary": "List all permissions",
-                "operationId": "get-people-permissions",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/people.Permission"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/v1/internal/people/permission/{permId}/members": {
             "get": {
                 "produces": [
@@ -1816,6 +1793,29 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.Permission"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/permissions": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-permissions"
+                ],
+                "summary": "List all permissions",
+                "operationId": "get-people-permissions",
                 "responses": {
                     "200": {
                         "description": "OK",
