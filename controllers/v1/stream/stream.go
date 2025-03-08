@@ -257,7 +257,7 @@ func (s *Store) ListStreams(c echo.Context) error {
 // @Tags stream-endpoints
 // @Accept json
 // @Param endpoint body stream.FindEndpoint true "Find Endpoint object"
-// @Success 200 {object} stream.EndpointDB
+// @Success 200 {object} stream.Endpoint
 // @Error 400
 // @Error 404
 // @Router /v1/internal/streams/find [get]
@@ -281,7 +281,34 @@ func (s *Store) FindStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err)
 	}
 
-	return c.JSON(http.StatusOK, foundStream)
+	var pwd, startValid, endValid, notes string
+
+	if foundStream.Pwd.Valid {
+		pwd = foundStream.Pwd.String
+	}
+	if foundStream.StartValid.Valid {
+		startValid = foundStream.StartValid.Time.Format(time.RFC3339)
+	}
+	if foundStream.EndValid.Valid {
+		endValid = foundStream.EndValid.Time.Format(time.RFC3339)
+	}
+	if foundStream.Notes.Valid {
+		notes = foundStream.Notes.String
+	}
+
+	endpoint := stream.Endpoint{
+		EndpointID:  foundStream.EndpointID,
+		Application: foundStream.Application,
+		Name:        foundStream.Name,
+		Pwd:         pwd,
+		StartValid:  startValid,
+		EndValid:    endValid,
+		Notes:       notes,
+		Active:      foundStream.Active,
+		Blocked:     foundStream.Blocked,
+	}
+
+	return c.JSON(http.StatusOK, endpoint)
 }
 
 // NewStream handles a creating a stream endpoint

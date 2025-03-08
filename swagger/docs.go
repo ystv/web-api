@@ -2378,7 +2378,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/stream.EndpointDB"
+                            "$ref": "#/definitions/stream.Endpoint"
                         }
                     }
                 }
@@ -4300,41 +4300,6 @@ const docTemplate = `{
                 },
                 "startValid": {
                     "description": "StartValid defines the optional start time that this endpoint becomes valid",
-                    "type": "string"
-                }
-            }
-        },
-        "stream.EndpointDB": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "application": {
-                    "type": "string"
-                },
-                "autoRemove": {
-                    "type": "boolean"
-                },
-                "blocked": {
-                    "type": "boolean"
-                },
-                "endValid": {
-                    "type": "string"
-                },
-                "endpointId": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "pwd": {
-                    "type": "string"
-                },
-                "startValid": {
                     "type": "string"
                 }
             }
