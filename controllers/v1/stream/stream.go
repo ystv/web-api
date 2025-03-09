@@ -270,12 +270,24 @@ func (s *Store) FindStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	if findEndpoint.EndpointID == 0 && (len(findEndpoint.Application) == 0 || len(findEndpoint.Name) == 0) {
+	var endpointID int
+	if findEndpoint.EndpointID != nil {
+		endpointID = *findEndpoint.EndpointID
+	}
+	var app, name string
+	if findEndpoint.Application != nil {
+		app = *findEndpoint.Application
+	}
+	if findEndpoint.Name != nil {
+		name = *findEndpoint.Name
+	}
+
+	if endpointID == 0 && (len(app) == 0 || len(name) == 0) {
 		err = errors.New("failed to bind to request json: missing application, name or endpoint id")
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	foundStream, err := s.stream.FindEndpoint(c.Request().Context(), &findEndpoint)
+	foundStream, err := s.stream.FindEndpoint(c.Request().Context(), findEndpoint)
 	if err != nil {
 		err = fmt.Errorf("failed to find endpoint: %w", err)
 		return echo.NewHTTPError(http.StatusNotFound, err)
