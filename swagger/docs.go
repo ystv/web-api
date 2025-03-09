@@ -1774,7 +1774,156 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/v1/internal/people/permission/{permId}/members": {
+        "/v1/internal/people/permission": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-permissions"
+                ],
+                "summary": "Create a permission",
+                "operationId": "add-people-permission",
+                "parameters": [
+                    {
+                        "description": "Permission object",
+                        "name": "permission",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.PermissionAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.Permission"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/permission/{permissionid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-permissions"
+                ],
+                "summary": "Get a single permission based on the permission id",
+                "operationId": "get-people-permission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Permission ID",
+                        "name": "permissionid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.Permission"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-permissions"
+                ],
+                "summary": "Edits a permission",
+                "operationId": "edit-people-permission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Permission ID",
+                        "name": "permissionid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Permission object",
+                        "name": "permission",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.PermissionAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.Permission"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-permissions"
+                ],
+                "summary": "Deletes a permission and links to roles",
+                "operationId": "delete-people-permission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Permission ID",
+                        "name": "permissionid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/permission/{permissionid}/count": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-permissions"
+                ],
+                "summary": "Get a single permission based on the permission id with roles count",
+                "operationId": "get-people-permission-count",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Permission ID",
+                        "name": "permissionid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.PermissionWithRolesCount"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/permission/{permissionid}/members": {
             "get": {
                 "produces": [
                     "application/json"
@@ -1788,7 +1937,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Permission ID",
-                        "name": "permId",
+                        "name": "permissionid",
                         "in": "path",
                         "required": true
                     }
@@ -1829,6 +1978,29 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/internal/people/permissions/count": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-permissions"
+                ],
+                "summary": "List all permissions with roles count",
+                "operationId": "get-people-permissions-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.PermissionWithRolesCount"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/people/role/{roleId}/full": {
             "get": {
                 "produces": [
@@ -1852,10 +2024,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/people.RoleFull"
-                            }
+                            "$ref": "#/definitions/people.RoleFull"
                         }
                     }
                 }
@@ -3593,6 +3762,34 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "people.PermissionAddEditDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "people.PermissionWithRolesCount": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "integer"
                 }
             }
         },

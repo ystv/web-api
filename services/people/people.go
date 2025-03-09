@@ -40,6 +40,11 @@ type (
 	PermissionRepo interface {
 		ListAllPermissions(ctx context.Context) ([]Permission, error)
 		ListPermissionMembersByID(ctx context.Context, permissionID int) ([]User, error)
+		GetPermission(ctx context.Context, permissionID int) (Permission, error)
+		GetPermissionWithRolesCount(ctx context.Context, permissionID int) (PermissionWithRolesCount, error)
+		AddPermission(ctx context.Context, permission PermissionAddEditDTO) (Permission, error)
+		EditPermission(ctx context.Context, permissionID int, permission PermissionAddEditDTO) (Permission, error)
+		DeletePermission(ctx context.Context, permissionID int) error
 	}
 
 	// Store contains our dependency
@@ -115,11 +120,25 @@ type (
 		Users       []User       `json:"users"`
 	}
 
-	// Permission represents an individual permission. Attempting to implement some RBAC here.
+	// Permission represents an individual permission.
 	Permission struct {
 		PermissionID int    `db:"permission_id" json:"id"`
 		Name         string `db:"name" json:"name"`
 		Description  string `db:"description" json:"description,omitempty"`
+	}
+
+	// PermissionWithRolesCount represents an individual permission with a count of how many roles ues this.
+	PermissionWithRolesCount struct {
+		PermissionID int    `db:"permission_id" json:"id"`
+		Name         string `db:"name" json:"name"`
+		Description  string `db:"description" json:"description,omitempty"`
+		Roles        int    `db:"roles" json:"roles"`
+	}
+
+	// PermissionAddEditDTO represents a permission to be added or edited.
+	PermissionAddEditDTO struct {
+		Name        string `db:"name" json:"name"`
+		Description string `db:"description" json:"description,omitempty"`
 	}
 )
 

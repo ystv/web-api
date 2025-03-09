@@ -18,7 +18,13 @@ type (
 
 	PermissionRepo interface {
 		ListAllPermissions(c echo.Context) error
+		ListAllPermissionsWithRolesCount(c echo.Context) error
 		ListPermissionMembersByID(c echo.Context) error
+		GetPermissionByID(c echo.Context) error
+		GetPermissionByIDWithRolesCount(ctx echo.Context) error
+		AddPermission(c echo.Context) error
+		EditPermission(c echo.Context) error
+		DeletePermission(c echo.Context) error
 	}
 
 	RoleRepo interface {

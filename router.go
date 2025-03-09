@@ -206,14 +206,25 @@ func (r *Router) loadRoutes() {
 				{
 					role.GET("s", r.people.ListAllRolesWithPermissions)
 					role.GET("s/count", r.people.ListAllRolesWithCount)
-					role.GET("/:roleid/full", r.people.GetRoleFull)
-					role.GET("/:roleid/members", r.people.ListRoleMembersByID)
-					role.GET("/:roleid/permissions", r.people.ListRolePermissionsByID)
+					roleItem := role.Group("/:roleid")
+					{
+						roleItem.GET("/full", r.people.GetRoleFull)
+						roleItem.GET("/members", r.people.ListRoleMembersByID)
+					}
 				}
 				permission := people.Group("/permission", r.access.PermissionsAuthMiddleware)
 				{
 					permission.GET("s", r.people.ListAllPermissions)
-					permission.GET("/:permissionid/members", r.people.ListPermissionMembersByID)
+					permission.GET("s/count", r.people.ListAllPermissionsWithRolesCount)
+					permissionItem := permission.Group("/:permissionid")
+					{
+						permissionItem.GET("/members", r.people.ListPermissionMembersByID)
+						permissionItem.GET("/count", r.people.GetPermissionByIDWithRolesCount)
+						permissionItem.GET("", r.people.GetPermissionByID)
+						permissionItem.PUT("", r.people.EditPermission)
+						permissionItem.DELETE("", r.people.DeletePermission)
+					}
+					permission.POST("", r.people.AddPermission)
 				}
 			}
 			creator := internal.Group("/creator")
