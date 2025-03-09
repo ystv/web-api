@@ -124,7 +124,6 @@ func main() {
 
 	access := utils.NewAccesser(utils.Config{
 		AccessCookieName: jwtCookieName,
-		SecurityBaseURL:  os.Getenv("WAPI_SECURITY_BASEURL"),
 		SigningKey:       []byte(os.Getenv("WAPI_SIGNING_KEY")),
 	})
 

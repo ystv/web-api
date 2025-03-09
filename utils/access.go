@@ -1,10 +1,8 @@
 package utils
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -33,7 +31,6 @@ type (
 
 	Config struct {
 		AccessCookieName string
-		SecurityBaseURL  string
 		SigningKey       []byte
 	}
 
@@ -90,10 +87,7 @@ func (a *Accesser) GetToken(r *http.Request) (*AccessClaims, int, error) {
 	if token == "" {
 		return nil, http.StatusUnauthorized, ErrNoToken
 	}
-	return a.getClaims(r.Context(), token)
-}
 
-func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, int, error) {
 	claims := &AccessClaims{}
 
 	_, err := jwt.ParseWithClaims(token, claims, func(_ *jwt.Token) (interface{}, error) {
@@ -104,31 +98,6 @@ func (a *Accesser) getClaims(ctx context.Context, token string) (*AccessClaims, 
 		return nil, http.StatusUnauthorized, ErrInvalidToken
 	}
 
-	client := &http.Client{}
-
-	req, err := http.NewRequestWithContext(ctx, "GET", a.conf.SecurityBaseURL+"/api/test", nil)
-	if err != nil {
-		return nil, http.StatusInternalServerError, fmt.Errorf("failed to parse URL: %w", err)
-	}
-
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, http.StatusInternalServerError, fmt.Errorf("failed to get response: %w", err)
-	}
-	defer res.Body.Close()
-
-	if res.Status != "200 OK" {
-		var b []byte
-
-		b, err = io.ReadAll(res.Body)
-		if err != nil {
-			log.Printf("converting fail: %+v", err)
-		}
-
-		return nil, http.StatusUnauthorized, fmt.Errorf("invalid token: invalid status: %s: %s", res.Status, string(b))
-	}
 	return claims, http.StatusOK, nil
 }
 
