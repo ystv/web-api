@@ -53,7 +53,7 @@ func (s *Store) ListAllRolesWithCount(c echo.Context) error {
 // @Tags people-roles
 // @Produce json
 // @Param roleId path int true "Role ID"
-// @Success 200 {array} people.RoleFull
+// @Success 200 {object} people.RoleFull
 // @Router /v1/internal/people/role/{roleId}/full [get]
 func (s *Store) GetRoleFull(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
