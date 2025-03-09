@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/ystv/web-api/client/types"
 	"github.com/ystv/web-api/services/people"
+	"github.com/ystv/web-api/services/stream"
 )
 
 type Client struct {
@@ -101,6 +103,32 @@ func (c *Client) GetUsersPagination(ctx context.Context, apiKey string, options 
 	var res people.UserFullPagination
 	if err = c.sendRequest(req, apiKey, &res); err != nil {
 		return people.UserFullPagination{}, err
+	}
+
+	return res, nil
+}
+
+func (c *Client) FindStreamEndpoint(ctx context.Context, apiKey string, options types.FindStreamEndpointOptions) (stream.Endpoint, error) {
+	u, err := url.Parse(c.BaseURL + "/v1/internal/people/users/pagination")
+	if err != nil {
+		return stream.Endpoint{}, fmt.Errorf("invalid base URL: %w", err)
+	}
+
+	optionBytes, err := json.Marshal(options)
+	if err != nil {
+		return stream.Endpoint{}, err
+	}
+
+	buf := bytes.NewBuffer(optionBytes)
+
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), buf)
+	if err != nil {
+		return stream.Endpoint{}, err
+	}
+
+	var res stream.Endpoint
+	if err = c.sendRequest(req, apiKey, &res); err != nil {
+		return stream.Endpoint{}, err
 	}
 
 	return res, nil

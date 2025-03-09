@@ -11,6 +11,17 @@ type (
 		Data interface{} `json:"data"`
 	}
 
+	FindStreamEndpointOptions struct {
+		// EndpointID is the unique database id of the stream
+		EndpointID *int `json:"endpointId,omitempty"`
+		// Application defines which RTMP application this is valid for
+		Application *string `json:"application,omitempty"`
+		// Name is the unique name given in an application
+		Name *string `json:"name,omitempty"`
+		// Pwd defines an extra layer of security for authentication
+		Pwd *string `json:"pwd,omitempty"`
+	}
+
 	UsersListPaginationOptions struct {
 		// Size indicates the size of the pagination to return.
 		//
