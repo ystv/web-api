@@ -26,7 +26,7 @@ type (
 		ListStreams(c echo.Context) error
 		FindStream(c echo.Context) error
 		NewStream(c echo.Context) error
-		UpdateStream(c echo.Context) error
+		EditStream(c echo.Context) error
 		DeleteStream(c echo.Context) error
 	}
 
@@ -49,7 +49,7 @@ func NewRepos(db *sqlx.DB) Repos {
 // @Tags stream-endpoints
 // @Accept json
 // @P aram event body
-// @Success 200 body int "EndpointDB ID"
+// @Success 200 body int "Endpoint published"
 // @Error 401
 // @Router /v1/internal/stream/publish [post]
 func (s *Store) PublishStream(c echo.Context) error {
@@ -219,19 +219,20 @@ func (s *Store) ListStreams(c echo.Context) error {
 	endpoints := make([]stream.Endpoint, 0)
 
 	for _, endpoint := range e {
-		var pwd, startValid, endValid, notes string
+		var startValid, endValid *time.Time
+		var pwd, notes *string
 
 		if endpoint.Pwd.Valid {
-			pwd = endpoint.Pwd.String
+			pwd = &endpoint.Pwd.String
 		}
 		if endpoint.StartValid.Valid {
-			startValid = endpoint.StartValid.Time.Format(time.RFC3339)
+			startValid = &endpoint.StartValid.Time
 		}
 		if endpoint.EndValid.Valid {
-			endValid = endpoint.EndValid.Time.Format(time.RFC3339)
+			endValid = &endpoint.EndValid.Time
 		}
 		if endpoint.Notes.Valid {
-			notes = endpoint.Notes.String
+			notes = &endpoint.Notes.String
 		}
 
 		endpoints = append(endpoints, stream.Endpoint{
@@ -293,19 +294,20 @@ func (s *Store) FindStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err)
 	}
 
-	var pwd, startValid, endValid, notes string
+	var startValid, endValid *time.Time
+	var pwd, notes *string
 
 	if foundStream.Pwd.Valid {
-		pwd = foundStream.Pwd.String
+		pwd = &foundStream.Pwd.String
 	}
 	if foundStream.StartValid.Valid {
-		startValid = foundStream.StartValid.Time.Format(time.RFC3339)
+		startValid = &foundStream.StartValid.Time
 	}
 	if foundStream.EndValid.Valid {
-		endValid = foundStream.EndValid.Time.Format(time.RFC3339)
+		endValid = &foundStream.EndValid.Time
 	}
 	if foundStream.Notes.Valid {
-		notes = foundStream.Notes.String
+		notes = &foundStream.Notes.String
 	}
 
 	endpoint := stream.Endpoint{
@@ -352,54 +354,34 @@ func (s *Store) NewStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("NewStream: endpoint application must be set"))
 	}
 
-	startTime := null.NewTime(time.Time{}, false)
+	var startTime, endTime null.Time
+	startTime = null.TimeFromPtr(newEndpoint.StartValid)
 
-	if newEndpoint.StartValid != "" {
-		var parseStart time.Time
-
-		parseStart, err = time.Parse(time.RFC3339, newEndpoint.StartValid)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: failed to parse start date: %w", err))
-		}
-
-		startTime = null.TimeFrom(parseStart)
-	}
-
-	endTime := null.NewTime(time.Time{}, false)
-
-	if newEndpoint.EndValid != "" {
-		var parseEnd time.Time
-
-		parseEnd, err = time.Parse(time.RFC3339, newEndpoint.EndValid)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("NewStream: failed to parse end date: %w", err))
-		}
-
-		diffEnd := time.Now().Compare(parseEnd)
+	if newEndpoint.EndValid != nil {
+		diffEnd := time.Now().Compare(*newEndpoint.EndValid)
 		if diffEnd != -1 {
 			return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after now")
 		}
 
 		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(parseEnd)
+			diffStartEnd := startTime.Time.Compare(*newEndpoint.EndValid)
 			if diffStartEnd != -1 {
 				return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after start date")
 			}
 		}
 
-		endTime = null.TimeFrom(parseEnd)
+		if startTime.Valid {
+			diffStartEnd := startTime.Time.Compare(startTime.Time)
+			if diffStartEnd != -1 {
+				return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after start date")
+			}
+		}
+
+		endTime = null.TimeFromPtr(newEndpoint.EndValid)
 	}
 
-	pwd := null.NewString("", false)
-	notes := null.NewString("", false)
-
-	if newEndpoint.Pwd != "" {
-		pwd = null.StringFrom(newEndpoint.Pwd)
-	}
-
-	if newEndpoint.Notes != "" {
-		notes = null.StringFrom(newEndpoint.Notes)
-	}
+	pwd := null.StringFromPtr(newEndpoint.Pwd)
+	notes := null.StringFromPtr(newEndpoint.Notes)
 
 	endpoint, err := s.stream.NewEndpoint(c.Request().Context(), stream.EndpointDB{
 		Application: newEndpoint.Application,
@@ -424,23 +406,23 @@ func (s *Store) NewStream(c echo.Context) error {
 	return c.JSON(http.StatusCreated, endpointCreated)
 }
 
-// UpdateStream updates an existing position
-// @Summary UpdateStream stream endpoint
-// @ID update-stream
+// EditStream edits an existing position
+// @Summary EditStream stream endpoint
+// @ID edit-stream
 // @Tags stream-endpoints
 // @Accept json
 // @Param endpoint body stream.NewEditEndpoint true "Endpoint object"
-// @Success 200
+// @Success 200 {object} stream.Endpoint
 // @Router /v1/internal/streams/{endpointid} [put]
-func (s *Store) UpdateStream(c echo.Context) error {
+func (s *Store) EditStream(c echo.Context) error {
 	endpointID, err := strconv.Atoi(c.Param("endpointid"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: invalid endpoint ID")
+		return echo.NewHTTPError(http.StatusBadRequest, "EditStream: invalid endpoint ID")
 	}
 
 	_, err = s.stream.GetEndpointByID(c.Request().Context(), endpointID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: endpoint not found")
+		return echo.NewHTTPError(http.StatusBadRequest, "EditStream: endpoint not found")
 	}
 
 	var editEndpoint stream.NewEditEndpoint
@@ -448,60 +430,45 @@ func (s *Store) UpdateStream(c echo.Context) error {
 	err = c.Bind(&editEndpoint)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest,
-			fmt.Errorf("UpdateStream: failed to bind to request json: %w", err))
+			fmt.Errorf("EditStream: failed to bind to request json: %w", err))
 	}
 
 	if len(editEndpoint.Name) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("UpdateStream: endpoint name must be set"))
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("EditStream: endpoint name must be set"))
 	}
 
 	if len(editEndpoint.Application) == 0 {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("UpdateStream: endpoint application must be set"))
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("EditStream: endpoint application must be set"))
 	}
 
-	startTime := null.NewTime(time.Time{}, false)
+	var startTime, endTime null.Time
+	startTime = null.TimeFromPtr(editEndpoint.StartValid)
 
-	if editEndpoint.StartValid != "" {
-		var parseStart time.Time
-
-		parseStart, err = time.Parse(time.RFC3339, editEndpoint.StartValid)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: failed to parse start date: %w", err))
-		}
-
-		startTime = null.TimeFrom(parseStart)
-	}
-
-	endTime := null.NewTime(time.Time{}, false)
-
-	if editEndpoint.EndValid != "" {
-		var parseEnd time.Time
-
-		parseEnd, err = time.Parse(time.RFC3339, editEndpoint.EndValid)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("UpdateStream: failed to parse end date: %w", err))
+	if editEndpoint.EndValid != nil {
+		diffEnd := time.Now().Compare(*editEndpoint.EndValid)
+		if diffEnd != -1 {
+			return echo.NewHTTPError(http.StatusBadRequest, "EditStream: end date must be after now")
 		}
 
 		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(parseEnd)
+			diffStartEnd := startTime.Time.Compare(*editEndpoint.EndValid)
 			if diffStartEnd != -1 {
-				return echo.NewHTTPError(http.StatusBadRequest, "UpdateStream: end date must be after start date")
+				return echo.NewHTTPError(http.StatusBadRequest, "EditStream: end date must be after start date")
 			}
 		}
 
-		endTime = null.TimeFrom(parseEnd)
+		if startTime.Valid {
+			diffStartEnd := startTime.Time.Compare(startTime.Time)
+			if diffStartEnd != -1 {
+				return echo.NewHTTPError(http.StatusBadRequest, "EditStream: end date must be after start date")
+			}
+		}
+
+		endTime = null.TimeFromPtr(editEndpoint.EndValid)
 	}
 
-	pwd := null.NewString("", false)
-	notes := null.NewString("", false)
-
-	if editEndpoint.Pwd != "" {
-		pwd = null.StringFrom(editEndpoint.Pwd)
-	}
-
-	if editEndpoint.Notes != "" {
-		notes = null.StringFrom(editEndpoint.Notes)
-	}
+	pwd := null.StringFromPtr(editEndpoint.Pwd)
+	notes := null.StringFromPtr(editEndpoint.Notes)
 
 	err = s.stream.EditEndpoint(c.Request().Context(), stream.EndpointDB{
 		EndpointID:  endpointID,
@@ -515,7 +482,7 @@ func (s *Store) UpdateStream(c echo.Context) error {
 		AutoRemove:  editEndpoint.AutoRemove,
 	})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("UpdateStream: failed to update stream endpoint: %w", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("EditStream: failed to edit stream endpoint: %w", err))
 	}
 
 	return c.NoContent(http.StatusOK)

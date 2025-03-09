@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
+	"github.com/ystv/web-api/services/public"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -210,11 +212,35 @@ func (s *Store) GetTeamByStartEndYearByID(c echo.Context) error {
 // @Success 200 {array} public.TeamMember
 // @Router /v1/public/teams/officers [get]
 func (s *Store) ListOfficers(c echo.Context) error {
-	o, err := s.public.ListOfficers(c.Request().Context())
+	teamMembersDB, err := s.public.ListOfficers(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("public GetTeamByYearByEmail failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(o))
+	var teamMembers []public.TeamMember
+	for _, m := range teamMembersDB {
+		var startDate, endDate *time.Time
+		if m.StartDate.Valid {
+			startDate = &m.StartDate.Time
+		}
+		if m.EndDate.Valid {
+			endDate = &m.EndDate.Time
+		}
+
+		teamMembers = append(teamMembers, public.TeamMember{
+			UserID:             m.UserID,
+			UserName:           m.UserName,
+			Avatar:             m.Avatar,
+			OfficerID:          m.OfficerID,
+			EmailAlias:         m.EmailAlias,
+			OfficerName:        m.OfficerName,
+			OfficerDescription: m.OfficerDescription,
+			HistoryWikiURL:     m.HistoryWikiURL,
+			StartDate:          startDate,
+			EndDate:            endDate,
+		})
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(teamMembers))
 }

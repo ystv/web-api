@@ -2308,7 +2308,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/people.User"
+                            "$ref": "#/definitions/people.UserFull"
                         }
                     }
                 }
@@ -2438,7 +2438,7 @@ const docTemplate = `{
                 "operationId": "publish-stream",
                 "responses": {
                     "200": {
-                        "description": "EndpointDB ID",
+                        "description": "Endpoint published",
                         "schema": {
                             "type": "body"
                         }
@@ -2561,8 +2561,8 @@ const docTemplate = `{
                 "tags": [
                     "stream-endpoints"
                 ],
-                "summary": "UpdateStream stream endpoint",
-                "operationId": "update-stream",
+                "summary": "EditStream stream endpoint",
+                "operationId": "edit-stream",
                 "parameters": [
                     {
                         "description": "Endpoint object",
@@ -2576,7 +2576,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/stream.Endpoint"
+                        }
                     }
                 }
             },
@@ -4267,7 +4270,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "endDate": {
-                    "$ref": "#/definitions/utils.CustomTime"
+                    "type": "string"
                 },
                 "historywikiURL": {
                     "type": "string"
@@ -4282,7 +4285,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "startDate": {
-                    "$ref": "#/definitions/utils.CustomTime"
+                    "type": "string"
                 },
                 "userID": {
                     "type": "integer"
@@ -4555,14 +4558,6 @@ const docTemplate = `{
                 },
                 "startValid": {
                     "description": "StartValid defines the optional start time that this endpoint becomes valid, RFC3339",
-                    "type": "string"
-                }
-            }
-        },
-        "utils.CustomTime": {
-            "type": "object",
-            "properties": {
-                "null.Time": {
                     "type": "string"
                 }
             }

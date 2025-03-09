@@ -2,6 +2,7 @@ package people
 
 import (
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
@@ -20,11 +21,11 @@ type (
 		CountUsersAll(ctx context.Context) (CountUsers, error)
 		ListAllUsers(ctx context.Context) ([]User, error)
 		GetUser(ctx context.Context, userID int) (User, error)
-		GetUserFull(ctx context.Context, userID int) (UserFull, error)
+		GetUserFull(ctx context.Context, userID int) (UserFullDB, error)
 		GetUserByEmail(ctx context.Context, email string) (User, error)
-		GetUserByEmailFull(ctx context.Context, email string) (UserFull, error)
+		GetUserByEmailFull(ctx context.Context, email string) (UserFullDB, error)
 		GetUsersPagination(ctx context.Context, size, page int, search, sortBy, direction, enabled,
-			deleted string) ([]UserFull, int, error)
+			deleted string) ([]UserFullDB, int, error)
 	}
 
 	// RoleRepo defines all role interaction
@@ -77,15 +78,29 @@ type (
 	// UserFull represents a user and all columns
 	UserFull struct {
 		User
-		LastLogin null.Time `db:"last_login" json:"lastLogin,omitempty"`
-		Enabled   bool      `db:"enabled" json:"enabled"`
-		CreatedAt null.Time `db:"created_at" json:"createdAt,omitempty"`
-		CreatedBy int       `db:"created_by" json:"createdBy,omitempty"`
-		UpdatedAt null.Time `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedBy null.Int  `db:"updated_by" json:"updatedBy,omitempty"`
-		DeletedAt null.Time `db:"deleted_at" json:"deletedAt,omitempty"`
-		DeletedBy null.Int  `db:"deleted_by" json:"deletedBy,omitempty"`
-		Roles     []Role    `json:"roles,omitempty"`
+		LastLogin *time.Time `json:"lastLogin,omitempty"`
+		Enabled   bool       `json:"enabled"`
+		CreatedAt *time.Time `json:"createdAt,omitempty"`
+		CreatedBy *int64     `json:"createdBy,omitempty"`
+		UpdatedAt *time.Time `json:"updatedAt,omitempty"`
+		UpdatedBy *int64     `json:"updatedBy,omitempty"`
+		DeletedAt *time.Time `json:"deletedAt,omitempty"`
+		DeletedBy *int64     `json:"deletedBy,omitempty"`
+		Roles     []Role     `json:"roles,omitempty"`
+	}
+
+	// UserFullDB represents a user and all columns
+	UserFullDB struct {
+		User
+		LastLogin null.Time `db:"last_login"`
+		Enabled   bool      `db:"enabled"`
+		CreatedAt null.Time `db:"created_at"`
+		CreatedBy int       `db:"created_by"`
+		UpdatedAt null.Time `db:"updated_at"`
+		UpdatedBy null.Int  `db:"updated_by"`
+		DeletedAt null.Time `db:"deleted_at"`
+		DeletedBy null.Int  `db:"deleted_by"`
+		Roles     []Role
 	}
 
 	UserFullPagination struct {

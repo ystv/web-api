@@ -59,8 +59,8 @@ type (
 		GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear, endYear int) (Team, error)
 		getTeamByEmail(ctx context.Context, emailAlias string) (Team, error)
 		getTeamByID(ctx context.Context, teamID int) (Team, error)
-		ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, error)
-		ListOfficers(ctx context.Context) ([]TeamMember, error)
+		ListTeamMembers(ctx context.Context, teamID int) ([]TeamMemberDB, error)
+		ListOfficers(ctx context.Context) ([]TeamMemberDB, error)
 	}
 	// StreamRepo represents all stream / playout interactions
 	StreamRepo interface {

@@ -62,3 +62,41 @@ func NewRepos(db *sqlx.DB, cdn *s3.S3, access utils.Repo, cdnEndpoint string) Re
 		access: access,
 	}
 }
+
+func (s *Store) UserFullDBToUserFull(userFullDB people.UserFullDB) people.UserFull {
+	var lastLogin, createdAt, updatedAt, deletedAt *time.Time
+	var createdBy, updatedBy, deletedBy *int64
+	if userFullDB.LastLogin.Valid {
+		lastLogin = &userFullDB.LastLogin.Time
+	}
+	if userFullDB.CreatedAt.Valid {
+		createdAt = &userFullDB.CreatedAt.Time
+	}
+	if userFullDB.UpdatedAt.Valid {
+		updatedAt = &userFullDB.UpdatedAt.Time
+	}
+	if userFullDB.DeletedAt.Valid {
+		deletedAt = &userFullDB.DeletedAt.Time
+	}
+	tempCreatedBy := int64(userFullDB.CreatedBy)
+	createdBy = &tempCreatedBy
+	if userFullDB.UpdatedBy.Valid {
+		updatedBy = &userFullDB.UpdatedBy.Int64
+	}
+	if userFullDB.DeletedBy.Valid {
+		deletedBy = &userFullDB.DeletedBy.Int64
+	}
+
+	return people.UserFull{
+		User:      userFullDB.User,
+		LastLogin: lastLogin,
+		Enabled:   userFullDB.Enabled,
+		CreatedAt: createdAt,
+		CreatedBy: createdBy,
+		UpdatedAt: updatedAt,
+		UpdatedBy: updatedBy,
+		DeletedAt: deletedAt,
+		DeletedBy: deletedBy,
+		Roles:     userFullDB.Roles,
+	}
+}

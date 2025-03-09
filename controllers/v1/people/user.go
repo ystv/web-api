@@ -62,7 +62,7 @@ func (s *Store) UserByID(c echo.Context) error {
 // @Tags people-user
 // @Produce json
 // @Param userid path int true "User ID"
-// @Success 200 {object} people.User
+// @Success 200 {object} people.UserFull
 // @Router /v1/internal/people/user/{userid}/full [get]
 func (s *Store) UserByIDFull(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -280,8 +280,13 @@ func (s *Store) ListPeoplePagination(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
+	var usersFull []people.UserFull
+	for _, dbUser := range dbUsers {
+		usersFull = append(usersFull, s.UserFullDBToUserFull(dbUser))
+	}
+
 	u := people.UserFullPagination{
-		Users:     dbUsers,
+		Users:     usersFull,
 		FullCount: fullCount,
 	}
 

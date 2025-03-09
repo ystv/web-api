@@ -3,8 +3,9 @@ package public
 import (
 	"context"
 	"fmt"
+	"time"
 
-	"github.com/ystv/web-api/utils"
+	"gopkg.in/guregu/null.v4"
 )
 
 type (
@@ -20,16 +21,30 @@ type (
 
 	// TeamMember a position within a group
 	TeamMember struct {
-		UserID             int              `json:"userID" db:"user_id"`
-		UserName           string           `json:"userName" db:"user_name"`
-		Avatar             string           `json:"avatar" db:"avatar"`
-		OfficerID          int              `json:"officerID" db:"officer_id"`
-		EmailAlias         string           `json:"emailAlias" db:"email_alias"`
-		OfficerName        string           `json:"officerName" db:"officer_name"`
-		OfficerDescription string           `json:"officerDescription" db:"officer_description"`
-		HistoryWikiURL     string           `json:"historywikiURL" db:"historywiki_url"`
-		StartDate          utils.CustomTime `json:"startDate" db:"start_date"`
-		EndDate            utils.CustomTime `json:"endDate" db:"end_date"`
+		UserID             int        `json:"userID"`
+		UserName           string     `json:"userName"`
+		Avatar             string     `json:"avatar"`
+		OfficerID          int        `json:"officerID"`
+		EmailAlias         string     `json:"emailAlias"`
+		OfficerName        string     `json:"officerName"`
+		OfficerDescription string     `json:"officerDescription"`
+		HistoryWikiURL     string     `json:"historywikiURL"`
+		StartDate          *time.Time `json:"startDate,omitempty"`
+		EndDate            *time.Time `json:"endDate,omitempty"`
+	}
+
+	// TeamMemberDB a position within a group
+	TeamMemberDB struct {
+		UserID             int       `json:"userID" db:"user_id"`
+		UserName           string    `json:"userName" db:"user_name"`
+		Avatar             string    `json:"avatar" db:"avatar"`
+		OfficerID          int       `json:"officerID" db:"officer_id"`
+		EmailAlias         string    `json:"emailAlias" db:"email_alias"`
+		OfficerName        string    `json:"officerName" db:"officer_name"`
+		OfficerDescription string    `json:"officerDescription" db:"officer_description"`
+		HistoryWikiURL     string    `json:"historywikiURL" db:"historywiki_url"`
+		StartDate          null.Time `json:"startDate" db:"start_date"`
+		EndDate            null.Time `json:"endDate" db:"end_date"`
 	}
 )
 
@@ -55,10 +70,36 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 		return t, fmt.Errorf("failed to get team by email: %w", err)
 	}
 
-	t.Members, err = s.ListTeamMembers(ctx, t.TeamID)
+	teamMembersDB, err := s.ListTeamMembers(ctx, t.TeamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by email: %w", err)
 	}
+
+	var teamMembers []TeamMember
+	for _, m := range teamMembersDB {
+		var startDate, endDate *time.Time
+		if m.StartDate.Valid {
+			startDate = &m.StartDate.Time
+		}
+		if m.EndDate.Valid {
+			endDate = &m.EndDate.Time
+		}
+
+		teamMembers = append(teamMembers, TeamMember{
+			UserID:             m.UserID,
+			UserName:           m.UserName,
+			Avatar:             m.Avatar,
+			OfficerID:          m.OfficerID,
+			EmailAlias:         m.EmailAlias,
+			OfficerName:        m.OfficerName,
+			OfficerDescription: m.OfficerDescription,
+			HistoryWikiURL:     m.HistoryWikiURL,
+			StartDate:          startDate,
+			EndDate:            endDate,
+		})
+	}
+
+	t.Members = teamMembers
 
 	return t, nil
 }
@@ -70,10 +111,36 @@ func (s *Store) GetTeamByID(ctx context.Context, teamID int) (Team, error) {
 		return t, fmt.Errorf("failed to get team by id: %w", err)
 	}
 
-	t.Members, err = s.ListTeamMembers(ctx, t.TeamID)
+	teamMembersDB, err := s.ListTeamMembers(ctx, t.TeamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by id: %w", err)
 	}
+
+	var teamMembers []TeamMember
+	for _, m := range teamMembersDB {
+		var startDate, endDate *time.Time
+		if m.StartDate.Valid {
+			startDate = &m.StartDate.Time
+		}
+		if m.EndDate.Valid {
+			endDate = &m.EndDate.Time
+		}
+
+		teamMembers = append(teamMembers, TeamMember{
+			UserID:             m.UserID,
+			UserName:           m.UserName,
+			Avatar:             m.Avatar,
+			OfficerID:          m.OfficerID,
+			EmailAlias:         m.EmailAlias,
+			OfficerName:        m.OfficerName,
+			OfficerDescription: m.OfficerDescription,
+			HistoryWikiURL:     m.HistoryWikiURL,
+			StartDate:          startDate,
+			EndDate:            endDate,
+		})
+	}
+
+	t.Members = teamMembers
 
 	return t, nil
 }
@@ -243,8 +310,8 @@ func (s *Store) getTeamByID(ctx context.Context, teamID int) (Team, error) {
 }
 
 // ListTeamMembers returns a list of TeamMembers who are part of a team
-func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, error) {
-	var m []TeamMember
+func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMemberDB, error) {
+	var m []TeamMemberDB
 
 	err := s.db.SelectContext(ctx, &m, `
 		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,
@@ -272,8 +339,8 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMember, 
 }
 
 // ListOfficers returns the list of current officers
-func (s *Store) ListOfficers(ctx context.Context) ([]TeamMember, error) {
-	var m []TeamMember
+func (s *Store) ListOfficers(ctx context.Context) ([]TeamMemberDB, error) {
+	var m []TeamMemberDB
 
 	err := s.db.SelectContext(ctx, &m, `
 		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,

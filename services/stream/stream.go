@@ -3,6 +3,7 @@ package stream
 import (
 	"context"
 	"fmt"
+	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -49,13 +50,13 @@ type (
 		// Name is the unique name given in an application
 		Name string `json:"name"`
 		// Pwd defines an extra layer of security for authentication
-		Pwd string `json:"pwd,omitempty"`
+		Pwd *string `json:"pwd,omitempty"`
 		// StartValid defines the optional start time that this endpoint becomes valid
-		StartValid string `json:"startValid,omitempty"`
+		StartValid *time.Time `json:"startValid,omitempty"`
 		// EndValid defines the optional end time that this endpoint stops being valid
-		EndValid string `json:"endValid,omitempty"`
+		EndValid *time.Time `json:"endValid,omitempty"`
 		// Notes is an optional internal note for the endpoint
-		Notes string `json:"notes,omitempty"`
+		Notes *string `json:"notes,omitempty"`
 		// Active indicates if this endpoint is currently being used
 		Active bool `json:"active"`
 		// Blocked prevents the endpoint from going live
@@ -83,13 +84,13 @@ type (
 		// Name is the unique name given in an application
 		Name string `json:"name"`
 		// Pwd defines an extra layer of security for authentication
-		Pwd string `json:"pwd,omitempty"`
+		Pwd *string `json:"pwd,omitempty"`
 		// StartValid defines the optional start time that this endpoint becomes valid, RFC3339
-		StartValid string `json:"startValid,omitempty"`
+		StartValid *time.Time `json:"startValid,omitempty"`
 		// EndValid defines the optional end time that this endpoint stops being valid, RFC3339
-		EndValid string `json:"endValid,omitempty"`
+		EndValid *time.Time `json:"endValid,omitempty"`
 		// Notes is an optional internal note for the endpoint
-		Notes string `json:"notes,omitempty"`
+		Notes *string `json:"notes,omitempty"`
 		// Blocked prevents the endpoint from going live, optional defaults to false
 		Blocked bool `json:"blocked,omitempty"`
 		// AutoRemove indicates that this endpoint can be automatically removed when the end valid time comes, optional

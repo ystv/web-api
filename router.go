@@ -369,7 +369,7 @@ func (r *Router) loadRoutes() {
 				streamsAuthed.POST("", r.stream.NewStream)
 				streamAuthed := streamsAuthed.Group("/:endpointid")
 				{
-					streamAuthed.PUT("", r.stream.UpdateStream)
+					streamAuthed.PUT("", r.stream.EditStream)
 					streamAuthed.DELETE("", r.stream.DeleteStream)
 				}
 			}

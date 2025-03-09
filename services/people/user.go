@@ -41,8 +41,8 @@ func (s *Store) CountUsersAll(ctx context.Context) (CountUsers, error) {
 }
 
 // GetUserFull will return all user information to be used for profile and management.
-func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
-	var u UserFull
+func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFullDB, error) {
+	var u UserFullDB
 	//nolint:musttag
 	err := s.db.GetContext(ctx, &u, `
 		SELECT user_id, username, email, first_name, last_name, nickname,
@@ -52,7 +52,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		WHERE user_id = $1
 		LIMIT 1;`, userID)
 	if err != nil {
-		return UserFull{}, fmt.Errorf("failed to get user meta: %w", err)
+		return UserFullDB{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
 
 	//nolint:musttag
@@ -62,7 +62,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		INNER JOIN people.role_members rm ON rm.role_id = r.role_id
 		WHERE user_id = $1;`, userID)
 	if err != nil {
-		return UserFull{}, fmt.Errorf("failed to get roles: %w", err)
+		return UserFullDB{}, fmt.Errorf("failed to get roles: %w", err)
 	}
 
 	err = s.db.SelectContext(ctx, &u.Permissions, `
@@ -73,7 +73,7 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 		WHERE rm.user_id = $1
 		ORDER BY name;`, userID)
 	if err != nil {
-		return UserFull{}, fmt.Errorf("failed to get permissions: %w", err)
+		return UserFullDB{}, fmt.Errorf("failed to get permissions: %w", err)
 	}
 
 	switch avatar := u.Avatar; {
@@ -95,8 +95,8 @@ func (s *Store) GetUserFull(ctx context.Context, userID int) (UserFull, error) {
 }
 
 // GetUserByEmailFull will return all user information to be used for profile and management.
-func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull, error) {
-	var u UserFull
+func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFullDB, error) {
+	var u UserFullDB
 	//nolint:musttag
 	err := s.db.GetContext(ctx, &u,
 		`SELECT user_id, username, email, first_name, last_name, nickname,
@@ -106,7 +106,7 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 		WHERE email = $1
 		LIMIT 1;`, email)
 	if err != nil {
-		return UserFull{}, fmt.Errorf("failed to get user meta: %w", err)
+		return UserFullDB{}, fmt.Errorf("failed to get user meta: %w", err)
 	}
 
 	//nolint:musttag
@@ -116,7 +116,7 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 	INNER JOIN people.role_members rm ON rm.role_id = r.role_id
 	WHERE user_id = $1;`, u.UserID)
 	if err != nil {
-		return UserFull{}, fmt.Errorf("failed to get roles: %w", err)
+		return UserFullDB{}, fmt.Errorf("failed to get roles: %w", err)
 	}
 
 	err = s.db.SelectContext(ctx, &u.Permissions, `
@@ -127,7 +127,7 @@ func (s *Store) GetUserByEmailFull(ctx context.Context, email string) (UserFull,
 		WHERE rm.user_id = $1
 		ORDER BY name;`, u.UserID)
 	if err != nil {
-		return UserFull{}, fmt.Errorf("failed to get permissions: %w", err)
+		return UserFullDB{}, fmt.Errorf("failed to get permissions: %w", err)
 	}
 
 	switch avatar := u.Avatar; {
@@ -251,8 +251,8 @@ func (s *Store) ListAllUsers(ctx context.Context) ([]User, error) {
 // GetUsersPagination will get users search with sorting with size and page, enabled and deleted
 // Use the parameter direction for determining of the sorting will be ascending(asc) or descending(desc)
 func (s *Store) GetUsersPagination(ctx context.Context, size, page int, search, sortBy, direction, enabled,
-	deleted string) ([]UserFull, int, error) {
-	var u []UserFull
+	deleted string) ([]UserFullDB, int, error) {
+	var u []UserFullDB
 
 	var count int
 
@@ -276,12 +276,12 @@ func (s *Store) GetUsersPagination(ctx context.Context, size, page int, search, 
 	}()
 
 	type tempStruct struct {
-		UserFull
+		UserFullDB
 		Count int `db:"full_count" json:"fullCount"`
 	}
 
 	for rows.Next() {
-		var u1 UserFull
+		var u1 UserFullDB
 
 		var temp tempStruct
 
