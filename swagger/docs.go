@@ -2513,7 +2513,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "EndpointDB ID",
+                        "description": "Endpoint ID",
                         "schema": {
                             "type": "body"
                         }

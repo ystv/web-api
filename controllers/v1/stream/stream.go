@@ -334,7 +334,7 @@ func (s *Store) FindStream(c echo.Context) error {
 // @Tags stream-endpoints
 // @Accept json
 // @Param endpoint body stream.NewEditEndpoint true "Stream endpoint object"
-// @Success 201 body int "EndpointDB ID"
+// @Success 201 body int "Endpoint ID"
 // @Error 400
 // @Router /v1/internal/streams [post]
 func (s *Store) NewStream(c echo.Context) error {
