@@ -22,7 +22,7 @@ type (
 		Pwd *string `json:"pwd,omitempty"`
 	}
 
-	UsersListPaginationOptions struct {
+	ListUsersPaginationOptions struct {
 		// Size indicates the size of the pagination to return.
 		//
 		// If you want all the results then leave Size nil.

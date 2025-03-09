@@ -66,7 +66,7 @@ func (c *Client) sendRequest(req *http.Request, apiKey string, v interface{}) er
 	return nil
 }
 
-func (c *Client) GetUsersPagination(ctx context.Context, apiKey string, options types.UsersListPaginationOptions) (people.UserFullPagination, error) {
+func (c *Client) ListUsersPagination(ctx context.Context, apiKey string, options types.ListUsersPaginationOptions) (people.UserFullPagination, error) {
 	u, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return people.UserFullPagination{}, fmt.Errorf("invalid base URL: %w", err)
