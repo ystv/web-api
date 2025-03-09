@@ -66,32 +66,30 @@ func (c *Client) sendRequest(req *http.Request, apiKey string, v interface{}) er
 	return nil
 }
 
-func (c *Client) GetUsersPagination(ctx context.Context, apiKey string, options *types.UsersListPaginationOptions) (people.UserFullPagination, error) {
+func (c *Client) GetUsersPagination(ctx context.Context, apiKey string, options types.UsersListPaginationOptions) (people.UserFullPagination, error) {
 	u, err := url.Parse(c.BaseURL)
 	if err != nil {
 		return people.UserFullPagination{}, fmt.Errorf("invalid base URL: %w", err)
 	}
 	u.Path = "/v1/internal/people/users/pagination"
 	q := u.Query()
-	if options != nil {
-		if options.Size != nil {
-			q.Set("size", fmt.Sprintf("%d", options.Size))
-		}
-		if options.Page != nil {
-			q.Set("page", fmt.Sprintf("%d", options.Page))
-		}
-		if options.Search != nil {
-			q.Set("search", *options.Search)
-		}
-		if options.Column != nil {
-			q.Set("column", fmt.Sprintf("%s", *options.Column))
-		}
-		if options.Enabled != nil {
-			q.Set("enabled", fmt.Sprintf("%s", *options.Enabled))
-		}
-		if options.Deleted != nil {
-			q.Set("deleted", fmt.Sprintf("%s", *options.Deleted))
-		}
+	if options.Size != nil {
+		q.Set("size", fmt.Sprintf("%d", options.Size))
+	}
+	if options.Page != nil {
+		q.Set("page", fmt.Sprintf("%d", options.Page))
+	}
+	if options.Search != nil {
+		q.Set("search", *options.Search)
+	}
+	if options.Column != nil {
+		q.Set("column", fmt.Sprintf("%s", *options.Column))
+	}
+	if options.Enabled != nil {
+		q.Set("enabled", fmt.Sprintf("%s", *options.Enabled))
+	}
+	if options.Deleted != nil {
+		q.Set("deleted", fmt.Sprintf("%s", *options.Deleted))
 	}
 	u.RawQuery = q.Encode()
 
