@@ -45,7 +45,7 @@ type (
 		CreatedByID   int         `db:"created_by_id" json:"createdByID"`
 		CreatedByNick string      `db:"created_by_nick" json:"createdByNick"`
 		UpdatedAt     null.Time   `db:"updated_at" json:"updatedAt,omitempty"`
-		UpdatedByID   null.Int    `db:"updated_by_nick" json:"updatedByID,omitempty"`
+		UpdatedByID   null.Int    `db:"updated_by_id" json:"updatedByID,omitempty"`
 		UpdatedByNick null.String `db:"updated_by_nick" json:"updatedByNick,omitempty"`
 		DeletedAt     null.Time   `db:"deleted_at" json:"deletedAt,omitempty"`
 		DeletedByID   null.Int    `db:"deleted_by_id" json:"deleteByID,omitempty"`
