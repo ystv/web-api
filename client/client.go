@@ -93,7 +93,7 @@ func (c *Client) ListUsersPagination(ctx context.Context, apiKey string, options
 	}
 	u.RawQuery = q.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		return people.UserFullPagination{}, err
 	}
@@ -119,7 +119,7 @@ func (c *Client) FindStreamEndpoint(ctx context.Context, apiKey string, options 
 
 	buf := bytes.NewBuffer(optionBytes)
 
-	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), buf)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), buf)
 	if err != nil {
 		return stream.Endpoint{}, err
 	}
