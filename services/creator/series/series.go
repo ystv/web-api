@@ -105,7 +105,7 @@ func (c *Controller) ImmediateChildrenSeries(ctx context.Context, seriesID int) 
 						node.lft BETWEEN parent.lft AND parent.rgt
 						AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
 						AND sub_parent.series_id = sub_tree.series_id
-					GROUP BY node.series_id, sub_tree.depth
+					GROUP BY node.series_id, sub_tree.depth, node.lft
 					ORDER BY node.lft
 			) as queries
 			where depth = 1;`, seriesID)
@@ -150,7 +150,7 @@ func (c *Controller) AllBelow(ctx context.Context, seriesID int) ([]series.Meta,
 
 	err := c.db.SelectContext(ctx, &s,
 		`SELECT 
-			node.series_id, node.url node.name, node.description, node.thumbnail,
+			node.series_id, node.url, node.name, node.description, node.thumbnail,
 			(COUNT(parent.*) - (sub_tree.depth + 1)) AS depth
 		FROM
 			video.series AS node,
@@ -171,7 +171,7 @@ func (c *Controller) AllBelow(ctx context.Context, seriesID int) ([]series.Meta,
 			node.lft BETWEEN parent.lft AND parent.rgt
 			AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
 			AND sub_parent.series_id = sub_tree.series_id
-		GROUP BY node.series_id, sub_tree.depth
+		GROUP BY node.series_id, sub_tree.depth, node.lft
 		ORDER BY node.lft;`, seriesID)
 	if err != nil {
 		return []series.Meta{}, err
