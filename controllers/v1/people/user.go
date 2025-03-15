@@ -192,7 +192,7 @@ func (s *Store) AddUser(c echo.Context) error {
 //
 // @Summary List all users
 // @ID get-people-users-all
-// @Tags people-users
+// @Tags people-user
 // @Produce json
 // @Success 200 {array} people.User
 // @Router /v1/internal/people/users [get]
@@ -210,15 +210,15 @@ func (s *Store) ListAllPeople(c echo.Context) error {
 //
 // @Summary List users with pagination
 // @ID get-people-users-pagination
-// @Tags people-users
+// @Tags people-user
 // @Produce json
-// @Param size path int false "Page size"
-// @Param page path int false "Page number"
-// @Param search path string false "Search string"
-// @Param column path string false "Ordering column"
-// @Param direction path string false "Ordering direction"
-// @Param enabled path string false "Is user enabled"
-// @Param deleted path string false "Is user deleted"
+// @Param size query int false "Page size"
+// @Param page query int false "Page number"
+// @Param search query string false "Search string"
+// @Param column query string false "Ordering column"
+// @Param direction query string false "Ordering direction"
+// @Param enabled query string false "Is user enabled"
+// @Param deleted query string false "Is user deleted"
 // @Success 200 {array} people.UserFull
 // @Router /v1/internal/people/users/pagination [get]
 func (s *Store) ListPeoplePagination(c echo.Context) error {
