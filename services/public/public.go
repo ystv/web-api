@@ -57,8 +57,6 @@ type (
 		GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, error)
 		GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias string, startYear, endYear int) (Team, error)
 		GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear, endYear int) (Team, error)
-		getTeamByEmail(ctx context.Context, emailAlias string) (Team, error)
-		getTeamByID(ctx context.Context, teamID int) (Team, error)
 		ListTeamMembers(ctx context.Context, teamID int) ([]TeamMemberDB, error)
 		ListOfficers(ctx context.Context) ([]TeamMemberDB, error)
 	}
