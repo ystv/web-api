@@ -1774,6 +1774,563 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/v1/internal/people/officership": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership"
+                ],
+                "summary": "Create an officership",
+                "operationId": "add-people-officership",
+                "parameters": [
+                    {
+                        "description": "Officership object",
+                        "name": "officership",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.Officership"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/count": {
+            "get": {
+                "description": "Contains a number of stats",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership"
+                ],
+                "summary": "Provides officership count",
+                "operationId": "get-people-officership-count",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.CountOfficerships"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/officer": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-officer"
+                ],
+                "summary": "Create an officer",
+                "operationId": "add-people-officership-officer",
+                "parameters": [
+                    {
+                        "description": "Officer object",
+                        "name": "officership",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipMemberAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipMember"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/officer/{officerid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-officer"
+                ],
+                "summary": "Provides officer",
+                "operationId": "get-people-officership-officer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officer id",
+                        "name": "officerid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipMember"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-officer"
+                ],
+                "summary": "Edits an officer",
+                "operationId": "edit-people-officership-officer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officer id",
+                        "name": "officerid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Officer object",
+                        "name": "officership",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipMemberAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipMember"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-officer"
+                ],
+                "summary": "Deletes officer",
+                "operationId": "delete-people-officership-officer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officer id",
+                        "name": "officerid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/officers": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-officer"
+                ],
+                "summary": "List officers with options",
+                "operationId": "get-people-officers",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Optional if officership is current (default), retired or any",
+                        "name": "officershipStatus",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Optional if officer is current (default), retired or any",
+                        "name": "officerStatus",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Optional officership id for getting all officers where id equal",
+                        "name": "officershipId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Optional user id for getting where user is equal to id",
+                        "name": "userId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.OfficershipMember"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/team": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-team"
+                ],
+                "summary": "Create an officership team",
+                "operationId": "add-people-officership-team",
+                "parameters": [
+                    {
+                        "description": "Officership Team object",
+                        "name": "officership",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipTeamAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipTeam"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/team/{officershipteamid}": {
+            "get": {
+                "description": "Contains members and a range of descriptions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-team"
+                ],
+                "summary": "Provides officership team",
+                "operationId": "get-people-officership-team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership team id",
+                        "name": "officershipteamid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipTeam"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-team"
+                ],
+                "summary": "Edits an officership team",
+                "operationId": "edit-people-officership-team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership team id",
+                        "name": "officershipteamid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Officership Team object",
+                        "name": "officership",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipTeamAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipTeam"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-team"
+                ],
+                "summary": "Deletes officership team",
+                "operationId": "delete-people-officership-team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership team id",
+                        "name": "officershipteamid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/team/{officershipteamid}/officership": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-team"
+                ],
+                "summary": "Create an officership link to a team",
+                "operationId": "add-people-officership-team-officership",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership team id",
+                        "name": "officershipteamid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Officership team member object",
+                        "name": "officership",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipTeamMemberAddDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipTeamMember"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/team/{officershipteamid}/officership/{officershipid}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-team"
+                ],
+                "summary": "Removes officership from team",
+                "operationId": "remove-people-officership-from-team",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership team id",
+                        "name": "officershipteamid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "officership id",
+                        "name": "officershipid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/teams": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership-team"
+                ],
+                "summary": "List officership teams with options",
+                "operationId": "get-people-officership-teams",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.OfficershipTeam"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officership/{officershipid}": {
+            "get": {
+                "description": "Contains members and a range of descriptions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership"
+                ],
+                "summary": "Provides officership",
+                "operationId": "get-people-officership",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership id",
+                        "name": "officershipid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.Officership"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership"
+                ],
+                "summary": "Edits an officership",
+                "operationId": "edit-people-officership",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership id",
+                        "name": "officershipid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Officership object",
+                        "name": "officership",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.OfficershipAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.Officership"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership"
+                ],
+                "summary": "Deletes officership",
+                "operationId": "delete-people-officership",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "officership id",
+                        "name": "officershipid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/officerships": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-officership"
+                ],
+                "summary": "List officerships with options",
+                "operationId": "get-people-officerships",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Optional if officership is current (default), retired or any",
+                        "name": "officershipStatus",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.Officership"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/people/permission": {
             "post": {
                 "produces": [
@@ -2320,7 +2877,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-users"
+                    "people-user"
                 ],
                 "summary": "List all users",
                 "operationId": "get-people-users-all",
@@ -2343,7 +2900,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-users"
+                    "people-user"
                 ],
                 "summary": "List users with pagination",
                 "operationId": "get-people-users-pagination",
@@ -2352,43 +2909,43 @@ const docTemplate = `{
                         "type": "integer",
                         "description": "Page size",
                         "name": "size",
-                        "in": "path"
+                        "in": "query"
                     },
                     {
                         "type": "integer",
                         "description": "Page number",
                         "name": "page",
-                        "in": "path"
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Search string",
                         "name": "search",
-                        "in": "path"
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Ordering column",
                         "name": "column",
-                        "in": "path"
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Ordering direction",
                         "name": "direction",
-                        "in": "path"
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Is user enabled",
                         "name": "enabled",
-                        "in": "path"
+                        "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Is user deleted",
                         "name": "deleted",
-                        "in": "path"
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -3737,6 +4294,23 @@ const docTemplate = `{
                 }
             }
         },
+        "people.CountOfficerships": {
+            "type": "object",
+            "properties": {
+                "currentOfficers": {
+                    "type": "integer"
+                },
+                "currentOfficerships": {
+                    "type": "integer"
+                },
+                "totalOfficers": {
+                    "type": "integer"
+                },
+                "totalOfficerships": {
+                    "type": "integer"
+                }
+            }
+        },
         "people.CountUsers": {
             "type": "object",
             "properties": {
@@ -3750,6 +4324,211 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "totalUsers": {
+                    "type": "integer"
+                }
+            }
+        },
+        "people.Officership": {
+            "type": "object",
+            "properties": {
+                "currentOfficers": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "emailAlias": {
+                    "type": "string"
+                },
+                "historyWikiURL": {
+                    "type": "string"
+                },
+                "ifUnfilled": {
+                    "type": "boolean"
+                },
+                "isCurrent": {
+                    "type": "boolean"
+                },
+                "isTeamDeputy": {
+                    "type": "boolean"
+                },
+                "isTeamLeader": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "officershipID": {
+                    "type": "integer"
+                },
+                "previousOfficers": {
+                    "type": "integer"
+                },
+                "roleID": {
+                    "type": "integer"
+                },
+                "teamID": {
+                    "type": "integer"
+                },
+                "teamName": {
+                    "type": "string"
+                }
+            }
+        },
+        "people.OfficershipAddEditDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "emailAlias": {
+                    "type": "string"
+                },
+                "historyWikiURL": {
+                    "type": "string"
+                },
+                "isCurrent": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "people.OfficershipMember": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "officerID": {
+                    "type": "integer"
+                },
+                "officershipMemberID": {
+                    "type": "integer"
+                },
+                "officershipName": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "teamID": {
+                    "type": "integer"
+                },
+                "teamName": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "people.OfficershipMemberAddEditDTO": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "type": "string"
+                },
+                "officerID": {
+                    "type": "integer"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "people.OfficershipTeam": {
+            "type": "object",
+            "properties": {
+                "currentOfficers": {
+                    "type": "integer"
+                },
+                "currentOfficerships": {
+                    "type": "integer"
+                },
+                "emailAlias": {
+                    "type": "string"
+                },
+                "fullDescription": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shortDescription": {
+                    "type": "string"
+                },
+                "teamID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "people.OfficershipTeamAddEditDTO": {
+            "type": "object",
+            "properties": {
+                "emailAlias": {
+                    "type": "string"
+                },
+                "fullDescription": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "shortDescription": {
+                    "type": "string"
+                }
+            }
+        },
+        "people.OfficershipTeamMember": {
+            "type": "object",
+            "properties": {
+                "currentOfficers": {
+                    "type": "integer"
+                },
+                "isCurrent": {
+                    "type": "boolean"
+                },
+                "isDeputy": {
+                    "type": "boolean"
+                },
+                "isLeader": {
+                    "type": "boolean"
+                },
+                "officerID": {
+                    "type": "integer"
+                },
+                "officerName": {
+                    "type": "string"
+                },
+                "officershipTeamMemberID": {
+                    "type": "integer"
+                },
+                "previousOfficers": {
+                    "type": "integer"
+                }
+            }
+        },
+        "people.OfficershipTeamMemberAddDTO": {
+            "type": "object",
+            "properties": {
+                "isDeputy": {
+                    "type": "boolean"
+                },
+                "isLeader": {
+                    "type": "boolean"
+                },
+                "officerID": {
+                    "type": "integer"
+                },
+                "officershipTeamMemberID": {
                     "type": "integer"
                 }
             }
@@ -4818,7 +5597,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.ystv.co.uk",
+	Host:             "localhost:8081",
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "YSTV Web API",
