@@ -1,10 +1,11 @@
 package people
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
-	"time"
 
 	"github.com/ystv/web-api/services/people"
 	"github.com/ystv/web-api/utils"
