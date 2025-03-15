@@ -14,6 +14,39 @@ type (
 		UserRepo
 		RoleRepo
 		PermissionRepo
+		OfficershipRepo
+	}
+
+	OfficershipRepo interface {
+		OfficershipDBToOfficership(officershipDB OfficershipDB) Officership
+		OfficershipMemberDBToOfficershipMember(officershipDB OfficershipMemberDB) OfficershipMember
+		CountOfficerships(ctx context.Context) (CountOfficerships, error)
+		GetOfficerships(context.Context, OfficershipsStatus) ([]OfficershipDB, error)
+		GetOfficership(context.Context, OfficershipGetDTO) (OfficershipDB, error)
+		AddOfficership(context.Context, OfficershipAddEditDTO) (OfficershipDB, error)
+		EditOfficership(context.Context, int, OfficershipAddEditDTO) (OfficershipDB, error)
+		DeleteOfficership(ctx context.Context, officershipID int) error
+		GetOfficershipTeams(ctx context.Context) ([]OfficershipTeam, error)
+		GetOfficershipTeam(context.Context, OfficershipTeamGetDTO) (OfficershipTeam, error)
+		AddOfficershipTeam(context.Context, OfficershipTeamAddEditDTO) (OfficershipTeam, error)
+		EditOfficershipTeam(context.Context, int, OfficershipTeamAddEditDTO) (OfficershipTeam, error)
+		DeleteOfficershipTeam(ctx context.Context, officershipTeamID int) error
+		GetOfficershipTeamMembers(ctx context.Context, officershipTeamID *int,
+			officershipStatus OfficershipsStatus) ([]OfficershipTeamMember, error)
+		GetOfficershipsNotInTeam(ctx context.Context, officershipTeamID int) ([]OfficershipDB, error)
+		GetOfficershipTeamMember(ctx context.Context, officershipTeamMemberGet OfficershipTeamMemberGetDeleteDTO) (OfficershipTeamMember, error)
+		AddOfficershipTeamMember(context.Context, OfficershipTeamMemberAddDTO) (OfficershipTeamMember, error)
+		DeleteOfficershipTeamMember(context.Context, OfficershipTeamMemberGetDeleteDTO) error
+		RemoveTeamForOfficershipTeamMembers(ctx context.Context, officershipTeamID int) error
+		GetOfficershipMembers(ctx context.Context, officershipGet *OfficershipGetDTO, userID *int,
+			officershipStatus OfficershipsStatus, officershipMemberStatus OfficershipsStatus,
+			orderByOfficerName bool) ([]OfficershipMemberDB, error)
+		GetOfficershipMember(ctx context.Context, officershipMemberID int) (OfficershipMemberDB, error)
+		AddOfficershipMember(context.Context, OfficershipMemberAddEditDTO) (OfficershipMemberDB, error)
+		EditOfficershipMember(context.Context, int, OfficershipMemberAddEditDTO) (OfficershipMemberDB, error)
+		DeleteOfficershipMember(ctx context.Context, officershipMemberID int) error
+		RemoveOfficershipForOfficershipMembers(ctx context.Context, officershipID int) error
+		RemoveUserForOfficershipMembers(ctx context.Context, userID int) error
 	}
 
 	// UserRepo defines all user interactions
@@ -155,6 +188,176 @@ type (
 		Name        string `db:"name" json:"name"`
 		Description string `db:"description" json:"description,omitempty"`
 	}
+
+	// Officership represents relevant officership fields
+	Officership struct {
+		OfficershipID    int     `json:"officershipID"`
+		Name             string  `json:"name"`
+		EmailAlias       string  `json:"emailAlias"`
+		Description      string  `json:"description"`
+		HistoryWikiURL   string  `json:"historyWikiURL"`
+		RoleID           *int64  `json:"roleID,omitempty"`
+		IsCurrent        bool    `json:"isCurrent"`
+		IfUnfilled       *bool   `json:"ifUnfilled,omitempty"`
+		CurrentOfficers  int     `json:"currentOfficers"`
+		PreviousOfficers int     `json:"previousOfficers"`
+		TeamID           *int64  `json:"teamID,omitempty"`
+		TeamName         *string `json:"teamName,omitempty"`
+		IsTeamLeader     *bool   `json:"isTeamLeader,omitempty"`
+		IsTeamDeputy     *bool   `json:"isTeamDeputy,omitempty"`
+	}
+
+	// OfficershipGetDTO represents relevant officership fields for getting
+	OfficershipGetDTO struct {
+		OfficershipID int    `json:"officershipID"`
+		Name          string `json:"name"`
+	}
+
+	// OfficershipAddEditDTO represents relevant officership fields for adding and editing
+	OfficershipAddEditDTO struct {
+		Name           string `json:"name"`
+		EmailAlias     string `json:"emailAlias"`
+		Description    string `json:"description"`
+		HistoryWikiURL string `json:"historyWikiURL"`
+		IsCurrent      bool   `json:"isCurrent"`
+	}
+
+	// OfficershipDB represents relevant officership fields
+	OfficershipDB struct {
+		OfficershipID    int         `db:"officer_id" json:"officershipID"`
+		Name             string      `db:"name" json:"name"`
+		EmailAlias       string      `db:"email_alias" json:"emailAlias"`
+		Description      string      `db:"description" json:"description"`
+		HistoryWikiURL   string      `db:"historywiki_url" json:"historyWikiURL"`
+		RoleID           null.Int    `db:"role_id" json:"roleID,omitempty"`
+		IsCurrent        bool        `db:"is_current" json:"isCurrent"`
+		IfUnfilled       null.Bool   `db:"if_unfilled" json:"ifUnfilled,omitempty"`
+		CurrentOfficers  int         `db:"current_officers" json:"currentOfficers,omitempty"`
+		PreviousOfficers int         `db:"previous_officers" json:"previousOfficers,omitempty"`
+		TeamID           null.Int    `db:"team_id" json:"teamID"`
+		TeamName         null.String `db:"team_name" json:"teamName"`
+		IsTeamLeader     null.Bool   `db:"is_team_leader" json:"isTeamLeader"`
+		IsTeamDeputy     null.Bool   `db:"is_team_deputy" json:"isTeamDeputy"`
+	}
+
+	// OfficershipsStatus indicates the state desired for a database get of officers
+	OfficershipsStatus int
+
+	// OfficershipTeam represents relevant officership team fields
+	//
+	//nolint:revive
+	OfficershipTeam struct {
+		TeamID              int    `db:"team_id" json:"teamID"`
+		Name                string `db:"name" json:"name"`
+		EmailAlias          string `db:"email_alias" json:"emailAlias"`
+		ShortDescription    string `db:"short_description" json:"shortDescription"`
+		FullDescription     string `db:"full_description" json:"fullDescription"`
+		CurrentOfficerships int    `db:"current_officerships" json:"currentOfficerships"`
+		CurrentOfficers     int    `db:"current_officers" json:"currentOfficers"`
+	}
+
+	// OfficershipTeamAddEditDTO represents relevant officership team fields for adding and editing
+	//
+	//nolint:revive
+	OfficershipTeamAddEditDTO struct {
+		Name             string `db:"name" json:"name"`
+		EmailAlias       string `db:"email_alias" json:"emailAlias"`
+		ShortDescription string `db:"short_description" json:"shortDescription"`
+		FullDescription  string `db:"full_description" json:"fullDescription"`
+	}
+
+	// OfficershipTeamGetDTO represents relevant officership team fields for getting
+	//
+	//nolint:revive
+	OfficershipTeamGetDTO struct {
+		TeamID int    `db:"team_id" json:"teamID"`
+		Name   string `db:"name" json:"name"`
+	}
+
+	// OfficershipMember represents relevant officership member fields
+	//
+	//nolint:revive
+	OfficershipMember struct {
+		OfficershipMemberID int        `json:"officershipMemberID"`
+		UserID              int        `json:"userID"`
+		OfficerID           int        `json:"officerID"`
+		StartDate           *time.Time `json:"startDate,omitempty"`
+		EndDate             *time.Time `json:"endDate,omitempty"`
+		OfficershipName     string     `json:"officershipName"`
+		UserName            string     `json:"userName"`
+		TeamID              *int       `json:"teamID,omitempty"`
+		TeamName            *string    `json:"teamName,omitempty"`
+	}
+
+	// OfficershipMemberAddEditDTO represents relevant officership member fields
+	//
+	//nolint:revive
+	OfficershipMemberAddEditDTO struct {
+		UserID    int        `json:"userID"`
+		OfficerID int        `json:"officerID"`
+		StartDate *time.Time `json:"startDate,omitempty"`
+		EndDate   *time.Time `json:"endDate,omitempty"`
+	}
+
+	// OfficershipMemberDB represents relevant officership member fields
+	//
+	//nolint:revive
+	OfficershipMemberDB struct {
+		OfficershipMemberID int         `db:"officership_member_id" json:"officershipMemberID"`
+		UserID              int         `db:"user_id" json:"userID"`
+		OfficerID           int         `db:"officer_id" json:"officerID"`
+		StartDate           null.Time   `db:"start_date" json:"startDate"`
+		EndDate             null.Time   `db:"end_date" json:"endDate"`
+		OfficershipName     string      `db:"officership_name" json:"officershipName"`
+		UserName            string      `db:"user_name" json:"userName"`
+		TeamID              null.Int    `db:"team_id" json:"teamID"`
+		TeamName            null.String `db:"team_name" json:"teamName"`
+	}
+
+	// OfficershipTeamMember represents relevant officership team member fields
+	//
+	//nolint:revive
+	OfficershipTeamMember struct {
+		TeamID           int    `db:"team_id" json:"officershipTeamMemberID"`
+		OfficerID        int    `db:"officer_id" json:"officerID"`
+		IsLeader         bool   `db:"is_leader" json:"isLeader"`
+		IsDeputy         bool   `db:"is_deputy" json:"isDeputy"`
+		IsCurrent        bool   `db:"is_current" json:"isCurrent"`
+		OfficerName      string `db:"officer_name" json:"officerName"`
+		CurrentOfficers  int    `db:"current_officers" json:"currentOfficers"`
+		PreviousOfficers int    `db:"previous_officers" json:"previousOfficers"`
+	}
+
+	// OfficershipTeamMemberGetDeleteDTO represents relevant officership team member fields for getting and deleting
+	//
+	//nolint:revive
+	OfficershipTeamMemberGetDeleteDTO struct {
+		TeamID    int `db:"team_id" json:"officershipTeamMemberID"`
+		OfficerID int `db:"officer_id" json:"officerID"`
+	}
+
+	// OfficershipTeamMemberAddDTO represents relevant officership team member fields for adding
+	//
+	//nolint:revive
+	OfficershipTeamMemberAddDTO struct {
+		TeamID    int  `db:"team_id" json:"officershipTeamMemberID"`
+		OfficerID int  `db:"officer_id" json:"officerID"`
+		IsLeader  bool `db:"is_leader" json:"isLeader"`
+		IsDeputy  bool `db:"is_deputy" json:"isDeputy"`
+	}
+
+	CountOfficerships struct {
+		TotalOfficerships   int `db:"total_officerships" json:"totalOfficerships"`
+		CurrentOfficerships int `db:"current_officerships" json:"currentOfficerships"`
+		TotalOfficers       int `db:"total_officers" json:"totalOfficers"`
+		CurrentOfficers     int `db:"current_officers" json:"currentOfficers"`
+	}
+)
+
+const (
+	Any OfficershipsStatus = iota
+	Retired
+	Current
 )
 
 // NewStore creates a new store
