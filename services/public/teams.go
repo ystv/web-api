@@ -75,7 +75,7 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 		return t, fmt.Errorf("failed to get team members by email: %w", err)
 	}
 
-	var teamMembers []TeamMember
+	teamMembers := make([]TeamMember, 0)
 	for _, m := range teamMembersDB {
 		var startDate, endDate *time.Time
 		if m.StartDate.Valid {
@@ -116,7 +116,7 @@ func (s *Store) GetTeamByID(ctx context.Context, teamID int) (Team, error) {
 		return t, fmt.Errorf("failed to get team members by id: %w", err)
 	}
 
-	var teamMembers []TeamMember
+	teamMembers := make([]TeamMember, 0)
 	for _, m := range teamMembersDB {
 		var startDate, endDate *time.Time
 		if m.StartDate.Valid {

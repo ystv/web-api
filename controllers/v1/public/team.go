@@ -218,7 +218,7 @@ func (s *Store) ListOfficers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	var teamMembers []public.TeamMember
+	teamMembers := make([]public.TeamMember, 0)
 	for _, m := range teamMembersDB {
 		var startDate, endDate *time.Time
 		if m.StartDate.Valid {

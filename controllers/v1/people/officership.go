@@ -64,7 +64,7 @@ func (s *Store) ListOfficerships(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	var o []people.Officership
+	o := make([]people.Officership, 0)
 
 	for _, officer := range officershipsDB {
 		o = append(o, s.people.OfficershipDBToOfficership(officer))
@@ -436,7 +436,7 @@ func (s *Store) ListOfficers(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get officers: %w", err))
 	}
 
-	var o []people.OfficershipMember
+	o := make([]people.OfficershipMember, 0)
 
 	for _, member := range officershipMembersDB {
 		o = append(o, s.people.OfficershipMemberDBToOfficershipMember(member))

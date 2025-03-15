@@ -280,7 +280,7 @@ func (s *Store) ListPeoplePagination(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	var usersFull []people.UserFull
+	usersFull := make([]people.UserFull, 0)
 	for _, dbUser := range dbUsers {
 		usersFull = append(usersFull, s.UserFullDBToUserFull(dbUser))
 	}

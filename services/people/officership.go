@@ -109,7 +109,7 @@ func (s *Store) CountOfficerships(ctx context.Context) (CountOfficerships, error
 }
 
 func (s *Store) GetOfficerships(ctx context.Context, officershipStatus OfficershipsStatus) ([]OfficershipDB, error) {
-	var o []OfficershipDB
+	o := make([]OfficershipDB, 0)
 
 	builder := utils.PSQL().Select("o.*", "COUNT(DISTINCT omc.officership_member_id) AS current_officers",
 		"COUNT(DISTINCT omp.officership_member_id) AS previous_officers", "otm.team_id AS team_id",
@@ -452,7 +452,7 @@ func (s *Store) GetOfficershipTeamMembers(ctx context.Context, officershipTeamID
 }
 
 func (s *Store) GetOfficershipsNotInTeam(ctx context.Context, officershipTeamID int) ([]OfficershipDB, error) {
-	var o []OfficershipDB
+	o := make([]OfficershipDB, 0)
 
 	subQuery := utils.PSQL().Select("o.officer_id").
 		From("people.officerships o").
@@ -585,7 +585,7 @@ func (s *Store) RemoveTeamForOfficershipTeamMembers(ctx context.Context, officer
 func (s *Store) GetOfficershipMembers(ctx context.Context, officershipGet *OfficershipGetDTO, userID *int,
 	officershipStatus OfficershipsStatus, officershipMemberStatus OfficershipsStatus,
 	orderByOfficerName bool) ([]OfficershipMemberDB, error) {
-	var o []OfficershipMemberDB
+	o := make([]OfficershipMemberDB, 0)
 
 	builder := utils.PSQL().Select("om.*", "o.name AS officership_name",
 		"CONCAT(u.first_name, ' ', u.last_name) AS user_name", "otm.team_id AS team_id", "ot.name AS team_name").
