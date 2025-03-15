@@ -11,36 +11,36 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// ListAllPermissions handles listing all permissions
+// ListPermissions handles listing permissions
 //
-// @Summary List all permissions
+// @Summary List permissions
 // @ID get-people-permissions
 // @Tags people-permissions
 // @Produce json
 // @Success 200 {array} people.Permission
 // @Router /v1/internal/people/permissions [get]
-func (s *Store) ListAllPermissions(c echo.Context) error {
+func (s *Store) ListPermissions(c echo.Context) error {
 	p, err := s.people.ListAllPermissions(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListAllPermissions failed to get permissions: %w", err)
+		err = fmt.Errorf("ListPermissions failed to get permissions: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
-// ListAllPermissionsWithRolesCount handles listing all permissions
+// ListPermissionsWithRolesCount handles listing permissions with role count
 //
-// @Summary List all permissions with roles count
+// @Summary List permissions with roles count
 // @ID get-people-permissions-count
 // @Tags people-permissions
 // @Produce json
 // @Success 200 {array} people.PermissionWithRolesCount
 // @Router /v1/internal/people/permissions/count [get]
-func (s *Store) ListAllPermissionsWithRolesCount(c echo.Context) error {
+func (s *Store) ListPermissionsWithRolesCount(c echo.Context) error {
 	p, err := s.people.ListAllPermissions(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListAllPermissions failed to get permissions: %w", err)
+		err = fmt.Errorf("ListPermissionsWithRolesCount failed to get permissions: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 

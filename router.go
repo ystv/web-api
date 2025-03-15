@@ -214,8 +214,8 @@ func (r *Router) loadRoutes() {
 				}
 				permission := people.Group("/permission", r.access.PermissionsAuthMiddleware)
 				{
-					permission.GET("s", r.people.ListAllPermissions)
-					permission.GET("s/count", r.people.ListAllPermissionsWithRolesCount)
+					permission.GET("s", r.people.ListPermissions)
+					permission.GET("s/count", r.people.ListPermissionsWithRolesCount)
 					permissionItem := permission.Group("/:permissionid")
 					{
 						permissionItem.GET("/members", r.people.ListPermissionMembersByID)
