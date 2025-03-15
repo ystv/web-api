@@ -59,12 +59,15 @@ type (
 )
 
 const (
-	FIVE         UserPaginationSize = 5
-	TEN          UserPaginationSize = 10
-	TWENTY_FIVE  UserPaginationSize = 25
-	FIFTY        UserPaginationSize = 50
+	FIVE UserPaginationSize = 5
+	TEN  UserPaginationSize = 10
+	//nolint:revive
+	TWENTY_FIVE UserPaginationSize = 25
+	FIFTY       UserPaginationSize = 50
+	//nolint:revive
 	SEVENTY_FIVE UserPaginationSize = 75
-	ONE_HUNDRED  UserPaginationSize = 100
+	//nolint:revive
+	ONE_HUNDRED UserPaginationSize = 100
 )
 
 const (
@@ -73,10 +76,12 @@ const (
 )
 
 const (
-	USER_ID    UserPaginationColumn = "userId"
-	NAME       UserPaginationColumn = "name"
-	USERNAME   UserPaginationColumn = "username"
-	EMAIL      UserPaginationColumn = "email"
+	//nolint:revive
+	USER_ID  UserPaginationColumn = "userId"
+	NAME     UserPaginationColumn = "name"
+	USERNAME UserPaginationColumn = "username"
+	EMAIL    UserPaginationColumn = "email"
+	//nolint:revive
 	LAST_LOGIN UserPaginationColumn = "lastLogin"
 )
 
@@ -86,6 +91,7 @@ const (
 )
 
 const (
-	DELETED     UserPaginationDeleted = "deleted"
+	DELETED UserPaginationDeleted = "deleted"
+	//nolint:revive
 	NOT_DELETED UserPaginationDeleted = "not_deleted"
 )

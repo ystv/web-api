@@ -371,7 +371,7 @@ func (s *Store) NewStream(c echo.Context) error {
 		}
 
 		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(startTime.Time)
+			diffStartEnd := startTime.Time.Compare(*newEndpoint.EndValid)
 			if diffStartEnd != -1 {
 				return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after start date")
 			}
@@ -458,7 +458,7 @@ func (s *Store) EditStream(c echo.Context) error {
 		}
 
 		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(startTime.Time)
+			diffStartEnd := startTime.Time.Compare(*editEndpoint.EndValid)
 			if diffStartEnd != -1 {
 				return echo.NewHTTPError(http.StatusBadRequest, "EditStream: end date must be after start date")
 			}

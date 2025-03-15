@@ -47,7 +47,6 @@ func (s *Store) ListOfficerships(c echo.Context) error {
 	var dbStatus people.OfficershipsStatus
 	switch officershipStatus {
 	case "current", "":
-		officershipStatus = "current"
 		dbStatus = people.Current
 	case "retired":
 		dbStatus = people.Retired
@@ -255,12 +254,12 @@ func (s *Store) ListOfficershipTeams(c echo.Context) error {
 // @Success 200 {object} people.OfficershipTeam
 // @Router /v1/internal/people/officership/team/{officershipteamid} [get]
 func (s *Store) GetOfficershipTeam(c echo.Context) error {
-	officershipTeamId, err := strconv.Atoi(c.Param("officershipteamid"))
+	officershipTeamID, err := strconv.Atoi(c.Param("officershipteamid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid officership team id")
 	}
 
-	team, err := s.people.GetOfficershipTeam(c.Request().Context(), people.OfficershipTeamGetDTO{TeamID: officershipTeamId})
+	team, err := s.people.GetOfficershipTeam(c.Request().Context(), people.OfficershipTeamGetDTO{TeamID: officershipTeamID})
 	if err != nil {
 		err = fmt.Errorf("GetOfficershipTeam failed to get officership team: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
@@ -406,7 +405,6 @@ func (s *Store) ListOfficers(c echo.Context) error {
 	var dbOfficershipStatus, dbOfficerStatus people.OfficershipsStatus
 	switch officershipStatus {
 	case "current", "":
-		officershipStatus = "current"
 		dbOfficershipStatus = people.Current
 	case "retired":
 		dbOfficershipStatus = people.Retired
@@ -419,7 +417,6 @@ func (s *Store) ListOfficers(c echo.Context) error {
 
 	switch officerStatus {
 	case "current", "":
-		officerStatus = "current"
 		dbOfficerStatus = people.Current
 	case "retired":
 		dbOfficerStatus = people.Retired

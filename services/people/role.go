@@ -74,6 +74,7 @@ func (s *Store) GetRoleFull(ctx context.Context, roleID int) (RoleFull, error) {
 		return RoleFull{}, fmt.Errorf("failed to get permissions for role \"%d\": %w", r.RoleID, err)
 	}
 
+	//nolint:musttag
 	err = s.db.SelectContext(ctx, &r.Users, `
 		SELECT u.user_id, avatar, nickname, first_name, last_name
 		FROM people.users u

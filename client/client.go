@@ -38,7 +38,7 @@ func NewClient(baseURL string) (*Client, error) {
 func (c *Client) sendRequest(req *http.Request, apiKey string, v interface{}) error {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	req.Header.Set("Accept", "application/json; charset=utf-8")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	req.Header.Set("Authorization", "Bearer "+apiKey)
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {

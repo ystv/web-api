@@ -40,6 +40,9 @@ func main() {
 		Password: os.Getenv("WAPI_DB_PASS"),
 	}
 	database, err := utils.NewDB(dbConfig)
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
 
 	goose.SetBaseFS(migrations.Migrations)
 	if err = goose.SetDialect("postgres"); err != nil {

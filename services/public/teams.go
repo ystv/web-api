@@ -48,6 +48,28 @@ type (
 	}
 )
 
+func (s *Store) TeamMemberDBToTeamMember(teamMember TeamMemberDB) TeamMember {
+	var startDate, endDate *time.Time
+	if teamMember.StartDate.Valid {
+		startDate = &teamMember.StartDate.Time
+	}
+	if teamMember.EndDate.Valid {
+		endDate = &teamMember.EndDate.Time
+	}
+	return TeamMember{
+		UserID:             teamMember.UserID,
+		UserName:           teamMember.UserName,
+		Avatar:             teamMember.Avatar,
+		OfficerID:          teamMember.OfficerID,
+		EmailAlias:         teamMember.EmailAlias,
+		OfficerName:        teamMember.OfficerName,
+		OfficerDescription: teamMember.OfficerDescription,
+		HistoryWikiURL:     teamMember.HistoryWikiURL,
+		StartDate:          startDate,
+		EndDate:            endDate,
+	}
+}
+
 // ListTeams returns a list of the ystv teams and their current members.
 func (s *Store) ListTeams(ctx context.Context) ([]Team, error) {
 	var t []Team
@@ -152,7 +174,9 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 		return t, fmt.Errorf("failed to get team by year by email: %w", err)
 	}
 
-	err = s.db.SelectContext(ctx, &t.Members, `
+	teamMembers := make([]TeamMemberDB, 0)
+
+	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
@@ -175,6 +199,10 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 		return t, fmt.Errorf("failed to get team members by year by email: %w", err)
 	}
 
+	for _, teamMember := range teamMembers {
+		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
+	}
+
 	return t, nil
 }
 
@@ -185,7 +213,9 @@ func (s *Store) GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, 
 		return t, fmt.Errorf("failed to get team by year by id: %w", err)
 	}
 
-	err = s.db.SelectContext(ctx, &t.Members, `
+	teamMembers := make([]TeamMemberDB, 0)
+
+	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
@@ -208,6 +238,10 @@ func (s *Store) GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, 
 		return t, fmt.Errorf("failed to get team members by year by id: %w", err)
 	}
 
+	for _, teamMember := range teamMembers {
+		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
+	}
+
 	return t, nil
 }
 
@@ -218,7 +252,9 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 		return t, fmt.Errorf("failed to get team by start end year by email: %w", err)
 	}
 
-	err = s.db.SelectContext(ctx, &t.Members, `
+	teamMembers := make([]TeamMemberDB, 0)
+
+	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
@@ -243,6 +279,10 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 		return t, fmt.Errorf("failed to get team members by start end year by email: %w", err)
 	}
 
+	for _, teamMember := range teamMembers {
+		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
+	}
+
 	return t, nil
 }
 
@@ -253,7 +293,9 @@ func (s *Store) GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear
 		return t, fmt.Errorf("failed to get team by start end year by id: %w", err)
 	}
 
-	err = s.db.SelectContext(ctx, &t.Members, `
+	teamMembers := make([]TeamMemberDB, 0)
+
+	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
@@ -276,6 +318,10 @@ func (s *Store) GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear
 		    ELSE 6 END;`, startYear, endYear, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by start end year by id: %w", err)
+	}
+
+	for _, teamMember := range teamMembers {
+		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
 	}
 
 	return t, nil
