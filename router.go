@@ -226,6 +226,49 @@ func (r *Router) loadRoutes() {
 					}
 					permission.POST("", r.people.AddPermission)
 				}
+				officershipRoute := people.Group("/officership", r.access.OfficershipAuthMiddleware)
+				{
+					officershipRoute.GET("s", r.people.ListOfficerships)
+					officershipRoute.GET("/count", r.people.OfficershipCount)
+					officershipRoute.POST("", r.people.AddOfficership)
+
+					officerRoute := officershipRoute.Group("/officer")
+					{
+						officerRoute.GET("s", r.people.ListOfficers)
+						officerRoute.POST("", r.people.AddOfficer)
+						officer := officerRoute.Group("/:officerid")
+						{
+							officer.GET("", r.people.GetOfficer)
+							officer.PUT("", r.people.EditOfficer)
+							officer.DELETE("", r.people.DeleteOfficer)
+						}
+					}
+
+					team := officershipRoute.Group("/team")
+					{
+						team.GET("s", r.people.ListOfficershipTeams)
+						team.POST("", r.people.AddOfficershipTeam)
+
+						officershipTeam := team.Group("/:officershipteamid")
+						{
+							officershipTeam.PUT("", r.people.EditOfficershipTeam)
+							officershipTeam.DELETE("", r.people.DeleteOfficershipTeam)
+							officershipTeamOfficer := officershipTeam.Group("/officership")
+							{
+								officershipTeamOfficer.POST("", r.people.OfficershipTeamAddOfficership)
+								officershipTeamOfficer.DELETE("/:officershipid", r.people.OfficershipTeamRemoveOfficership)
+							}
+							officershipTeam.GET("", r.people.GetOfficershipTeam)
+						}
+					}
+
+					officership := officershipRoute.Group("/:officershipid")
+					{
+						officership.PUT("", r.people.EditOfficership)
+						officership.DELETE("", r.people.DeleteOfficership)
+						officership.GET("", r.people.GetOfficership)
+					}
+				}
 			}
 			creator := internal.Group("/creator")
 			{

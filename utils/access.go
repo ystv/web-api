@@ -21,6 +21,7 @@ type (
 		ListUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		GroupAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		PermissionsAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
+		OfficershipAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		ModifyUserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 		ManageStreamAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc
 	}
@@ -190,6 +191,26 @@ func (a *Accesser) PermissionsAuthMiddleware(next echo.HandlerFunc) echo.Handler
 		}
 		for _, p := range claims.Permissions {
 			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersPermissions {
+				return next(c)
+			}
+		}
+		return echo.NewHTTPError(http.StatusUnauthorized, err)
+	}
+}
+
+// OfficershipAuthMiddleware checks an HTTP request for a valid token either in the header or cookie and if the user can modify permissions
+func (a *Accesser) OfficershipAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		claims, status, err := a.GetToken(c.Request())
+		if err != nil {
+			return &echo.HTTPError{
+				Code:     status,
+				Message:  err.Error(),
+				Internal: err,
+			}
+		}
+		for _, p := range claims.Permissions {
+			if p == users.SuperUser || p == users.ManageMembersAdmin || p == users.ManageMembersOfficers {
 				return next(c)
 			}
 		}

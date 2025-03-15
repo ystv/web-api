@@ -16,6 +16,27 @@ type (
 		PermissionRepo
 		RoleRepo
 		UserRepo
+		OfficershipRepo
+	}
+	OfficershipRepo interface {
+		OfficershipCount(c echo.Context) error
+		ListOfficerships(c echo.Context) error
+		GetOfficership(c echo.Context) error
+		AddOfficership(c echo.Context) error
+		EditOfficership(c echo.Context) error
+		DeleteOfficership(c echo.Context) error
+		ListOfficershipTeams(c echo.Context) error
+		GetOfficershipTeam(c echo.Context) error
+		AddOfficershipTeam(c echo.Context) error
+		EditOfficershipTeam(c echo.Context) error
+		DeleteOfficershipTeam(c echo.Context) error
+		ListOfficers(c echo.Context) error
+		GetOfficer(c echo.Context) error
+		AddOfficer(c echo.Context) error
+		EditOfficer(c echo.Context) error
+		DeleteOfficer(c echo.Context) error
+		OfficershipTeamAddOfficership(c echo.Context) error
+		OfficershipTeamRemoveOfficership(c echo.Context) error
 	}
 
 	PermissionRepo interface {
