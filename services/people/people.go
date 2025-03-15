@@ -95,7 +95,7 @@ type (
 		LastLogin null.Time `db:"last_login"`
 		Enabled   bool      `db:"enabled"`
 		CreatedAt null.Time `db:"created_at"`
-		CreatedBy int       `db:"created_by"`
+		CreatedBy null.Int  `db:"created_by"`
 		UpdatedAt null.Time `db:"updated_at"`
 		UpdatedBy null.Int  `db:"updated_by"`
 		DeletedAt null.Time `db:"deleted_at"`

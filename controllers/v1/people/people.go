@@ -80,8 +80,9 @@ func (s *Store) UserFullDBToUserFull(userFullDB people.UserFullDB) people.UserFu
 	if userFullDB.DeletedAt.Valid {
 		deletedAt = &userFullDB.DeletedAt.Time
 	}
-	tempCreatedBy := int64(userFullDB.CreatedBy)
-	createdBy = &tempCreatedBy
+	if userFullDB.CreatedBy.Valid {
+		createdBy = &userFullDB.CreatedBy.Int64
+	}
 	if userFullDB.UpdatedBy.Valid {
 		updatedBy = &userFullDB.UpdatedBy.Int64
 	}
