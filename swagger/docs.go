@@ -2520,7 +2520,7 @@ const docTemplate = `{
                 "tags": [
                     "people-permissions"
                 ],
-                "summary": "List all permissions",
+                "summary": "List permissions",
                 "operationId": "get-people-permissions",
                 "responses": {
                     "200": {
@@ -2543,7 +2543,7 @@ const docTemplate = `{
                 "tags": [
                     "people-permissions"
                 ],
-                "summary": "List all permissions with roles count",
+                "summary": "List permissions with roles count",
                 "operationId": "get-people-permissions-count",
                 "responses": {
                     "200": {
