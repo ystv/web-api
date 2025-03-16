@@ -210,7 +210,18 @@ func (r *Router) loadRoutes() {
 					{
 						roleItem.GET("/full", r.people.GetRoleFull)
 						roleItem.GET("/members", r.people.ListRoleMembersByID)
+						rolePermission := roleItem.Group("/permission/:permissionid")
+						{
+							rolePermission.POST("", r.people.RoleAddPermissionFunc)
+							rolePermission.DELETE("", r.people.RoleRemovePermissionFunc)
+						}
+						roleUser := roleItem.Group("/user/:userid")
+						{
+							roleUser.POST("", r.people.RoleAddUserFunc)
+							roleUser.DELETE("", r.people.RoleRemoveUserFunc)
+						}
 					}
+					role.POST("", r.people.AddRole)
 				}
 				permission := people.Group("/permission", r.access.PermissionsAuthMiddleware)
 				{
