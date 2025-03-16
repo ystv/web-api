@@ -56,6 +56,13 @@ type (
 		GetRoleFull(c echo.Context) error
 		ListRoleMembersByID(c echo.Context) error
 		ListRolePermissionsByID(c echo.Context) error
+		AddRole(c echo.Context) error
+		EditRole(c echo.Context) error
+		DeleteRole(c echo.Context) error
+		RoleAddPermissionFunc(c echo.Context) error
+		RoleRemovePermissionFunc(c echo.Context) error
+		RoleAddUserFunc(c echo.Context) error
+		RoleRemoveUserFunc(c echo.Context) error
 	}
 
 	UserRepo interface {
