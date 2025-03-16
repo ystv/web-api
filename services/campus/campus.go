@@ -37,7 +37,7 @@ type (
 	}
 
 	// Week is a normal week plus the number since
-	// the start of teaching period
+	// the start of a teaching period
 	Week struct {
 		TeachingPeriod TeachingPeriod `json:"teachingPeriod"`
 		WeekNo         int            `json:"weekNo"`

@@ -55,7 +55,7 @@ type (
 		IsCancelled bool       `db:"is_cancelled" json:"isCancelled"`
 		IsTentative bool       `db:"is_tentative" json:"isTentative"`
 		Signups     []Signup   `json:"signups,omitempty"`   // Used for shows
-		Attendees   []Attendee `json:"attendees,omitempty"` // Used for social, meet and other. This would be a XOR with Signups
+		Attendees   []Attendee `json:"attendees,omitempty"` // Used for social, meet and other. This would be an XOR with Signups
 	}
 	// Signup represents a signup sheet which contains a group of roles
 	Signup struct {
