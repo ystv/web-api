@@ -28,12 +28,12 @@ type (
 	// VideoRepo defines all creator video interactions
 	VideoRepo interface {
 		// GetItem gets the individual video item
-		GetItem(ctx context.Context, id int) (video.Item, error)
-		ListMeta(ctx context.Context) ([]video.Meta, error)
-		ListMetaByUser(ctx context.Context, userID int) ([]video.Meta, error)
+		GetItem(ctx context.Context, id int) (video.ItemDB, error)
+		ListMeta(ctx context.Context) ([]video.MetaDB, error)
+		ListMetaByUser(ctx context.Context, userID int) ([]video.MetaDB, error)
 		ListByCalendarMonth(ctx context.Context, year, month int) ([]video.MetaCal, error)
-		OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error)
-		Search(ctx context.Context, query string) ([]video.Meta, error)
+		OfSeries(ctx context.Context, seriesID int) ([]video.MetaDB, error)
+		Search(ctx context.Context, query string) ([]video.MetaDB, error)
 		// NewItem inserts a new video
 		NewItem(ctx context.Context, v video.New) (int, error)
 		// UpdateMeta updates the video metadata
@@ -45,11 +45,11 @@ type (
 	}
 	// SeriesRepo defines all creator series interactions
 	SeriesRepo interface {
-		GetSeries(ctx context.Context, seriesID int) (series.Series, error)
+		GetSeries(ctx context.Context, seriesID int) (series.SeriesDB, error)
 		GetMeta(ctx context.Context, seriesID int) (series.Meta, error)
 		ImmediateChildrenSeries(ctx context.Context, seriesID int) ([]series.Meta, error)
 		List(ctx context.Context) ([]series.Meta, error)
-		FromPath(ctx context.Context, path string) (series.Series, error)
+		FromPath(ctx context.Context, path string) (series.SeriesDB, error)
 	}
 	// ChannelRepo defines all channel interactions
 	ChannelRepo interface {
@@ -61,8 +61,8 @@ type (
 	}
 	// PlaylistRepo defines all playlist interactions
 	PlaylistRepo interface {
-		ListPlaylists(ctx context.Context) ([]playlist.Playlist, error)
-		GetPlaylist(ctx context.Context, playlistID int) (playlist.Playlist, error)
+		ListPlaylists(ctx context.Context) ([]playlist.PlaylistDB, error)
+		GetPlaylist(ctx context.Context, playlistID int) (playlist.PlaylistDB, error)
 		NewPlaylist(ctx context.Context, p playlist.New) (int, error)
 		UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []int) error
 		DeletePlaylist(ctx context.Context, playlistID int) error

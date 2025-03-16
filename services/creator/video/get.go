@@ -11,8 +11,8 @@ import (
 )
 
 // GetItem returns a VideoItem by its ID.
-func (s *Store) GetItem(ctx context.Context, videoID int) (video.Item, error) {
-	var v video.Item
+func (s *Store) GetItem(ctx context.Context, videoID int) (video.ItemDB, error) {
+	var v video.ItemDB
 
 	err := s.db.GetContext(ctx, &v,
 		`SELECT item.video_id, item.series_id, item.name video_name, item.url,
@@ -26,7 +26,7 @@ func (s *Store) GetItem(ctx context.Context, videoID int) (video.Item, error) {
 		LIMIT 1;`, videoID)
 	if err != nil {
 		err = fmt.Errorf("failed to get video meta: %w", err)
-		return video.Item{}, err
+		return video.ItemDB{}, err
 	}
 
 	err = s.db.SelectContext(ctx, &v.Files,
@@ -36,15 +36,15 @@ func (s *Store) GetItem(ctx context.Context, videoID int) (video.Item, error) {
 		WHERE video_id = $1;`, videoID)
 	if err != nil {
 		err = fmt.Errorf("failed to get video files: %w", err)
-		return video.Item{}, err
+		return video.ItemDB{}, err
 	}
 
 	return v, nil
 }
 
 // ListMeta returns a list of VideoMeta's
-func (s *Store) ListMeta(ctx context.Context) ([]video.Meta, error) {
-	var v []video.Meta
+func (s *Store) ListMeta(ctx context.Context) ([]video.MetaDB, error) {
+	var v []video.MetaDB
 
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
@@ -56,8 +56,8 @@ func (s *Store) ListMeta(ctx context.Context) ([]video.Meta, error) {
 }
 
 // ListMetaByUser returns a list of VideoMeta's for a given user
-func (s *Store) ListMetaByUser(ctx context.Context, userID int) ([]video.Meta, error) {
-	var v []video.Meta
+func (s *Store) ListMetaByUser(ctx context.Context, userID int) ([]video.MetaDB, error) {
+	var v []video.MetaDB
 
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name video_name, url,
@@ -83,8 +83,8 @@ func (s *Store) ListByCalendarMonth(ctx context.Context, year, month int) ([]vid
 }
 
 // OfSeries returns all the videos belonging to a series
-func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error) {
-	var v []video.Meta
+func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.MetaDB, error) {
+	var v []video.MetaDB
 
 	err := s.db.SelectContext(ctx, &v,
 		`SELECT video_id, series_id, name AS video_name, url, description, thumbnail, duration, views, tags,
@@ -93,9 +93,9 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error
 		WHERE series_id = $1;`, seriesID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return []video.Meta{}, series.ErrChildrenVideosNotFound
+			return []video.MetaDB{}, series.ErrChildrenVideosNotFound
 		}
-		return []video.Meta{}, err
+		return []video.MetaDB{}, err
 	}
 
 	return v, nil
@@ -104,8 +104,8 @@ func (s *Store) OfSeries(ctx context.Context, seriesID int) ([]video.Meta, error
 // Search performs a full-text search on video library
 //
 // Uses postgres full-text search, video and series tables to try to make some sense
-func (s *Store) Search(ctx context.Context, query string) ([]video.Meta, error) {
-	var videos []video.Meta
+func (s *Store) Search(ctx context.Context, query string) ([]video.MetaDB, error) {
+	var videos []video.MetaDB
 
 	err := s.db.SelectContext(ctx, &videos,
 		`SELECT

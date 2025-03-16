@@ -24,8 +24,8 @@ func NewStore(db *sqlx.DB) creator.PlaylistRepo {
 }
 
 // ListPlaylists lists all playlists metadata
-func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) {
-	var p []playlist.Playlist
+func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.PlaylistDB, error) {
+	var p []playlist.PlaylistDB
 	//nolint:musttag
 	err := m.db.SelectContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status, created_at, created_by
@@ -34,8 +34,8 @@ func (m *Store) ListPlaylists(ctx context.Context) ([]playlist.Playlist, error) 
 }
 
 // GetPlaylist returns a playlist and it's video's
-func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.Playlist, error) {
-	p := playlist.Playlist{}
+func (m *Store) GetPlaylist(ctx context.Context, playlistID int) (playlist.PlaylistDB, error) {
+	p := playlist.PlaylistDB{}
 	//nolint:musttag
 	err := m.db.GetContext(ctx, &p,
 		`SELECT playlist_id, name, description, thumbnail, status,
@@ -147,7 +147,7 @@ func (m *Store) UpdatePlaylist(ctx context.Context, p playlist.Meta, videoIDs []
 			return fmt.Errorf("failed to prepare statement to insert videos: %w", err)
 		}
 		for idx, videoID := range videoIDs {
-			_, err := stmt.ExecContext(ctx, p.ID, videoID, idx)
+			_, err = stmt.ExecContext(ctx, p.ID, videoID, idx)
 			if err != nil {
 				return fmt.Errorf("failed to insert link between playlist and video: %w", err)
 			}

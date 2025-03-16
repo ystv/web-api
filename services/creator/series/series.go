@@ -27,15 +27,15 @@ func NewController(db *sqlx.DB, cdn *s3.S3, enc encoder.Repo, conf *creator.Conf
 }
 
 // GetSeries provides the immediate children of series and videos
-func (c *Controller) GetSeries(ctx context.Context, seriesID int) (series.Series, error) {
-	var s series.Series
+func (c *Controller) GetSeries(ctx context.Context, seriesID int) (series.SeriesDB, error) {
+	var s series.SeriesDB
 
 	meta, err := c.GetMeta(ctx, seriesID)
 	if err != nil {
 		if errors.Is(err, series.ErrMetaNotFound) {
-			return series.Series{}, series.ErrNotFound
+			return series.SeriesDB{}, series.ErrNotFound
 		}
-		return series.Series{}, fmt.Errorf("failed to get series meta: %w", err)
+		return series.SeriesDB{}, fmt.Errorf("failed to get series meta: %w", err)
 	}
 
 	s.Meta = meta
@@ -45,14 +45,14 @@ func (c *Controller) GetSeries(ctx context.Context, seriesID int) (series.Series
 	s.ImmediateChildSeries, err = c.ImmediateChildrenSeries(ctx, seriesID)
 	if err != nil {
 		if !errors.Is(err, series.ErrChildrenSeriesNotFound) {
-			return series.Series{}, fmt.Errorf("failed to get child series: %w", err)
+			return series.SeriesDB{}, fmt.Errorf("failed to get child series: %w", err)
 		}
 	}
 
 	s.ChildVideos, err = c.video.OfSeries(ctx, seriesID)
 	if err != nil {
 		if !errors.Is(err, series.ErrChildrenVideosNotFound) {
-			return series.Series{}, fmt.Errorf("failed to get child videos: %w", err)
+			return series.SeriesDB{}, fmt.Errorf("failed to get child videos: %w", err)
 		}
 	}
 
@@ -184,21 +184,21 @@ func (c *Controller) AllBelow(ctx context.Context, seriesID int) ([]series.Meta,
 }
 
 // FromPath will return a series from a given path
-func (c *Controller) FromPath(ctx context.Context, path string) (series.Series, error) {
-	var s series.Series
+func (c *Controller) FromPath(ctx context.Context, path string) (series.SeriesDB, error) {
+	var s series.SeriesDB
 
 	err := c.db.GetContext(ctx, &s.SeriesID, `SELECT series_id FROM video.series_paths WHERE path = $1`, path)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return series.Series{}, series.ErrNotFound
+			return series.SeriesDB{}, series.ErrNotFound
 		}
-		return series.Series{}, fmt.Errorf("failed to get series from path: %w", err)
+		return series.SeriesDB{}, fmt.Errorf("failed to get series from path: %w", err)
 	}
 
 	s, err = c.GetSeries(ctx, s.SeriesID)
 	if err != nil {
 		err = fmt.Errorf("failed to get series data: %w", err)
-		return series.Series{}, err
+		return series.SeriesDB{}, err
 	}
 
 	return s, err
