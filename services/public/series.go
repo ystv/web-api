@@ -111,7 +111,7 @@ func (s *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 						node.lft BETWEEN parent.lft AND parent.rgt
 						AND node.lft BETWEEN sub_parent.lft AND sub_parent.rgt
 						AND sub_parent.series_id = sub_tree.series_id
-					GROUP BY node.series_id, sub_tree.depth
+					GROUP BY node.series_id, sub_tree.depth, node.lft
 					ORDER BY node.lft
 			) AS queries
 			WHERE depth = 1 AND
