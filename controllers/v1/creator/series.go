@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/creator/types/series"
+	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -50,7 +51,7 @@ func (s *Store) GetSeries(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, series1)
+	return c.JSON(http.StatusOK, video.SeriesDBToSeries(series1))
 }
 
 // UpdateSeries handles updating a series
@@ -86,13 +87,13 @@ func (s *Store) UpdateSeries(c echo.Context) error {
 	//	videoIDs = append(videoIDs, v.ID)
 	// }
 	//
-	// err = s.series.Update(c.Request().Context(), series1.Meta, videoIDs)
+	// err = s.series.Update(c.Request().Context(), series1.MetaDB, videoIDs)
 	// if err != nil {
 	//	err = fmt.Errorf("SeriesUpdate: failed to update series: %w", err)
 	//	return echo.NewHTTPError(http.StatusInternalServerError, err)
 	// }
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNotImplemented)
 }
 
 // DeleteSeries handles deleting series
@@ -101,7 +102,7 @@ func (s *Store) UpdateSeries(c echo.Context) error {
 // @ID delete-creator-series
 // @Tags creator-series
 // @Param seriesid path int true "Series ID"
-// @Success 200
+// @Success 204
 // @Router /v1/internal/creator/series/{seriesid} [delete]
 func (s *Store) DeleteSeries(c echo.Context) error {
 	seriesID, err := strconv.Atoi(c.Param("seriesid"))
@@ -117,5 +118,5 @@ func (s *Store) DeleteSeries(c echo.Context) error {
 
 	_ = seriesID
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNotImplemented)
 }

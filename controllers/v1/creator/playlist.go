@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/ystv/web-api/services/creator/types/playlist"
+	"github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -26,7 +27,13 @@ func (s *Store) ListPlaylists(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(p))
+	playlists := make([]playlist.Playlist, 0)
+
+	for _, p1 := range p {
+		playlists = append(playlists, video.PlaylistDBToPlaylist(p1))
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(playlists))
 }
 
 // GetPlaylist handles getting a single playlist, and it's following videometa's
@@ -50,7 +57,7 @@ func (s *Store) GetPlaylist(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusOK, p)
+	return c.JSON(http.StatusOK, video.PlaylistDBToPlaylist(p))
 }
 
 // NewPlaylist handles creating a new playlist item
@@ -59,7 +66,7 @@ func (s *Store) GetPlaylist(c echo.Context) error {
 // @ID new-creator-playlist
 // @Tags creator-playlists
 // @Accept json
-// @Param event body playlist.Playlist true "Playlist object"
+// @Param event body playlist.New true "New Playlist object"
 // @Success 201 body int "Playlist ID"
 // @Router /v1/internal/creator/playlist [post]
 func (s *Store) NewPlaylist(c echo.Context) error {
@@ -94,7 +101,7 @@ func (s *Store) NewPlaylist(c echo.Context) error {
 // @ID update-creator-playlist
 // @Tags creator-playlists
 // @Accept json
-// @Param quote body playlist.New true "Playlist object"
+// @Param quote body playlist.Playlist true "Playlist object"
 // @Success 200
 // @Router /v1/internal/creator/playlist [put]
 func (s *Store) UpdatePlaylist(c echo.Context) error {
@@ -125,7 +132,7 @@ func (s *Store) UpdatePlaylist(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 // DeletePlaylist handles deleting playlist

@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"gopkg.in/guregu/null.v4"
 
 	"github.com/ystv/web-api/services/creator/types/video"
+	video2 "github.com/ystv/web-api/services/creator/video"
 	"github.com/ystv/web-api/utils"
 )
 
@@ -35,7 +35,7 @@ func (s *Store) GetVideo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return c.JSON(http.StatusOK, v)
+	return c.JSON(http.StatusOK, video2.ItemDBToItem(v))
 }
 
 type NewVideoOutput struct {
@@ -85,7 +85,7 @@ func (s *Store) NewVideo(c echo.Context) error {
 // @ID update-creator-video-meta
 // @Tags creator-videos
 // @Accept json
-// @Param event body video.Item true "VideoItem object"
+// @Param event body video.Meta true "VideoItem meta object"
 // @Success 200 body int "Video ID"
 // @Router /v1/internal/creator/video/meta [put]
 func (s *Store) UpdateVideoMeta(c echo.Context) error {
@@ -109,9 +109,9 @@ func (s *Store) UpdateVideoMeta(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	v.UpdatedByID = null.IntFrom(parsed)
+	v.UpdatedByID = &parsed
 	currentDateTime := time.Now()
-	v.UpdatedAt = null.TimeFrom(currentDateTime)
+	v.UpdatedAt = &currentDateTime
 
 	err = s.video.UpdateMeta(c.Request().Context(), v)
 	if err != nil {
@@ -123,7 +123,7 @@ func (s *Store) UpdateVideoMeta(c echo.Context) error {
 }
 
 func (s *Store) DeleteVideo(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNotImplemented)
 }
 
 // ListVideos Handles listing all creations
@@ -142,7 +142,13 @@ func (s *Store) ListVideos(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(v))
+	meta := make([]video.Meta, 0)
+
+	for _, item := range v {
+		meta = append(meta, video2.MetaDBToMeta(item))
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(meta))
 }
 
 // ListVideosByUser Handles retrieving a user's videos using their userid in their token.
@@ -168,7 +174,13 @@ func (s *Store) ListVideosByUser(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(v))
+	metas := make([]video.Meta, 0)
+
+	for _, item := range v {
+		metas = append(metas, video2.MetaDBToMeta(item))
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(metas))
 }
 
 // ListVideosByMonth Handles listing all videos from a calendar year/month
@@ -230,5 +242,11 @@ func (s *Store) SearchVideo(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
-	return c.JSON(http.StatusOK, utils.NonNil(v))
+	metas := make([]video.Meta, 0)
+
+	for _, item := range v {
+		metas = append(metas, video2.MetaDBToMeta(item))
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(metas))
 }
