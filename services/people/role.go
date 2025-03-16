@@ -11,16 +11,17 @@ import (
 )
 
 func (s *Store) ListAllRolesWithPermissions(ctx context.Context) ([]RoleWithPermissions, error) {
-	var r []RoleWithPermissions
+	var temp []RoleWithPermissions
+	r := make([]RoleWithPermissions, 0)
 	//nolint:musttag
-	err := s.db.SelectContext(ctx, &r, `
+	err := s.db.SelectContext(ctx, &temp, `
 		SELECT role_id, name, description
 		FROM people.roles;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select roles: %w", err)
 	}
 
-	for _, role := range r {
+	for _, role := range temp {
 		err = s.db.SelectContext(ctx, &role.Permissions, `
 			SELECT perm.permission_id, name, description
 			FROM people.permissions perm
@@ -29,6 +30,8 @@ func (s *Store) ListAllRolesWithPermissions(ctx context.Context) ([]RoleWithPerm
 		if err != nil {
 			return nil, fmt.Errorf("failed to get permissions for role \"%d\": %w", role.RoleID, err)
 		}
+
+		r = append(r, role)
 	}
 
 	return r, nil
