@@ -65,9 +65,26 @@ type (
 	RoleRepo interface {
 		ListAllRolesWithPermissions(ctx context.Context) ([]RoleWithPermissions, error)
 		ListAllRolesWithCount(ctx context.Context) ([]RoleWithCount, error)
+		GetRole(ctx context.Context, roleGetDTO RoleGetDTO) (Role, error)
 		GetRoleFull(ctx context.Context, roleID int) (RoleFull, error)
 		ListRoleMembersByID(ctx context.Context, roleID int) ([]User, int, error)
 		ListRolePermissionsByID(ctx context.Context, roleID int) ([]Permission, error)
+		AddRole(ctx context.Context, roleAdd RoleAddEditDTO) (Role, error)
+		EditRole(ctx context.Context, roleID int, roleEdit RoleAddEditDTO) (Role, error)
+		DeleteRole(ctx context.Context, roleID int) error
+		RemoveRoleForPermissions(ctx context.Context, roleID int) error
+		RemoveRoleForUsers(ctx context.Context, roleID int) error
+		GetRoleUser(context.Context, RoleUser) (RoleUser, error)
+		GetUsersNotInRole(ctx context.Context, roleID int) ([]User, error)
+		AddRoleUser(context.Context, RoleUser) (RoleUser, error)
+		RemoveRoleUser(context.Context, RoleUser) error
+		RemoveUserForRoles(context.Context, User) error
+		GetPermissionsForRole(context.Context, int) ([]Permission, error)
+		GetRolesForPermission(context.Context, int) ([]Role, error)
+		GetRolePermission(context.Context, RolePermission) (RolePermission, error)
+		GetPermissionsNotInRole(ctx context.Context, roleID int) ([]Permission, error)
+		AddRolePermission(context.Context, RolePermission) (RolePermission, error)
+		RemoveRolePermission(context.Context, RolePermission) error
 	}
 
 	// PermissionRepo defines all permission interactions
@@ -147,6 +164,17 @@ type (
 		Description string `db:"description" json:"description"`
 	}
 
+	// RoleGetDTO represents relevant role fields for getting
+	RoleGetDTO struct {
+		RoleID int    `json:"roleID"`
+		Name   string `json:"name"`
+	}
+
+	RoleAddEditDTO struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+	}
+
 	// RoleWithPermissions represents a "group" of permissions where multiple users
 	// can have this role, and they will inherit these permissions.
 	RoleWithPermissions struct {
@@ -166,6 +194,18 @@ type (
 		Role
 		Permissions []Permission `json:"permissions"`
 		Users       []User       `json:"users"`
+	}
+
+	// RolePermission symbolises a link between a role.Role and permission.Permission
+	RolePermission struct {
+		RoleID       int `db:"role_id" json:"roleID"`
+		PermissionID int `db:"permission_id" json:"permissionID"`
+	}
+
+	// RoleUser symbolises a link between a role.Role and User
+	RoleUser struct {
+		RoleID int `db:"role_id" json:"roleID"`
+		UserID int `db:"user_id" json:"userID"`
 	}
 
 	// Permission represents an individual permission.
