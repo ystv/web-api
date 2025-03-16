@@ -8,6 +8,7 @@ import (
 
 type (
 	// PlaylistDB represents a playlist object including the metas of the videos
+	//nolint:revive
 	PlaylistDB struct {
 		Meta
 		Videos []video.MetaDB `json:"videos,omitempty"`

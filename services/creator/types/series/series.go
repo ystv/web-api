@@ -10,6 +10,7 @@ type (
 	// SeriesDB provides basic information about a series
 	// this is useful when you want to know the current series and
 	// see its immediate children.
+	//nolint:revive
 	SeriesDB struct {
 		Meta
 		ImmediateChildSeries []Meta         `json:"childSeries"`
