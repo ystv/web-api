@@ -12,23 +12,40 @@ import (
 )
 
 type (
+	// ItemDB represents a more readable VideoItem with
+	// an array of associated VideoFiles.
+	ItemDB struct {
+		MetaDB
+		Files []FileDB `db:"files" json:"files"`
+	}
+
 	// Item represents a more readable VideoItem with
 	// an array of associated VideoFiles.
 	Item struct {
 		Meta
 		Files []File `db:"files" json:"files"`
 	}
-	// File represents a more readable VideoFile.
-	File struct {
-		URI          string `db:"uri" json:"uri"`
-		EncodeFormat string `db:"name" json:"encodeFormat"`
-		Status       string `db:"status" json:"status"`
-		Size         *int   `db:"size" json:"size"`
-		MimeType     string `db:"mime_type" json:"mimeType"`
+
+	// FileDB represents a more readable VideoFile.
+	FileDB struct {
+		URI          string   `db:"uri"`
+		EncodeFormat string   `db:"name"`
+		Status       string   `db:"status"`
+		Size         null.Int `db:"size"`
+		MimeType     string   `db:"mime_type"`
 	}
 
-	// Meta represents just the metadata of a video, used for listing.
-	Meta struct {
+	// File represents a more readable VideoFile.
+	File struct {
+		URI          string `json:"uri"`
+		EncodeFormat string `json:"encodeFormat"`
+		Status       string `json:"status"`
+		Size         *int64 `json:"size,omitempty"`
+		MimeType     string `json:"mimeType"`
+	}
+
+	// MetaDB represents just the metadata of a video, used for listing.
+	MetaDB struct {
 		ID            int    `db:"video_id" json:"id"`
 		SeriesID      int    `db:"series_id" json:"seriesID"`
 		Name          string `db:"video_name" json:"name"`
@@ -39,7 +56,7 @@ type (
 		Views         int    `db:"views" json:"views"`
 		Tags          Tag    `db:"tags" json:"tags"`
 		Status        string `db:"status" json:"status"`
-		Preset        `json:"preset"`
+		PresetDB      `json:"preset"`
 		BroadcastDate time.Time   `db:"broadcast_date" json:"broadcastDate"`
 		CreatedAt     time.Time   `db:"created_at" json:"createdAt"`
 		CreatedByID   int         `db:"created_by_id" json:"createdByID"`
@@ -51,6 +68,32 @@ type (
 		DeletedByID   null.Int    `db:"deleted_by_id" json:"deleteByID,omitempty"`
 		DeletedByNick null.String `db:"deleted_by_nick" json:"deleteByNick,omitempty"`
 	}
+
+	// Meta represents just the metadata of a video, used for listing.
+	Meta struct {
+		ID            int    `json:"id"`
+		SeriesID      int    `json:"seriesID"`
+		Name          string `json:"name"`
+		URL           string `json:"url"`
+		Description   string `json:"description,omitempty"` // when listing description isn't included
+		Thumbnail     string `json:"thumbnail"`
+		Duration      int    `json:"duration"`
+		Views         int    `json:"views"`
+		Tags          Tag    `json:"tags"`
+		Status        string `json:"status"`
+		Preset        `json:"preset"`
+		BroadcastDate time.Time  `json:"broadcastDate"`
+		CreatedAt     time.Time  `json:"createdAt"`
+		CreatedByID   int        `json:"createdByID"`
+		CreatedByNick string     `json:"createdByNick"`
+		UpdatedAt     *time.Time `json:"updatedAt,omitempty"`
+		UpdatedByID   *int64     `json:"updatedByID,omitempty"`
+		UpdatedByNick *string    `json:"updatedByNick,omitempty"`
+		DeletedAt     *time.Time `json:"deletedAt,omitempty"`
+		DeletedByID   *int64     `json:"deleteByID,omitempty"`
+		DeletedByNick *string    `json:"deleteByNick,omitempty"`
+	}
+
 	// MetaCal represents simple metadata for a calendar
 	MetaCal struct {
 		ID            int    `db:"video_id" json:"id"`
@@ -58,16 +101,25 @@ type (
 		Status        string `db:"status" json:"status"`
 		BroadcastDate string `db:"broadcast_date" json:"broadcastDate"`
 	}
+
 	// User represents the nickname and ID of a user
 	User struct {
 		UserID   int    `db:"user_id" json:"userID"`
 		Nickname string `db:"nickname" json:"userNickname"`
 	}
-	// Preset represents the name and ID of a preset
-	Preset struct {
+
+	// PresetDB represents the name and ID of a preset
+	PresetDB struct {
 		PresetID   null.Int    `db:"preset_id" json:"presetID"`
 		PresetName null.String `db:"preset_name" json:"name"`
 	}
+
+	// Preset represents the name and ID of a preset
+	Preset struct {
+		PresetID   *int64  `json:"presetID,omitempty"`
+		PresetName *string `json:"name,omitempty"`
+	}
+
 	// New is the basic information to create a video
 	New struct {
 		FileID        string    `json:"fileID"`

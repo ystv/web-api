@@ -7,11 +7,18 @@ import (
 )
 
 type (
+	// PlaylistDB represents a playlist object including the metas of the videos
+	PlaylistDB struct {
+		Meta
+		Videos []video.MetaDB `json:"videos,omitempty"`
+	}
+
 	// Playlist represents a playlist object including the metas of the videos
 	Playlist struct {
 		Meta
 		Videos []video.Meta `json:"videos,omitempty"`
 	}
+
 	// Meta represents the metadata of a playlist
 	Meta struct {
 		ID          int        `db:"playlist_id" json:"id"`

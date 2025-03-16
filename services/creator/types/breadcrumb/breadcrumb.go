@@ -14,9 +14,10 @@ type (
 		Name     string `db:"name" json:"name"`
 		SeriesID int    `db:"series_id" json:"-"` // Here since needed
 	}
+
 	// Item is either a video or a series
 	Item struct {
-		Video  video.Item    `json:"video,omitempty"`
-		Series series.Series `json:"series,omitempty"`
+		Video  video.ItemDB    `json:"video,omitempty"`
+		Series series.SeriesDB `json:"series,omitempty"`
 	}
 )
