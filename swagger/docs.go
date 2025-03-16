@@ -834,7 +834,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/playlist.New"
+                            "$ref": "#/definitions/playlist.Playlist"
                         }
                     }
                 ],
@@ -856,12 +856,12 @@ const docTemplate = `{
                 "operationId": "new-creator-playlist",
                 "parameters": [
                     {
-                        "description": "Playlist object",
+                        "description": "New Playlist object",
                         "name": "event",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/playlist.Playlist"
+                            "$ref": "#/definitions/playlist.New"
                         }
                     }
                 ],
@@ -1131,8 +1131,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK"
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -1195,12 +1195,12 @@ const docTemplate = `{
                 "operationId": "update-creator-video-meta",
                 "parameters": [
                     {
-                        "description": "VideoItem object",
+                        "description": "VideoItem meta object",
                         "name": "event",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/video.Item"
+                            "$ref": "#/definitions/video.Meta"
                         }
                     }
                 ],
