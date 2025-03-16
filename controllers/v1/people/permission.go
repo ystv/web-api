@@ -15,7 +15,7 @@ import (
 //
 // @Summary List permissions
 // @ID get-people-permissions
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Success 200 {array} people.Permission
 // @Router /v1/internal/people/permissions [get]
@@ -33,7 +33,7 @@ func (s *Store) ListPermissions(c echo.Context) error {
 //
 // @Summary List permissions with roles count
 // @ID get-people-permissions-count
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Success 200 {array} people.PermissionWithRolesCount
 // @Router /v1/internal/people/permissions/count [get]
@@ -51,7 +51,7 @@ func (s *Store) ListPermissionsWithRolesCount(c echo.Context) error {
 //
 // @Summary List all users of a given permission
 // @ID get-people-permission-members
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Param permissionid path int true "Permission ID"
 // @Success 200 {array} people.Permission
@@ -75,7 +75,7 @@ func (s *Store) ListPermissionMembersByID(c echo.Context) error {
 //
 // @Summary Get a single permission based on the permission id
 // @ID get-people-permission
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Param permissionid path int true "Permission ID"
 // @Success 200 {object} people.Permission
@@ -99,7 +99,7 @@ func (s *Store) GetPermissionByID(c echo.Context) error {
 //
 // @Summary Get a single permission based on the permission id with roles count
 // @ID get-people-permission-count
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Param permissionid path int true "Permission ID"
 // @Success 200 {object} people.PermissionWithRolesCount
@@ -123,7 +123,7 @@ func (s *Store) GetPermissionByIDWithRolesCount(c echo.Context) error {
 //
 // @Summary Create a permission
 // @ID add-people-permission
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Param permission body people.PermissionAddEditDTO true "Permission object"
 // @Success 201 {object} people.Permission
@@ -149,7 +149,7 @@ func (s *Store) AddPermission(c echo.Context) error {
 //
 // @Summary Edits a permission
 // @ID edit-people-permission
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Param permissionid path int true "Permission ID"
 // @Param permission body people.PermissionAddEditDTO true "Permission object"
@@ -181,7 +181,7 @@ func (s *Store) EditPermission(c echo.Context) error {
 //
 // @Summary Deletes a permission and links to roles
 // @ID delete-people-permission
-// @Tags people-permissions
+// @Tags people-permission
 // @Produce json
 // @Param permissionid path int true "Permission ID"
 // @Success 204
