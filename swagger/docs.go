@@ -2337,7 +2337,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "Create a permission",
                 "operationId": "add-people-permission",
@@ -2368,7 +2368,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "Get a single permission based on the permission id",
                 "operationId": "get-people-permission",
@@ -2395,7 +2395,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "Edits a permission",
                 "operationId": "edit-people-permission",
@@ -2431,7 +2431,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "Deletes a permission and links to roles",
                 "operationId": "delete-people-permission",
@@ -2457,7 +2457,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "Get a single permission based on the permission id with roles count",
                 "operationId": "get-people-permission-count",
@@ -2486,7 +2486,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "List all users of a given permission",
                 "operationId": "get-people-permission-members",
@@ -2518,7 +2518,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "List permissions",
                 "operationId": "get-people-permissions",
@@ -2541,7 +2541,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-permissions"
+                    "people-permission"
                 ],
                 "summary": "List permissions with roles count",
                 "operationId": "get-people-permissions-count",
@@ -2558,13 +2558,106 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/internal/people/role/{roleId}/full": {
+        "/v1/internal/people/role": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Create a role",
+                "operationId": "add-people-role",
+                "parameters": [
+                    {
+                        "description": "Role object",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.RoleAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.Role"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/role/{roleid}": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Edit a role",
+                "operationId": "edit-people-role",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Role object",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/people.RoleAddEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.Role"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Deletes role",
+                "operationId": "delete-people-role",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role id",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/role/{roleid}/full": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "people-roles"
+                    "people-role"
                 ],
                 "summary": "List all users and permissions of a given role",
                 "operationId": "get-people-role-full",
@@ -2572,7 +2665,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Role ID",
-                        "name": "roleId",
+                        "name": "roleid",
                         "in": "path",
                         "required": true
                     }
@@ -2587,13 +2680,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/internal/people/role/{roleId}/members": {
+        "/v1/internal/people/role/{roleid}/members": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "people-roles"
+                    "people-role"
                 ],
                 "summary": "List all users of a given role",
                 "operationId": "get-people-role-members",
@@ -2601,7 +2694,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Role ID",
-                        "name": "roleId",
+                        "name": "roleid",
                         "in": "path",
                         "required": true
                     }
@@ -2631,21 +2724,88 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/internal/people/role/{roleId}/permissions": {
+        "/v1/internal/people/role/{roleid}/permission/{permissionid}": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Adds a permission to a role",
+                "operationId": "add-people-role-permission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role id",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "permission id",
+                        "name": "permissionid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.RolePermission"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Removes a permission from a role",
+                "operationId": "remove-people-role-permission",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role id",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "permission id",
+                        "name": "permissionid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/people/role/{roleid}/permissions": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "people-roles"
+                    "people-role"
                 ],
-                "summary": "List all permissions of a given role",
+                "summary": "List permissions of a given role",
                 "operationId": "get-people-role-permissions",
                 "parameters": [
                     {
                         "type": "integer",
                         "description": "Role ID",
-                        "name": "roleId",
+                        "name": "roleid",
                         "in": "path",
                         "required": true
                     }
@@ -2663,16 +2823,83 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/internal/people/role/{roleid}/user/{userid}": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Adds a user to a role",
+                "operationId": "add-people-role-user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role id",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "userid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/people.RoleUser"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Removes a user from a role",
+                "operationId": "remove-people-role-user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role id",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "userid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
         "/v1/internal/people/roles": {
             "get": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "people-roles"
+                    "people-role"
                 ],
                 "summary": "List all roles",
-                "operationId": "get-people-roles-permissions",
+                "operationId": "get-people-roles-with-permissions",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2692,7 +2919,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "people-roles"
+                    "people-role"
                 ],
                 "summary": "List all roles with count",
                 "operationId": "get-people-roles-count",
@@ -4589,6 +4816,17 @@ const docTemplate = `{
                 }
             }
         },
+        "people.RoleAddEditDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "people.RoleFull": {
             "type": "object",
             "properties": {
@@ -4612,6 +4850,28 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/people.User"
                     }
+                }
+            }
+        },
+        "people.RolePermission": {
+            "type": "object",
+            "properties": {
+                "permissionID": {
+                    "type": "integer"
+                },
+                "roleID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "people.RoleUser": {
+            "type": "object",
+            "properties": {
+                "roleID": {
+                    "type": "integer"
+                },
+                "userID": {
+                    "type": "integer"
                 }
             }
         },
