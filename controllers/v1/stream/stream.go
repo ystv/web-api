@@ -12,7 +12,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo/v4"
-	"gopkg.in/guregu/null.v4"
 
 	"github.com/ystv/web-api/services/stream"
 	"github.com/ystv/web-api/utils"
@@ -219,33 +218,7 @@ func (s *Store) ListStreams(c echo.Context) error {
 	endpoints := make([]stream.Endpoint, 0)
 
 	for _, endpoint := range e {
-		var startValid, endValid *time.Time
-		var pwd, notes *string
-
-		if endpoint.Pwd.Valid {
-			pwd = &endpoint.Pwd.String
-		}
-		if endpoint.StartValid.Valid {
-			startValid = &endpoint.StartValid.Time
-		}
-		if endpoint.EndValid.Valid {
-			endValid = &endpoint.EndValid.Time
-		}
-		if endpoint.Notes.Valid {
-			notes = &endpoint.Notes.String
-		}
-
-		endpoints = append(endpoints, stream.Endpoint{
-			EndpointID:  endpoint.EndpointID,
-			Application: endpoint.Application,
-			Name:        endpoint.Name,
-			Pwd:         pwd,
-			StartValid:  startValid,
-			EndValid:    endValid,
-			Notes:       notes,
-			Active:      endpoint.Active,
-			Blocked:     endpoint.Blocked,
-		})
+		endpoints = append(endpoints, s.streamEndpointDBToStreamEndpoint(endpoint))
 	}
 
 	return c.JSON(http.StatusOK, utils.NonNil(endpoints))
@@ -294,35 +267,7 @@ func (s *Store) FindStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, err)
 	}
 
-	var startValid, endValid *time.Time
-	var pwd, notes *string
-
-	if foundStream.Pwd.Valid {
-		pwd = &foundStream.Pwd.String
-	}
-	if foundStream.StartValid.Valid {
-		startValid = &foundStream.StartValid.Time
-	}
-	if foundStream.EndValid.Valid {
-		endValid = &foundStream.EndValid.Time
-	}
-	if foundStream.Notes.Valid {
-		notes = &foundStream.Notes.String
-	}
-
-	endpoint := stream.Endpoint{
-		EndpointID:  foundStream.EndpointID,
-		Application: foundStream.Application,
-		Name:        foundStream.Name,
-		Pwd:         pwd,
-		StartValid:  startValid,
-		EndValid:    endValid,
-		Notes:       notes,
-		Active:      foundStream.Active,
-		Blocked:     foundStream.Blocked,
-	}
-
-	return c.JSON(http.StatusOK, endpoint)
+	return c.JSON(http.StatusOK, s.streamEndpointDBToStreamEndpoint(foundStream))
 }
 
 // NewStream handles a creating a stream endpoint
@@ -333,12 +278,12 @@ func (s *Store) FindStream(c echo.Context) error {
 // @ID new-stream
 // @Tags stream-endpoints
 // @Accept json
-// @Param endpoint body stream.NewEditEndpoint true "Stream endpoint object"
-// @Success 201 body int "Endpoint ID"
+// @Param endpoint body stream.EndpointNewEditDTO true "Stream endpoint object"
+// @Success 201 {object} stream.Endpoint
 // @Error 400
 // @Router /v1/internal/streams [post]
 func (s *Store) NewStream(c echo.Context) error {
-	var newEndpoint stream.NewEditEndpoint
+	var newEndpoint stream.EndpointNewEditDTO
 
 	err := c.Bind(&newEndpoint)
 	if err != nil {
@@ -354,64 +299,34 @@ func (s *Store) NewStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("NewStream: endpoint application must be set"))
 	}
 
-	var startTime, endTime null.Time
-	startTime = null.TimeFromPtr(newEndpoint.StartValid)
-
 	if newEndpoint.EndValid != nil {
 		diffEnd := time.Now().Compare(*newEndpoint.EndValid)
 		if diffEnd != -1 {
 			return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after now")
 		}
 
-		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(*newEndpoint.EndValid)
+		if newEndpoint.StartValid != nil {
+			diffStartEnd := newEndpoint.StartValid.Compare(*newEndpoint.EndValid)
 			if diffStartEnd != -1 {
 				return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after start date")
 			}
 		}
-
-		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(*newEndpoint.EndValid)
-			if diffStartEnd != -1 {
-				return echo.NewHTTPError(http.StatusBadRequest, "NewStream: end date must be after start date")
-			}
-		}
-
-		endTime = null.TimeFromPtr(newEndpoint.EndValid)
 	}
 
-	pwd := null.StringFromPtr(newEndpoint.Pwd)
-	notes := null.StringFromPtr(newEndpoint.Notes)
-
-	endpoint, err := s.stream.NewEndpoint(c.Request().Context(), stream.EndpointDB{
-		Application: newEndpoint.Application,
-		Name:        newEndpoint.Name,
-		Pwd:         pwd,
-		StartValid:  startTime,
-		EndValid:    endTime,
-		Notes:       notes,
-		Blocked:     newEndpoint.Blocked,
-		AutoRemove:  newEndpoint.AutoRemove,
-	})
+	endpointDB, err := s.stream.NewEndpoint(c.Request().Context(), newEndpoint)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("NewStream: failed to insert stream endpoint: %w", err))
 	}
 
-	endpointCreated := struct {
-		EndpointID int `db:"endpointId"`
-	}{
-		EndpointID: endpoint.EndpointID,
-	}
-
-	return c.JSON(http.StatusCreated, endpointCreated)
+	return c.JSON(http.StatusCreated, s.streamEndpointDBToStreamEndpoint(endpointDB))
 }
 
 // EditStream edits an existing position
-// @Summary EditStream stream endpoint
+// @Summary Edit stream endpoint
 // @ID edit-stream
 // @Tags stream-endpoints
 // @Accept json
-// @Param endpoint body stream.NewEditEndpoint true "Endpoint object"
+// @Param endpoint body stream.EndpointNewEditDTO true "Endpoint object"
 // @Success 200 {object} stream.Endpoint
 // @Router /v1/internal/streams/{endpointid} [put]
 func (s *Store) EditStream(c echo.Context) error {
@@ -425,7 +340,7 @@ func (s *Store) EditStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "EditStream: endpoint not found")
 	}
 
-	var editEndpoint stream.NewEditEndpoint
+	var editEndpoint stream.EndpointNewEditDTO
 
 	err = c.Bind(&editEndpoint)
 	if err != nil {
@@ -441,51 +356,26 @@ func (s *Store) EditStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, errors.New("EditStream: endpoint application must be set"))
 	}
 
-	var startTime, endTime null.Time
-	startTime = null.TimeFromPtr(editEndpoint.StartValid)
-
 	if editEndpoint.EndValid != nil {
 		diffEnd := time.Now().Compare(*editEndpoint.EndValid)
 		if diffEnd != -1 {
 			return echo.NewHTTPError(http.StatusBadRequest, "EditStream: end date must be after now")
 		}
 
-		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(*editEndpoint.EndValid)
+		if editEndpoint.StartValid != nil {
+			diffStartEnd := editEndpoint.StartValid.Compare(*editEndpoint.EndValid)
 			if diffStartEnd != -1 {
 				return echo.NewHTTPError(http.StatusBadRequest, "EditStream: end date must be after start date")
 			}
 		}
-
-		if startTime.Valid {
-			diffStartEnd := startTime.Time.Compare(*editEndpoint.EndValid)
-			if diffStartEnd != -1 {
-				return echo.NewHTTPError(http.StatusBadRequest, "EditStream: end date must be after start date")
-			}
-		}
-
-		endTime = null.TimeFromPtr(editEndpoint.EndValid)
 	}
 
-	pwd := null.StringFromPtr(editEndpoint.Pwd)
-	notes := null.StringFromPtr(editEndpoint.Notes)
-
-	err = s.stream.EditEndpoint(c.Request().Context(), stream.EndpointDB{
-		EndpointID:  endpointID,
-		Application: editEndpoint.Application,
-		Name:        editEndpoint.Name,
-		Pwd:         pwd,
-		StartValid:  startTime,
-		EndValid:    endTime,
-		Notes:       notes,
-		Blocked:     editEndpoint.Blocked,
-		AutoRemove:  editEndpoint.AutoRemove,
-	})
+	endpointDB, err := s.stream.EditEndpoint(c.Request().Context(), endpointID, editEndpoint)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("EditStream: failed to edit stream endpoint: %w", err))
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, s.streamEndpointDBToStreamEndpoint(endpointDB))
 }
 
 // DeleteStream deletes a stream endpoint
@@ -509,4 +399,34 @@ func (s *Store) DeleteStream(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusOK)
+}
+
+func (s *Store) streamEndpointDBToStreamEndpoint(streamEndpointDB stream.EndpointDB) stream.Endpoint {
+	var startValid, endValid *time.Time
+	var pwd, notes *string
+
+	if streamEndpointDB.Pwd.Valid {
+		pwd = &streamEndpointDB.Pwd.String
+	}
+	if streamEndpointDB.StartValid.Valid {
+		startValid = &streamEndpointDB.StartValid.Time
+	}
+	if streamEndpointDB.EndValid.Valid {
+		endValid = &streamEndpointDB.EndValid.Time
+	}
+	if streamEndpointDB.Notes.Valid {
+		notes = &streamEndpointDB.Notes.String
+	}
+
+	return stream.Endpoint{
+		EndpointID:  streamEndpointDB.EndpointID,
+		Application: streamEndpointDB.Application,
+		Name:        streamEndpointDB.Name,
+		Pwd:         pwd,
+		StartValid:  startValid,
+		EndValid:    endValid,
+		Notes:       notes,
+		Active:      streamEndpointDB.Active,
+		Blocked:     streamEndpointDB.Blocked,
+	}
 }
