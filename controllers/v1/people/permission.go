@@ -38,7 +38,7 @@ func (s *Store) ListPermissions(c echo.Context) error {
 // @Success 200 {array} people.PermissionWithRolesCount
 // @Router /v1/internal/people/permissions/count [get]
 func (s *Store) ListPermissionsWithRolesCount(c echo.Context) error {
-	p, err := s.people.ListAllPermissions(c.Request().Context())
+	p, err := s.people.ListPermissionsWithRolesCount(c.Request().Context())
 	if err != nil {
 		err = fmt.Errorf("ListPermissionsWithRolesCount failed to get permissions: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
