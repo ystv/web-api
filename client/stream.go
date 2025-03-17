@@ -13,7 +13,7 @@ import (
 )
 
 func (c *Client) FindStreamEndpoint(ctx context.Context, apiKey string, options types.FindStreamEndpointOptions) (stream.Endpoint, error) {
-	u, err := url.Parse(c.BaseURL + "/v1/internal/people/users/pagination")
+	u, err := url.Parse(c.BaseURL + "/v1/internal/streams/find")
 	if err != nil {
 		return stream.Endpoint{}, fmt.Errorf("invalid base URL: %w", err)
 	}
