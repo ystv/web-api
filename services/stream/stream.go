@@ -23,8 +23,8 @@ type (
 		SetEndpointActiveByID(ctx context.Context, endpointID int) error
 		SetEndpointInactiveByApplicationNamePwd(ctx context.Context, application, name, pwd string) error
 
-		NewEndpoint(ctx context.Context, endpoint EndpointDB) (EndpointDB, error)
-		EditEndpoint(ctx context.Context, e EndpointDB) error
+		NewEndpoint(ctx context.Context, endpointNew EndpointNewEditDTO) (EndpointDB, error)
+		EditEndpoint(ctx context.Context, endpointID int, endpointEdit EndpointNewEditDTO) (EndpointDB, error)
 		DeleteEndpoint(ctx context.Context, endpointID int) error
 	}
 
@@ -77,8 +77,8 @@ type (
 		Pwd *string `json:"pwd,omitempty"`
 	}
 
-	// NewEditEndpoint encapsulates the creation of a stream endpoint
-	NewEditEndpoint struct {
+	// EndpointNewEditDTO encapsulates the creation of a stream endpoint
+	EndpointNewEditDTO struct {
 		// Application defines which RTMP application this is valid for
 		Application string `json:"application"`
 		// Name is the unique name given in an application
@@ -262,16 +262,16 @@ func (s *Store) SetEndpointInactiveByApplicationNamePwd(ctx context.Context, app
 	return nil
 }
 
-func (s *Store) NewEndpoint(ctx context.Context, e EndpointDB) (EndpointDB, error) {
+func (s *Store) NewEndpoint(ctx context.Context, endpointNew EndpointNewEditDTO) (EndpointDB, error) {
 	builder := utils.PSQL().Insert("web_api.stream_endpoints").
 		Columns("application", "name", "pwd", "start_valid", "end_valid", "notes", "active", "blocked",
 			"auto_remove").
-		Values(e.Application, e.Name, e.Pwd, e.StartValid, e.EndValid, e.Notes, e.Active, e.Blocked, e.AutoRemove).
+		Values(endpointNew.Application, endpointNew.Name, endpointNew.Pwd, endpointNew.StartValid, endpointNew.EndValid, endpointNew.Notes, false, endpointNew.Blocked, endpointNew.AutoRemove).
 		Suffix("RETURNING endpoint_id")
 
 	sql, args, err := builder.ToSql()
 	if err != nil {
-		panic(fmt.Errorf("failed to build sql for NewEditEndpoint: %w", err))
+		panic(fmt.Errorf("failed to build sql for EndpointNewEditDTO: %w", err))
 	}
 
 	stmt, err := s.db.PrepareContext(ctx, sql)
@@ -281,28 +281,29 @@ func (s *Store) NewEndpoint(ctx context.Context, e EndpointDB) (EndpointDB, erro
 
 	defer stmt.Close()
 
-	err = stmt.QueryRow(args...).Scan(&e.EndpointID)
+	var endpointID int
+
+	err = stmt.QueryRow(args...).Scan(&endpointID)
 	if err != nil {
 		return EndpointDB{}, fmt.Errorf("failed to add stream endpoint: %w", err)
 	}
 
-	return e, nil
+	return s.GetEndpointByID(ctx, endpointID)
 }
 
-func (s *Store) EditEndpoint(ctx context.Context, e EndpointDB) error {
+func (s *Store) EditEndpoint(ctx context.Context, endpointID int, endpointEdit EndpointNewEditDTO) (EndpointDB, error) {
 	builder := utils.PSQL().Update("web_api.stream_endpoints").
 		SetMap(map[string]interface{}{
-			"application": e.Application,
-			"name":        e.Name,
-			"pwd":         e.Pwd,
-			"start_valid": e.StartValid,
-			"end_valid":   e.EndValid,
-			"notes":       e.Notes,
-			"active":      e.Active,
-			"blocked":     e.Blocked,
-			"auto_remove": e.AutoRemove,
+			"application": endpointEdit.Application,
+			"name":        endpointEdit.Name,
+			"pwd":         endpointEdit.Pwd,
+			"start_valid": endpointEdit.StartValid,
+			"end_valid":   endpointEdit.EndValid,
+			"notes":       endpointEdit.Notes,
+			"blocked":     endpointEdit.Blocked,
+			"auto_remove": endpointEdit.AutoRemove,
 		}).
-		Where(sq.Eq{"endpoint_id": e.EndpointID})
+		Where(sq.Eq{"endpoint_id": endpointID})
 
 	sql, args, err := builder.ToSql()
 	if err != nil {
@@ -311,20 +312,20 @@ func (s *Store) EditEndpoint(ctx context.Context, e EndpointDB) error {
 
 	res, err := s.db.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return fmt.Errorf("failed to edit endpoint: %w", err)
+		return EndpointDB{}, fmt.Errorf("failed to edit endpoint: %w", err)
 	}
 
 	rows, err := res.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("failed to edit endpoint: %w", err)
+		return EndpointDB{}, fmt.Errorf("failed to edit endpoint: %w", err)
 	}
 
 	if rows < 1 {
-		return fmt.Errorf("failed to edit endpoint: invalid rows affected: %d, this endpoint may not exist: %d",
-			rows, e.EndpointID)
+		return EndpointDB{}, fmt.Errorf("failed to edit endpoint: invalid rows affected: %d, this endpoint may not exist: %d",
+			rows, endpointID)
 	}
 
-	return nil
+	return s.GetEndpointByID(ctx, endpointID)
 }
 
 func (s *Store) DeleteEndpoint(ctx context.Context, endpointID int) error {
