@@ -3291,7 +3291,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/stream.EndpointNewEditDTO"
+                            "$ref": "#/definitions/stream.EndpointAddEditDTO"
                         }
                     }
                 ],
@@ -3354,7 +3354,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/stream.EndpointNewEditDTO"
+                            "$ref": "#/definitions/stream.EndpointAddEditDTO"
                         }
                     }
                 ],
@@ -5543,7 +5543,7 @@ const docTemplate = `{
                 }
             }
         },
-        "stream.EndpointNewEditDTO": {
+        "stream.EndpointAddEditDTO": {
             "type": "object",
             "properties": {
                 "application": {

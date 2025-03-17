@@ -57,7 +57,7 @@ func (c *Client) FindStreamEndpoint(ctx context.Context, apiKey string, options 
 	return res, nil
 }
 
-func (c *Client) NewStreamEndpoint(ctx context.Context, apiKey string, options stream.EndpointNewEditDTO) (stream.Endpoint, error) {
+func (c *Client) AddStreamEndpoint(ctx context.Context, apiKey string, options stream.EndpointAddEditDTO) (stream.Endpoint, error) {
 	u, err := url.Parse(c.BaseURL + "/v1/internal/streams")
 	if err != nil {
 		return stream.Endpoint{}, fmt.Errorf("invalid base URL: %w", err)
@@ -83,7 +83,7 @@ func (c *Client) NewStreamEndpoint(ctx context.Context, apiKey string, options s
 	return res, nil
 }
 
-func (c *Client) EditStreamEndpoint(ctx context.Context, apiKey string, endpointID int, options stream.EndpointNewEditDTO) (stream.Endpoint, error) {
+func (c *Client) EditStreamEndpoint(ctx context.Context, apiKey string, endpointID int, options stream.EndpointAddEditDTO) (stream.Endpoint, error) {
 	u, err := url.Parse(fmt.Sprintf("%s/v1/internal/streams/%d", c.BaseURL, endpointID))
 	if err != nil {
 		return stream.Endpoint{}, fmt.Errorf("invalid base URL: %w", err)

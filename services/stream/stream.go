@@ -23,8 +23,8 @@ type (
 		SetEndpointActiveByID(ctx context.Context, endpointID int) error
 		SetEndpointInactiveByApplicationNamePwd(ctx context.Context, application, name, pwd string) error
 
-		NewEndpoint(ctx context.Context, endpointNew EndpointNewEditDTO) (EndpointDB, error)
-		EditEndpoint(ctx context.Context, endpointID int, endpointEdit EndpointNewEditDTO) (EndpointDB, error)
+		AddEndpoint(ctx context.Context, endpointNew EndpointAddEditDTO) (EndpointDB, error)
+		EditEndpoint(ctx context.Context, endpointID int, endpointEdit EndpointAddEditDTO) (EndpointDB, error)
 		DeleteEndpoint(ctx context.Context, endpointID int) error
 	}
 
@@ -77,8 +77,8 @@ type (
 		Pwd *string `json:"pwd,omitempty"`
 	}
 
-	// EndpointNewEditDTO encapsulates the creation of a stream endpoint
-	EndpointNewEditDTO struct {
+	// EndpointAddEditDTO encapsulates the creation of a stream endpoint
+	EndpointAddEditDTO struct {
 		// Application defines which RTMP application this is valid for
 		Application string `json:"application"`
 		// Name is the unique name given in an application
@@ -262,7 +262,7 @@ func (s *Store) SetEndpointInactiveByApplicationNamePwd(ctx context.Context, app
 	return nil
 }
 
-func (s *Store) NewEndpoint(ctx context.Context, endpointNew EndpointNewEditDTO) (EndpointDB, error) {
+func (s *Store) AddEndpoint(ctx context.Context, endpointNew EndpointAddEditDTO) (EndpointDB, error) {
 	builder := utils.PSQL().Insert("web_api.stream_endpoints").
 		Columns("application", "name", "pwd", "start_valid", "end_valid", "notes", "active", "blocked",
 			"auto_remove").
@@ -271,7 +271,7 @@ func (s *Store) NewEndpoint(ctx context.Context, endpointNew EndpointNewEditDTO)
 
 	sql, args, err := builder.ToSql()
 	if err != nil {
-		panic(fmt.Errorf("failed to build sql for EndpointNewEditDTO: %w", err))
+		panic(fmt.Errorf("failed to build sql for EndpointAddEditDTO: %w", err))
 	}
 
 	stmt, err := s.db.PrepareContext(ctx, sql)
@@ -291,7 +291,7 @@ func (s *Store) NewEndpoint(ctx context.Context, endpointNew EndpointNewEditDTO)
 	return s.GetEndpointByID(ctx, endpointID)
 }
 
-func (s *Store) EditEndpoint(ctx context.Context, endpointID int, endpointEdit EndpointNewEditDTO) (EndpointDB, error) {
+func (s *Store) EditEndpoint(ctx context.Context, endpointID int, endpointEdit EndpointAddEditDTO) (EndpointDB, error) {
 	builder := utils.PSQL().Update("web_api.stream_endpoints").
 		SetMap(map[string]interface{}{
 			"application": endpointEdit.Application,

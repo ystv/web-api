@@ -106,7 +106,7 @@ func (c *Client) GetPermissionWithRolesCount(ctx context.Context, apiKey string,
 	return res, nil
 }
 
-func (c *Client) NewPermission(ctx context.Context, apiKey string, options people.PermissionAddEditDTO) (people.Permission, error) {
+func (c *Client) AddPermission(ctx context.Context, apiKey string, options people.PermissionAddEditDTO) (people.Permission, error) {
 	u, err := url.Parse(c.BaseURL + "/v1/internal/people/permission")
 	if err != nil {
 		return people.Permission{}, fmt.Errorf("invalid base URL: %w", err)

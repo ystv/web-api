@@ -278,12 +278,12 @@ func (s *Store) FindStream(c echo.Context) error {
 // @ID new-stream
 // @Tags stream-endpoints
 // @Accept json
-// @Param endpoint body stream.EndpointNewEditDTO true "Stream endpoint object"
+// @Param endpoint body stream.EndpointAddEditDTO true "Stream endpoint object"
 // @Success 201 {object} stream.Endpoint
 // @Error 400
 // @Router /v1/internal/streams [post]
 func (s *Store) NewStream(c echo.Context) error {
-	var newEndpoint stream.EndpointNewEditDTO
+	var newEndpoint stream.EndpointAddEditDTO
 
 	err := c.Bind(&newEndpoint)
 	if err != nil {
@@ -313,7 +313,7 @@ func (s *Store) NewStream(c echo.Context) error {
 		}
 	}
 
-	endpointDB, err := s.stream.NewEndpoint(c.Request().Context(), newEndpoint)
+	endpointDB, err := s.stream.AddEndpoint(c.Request().Context(), newEndpoint)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("NewStream: failed to insert stream endpoint: %w", err))
 	}
@@ -326,7 +326,7 @@ func (s *Store) NewStream(c echo.Context) error {
 // @ID edit-stream
 // @Tags stream-endpoints
 // @Accept json
-// @Param endpoint body stream.EndpointNewEditDTO true "Endpoint object"
+// @Param endpoint body stream.EndpointAddEditDTO true "Endpoint object"
 // @Success 200 {object} stream.Endpoint
 // @Router /v1/internal/streams/{endpointid} [put]
 func (s *Store) EditStream(c echo.Context) error {
@@ -340,7 +340,7 @@ func (s *Store) EditStream(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "EditStream: endpoint not found")
 	}
 
-	var editEndpoint stream.EndpointNewEditDTO
+	var editEndpoint stream.EndpointAddEditDTO
 
 	err = c.Bind(&editEndpoint)
 	if err != nil {
