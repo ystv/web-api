@@ -3291,15 +3291,15 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/stream.NewEditEndpoint"
+                            "$ref": "#/definitions/stream.EndpointNewEditDTO"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Endpoint ID",
+                        "description": "Created",
                         "schema": {
-                            "type": "body"
+                            "$ref": "#/definitions/stream.Endpoint"
                         }
                     }
                 }
@@ -3345,7 +3345,7 @@ const docTemplate = `{
                 "tags": [
                     "stream-endpoints"
                 ],
-                "summary": "EditStream stream endpoint",
+                "summary": "Edit stream endpoint",
                 "operationId": "edit-stream",
                 "parameters": [
                     {
@@ -3354,7 +3354,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/stream.NewEditEndpoint"
+                            "$ref": "#/definitions/stream.EndpointNewEditDTO"
                         }
                     }
                 ],
@@ -4175,7 +4175,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "attendees": {
-                    "description": "Used for social, meet and other. This would be a XOR with Signups",
+                    "description": "Used for social, meet and other. This would be an XOR with Signups",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/clapper.Attendee"
@@ -5543,28 +5543,7 @@ const docTemplate = `{
                 }
             }
         },
-        "stream.FindEndpoint": {
-            "type": "object",
-            "properties": {
-                "application": {
-                    "description": "Application defines which RTMP application this is valid for",
-                    "type": "string"
-                },
-                "endpointId": {
-                    "description": "EndpointID is the unique database id of the stream",
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "Name is the unique name given in an application",
-                    "type": "string"
-                },
-                "pwd": {
-                    "description": "Pwd defines an extra layer of security for authentication",
-                    "type": "string"
-                }
-            }
-        },
-        "stream.NewEditEndpoint": {
+        "stream.EndpointNewEditDTO": {
             "type": "object",
             "properties": {
                 "application": {
@@ -5597,6 +5576,27 @@ const docTemplate = `{
                 },
                 "startValid": {
                     "description": "StartValid defines the optional start time that this endpoint becomes valid, RFC3339",
+                    "type": "string"
+                }
+            }
+        },
+        "stream.FindEndpoint": {
+            "type": "object",
+            "properties": {
+                "application": {
+                    "description": "Application defines which RTMP application this is valid for",
+                    "type": "string"
+                },
+                "endpointId": {
+                    "description": "EndpointID is the unique database id of the stream",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "Name is the unique name given in an application",
+                    "type": "string"
+                },
+                "pwd": {
+                    "description": "Pwd defines an extra layer of security for authentication",
                     "type": "string"
                 }
             }
