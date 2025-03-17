@@ -12,6 +12,25 @@ import (
 	"github.com/ystv/web-api/services/stream"
 )
 
+func (c *Client) ListStreamEndpoints(ctx context.Context, apiKey string) ([]stream.Endpoint, error) {
+	u, err := url.Parse(c.BaseURL + "/v1/internal/streams")
+	if err != nil {
+		return nil, fmt.Errorf("invalid base URL: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []stream.Endpoint
+	if err = c.sendRequest(req, apiKey, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (c *Client) FindStreamEndpoint(ctx context.Context, apiKey string, options types.FindStreamEndpointOptions) (stream.Endpoint, error) {
 	u, err := url.Parse(c.BaseURL + "/v1/internal/streams/find")
 	if err != nil {
