@@ -27,7 +27,7 @@ func (s *Store) ListAllPermissions(ctx context.Context) ([]Permission, error) {
 	return p, nil
 }
 
-func (s *Store) ListAllPermissionsWithRolesCount(ctx context.Context) ([]PermissionWithRolesCount, error) {
+func (s *Store) ListPermissionsWithRolesCount(ctx context.Context) ([]PermissionWithRolesCount, error) {
 	var p []PermissionWithRolesCount
 
 	builder := utils.PSQL().Select("p.*", "COUNT(rp.role_id) AS roles").

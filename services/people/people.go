@@ -90,6 +90,7 @@ type (
 	// PermissionRepo defines all permission interactions
 	PermissionRepo interface {
 		ListAllPermissions(ctx context.Context) ([]Permission, error)
+		ListPermissionsWithRolesCount(ctx context.Context) ([]PermissionWithRolesCount, error)
 		ListPermissionMembersByID(ctx context.Context, permissionID int) ([]User, error)
 		GetPermission(ctx context.Context, permissionID int) (Permission, error)
 		GetPermissionWithRolesCount(ctx context.Context, permissionID int) (PermissionWithRolesCount, error)
