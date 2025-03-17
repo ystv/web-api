@@ -43,13 +43,21 @@ func (c *Client) sendRequest(req *http.Request, apiKey string, v interface{}) er
 
 	defer res.Body.Close()
 
-	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusBadRequest {
+	if res.StatusCode < http.StatusNoContent || res.StatusCode >= http.StatusInternalServerError {
 		var errRes types.ErrorResponse
 		if err = json.NewDecoder(res.Body).Decode(&errRes); err == nil {
 			return errors.New(errRes.Message)
 		}
 
 		return fmt.Errorf("unknown error, status code: %d", res.StatusCode)
+	}
+
+	if res.StatusCode == http.StatusNotImplemented {
+		return errors.New("the requested url is not currently implemented: " + req.RequestURI)
+	}
+
+	if res.StatusCode == http.StatusNoContent {
+		return nil
 	}
 
 	fullResponse := types.SuccessResponse{
