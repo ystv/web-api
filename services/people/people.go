@@ -21,29 +21,29 @@ type (
 		OfficershipDBToOfficership(officershipDB OfficershipDB) Officership
 		OfficershipMemberDBToOfficershipMember(officershipDB OfficershipMemberDB) OfficershipMember
 		CountOfficerships(ctx context.Context) (CountOfficerships, error)
-		GetOfficerships(context.Context, OfficershipsStatus) ([]OfficershipDB, error)
-		GetOfficership(context.Context, OfficershipGetDTO) (OfficershipDB, error)
-		AddOfficership(context.Context, OfficershipAddEditDTO) (OfficershipDB, error)
-		EditOfficership(context.Context, int, OfficershipAddEditDTO) (OfficershipDB, error)
+		GetOfficerships(ctx context.Context, officershipsStatus OfficershipsStatus) ([]OfficershipDB, error)
+		GetOfficership(ctx context.Context, officershipGet OfficershipGetDTO) (OfficershipDB, error)
+		AddOfficership(ctx context.Context, officershipAdd OfficershipAddEditDTO) (OfficershipDB, error)
+		EditOfficership(ctx context.Context, officershipID int, officershipEdit OfficershipAddEditDTO) (OfficershipDB, error)
 		DeleteOfficership(ctx context.Context, officershipID int) error
 		GetOfficershipTeams(ctx context.Context) ([]OfficershipTeam, error)
-		GetOfficershipTeam(context.Context, OfficershipTeamGetDTO) (OfficershipTeam, error)
-		AddOfficershipTeam(context.Context, OfficershipTeamAddEditDTO) (OfficershipTeam, error)
-		EditOfficershipTeam(context.Context, int, OfficershipTeamAddEditDTO) (OfficershipTeam, error)
+		GetOfficershipTeam(ctx context.Context, officershipTeamGet OfficershipTeamGetDTO) (OfficershipTeam, error)
+		AddOfficershipTeam(ctx context.Context, officershipTeamAdd OfficershipTeamAddEditDTO) (OfficershipTeam, error)
+		EditOfficershipTeam(ctx context.Context, officershipID int, officershipTeamEdit OfficershipTeamAddEditDTO) (OfficershipTeam, error)
 		DeleteOfficershipTeam(ctx context.Context, officershipTeamID int) error
 		GetOfficershipTeamMembers(ctx context.Context, officershipTeamID *int,
 			officershipStatus OfficershipsStatus) ([]OfficershipTeamMember, error)
 		GetOfficershipsNotInTeam(ctx context.Context, officershipTeamID int) ([]OfficershipDB, error)
 		GetOfficershipTeamMember(ctx context.Context, officershipTeamMemberGet OfficershipTeamMemberGetDeleteDTO) (OfficershipTeamMember, error)
-		AddOfficershipTeamMember(context.Context, OfficershipTeamMemberAddDTO) (OfficershipTeamMember, error)
-		DeleteOfficershipTeamMember(context.Context, OfficershipTeamMemberGetDeleteDTO) error
+		AddOfficershipTeamMember(ctx context.Context, officershipTeamMemberAdd OfficershipTeamMemberAddDTO) (OfficershipTeamMember, error)
+		DeleteOfficershipTeamMember(ctx context.Context, officershipTeamMemberEdit OfficershipTeamMemberGetDeleteDTO) error
 		RemoveTeamForOfficershipTeamMembers(ctx context.Context, officershipTeamID int) error
 		GetOfficershipMembers(ctx context.Context, officershipGet *OfficershipGetDTO, userID *int,
 			officershipStatus OfficershipsStatus, officershipMemberStatus OfficershipsStatus,
 			orderByOfficerName bool) ([]OfficershipMemberDB, error)
 		GetOfficershipMember(ctx context.Context, officershipMemberID int) (OfficershipMemberDB, error)
-		AddOfficershipMember(context.Context, OfficershipMemberAddEditDTO) (OfficershipMemberDB, error)
-		EditOfficershipMember(context.Context, int, OfficershipMemberAddEditDTO) (OfficershipMemberDB, error)
+		AddOfficershipMember(ctx context.Context, officershipMemberAdd OfficershipMemberAddEditDTO) (OfficershipMemberDB, error)
+		EditOfficershipMember(ctx context.Context, officershipMemberID int, officershipMemberEdit OfficershipMemberAddEditDTO) (OfficershipMemberDB, error)
 		DeleteOfficershipMember(ctx context.Context, officershipMemberID int) error
 		RemoveOfficershipForOfficershipMembers(ctx context.Context, officershipID int) error
 		RemoveUserForOfficershipMembers(ctx context.Context, userID int) error
@@ -74,17 +74,17 @@ type (
 		DeleteRole(ctx context.Context, roleID int) error
 		RemoveRoleForPermissions(ctx context.Context, roleID int) error
 		RemoveRoleForUsers(ctx context.Context, roleID int) error
-		GetRoleUser(context.Context, RoleUser) (RoleUser, error)
+		GetRoleUser(ctx context.Context, roleUser RoleUser) (RoleUser, error)
 		GetUsersNotInRole(ctx context.Context, roleID int) ([]User, error)
-		AddRoleUser(context.Context, RoleUser) (RoleUser, error)
-		RemoveRoleUser(context.Context, RoleUser) error
-		RemoveUserForRoles(context.Context, User) error
-		GetPermissionsForRole(context.Context, int) ([]Permission, error)
-		GetRolesForPermission(context.Context, int) ([]Role, error)
-		GetRolePermission(context.Context, RolePermission) (RolePermission, error)
+		AddRoleUser(ctx context.Context, roleUser RoleUser) (RoleUser, error)
+		RemoveRoleUser(ctx context.Context, roleUser RoleUser) error
+		RemoveUserForRoles(ctx context.Context, userID int) error
+		GetPermissionsForRole(ctx context.Context, roleID int) ([]Permission, error)
+		GetRolesForPermission(ctx context.Context, permissionID int) ([]Role, error)
+		GetRolePermission(ctx context.Context, rolePermission RolePermission) (RolePermission, error)
 		GetPermissionsNotInRole(ctx context.Context, roleID int) ([]Permission, error)
-		AddRolePermission(context.Context, RolePermission) (RolePermission, error)
-		RemoveRolePermission(context.Context, RolePermission) error
+		AddRolePermission(ctx context.Context, rolePermission RolePermission) (RolePermission, error)
+		RemoveRolePermission(ctx context.Context, rolePermission RolePermission) error
 	}
 
 	// PermissionRepo defines all permission interactions

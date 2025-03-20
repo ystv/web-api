@@ -396,9 +396,9 @@ func (s *Store) RemoveRoleUser(ctx context.Context, ru RoleUser) error {
 }
 
 // RemoveUserForRoles removes all links between role.Role and a User
-func (s *Store) RemoveUserForRoles(ctx context.Context, u User) error {
+func (s *Store) RemoveUserForRoles(ctx context.Context, userID int) error {
 	builder := utils.PSQL().Delete("people.role_members").
-		Where(sq.Eq{"user_id": u.UserID})
+		Where(sq.Eq{"user_id": userID})
 
 	sql, args, err := builder.ToSql()
 	if err != nil {
