@@ -56,13 +56,45 @@ The generation of usable JSON Web Tokens is available in [web-auth](https://gith
     - [x] Calendar
     - [x] Stats
   - [ ] People
-    - [x] User by ID
-    - [x] User by JWT
-    - [x] Permissions
-    - [ ] Create user
-    - [ ] Create roles
-    - [x] List all users
-    - [x] List all users by role
+    - [ ] User
+      - [x] List all users
+      - [x] List all users by role
+      - [x] User by ID
+      - [x] User by JWT
+      - [ ] Add
+      - [ ] Edit
+      - [ ] Delete
+    - [x] Permission
+      - [x] List
+      - [x] Get
+      - [x] Add
+      - [x] Edit
+      - [x] Delete
+    - [x] Role
+      - [x] List
+      - [x] Get
+      - [x] Add
+      - [x] Edit
+      - [x] Delete
+    - [x] Officership
+      - [x] Officership
+        - [x] List
+        - [x] Get
+        - [x] Add
+        - [x] Edit
+        - [x] Delete
+      - [x] Team
+        - [x] List
+        - [x] Get
+        - [x] Add
+        - [x] Edit
+        - [x] Delete
+      - [x] Officer
+        - [x] List
+        - [x] Get
+        - [x] Add
+        - [x] Edit
+        - [x] Delete
   - [ ] Clapper
     - [ ] Events
       - [x] List by month
