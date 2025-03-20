@@ -188,28 +188,28 @@ func (s *Store) AddUser(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, u)
 }
 
-// ListAllPeople handles listing all users
+// ListUsers handles listing users
 //
-// @Summary List all users
-// @ID get-people-users-all
+// @Summary List users
+// @ID list-people-users
 // @Tags people-user
 // @Produce json
 // @Success 200 {array} people.User
 // @Router /v1/internal/people/users [get]
-func (s *Store) ListAllPeople(c echo.Context) error {
+func (s *Store) ListUsers(c echo.Context) error {
 	p, err := s.people.ListAllUsers(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListAllPeople failed to get all users: %w", err)
+		err = fmt.Errorf("ListUsers failed to get all users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, utils.NonNil(p))
 }
 
-// ListPeoplePagination handles listing users with pagination
+// ListUsersPagination handles listing users with pagination
 //
 // @Summary List users with pagination
-// @ID get-people-users-pagination
+// @ID list-people-users-pagination
 // @Tags people-user
 // @Produce json
 // @Param size query int false "Page size"
@@ -221,14 +221,14 @@ func (s *Store) ListAllPeople(c echo.Context) error {
 // @Param deleted query string false "Is user deleted"
 // @Success 200 {array} people.UserFull
 // @Router /v1/internal/people/users/pagination [get]
-func (s *Store) ListPeoplePagination(c echo.Context) error {
+func (s *Store) ListUsersPagination(c echo.Context) error {
 	column := c.QueryParam("column")
 	direction := c.QueryParam("direction")
 	search := c.QueryParam("search")
 
 	search, err := url.QueryUnescape(search)
 	if err != nil {
-		return fmt.Errorf("ListPeoplePagination failed to unescape query: %w", err)
+		return fmt.Errorf("ListUsersPagination failed to unescape query: %w", err)
 	}
 
 	enabled := c.QueryParam("enabled")
@@ -244,7 +244,7 @@ func (s *Store) ListPeoplePagination(c echo.Context) error {
 		page, err = strconv.Atoi(c.QueryParam("page"))
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				fmt.Errorf("ListPeoplePagination unable to parse page for users: %w", err))
+				fmt.Errorf("ListUsersPagination unable to parse page for users: %w", err))
 		}
 
 		size, err = strconv.Atoi(sizeRaw)
@@ -253,7 +253,7 @@ func (s *Store) ListPeoplePagination(c echo.Context) error {
 			size = 0
 		} else if size <= 0 {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				errors.New("ListPeoplePagination invalid size, must be positive"))
+				errors.New("ListUsersPagination invalid size, must be positive"))
 		} else if size != 5 && size != 10 && size != 25 && size != 50 && size != 75 && size != 100 {
 			size = 0
 		}
@@ -276,7 +276,7 @@ func (s *Store) ListPeoplePagination(c echo.Context) error {
 	dbUsers, fullCount, err := s.people.GetUsersPagination(c.Request().Context(), size, page, search, column,
 		direction, enabled, deleted)
 	if err != nil {
-		err = fmt.Errorf("ListPeoplePagination failed to get paginated users: %w", err)
+		err = fmt.Errorf("ListUsersPagination failed to get paginated users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 

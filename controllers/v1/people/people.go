@@ -51,18 +51,21 @@ type (
 	}
 
 	RoleRepo interface {
-		ListAllRolesWithPermissions(c echo.Context) error
-		ListAllRolesWithCount(c echo.Context) error
+		ListRolesWithPermissions(c echo.Context) error
+		ListRolesWithCount(c echo.Context) error
 		GetRoleFull(c echo.Context) error
+		GetRole(c echo.Context) error
 		ListRoleMembersByID(c echo.Context) error
 		ListRolePermissionsByID(c echo.Context) error
 		AddRole(c echo.Context) error
 		EditRole(c echo.Context) error
 		DeleteRole(c echo.Context) error
-		RoleAddPermissionFunc(c echo.Context) error
-		RoleRemovePermissionFunc(c echo.Context) error
-		RoleAddUserFunc(c echo.Context) error
-		RoleRemoveUserFunc(c echo.Context) error
+		RoleAddPermission(c echo.Context) error
+		RoleRemovePermission(c echo.Context) error
+		ListUsersNotInRole(c echo.Context) error
+		ListPermissionsNotInRole(c echo.Context) error
+		RoleAddUser(c echo.Context) error
+		RoleRemoveUser(c echo.Context) error
 	}
 
 	UserRepo interface {
@@ -74,8 +77,8 @@ type (
 		UserByToken(c echo.Context) error
 		UserByTokenFull(c echo.Context) error
 		AddUser(c echo.Context) error
-		ListAllPeople(c echo.Context) error
-		ListPeoplePagination(c echo.Context) error
+		ListUsers(c echo.Context) error
+		ListUsersPagination(c echo.Context) error
 	}
 
 	// Store stores our dependencies

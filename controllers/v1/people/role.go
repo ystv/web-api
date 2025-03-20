@@ -12,43 +12,43 @@ import (
 	"github.com/ystv/web-api/utils"
 )
 
-// ListAllRolesWithPermissions handles listing all roles
+// ListRolesWithPermissions handles listing roles
 //
-// @Summary List all roles
+// @Summary List roles
 // @ID get-people-roles-with-permissions
 // @Tags people-role
 // @Produce json
 // @Success 200 {array} people.RoleWithPermissions
 // @Router /v1/internal/people/roles [get]
-func (s *Store) ListAllRolesWithPermissions(c echo.Context) error {
+func (s *Store) ListRolesWithPermissions(c echo.Context) error {
 	r, err := s.people.ListAllRolesWithPermissions(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListAllRolesWithPermissions failed to get roles: %w", err)
+		err = fmt.Errorf("ListRolesWithPermissions failed to get roles: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, utils.NonNil(r))
 }
 
-// ListAllRolesWithCount handles listing all roles
+// ListRolesWithCount handles listing roles
 //
-// @Summary List all roles with count
+// @Summary List roles with count
 // @ID get-people-roles-count
 // @Tags people-role
 // @Produce json
 // @Success 200 {array} people.RoleWithCount
 // @Router /v1/internal/people/roles/count [get]
-func (s *Store) ListAllRolesWithCount(c echo.Context) error {
+func (s *Store) ListRolesWithCount(c echo.Context) error {
 	r, err := s.people.ListAllRolesWithCount(c.Request().Context())
 	if err != nil {
-		err = fmt.Errorf("ListAllRolesWithCount failed to get roles: %w", err)
+		err = fmt.Errorf("ListRolesWithCount failed to get roles: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
 	return c.JSON(http.StatusOK, utils.NonNil(r))
 }
 
-// GetRoleFull handles Getting a certain role and all users and permissions
+// GetRoleFull handles getting a certain role and all users and permissions
 //
 // @Summary List all users and permissions of a given role
 // @ID get-people-role-full
@@ -66,6 +66,30 @@ func (s *Store) GetRoleFull(c echo.Context) error {
 	r, err := s.people.GetRoleFull(c.Request().Context(), roleID)
 	if err != nil {
 		err = fmt.Errorf("GetRoleFull failed to get users: %w", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, r)
+}
+
+// GetRole handles getting a certain role
+//
+// @Summary Provides a given role
+// @ID get-people-role
+// @Tags people-role
+// @Produce json
+// @Param roleid path int true "Role ID"
+// @Success 200 {object} people.Role
+// @Router /v1/internal/people/role/{roleid} [get]
+func (s *Store) GetRole(c echo.Context) error {
+	roleID, err := strconv.Atoi(c.Param("roleid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid role id")
+	}
+
+	r, err := s.people.GetRole(c.Request().Context(), people.RoleGetDTO{RoleID: roleID})
+	if err != nil {
+		err = fmt.Errorf("GetRole failed to get users: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)
 	}
 
@@ -231,7 +255,35 @@ func (s *Store) DeleteRole(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-// RoleAddPermissionFunc handles adding a permission to a role
+// ListPermissionsNotInRole handles listing the permissions not in a role
+//
+// @Summary Lists permissions not in role
+// @ID list-people-role-permission-not
+// @Tags people-role
+// @Produce json
+// @Param roleid path int true "role id"
+// @Success 201 {array} people.Permission
+// @Router /v1/internal/people/role/{roleid}/permissions/notinrole [post]
+func (s *Store) ListPermissionsNotInRole(c echo.Context) error {
+	roleID, err := strconv.Atoi(c.Param("roleid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get role for listPermissionsNotInRole: %w", err))
+	}
+
+	_, err = s.people.GetRole(c.Request().Context(), people.RoleGetDTO{RoleID: roleID})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get role for listPermissionsNotInRole: %w", err))
+	}
+
+	permissions, err := s.people.GetPermissionsNotInRole(c.Request().Context(), roleID)
+	if err == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get users for listPermissionsNotInRole: %w", err))
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(permissions))
+}
+
+// RoleAddPermission handles adding a permission to a role
 //
 // @Summary Adds a permission to a role
 // @ID add-people-role-permission
@@ -241,7 +293,7 @@ func (s *Store) DeleteRole(c echo.Context) error {
 // @Param permissionid path int true "permission id"
 // @Success 201 {object} people.RolePermission
 // @Router /v1/internal/people/role/{roleid}/permission/{permissionid} [post]
-func (s *Store) RoleAddPermissionFunc(c echo.Context) error {
+func (s *Store) RoleAddPermission(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get role for roleAddPermission: %w", err))
@@ -280,7 +332,7 @@ func (s *Store) RoleAddPermissionFunc(c echo.Context) error {
 	return c.JSON(http.StatusOK, rp)
 }
 
-// RoleRemovePermissionFunc handles removing a permission from a role
+// RoleRemovePermission handles removing a permission from a role
 //
 // @Summary Removes a permission from a role
 // @ID remove-people-role-permission
@@ -290,7 +342,7 @@ func (s *Store) RoleAddPermissionFunc(c echo.Context) error {
 // @Param permissionid path int true "permission id"
 // @Success 204
 // @Router /v1/internal/people/role/{roleid}/permission/{permissionid} [delete]
-func (s *Store) RoleRemovePermissionFunc(c echo.Context) error {
+func (s *Store) RoleRemovePermission(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get roleid for roleRemovePermission: %w", err))
@@ -329,7 +381,35 @@ func (s *Store) RoleRemovePermissionFunc(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
-// RoleAddUserFunc handles adding a user to a role
+// ListUsersNotInRole handles listing the users not in a role
+//
+// @Summary Lists users not in role
+// @ID list-people-role-user-not
+// @Tags people-role
+// @Produce json
+// @Param roleid path int true "role id"
+// @Success 201 {array} people.User
+// @Router /v1/internal/people/role/{roleid}/users/notinrole [post]
+func (s *Store) ListUsersNotInRole(c echo.Context) error {
+	roleID, err := strconv.Atoi(c.Param("roleid"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get role for listUsersNotInRole: %w", err))
+	}
+
+	_, err = s.people.GetRole(c.Request().Context(), people.RoleGetDTO{RoleID: roleID})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get role for listUsersNotInRole: %w", err))
+	}
+
+	users, err := s.people.GetUsersNotInRole(c.Request().Context(), roleID)
+	if err == nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Errorf("failed to get users for listUsersNotInRole: %w", err))
+	}
+
+	return c.JSON(http.StatusOK, utils.NonNil(users))
+}
+
+// RoleAddUser handles adding a user to a role
 //
 // @Summary Adds a user to a role
 // @ID add-people-role-user
@@ -339,7 +419,7 @@ func (s *Store) RoleRemovePermissionFunc(c echo.Context) error {
 // @Param userid path int true "user id"
 // @Success 201 {object} people.RoleUser
 // @Router /v1/internal/people/role/{roleid}/user/{userid} [post]
-func (s *Store) RoleAddUserFunc(c echo.Context) error {
+func (s *Store) RoleAddUser(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get role for roleAddUser: %w", err))
@@ -378,7 +458,7 @@ func (s *Store) RoleAddUserFunc(c echo.Context) error {
 	return c.JSON(http.StatusOK, ru)
 }
 
-// RoleRemoveUserFunc handles removing a user from a role
+// RoleRemoveUser handles removing a user from a role
 //
 // @Summary Removes a user from a role
 // @ID remove-people-role-user
@@ -388,7 +468,7 @@ func (s *Store) RoleAddUserFunc(c echo.Context) error {
 // @Param userid path int true "user id"
 // @Success 204
 // @Router /v1/internal/people/role/{roleid}/user/{userid} [delete]
-func (s *Store) RoleRemoveUserFunc(c echo.Context) error {
+func (s *Store) RoleRemoveUser(c echo.Context) error {
 	roleID, err := strconv.Atoi(c.Param("roleid"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Errorf("failed to get roleid for roleRemoveUser: %w", err))
