@@ -199,27 +199,36 @@ func (r *Router) loadRoutes() {
 					if !r.router.Debug {
 						users.Use(r.access.ListUserAuthMiddleware)
 					}
-					users.GET("", r.people.ListAllPeople)
-					users.GET("/pagination", r.people.ListPeoplePagination)
+					users.GET("", r.people.ListUsers)
+					users.GET("/pagination", r.people.ListUsersPagination)
 				}
 				role := people.Group("/role", r.access.GroupAuthMiddleware)
 				{
-					role.GET("s", r.people.ListAllRolesWithPermissions)
-					role.GET("s/count", r.people.ListAllRolesWithCount)
+					role.GET("s", r.people.ListRolesWithPermissions)
+					role.GET("s/count", r.people.ListRolesWithCount)
 					roleItem := role.Group("/:roleid")
 					{
 						roleItem.GET("/full", r.people.GetRoleFull)
 						roleItem.GET("/members", r.people.ListRoleMembersByID)
-						rolePermission := roleItem.Group("/permission/:permissionid")
+						rolePermission := roleItem.Group("/permission")
 						{
-							rolePermission.POST("", r.people.RoleAddPermissionFunc)
-							rolePermission.DELETE("", r.people.RoleRemovePermissionFunc)
+							rolePermission.GET("s/notinrole", r.people.ListPermissionsNotInRole)
+							rolePermissionPermission := rolePermission.Group("/:permissionid")
+							{
+								rolePermissionPermission.POST("", r.people.RoleAddPermission)
+								rolePermissionPermission.DELETE("", r.people.RoleRemovePermission)
+							}
 						}
-						roleUser := roleItem.Group("/user/:userid")
+						roleUser := roleItem.Group("/user")
 						{
-							roleUser.POST("", r.people.RoleAddUserFunc)
-							roleUser.DELETE("", r.people.RoleRemoveUserFunc)
+							roleUser.GET("/notinrole", r.people.ListUsersNotInRole)
+							roleUserUser := roleUser.Group("/:userid")
+							{
+								roleUserUser.POST("", r.people.RoleAddUser)
+								roleUserUser.DELETE("", r.people.RoleRemoveUser)
+							}
 						}
+						roleItem.GET("", r.people.GetRole)
 					}
 					role.POST("", r.people.AddRole)
 				}
