@@ -11,7 +11,7 @@ import (
 )
 
 func (c *Client) ListUsersPagination(ctx context.Context, apiKey string, options types.ListUsersPaginationOptions) (people.UserFullPagination, error) {
-	u, err := url.Parse(c.BaseURL)
+	u, err := url.Parse(c.BaseURL + "/v1/internal/people/users/pagination")
 	if err != nil {
 		return people.UserFullPagination{}, fmt.Errorf("invalid base URL: %w", err)
 	}
