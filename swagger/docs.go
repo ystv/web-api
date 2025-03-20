@@ -2590,6 +2590,33 @@ const docTemplate = `{
             }
         },
         "/v1/internal/people/role/{roleid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Provides a given role",
+                "operationId": "get-people-role",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Role ID",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/people.Role"
+                        }
+                    }
+                }
+            },
             "put": {
                 "produces": [
                     "application/json"
@@ -2823,6 +2850,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/internal/people/role/{roleid}/permissions/notinrole": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Lists permissions not in role",
+                "operationId": "list-people-role-permission-not",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role id",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.Permission"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/people/role/{roleid}/user/{userid}": {
             "post": {
                 "produces": [
@@ -2890,6 +2949,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/internal/people/role/{roleid}/users/notinrole": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "people-role"
+                ],
+                "summary": "Lists users not in role",
+                "operationId": "list-people-role-user-not",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "role id",
+                        "name": "roleid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/people.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/people/roles": {
             "get": {
                 "produces": [
@@ -2898,7 +2989,7 @@ const docTemplate = `{
                 "tags": [
                     "people-role"
                 ],
-                "summary": "List all roles",
+                "summary": "List roles",
                 "operationId": "get-people-roles-with-permissions",
                 "responses": {
                     "200": {
@@ -2921,7 +3012,7 @@ const docTemplate = `{
                 "tags": [
                     "people-role"
                 ],
-                "summary": "List all roles with count",
+                "summary": "List roles with count",
                 "operationId": "get-people-roles-count",
                 "responses": {
                     "200": {
@@ -3106,8 +3197,8 @@ const docTemplate = `{
                 "tags": [
                     "people-user"
                 ],
-                "summary": "List all users",
-                "operationId": "get-people-users-all",
+                "summary": "List users",
+                "operationId": "list-people-users",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -3130,7 +3221,7 @@ const docTemplate = `{
                     "people-user"
                 ],
                 "summary": "List users with pagination",
-                "operationId": "get-people-users-pagination",
+                "operationId": "list-people-users-pagination",
                 "parameters": [
                     {
                         "type": "integer",
