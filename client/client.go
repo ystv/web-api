@@ -38,32 +38,40 @@ func (c *Client) sendRequest(req *http.Request, apiKey string, v interface{}) er
 
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("request failed: %w", err)
 	}
 
 	defer res.Body.Close()
 
-	if res.StatusCode < http.StatusNoContent || res.StatusCode >= http.StatusInternalServerError {
-		var errRes types.ErrorResponse
-		if err = json.NewDecoder(res.Body).Decode(&errRes); err == nil {
-			return errors.New(errRes.Message)
+	if res.StatusCode > http.StatusNoContent && res.StatusCode <= http.StatusBadGateway {
+		errRes := types.ErrorResponse{
+			Code: res.StatusCode,
+		}
+		if err = json.NewDecoder(res.Body).Decode(&errRes.Message); err == nil {
+			return fmt.Errorf("invalid status code: %d, body: %s", errRes.Code, errRes.Message)
 		}
 
-		return fmt.Errorf("unknown error, status code: %d", res.StatusCode)
-	}
+		switch res.StatusCode {
+		case http.StatusUnauthorized:
+			return errors.New("unauthorised")
+		case http.StatusNotFound:
+			return errors.New("the requested url is not currently found: " + req.URL.Path)
+		case http.StatusInternalServerError:
+			return errors.New("internal server error: " + errRes.Message)
+		case http.StatusNotImplemented:
+			return errors.New("the requested url is not currently implemented: " + req.URL.Path)
+		case http.StatusBadGateway:
+			return errors.New("bad gateway, web api may be down: " + req.URL.Path)
+		}
 
-	if res.StatusCode == http.StatusNotImplemented {
-		return errors.New("the requested url is not currently implemented: " + req.RequestURI)
+		return fmt.Errorf("unknown error, status code: %d, message: %s", res.StatusCode, errRes.Message)
 	}
 
 	if res.StatusCode == http.StatusNoContent {
 		return nil
 	}
 
-	fullResponse := types.SuccessResponse{
-		Data: v,
-	}
-	if err = json.NewDecoder(res.Body).Decode(&fullResponse); err != nil {
+	if err = json.NewDecoder(res.Body).Decode(v); err != nil {
 		return err
 	}
 
