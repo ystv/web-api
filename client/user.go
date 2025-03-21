@@ -49,3 +49,22 @@ func (c *Client) ListUsersPagination(ctx context.Context, apiKey string, options
 
 	return res, nil
 }
+
+func (c *Client) GetUser(ctx context.Context, apiKey string, userID int) (people.User, error) {
+	u, err := url.Parse(fmt.Sprintf("%s/v1/internal/people/user/%d", c.BaseURL, userID))
+	if err != nil {
+		return people.User{}, fmt.Errorf("invalid base URL: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return people.User{}, err
+	}
+
+	var res people.User
+	if err = c.sendRequest(req, apiKey, &res); err != nil {
+		return people.User{}, err
+	}
+
+	return res, nil
+}
