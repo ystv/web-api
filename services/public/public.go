@@ -67,11 +67,15 @@ type (
 	}
 	// Store encapsulates our dependency
 	Store struct {
-		db *sqlx.DB
+		db          *sqlx.DB
+		cdnEndpoint string
 	}
 )
 
 // NewStore creates our data store
-func NewStore(db *sqlx.DB) Repos {
-	return &Store{db}
+func NewStore(db *sqlx.DB, cdnEndpoint string) Repos {
+	return &Store{
+		db:          db,
+		cdnEndpoint: cdnEndpoint,
+	}
 }

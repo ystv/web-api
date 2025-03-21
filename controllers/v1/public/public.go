@@ -65,6 +65,6 @@ type (
 )
 
 // NewRepos creates our data store
-func NewRepos(db *sqlx.DB) Repos {
-	return &Store{public.NewStore(db)}
+func NewRepos(db *sqlx.DB, cdnEndpoint string) Repos {
+	return &Store{public.NewStore(db, cdnEndpoint)}
 }

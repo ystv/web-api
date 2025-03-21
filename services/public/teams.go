@@ -2,7 +2,11 @@ package public
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"log"
+	"strings"
 	"time"
 
 	"gopkg.in/guregu/null.v4"
@@ -21,10 +25,8 @@ type (
 
 	// TeamMember a position within a group
 	TeamMember struct {
-		UserID             int        `json:"userID"`
 		UserName           string     `json:"userName"`
 		Avatar             string     `json:"avatar"`
-		OfficerID          int        `json:"officerID"`
 		EmailAlias         string     `json:"emailAlias"`
 		OfficerName        string     `json:"officerName"`
 		OfficerDescription string     `json:"officerDescription"`
@@ -35,16 +37,17 @@ type (
 
 	// TeamMemberDB a position within a group
 	TeamMemberDB struct {
-		UserID             int       `json:"userID" db:"user_id"`
-		UserName           string    `json:"userName" db:"user_name"`
-		Avatar             string    `json:"avatar" db:"avatar"`
-		OfficerID          int       `json:"officerID" db:"officer_id"`
-		EmailAlias         string    `json:"emailAlias" db:"email_alias"`
-		OfficerName        string    `json:"officerName" db:"officer_name"`
-		OfficerDescription string    `json:"officerDescription" db:"officer_description"`
-		HistoryWikiURL     string    `json:"historywikiURL" db:"historywiki_url"`
-		StartDate          null.Time `json:"startDate" db:"start_date"`
-		EndDate            null.Time `json:"endDate" db:"end_date"`
+		UserID             int       `db:"user_id"`
+		UserName           string    `db:"user_name"`
+		UserEmail          string    `db:"user_email"`
+		Avatar             string    `db:"avatar"`
+		UseGravatar        bool      `db:"use_gravatar"`
+		EmailAlias         string    `db:"email_alias"`
+		OfficerName        string    `db:"officer_name"`
+		OfficerDescription string    `db:"officer_description"`
+		HistoryWikiURL     string    `db:"historywiki_url"`
+		StartDate          null.Time `db:"start_date"`
+		EndDate            null.Time `db:"end_date"`
 	}
 )
 
@@ -57,10 +60,8 @@ func (s *Store) TeamMemberDBToTeamMember(teamMember TeamMemberDB) TeamMember {
 		endDate = &teamMember.EndDate.Time
 	}
 	return TeamMember{
-		UserID:             teamMember.UserID,
 		UserName:           teamMember.UserName,
 		Avatar:             teamMember.Avatar,
-		OfficerID:          teamMember.OfficerID,
 		EmailAlias:         teamMember.EmailAlias,
 		OfficerName:        teamMember.OfficerName,
 		OfficerDescription: teamMember.OfficerDescription,
@@ -108,10 +109,8 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 		}
 
 		teamMembers = append(teamMembers, TeamMember{
-			UserID:             m.UserID,
 			UserName:           m.UserName,
 			Avatar:             m.Avatar,
-			OfficerID:          m.OfficerID,
 			EmailAlias:         m.EmailAlias,
 			OfficerName:        m.OfficerName,
 			OfficerDescription: m.OfficerDescription,
@@ -149,10 +148,8 @@ func (s *Store) GetTeamByID(ctx context.Context, teamID int) (Team, error) {
 		}
 
 		teamMembers = append(teamMembers, TeamMember{
-			UserID:             m.UserID,
 			UserName:           m.UserName,
 			Avatar:             m.Avatar,
-			OfficerID:          m.OfficerID,
 			EmailAlias:         m.EmailAlias,
 			OfficerName:        m.OfficerName,
 			OfficerDescription: m.OfficerDescription,
@@ -177,8 +174,8 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 	teamMembers := make([]TeamMemberDB, 0)
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
-		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
-		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
+		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, users.email AS user_email, COALESCE(users.avatar, '') AS avatar,
+		users.use_gravatar AS use_gravatar, officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
 		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
@@ -200,6 +197,20 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 	}
 
 	for _, teamMember := range teamMembers {
+		switch avatar := teamMember.Avatar; {
+		case teamMember.UseGravatar:
+			//nolint:gosec
+			hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(teamMember.UserEmail))))
+			teamMember.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+		case avatar == "":
+			teamMember.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+		case strings.Contains(avatar, s.cdnEndpoint):
+		case strings.Contains(avatar, fmt.Sprintf("%d.", teamMember.UserID)):
+			teamMember.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+		default:
+			log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", teamMember.UserID, len(teamMember.Avatar), teamMember.Avatar)
+			teamMember.Avatar = ""
+		}
 		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
 	}
 
@@ -216,7 +227,7 @@ func (s *Store) GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, 
 	teamMembers := make([]TeamMemberDB, 0)
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
-		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
+		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
@@ -239,6 +250,20 @@ func (s *Store) GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, 
 	}
 
 	for _, teamMember := range teamMembers {
+		switch avatar := teamMember.Avatar; {
+		case teamMember.UseGravatar:
+			//nolint:gosec
+			hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(teamMember.UserEmail))))
+			teamMember.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+		case avatar == "":
+			teamMember.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+		case strings.Contains(avatar, s.cdnEndpoint):
+		case strings.Contains(avatar, fmt.Sprintf("%d.", teamMember.UserID)):
+			teamMember.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+		default:
+			log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", teamMember.UserID, len(teamMember.Avatar), teamMember.Avatar)
+			teamMember.Avatar = ""
+		}
 		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
 	}
 
@@ -255,7 +280,7 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 	teamMembers := make([]TeamMemberDB, 0)
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
-		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
+		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
@@ -280,6 +305,20 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 	}
 
 	for _, teamMember := range teamMembers {
+		switch avatar := teamMember.Avatar; {
+		case teamMember.UseGravatar:
+			//nolint:gosec
+			hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(teamMember.UserEmail))))
+			teamMember.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+		case avatar == "":
+			teamMember.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+		case strings.Contains(avatar, s.cdnEndpoint):
+		case strings.Contains(avatar, fmt.Sprintf("%d.", teamMember.UserID)):
+			teamMember.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+		default:
+			log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", teamMember.UserID, len(teamMember.Avatar), teamMember.Avatar)
+			teamMember.Avatar = ""
+		}
 		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
 	}
 
@@ -296,7 +335,7 @@ func (s *Store) GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear
 	teamMembers := make([]TeamMemberDB, 0)
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
-		SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar, officer.officer_id,
+		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar,
 		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
 		FROM people.officership_teams teams
@@ -321,6 +360,20 @@ func (s *Store) GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear
 	}
 
 	for _, teamMember := range teamMembers {
+		switch avatar := teamMember.Avatar; {
+		case teamMember.UseGravatar:
+			//nolint:gosec
+			hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(teamMember.UserEmail))))
+			teamMember.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+		case avatar == "":
+			teamMember.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+		case strings.Contains(avatar, s.cdnEndpoint):
+		case strings.Contains(avatar, fmt.Sprintf("%d.", teamMember.UserID)):
+			teamMember.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+		default:
+			log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", teamMember.UserID, len(teamMember.Avatar), teamMember.Avatar)
+			teamMember.Avatar = ""
+		}
 		t.Members = append(t.Members, s.TeamMemberDBToTeamMember(teamMember))
 	}
 
@@ -357,10 +410,11 @@ func (s *Store) getTeamByID(ctx context.Context, teamID int) (Team, error) {
 
 // ListTeamMembers returns a list of TeamMembers who are part of a team
 func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMemberDB, error) {
-	var m []TeamMemberDB
+	m := make([]TeamMemberDB, 0)
+	var temp []TeamMemberDB
 
-	err := s.db.SelectContext(ctx, &m, `
-		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,
+	err := s.db.SelectContext(ctx, &temp, `
+		SELECT CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar,
 		email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		historywiki_url, off_mem.start_date, off_mem.end_date
 		FROM people.officerships officer
@@ -381,15 +435,34 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMemberDB
 		return nil, fmt.Errorf("failed to list team members: %w", err)
 	}
 
+	for _, teamMember := range temp {
+		switch avatar := teamMember.Avatar; {
+		case teamMember.UseGravatar:
+			//nolint:gosec
+			hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(teamMember.UserEmail))))
+			teamMember.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+		case avatar == "":
+			teamMember.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+		case strings.Contains(avatar, s.cdnEndpoint):
+		case strings.Contains(avatar, fmt.Sprintf("%d.", teamMember.UserID)):
+			teamMember.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+		default:
+			log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", teamMember.UserID, len(teamMember.Avatar), teamMember.Avatar)
+			teamMember.Avatar = ""
+		}
+		m = append(m, teamMember)
+	}
+
 	return m, nil
 }
 
 // ListOfficers returns the list of current officers
 func (s *Store) ListOfficers(ctx context.Context) ([]TeamMemberDB, error) {
-	var m []TeamMemberDB
+	m := make([]TeamMemberDB, 0)
+	var temp []TeamMemberDB
 
-	err := s.db.SelectContext(ctx, &m, `
-		SELECT u.user_id, CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar, officer.officer_id,
+	err := s.db.SelectContext(ctx, &temp, `
+		SELECT CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar,
 		email_alias, officer.name AS officer_name, officer.description AS officer_description,
 		historywiki_url, off_mem.start_date, off_mem.end_date
 		FROM people.officerships officer
@@ -406,6 +479,24 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMemberDB, error) {
 		    ELSE 6 END, off_mem.start_date;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all officers: %w", err)
+	}
+
+	for _, teamMember := range temp {
+		switch avatar := teamMember.Avatar; {
+		case teamMember.UseGravatar:
+			//nolint:gosec
+			hash := md5.Sum([]byte(strings.ToLower(strings.TrimSpace(teamMember.UserEmail))))
+			teamMember.Avatar = "https://www.gravatar.com/avatar/" + hex.EncodeToString(hash[:])
+		case avatar == "":
+			teamMember.Avatar = "https://auth.ystv.co.uk/public/ystv-colour-white.png"
+		case strings.Contains(avatar, s.cdnEndpoint):
+		case strings.Contains(avatar, fmt.Sprintf("%d.", teamMember.UserID)):
+			teamMember.Avatar = "https://ystv.co.uk/static/images/members/thumb/" + avatar
+		default:
+			log.Printf("unknown avatar, user id: %d, length: %d, db string: %s, continuing", teamMember.UserID, len(teamMember.Avatar), teamMember.Avatar)
+			teamMember.Avatar = ""
+		}
+		m = append(m, teamMember)
 	}
 
 	return m, nil

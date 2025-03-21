@@ -149,7 +149,7 @@ func main() {
 		Encoder:    encoderPackage.NewEncoderController(enc, access),
 		Misc:       misc.NewRepos(db, access),
 		People:     people.NewRepos(db, cdn, access, cdnConfig.Endpoint),
-		Public:     public.NewRepos(db),
+		Public:     public.NewRepos(db, cdnConfig.Endpoint),
 		Stream:     stream.NewRepos(db),
 	}).Start()
 }

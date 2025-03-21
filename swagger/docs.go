@@ -5408,17 +5408,11 @@ const docTemplate = `{
                 "officerDescription": {
                     "type": "string"
                 },
-                "officerID": {
-                    "type": "integer"
-                },
                 "officerName": {
                     "type": "string"
                 },
                 "startDate": {
                     "type": "string"
-                },
-                "userID": {
-                    "type": "integer"
                 },
                 "userName": {
                     "type": "string"

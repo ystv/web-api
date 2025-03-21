@@ -229,10 +229,8 @@ func (s *Store) ListOfficers(c echo.Context) error {
 		}
 
 		teamMembers = append(teamMembers, public.TeamMember{
-			UserID:             m.UserID,
 			UserName:           m.UserName,
 			Avatar:             m.Avatar,
-			OfficerID:          m.OfficerID,
 			EmailAlias:         m.EmailAlias,
 			OfficerName:        m.OfficerName,
 			OfficerDescription: m.OfficerDescription,
