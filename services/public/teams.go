@@ -2,6 +2,7 @@ package public
 
 import (
 	"context"
+	//nolint:gosec
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
