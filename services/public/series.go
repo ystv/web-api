@@ -173,6 +173,7 @@ func (s *Store) Search(ctx context.Context, query string) (Series, error) {
 	err := s.db.SelectContext(ctx, &series.ChildVideos,
 		`SELECT
 			video_id,
+			series_id,
 			name,
 			url,
 			description,
@@ -183,6 +184,7 @@ func (s *Store) Search(ctx context.Context, query string) (Series, error) {
 		FROM (
 			SELECT
 		  		video.video_id,
+		  		video.series_id,
 		  		video.name,
 		  		video.url,
 		  		video.description,
