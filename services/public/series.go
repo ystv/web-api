@@ -71,7 +71,7 @@ func (s *Store) GetSeriesFullMeta(ctx context.Context, seriesID int) (Series, er
 		return Series{}, fmt.Errorf("failed to get series: %w", err)
 	}
 
-	err = s.db.GetContext(ctx, &series.ChildVideos,
+	err = s.db.SelectContext(ctx, &series.ChildVideos,
 		`SELECT video_id, series_id, name, url, description, thumbnail, broadcast_date, views, duration
 		FROM video.items
 		WHERE series_id = $1
