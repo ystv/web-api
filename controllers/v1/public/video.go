@@ -57,7 +57,7 @@ func (s *Store) ListVideos(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Bad page")
 	}
 
-	v, err := s.public.ListVideo(c.Request().Context(), offset, page)
+	v, err := s.public.ListVideos(c.Request().Context(), offset, page)
 	if err != nil {
 		err = fmt.Errorf("public ListVideos failed: %w", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err)

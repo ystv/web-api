@@ -34,8 +34,8 @@ type (
 	}
 )
 
-// ListVideo returns all video metadata
-func (s *Store) ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
+// ListVideos returns all video metadata
+func (s *Store) ListVideos(ctx context.Context, offset int, page int) (*[]VideoMeta, error) {
 	var v []VideoMeta
 
 	// TODO Change pagination method

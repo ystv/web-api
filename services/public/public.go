@@ -19,7 +19,7 @@ type (
 
 	// VideoRepo represents all video interactions
 	VideoRepo interface {
-		ListVideo(ctx context.Context, offset int, page int) (*[]VideoMeta, error)
+		ListVideos(ctx context.Context, offset int, page int) (*[]VideoMeta, error)
 		GetVideo(ctx context.Context, videoID int) (*VideoItem, error)
 		VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, error)
 	}
