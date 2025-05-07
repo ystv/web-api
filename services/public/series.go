@@ -3,6 +3,8 @@ package public
 import (
 	"context"
 	"fmt"
+
+	"github.com/ystv/web-api/utils"
 )
 
 type (
@@ -117,7 +119,7 @@ func (s *Store) GetSeriesImmediateChildrenSeries(ctx context.Context, seriesID i
 			WHERE depth = 1 AND
 			status = 'public';`, seriesID)
 
-	return seriesMeta, err
+	return utils.NonNil(seriesMeta), err
 }
 
 // GetSeriesFromPath returns a series from an url path

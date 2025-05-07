@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/ystv/web-api/utils"
 )
 
 type (
@@ -99,5 +101,5 @@ func (s *Store) VideoOfSeries(ctx context.Context, seriesID int) ([]VideoMeta, e
 		return nil, err
 	}
 
-	return v, err
+	return utils.NonNil(v), err
 }
