@@ -1,6 +1,6 @@
 module github.com/ystv/web-api
 
-go 1.24.2
+go 1.24
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -9,10 +9,10 @@ require (
 	github.com/jinzhu/copier v0.4.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/labstack/echo-contrib v0.17.3
+	github.com/labstack/echo-contrib v0.17.4
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/lib/pq v1.10.9
-	github.com/pressly/goose/v3 v3.24.2
+	github.com/pressly/goose/v3 v3.24.3
 	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.4
