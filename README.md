@@ -10,7 +10,7 @@ The generation of usable JSON Web Tokens is available in [web-auth](https://gith
 
 ### REST API
 
-- [ ] API for public website
+- [ ] API for the public website
   - [ ] VOD
     - [x] Videos
     - [x] Series
@@ -141,7 +141,7 @@ The generation of usable JSON Web Tokens is available in [web-auth](https://gith
 
 ### Setting up development database
 
-You will need a PostgreSQL server running locally - either install it on your computer or use Docker.
+You will need a PostgreSQL server running locally—either install it on your computer or use Docker.
 
 Once you've done that, create a database to work with:
 
@@ -159,11 +159,12 @@ $ go run ./cmd/migrate-db
 
 ### Dev side note
 
-If you are trying to connect to a database from your dev machine then I can recommend you use the following command to make your life easier.
+If you are trying to connect to a database from your dev machine,
+then I can recommend you use the following command to make your life easier.
 
 `ssh -L [local port]:127.0.0.1:[db port on remote server] [remote server user and ip]`
 
-This will prevent the full deploy being your dev environment and is much quicker.
+This will prevent the full deployment being your dev environment and is much quicker.
 
 ### Static binary
 
@@ -196,7 +197,8 @@ Build the image.
 
 `docker image build -t web-api .`
 
-You will then need to set the environment variables like how it is set up in `docker-compose.yml` or you might be able to create a container and then use `docker export` so you can run a static binary built in docker.
+You will then need to set the environment variables like how it is set up in `docker-compose.yml`
+or you might be able to create a container and then use `docker export` so you can run a static binary built-in docker.
 
 #### Docker-compose
 
@@ -209,7 +211,7 @@ Then fill in the docker-compose file with your credentials.
 
 ### Jenkins
 
-Checkout this [document](ci.md).
+Check out this [document](ci.md).
 
 ## Developing
 
@@ -244,7 +246,7 @@ Generate docs by running `go generate` in the root of the repo.
 - `/services`  
   Internal API that is the main "business logic" for each service web-api provides.
 - `/utils`  
-  Provides access to commonly used functions, i.e. cdn, mq, sql
+  Provides access to commonly used functions, i.e. CDN, MQ, SQL
 
 ### Database info
 
