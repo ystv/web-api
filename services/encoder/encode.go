@@ -110,9 +110,9 @@ func (e *Encoder) CreateEncode(ctx context.Context, file VideoFile, formatID int
 	}
 	defer res.Body.Close()
 
-	switch status := res.StatusCode; {
-	case status == http.StatusCreated:
-	case status == http.StatusUnauthorized:
+	switch res.StatusCode {
+	case http.StatusCreated:
+	case http.StatusUnauthorized:
 		return EncodeResult{}, ErrVTFailedToAuthenticate
 	default:
 		return EncodeResult{}, ErrVTUnknownResponse

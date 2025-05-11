@@ -97,7 +97,7 @@ func (s *Store) Find(ctx context.Context, path string) (BreadcrumbItem, error) {
 		case errors.Is(err1, sql.ErrNoRows):
 			return BreadcrumbItem{}, ErrVideoNotFound
 		default:
-			return BreadcrumbItem{}, fmt.Errorf("failed to get video: %w", err)
+			return BreadcrumbItem{}, fmt.Errorf("failed to get video: %w", err1)
 		}
 	}
 

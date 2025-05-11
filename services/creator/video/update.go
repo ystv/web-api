@@ -56,12 +56,12 @@ func (s *Store) UpdateMeta(ctx context.Context, m video.Meta) error {
 				
 				WHERE video_id = $12;`,
 		m.SeriesID, m.Name, m.URL, m.Description, m.Thumbnail, m.Tags, m.Status,
-		m.Preset.PresetID, m.BroadcastDate, m.UpdatedAt, m.UpdatedByID, m.ID)
+		m.PresetID, m.BroadcastDate, m.UpdatedAt, m.UpdatedByID, m.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update videoItem in db: %w", err)
 	}
 
-	if m.Preset.PresetID != nil && videoItem.PresetDB.PresetID.Valid && *m.Preset.PresetID != videoItem.PresetDB.PresetID.Int64 {
+	if m.PresetID != nil && videoItem.PresetID.Valid && *m.PresetID != videoItem.PresetID.Int64 {
 		// preset change, need to schedule new videoItem files
 		err = s.enc.RefreshVideo(ctx, m.ID)
 		if err != nil {

@@ -65,13 +65,13 @@ func (c *Client) ListUsersPagination(ctx context.Context, apiKey string, options
 		q.Set("search", *options.Search)
 	}
 	if options.Column != nil {
-		q.Set("column", fmt.Sprintf("%s", *options.Column))
+		q.Set("column", string(*options.Column))
 	}
 	if options.Enabled != nil {
-		q.Set("enabled", fmt.Sprintf("%s", *options.Enabled))
+		q.Set("enabled", string(*options.Enabled))
 	}
 	if options.Deleted != nil {
-		q.Set("deleted", fmt.Sprintf("%s", *options.Deleted))
+		q.Set("deleted", string(*options.Deleted))
 	}
 	u.RawQuery = q.Encode()
 
