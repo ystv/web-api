@@ -177,6 +177,15 @@ func (s *Store) UserByTokenFull(c echo.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
+// AddUser handles creating a user
+//
+// @Summary Create a user
+// @ID add-people-user
+// @Tags people-user
+// @Produce json
+// @Param role body people.User true "User object"
+// @Success 201 {object} people.User
+// @Router /v1/internal/people/user [post]
 func (s *Store) AddUser(c echo.Context) error {
 	var u people.User
 
