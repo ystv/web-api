@@ -29,31 +29,43 @@ type (
 		UserName           string     `json:"userName"`
 		Avatar             string     `json:"avatar"`
 		EmailAlias         string     `json:"emailAlias"`
+		Pronouns           *string    `json:"pronouns,omitempty"`
 		OfficerName        string     `json:"officerName"`
 		OfficerDescription string     `json:"officerDescription"`
 		HistoryWikiURL     string     `json:"historywikiURL"`
+		TeamEmail          string     `json:"teamEmail"`
+		IsLeader           bool       `json:"isLeader"`
+		IsDeputy           bool       `json:"isDeputy"`
 		StartDate          *time.Time `json:"startDate,omitempty"`
 		EndDate            *time.Time `json:"endDate,omitempty"`
 	}
 
 	// TeamMemberDB a position within a group
 	TeamMemberDB struct {
-		UserID             int       `db:"user_id"`
-		UserName           string    `db:"user_name"`
-		UserEmail          string    `db:"user_email"`
-		Avatar             string    `db:"avatar"`
-		UseGravatar        bool      `db:"use_gravatar"`
-		EmailAlias         string    `db:"email_alias"`
-		OfficerName        string    `db:"officer_name"`
-		OfficerDescription string    `db:"officer_description"`
-		HistoryWikiURL     string    `db:"historywiki_url"`
-		StartDate          null.Time `db:"start_date"`
-		EndDate            null.Time `db:"end_date"`
+		UserID             int         `db:"user_id"`
+		UserName           string      `db:"user_name"`
+		UserEmail          string      `db:"user_email"`
+		Avatar             string      `db:"avatar"`
+		UseGravatar        bool        `db:"use_gravatar"`
+		EmailAlias         string      `db:"email_alias"`
+		Pronouns           null.String `db:"pronouns"`
+		OfficerName        string      `db:"officer_name"`
+		OfficerDescription string      `db:"officer_description"`
+		HistoryWikiURL     string      `db:"historywiki_url"`
+		TeamEmail          string      `db:"team_email"`
+		IsLeader           bool        `db:"is_leader"`
+		IsDeputy           bool        `db:"is_deputy"`
+		StartDate          null.Time   `db:"start_date"`
+		EndDate            null.Time   `db:"end_date"`
 	}
 )
 
 func (s *Store) TeamMemberDBToTeamMember(teamMember TeamMemberDB) TeamMember {
+	var pronouns *string
 	var startDate, endDate *time.Time
+	if teamMember.Pronouns.Valid {
+		pronouns = &teamMember.Pronouns.String
+	}
 	if teamMember.StartDate.Valid {
 		startDate = &teamMember.StartDate.Time
 	}
@@ -64,9 +76,13 @@ func (s *Store) TeamMemberDBToTeamMember(teamMember TeamMemberDB) TeamMember {
 		UserName:           teamMember.UserName,
 		Avatar:             teamMember.Avatar,
 		EmailAlias:         teamMember.EmailAlias,
+		Pronouns:           pronouns,
 		OfficerName:        teamMember.OfficerName,
 		OfficerDescription: teamMember.OfficerDescription,
 		HistoryWikiURL:     teamMember.HistoryWikiURL,
+		TeamEmail:          teamMember.TeamEmail,
+		IsLeader:           teamMember.IsLeader,
+		IsDeputy:           teamMember.IsDeputy,
 		StartDate:          startDate,
 		EndDate:            endDate,
 	}
@@ -176,16 +192,16 @@ func (s *Store) GetTeamByYearByEmail(ctx context.Context, emailAlias string, yea
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, users.email AS user_email, COALESCE(users.avatar, '') AS avatar,
-		users.use_gravatar AS use_gravatar, officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
-		FROM people.officership_teams teams
-		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
-		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
-		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
-		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $1 OR officerTeamMembers.end_date IS NULL) AND
-		teams.email_alias = $2
-		ORDER BY officerTeamMembers.start_date, CASE
+		users.use_gravatar AS use_gravatar, officer.email_alias AS email_alias, pronouns, officer.name AS officer_name, officer.description AS officer_description,
+		officer.historywiki_url, off_team.email_alias as team_alias, is_leader, is_deputy, off_mem.start_date, off_mem.end_date
+		FROM people.officership_teams off_team
+		INNER JOIN people.officership_team_members off_t_mem ON off_team.team_id = off_t_mem.team_id
+		INNER JOIN people.officerships officer ON off_t_mem.officer_id = officer.officer_id
+		INNER JOIN people.officership_members off_mem ON off_mem.officer_id = off_t_mem.officer_id
+		INNER JOIN people.users users ON off_mem.user_id = users.user_id
+		WHERE EXTRACT(year FROM off_mem.start_date) <= $1 AND (EXTRACT(year FROM off_mem.end_date) >= $1 OR off_mem.end_date IS NULL) AND
+		off_team.email_alias = $2
+		ORDER BY off_mem.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
@@ -229,16 +245,16 @@ func (s *Store) GetTeamByYearByID(ctx context.Context, teamID, year int) (Team, 
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar,
-		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
-		FROM people.officership_teams teams
-		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
+		officer.email_alias AS email_alias, pronouns, officer.name AS officer_name, officer.description AS officer_description,
+		officer.historywiki_url, off_team.email_alias AS team_email, off_t_mem.start_date, off_t_mem.end_date
+		FROM people.officership_teams off_team
+		INNER JOIN people.officership_team_members teamMembers ON off_team.team_id = teamMembers.team_id
 		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
-		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
-		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $1 OR officerTeamMembers.end_date IS NULL) AND
-		teams.team_id = $2
-		ORDER BY officerTeamMembers.start_date, CASE
+		INNER JOIN people.officership_members off_t_mem ON off_t_mem.officer_id = teamMembers.officer_id
+		INNER JOIN people.users users ON off_t_mem.user_id = users.user_id
+		WHERE EXTRACT(year FROM off_t_mem.start_date) <= $1 AND (EXTRACT(year FROM off_t_mem.end_date) >= $1 OR off_t_mem.end_date IS NULL) AND
+		off_team.team_id = $2
+		ORDER BY off_t_mem.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
@@ -282,18 +298,18 @@ func (s *Store) GetTeamByStartEndYearByEmail(ctx context.Context, emailAlias str
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar,
-		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
-		FROM people.officership_teams teams
-		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
-		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
-		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
-		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE ((EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) >= $1) OR
-		       (EXTRACT(year FROM officerTeamMembers.start_date) >= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) <= $2) OR
-		       (EXTRACT(year FROM officerTeamMembers.start_date) <= $2 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $2 OR officerTeamMembers.end_date IS NULL))) AND
-		teams.email_alias = $3
-		ORDER BY officerTeamMembers.start_date, CASE
+		officer.email_alias AS email_alias, pronouns, officer.name AS officer_name, officer.description AS officer_description,
+		officer.historywiki_url, off_team.email_alias AS team_email, is_leader, is_deputy, off_mem.start_date, off_mem.end_date
+		FROM people.officership_teams off_team
+		INNER JOIN people.officership_team_members off_t_mem ON off_team.team_id = off_t_mem.team_id
+		INNER JOIN people.officerships officer ON off_t_mem.officer_id = officer.officer_id
+		INNER JOIN people.officership_members off_mem ON off_mem.officer_id = off_t_mem.officer_id
+		INNER JOIN people.users users ON off_mem.user_id = users.user_id
+		WHERE ((EXTRACT(year FROM off_mem.start_date) <= $1 AND EXTRACT(year FROM off_mem.end_date) >= $1) OR
+		       (EXTRACT(year FROM off_mem.start_date) >= $1 AND EXTRACT(year FROM off_mem.end_date) <= $2) OR
+		       (EXTRACT(year FROM off_mem.start_date) <= $2 AND (EXTRACT(year FROM off_mem.end_date) >= $2 OR off_mem.end_date IS NULL))) AND
+		off_team.email_alias = $3
+		ORDER BY off_mem.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
@@ -337,25 +353,25 @@ func (s *Store) GetTeamByStartEndYearByID(ctx context.Context, teamID, startYear
 
 	err = s.db.SelectContext(ctx, &teamMembers, `
 		SELECT CONCAT(users.first_name, ' ', users.last_name) AS user_name, COALESCE(users.avatar, '') AS avatar,
-		officer.email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		officer.historywiki_url, officerTeamMembers.start_date, officerTeamMembers.end_date
-		FROM people.officership_teams teams
-		INNER JOIN people.officership_team_members teamMembers ON teams.team_id = teamMembers.team_id
-		INNER JOIN people.officerships officer ON teamMembers.officer_id = officer.officer_id
-		INNER JOIN people.officership_members officerTeamMembers ON officerTeamMembers.officer_id = teamMembers.officer_id
-		INNER JOIN people.users users ON officerTeamMembers.user_id = users.user_id
-		WHERE ((EXTRACT(year FROM officerTeamMembers.start_date) <= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) >= $1) OR
-		       (EXTRACT(year FROM officerTeamMembers.start_date) >= $1 AND EXTRACT(year FROM officerTeamMembers.end_date) <= $2) OR
-		       (EXTRACT(year FROM officerTeamMembers.start_date) <= $2 AND (EXTRACT(year FROM officerTeamMembers.end_date) >= $2 OR officerTeamMembers.end_date IS NULL))) AND
-		teams.team_id = $3
-		ORDER BY officerTeamMembers.start_date, CASE
+		officer.email_alias AS email_alias, pronouns, officer.name AS officer_name, officer.description AS officer_description,
+		officer.historywiki_url, off_team.email_alias AS team_email, is_leader, is_deputy, off_mem.start_date, off_mem.end_date
+		FROM people.officership_teams off_team
+		INNER JOIN people.officership_team_members off_t_mem ON off_team.team_id = off_t_mem.team_id
+		INNER JOIN people.officerships officer ON off_t_mem.officer_id = officer.officer_id
+		INNER JOIN people.officership_members off_mem ON off_mem.officer_id = off_t_mem.officer_id
+		INNER JOIN people.users users ON off_mem.user_id = users.user_id
+		WHERE ((EXTRACT(year FROM off_mem.start_date) <= $1 AND EXTRACT(year FROM off_mem.end_date) >= $1) OR
+		       (EXTRACT(year FROM off_mem.start_date) >= $1 AND EXTRACT(year FROM off_mem.end_date) <= $2) OR
+		       (EXTRACT(year FROM off_mem.start_date) <= $2 AND (EXTRACT(year FROM off_mem.end_date) >= $2 OR off_mem.end_date IS NULL))) AND
+		off_team.team_id = $3
+		ORDER BY off_mem.start_date, CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
 		    WHEN officer.name LIKE '%Deputy%' THEN 2
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
 		    WHEN officer.name LIKE '%Head of%' THEN 5
-		    ELSE 6 END;`, startYear, endYear, teamID)
+		    ELSE 6 END, officer.name, off_mem.start_date;`, startYear, endYear, teamID)
 	if err != nil {
 		return t, fmt.Errorf("failed to get team members by start end year by id: %w", err)
 	}
@@ -416,14 +432,15 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMemberDB
 
 	err := s.db.SelectContext(ctx, &temp, `
 		SELECT CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar,
-		email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		historywiki_url, off_mem.start_date, off_mem.end_date
+		officer.email_alias AS email_alias, pronouns, officer.name AS officer_name, officer.description AS officer_description,
+		historywiki_url, off_team.email_alias AS team_email, is_leader, is_deputy, off_mem.start_date, off_mem.end_date
 		FROM people.officerships officer
 		INNER JOIN people.officership_members off_mem ON officer.officer_id = off_mem.officer_id
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
-		INNER JOIN people.officership_team_members tm ON officer.officer_id = tm.officer_id
+		INNER JOIN people.officership_team_members off_t_mem ON officer.officer_id = off_t_mem.officer_id
+		INNER JOIN people.officership_teams off_team ON off_t_mem.team_id = off_team.team_id
 		WHERE off_mem.start_date < NOW() AND (off_mem.end_date > NOW() OR off_mem.end_date IS NULL) AND
-		tm.team_id = $1
+		off_team.team_id = $1
 		ORDER BY CASE
 		    WHEN officer.name = 'Station Director' THEN 0
 		    WHEN officer.name LIKE '%Director%' AND officer.name NOT LIKE '%Deputy%' AND officer.name NOT LIKE '%Assistant%' THEN 1
@@ -431,7 +448,7 @@ func (s *Store) ListTeamMembers(ctx context.Context, teamID int) ([]TeamMemberDB
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
 		    WHEN officer.name LIKE '%Head of%' THEN 5
-		    ELSE 6 END, off_mem.start_date;`, teamID)
+		    ELSE 6 END, officer.name, off_mem.start_date;`, teamID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list team members: %w", err)
 	}
@@ -464,10 +481,12 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMemberDB, error) {
 
 	err := s.db.SelectContext(ctx, &temp, `
 		SELECT CONCAT(first_name, ' ', last_name) AS user_name, COALESCE(avatar, '') AS avatar,
-		email_alias, officer.name AS officer_name, officer.description AS officer_description,
-		historywiki_url, off_mem.start_date, off_mem.end_date
+		officer.email_alias as email_alias, pronouns, officer.name AS officer_name, officer.description AS officer_description,
+		historywiki_url, off_team.email_alias AS team_email, off_t_mem.is_leader AS is_leader, off_t_mem.is_deputy AS is_deputy, off_mem.start_date, off_mem.end_date
 		FROM people.officerships officer
 		INNER JOIN people.officership_members off_mem ON officer.officer_id = off_mem.officer_id
+		INNER JOIN people.officership_team_members off_t_mem ON officer.officer_id = off_t_mem.officer_id
+		INNER JOIN people.officership_teams off_team ON off_t_mem.team_id = off_team.team_id
 		INNER JOIN people.users u ON off_mem.user_id = u.user_id
 		WHERE off_mem.start_date < NOW() AND (off_mem.end_date > NOW() OR off_mem.end_date IS NULL)
 		ORDER BY CASE
@@ -477,7 +496,7 @@ func (s *Store) ListOfficers(ctx context.Context) ([]TeamMemberDB, error) {
 		    WHEN officer.name LIKE '%Assistant%' THEN 3
 		    WHEN officer.name = 'Head of Welfare and Training' THEN 4
 		    WHEN officer.name LIKE '%Head of%' THEN 5
-		    ELSE 6 END, off_mem.start_date;`)
+		    ELSE 6 END, officer.name, off_mem.start_date;`)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all officers: %w", err)
 	}

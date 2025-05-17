@@ -220,7 +220,11 @@ func (s *Store) ListOfficers(c echo.Context) error {
 
 	teamMembers := make([]public.TeamMember, 0)
 	for _, m := range teamMembersDB {
+		var pronouns *string
 		var startDate, endDate *time.Time
+		if m.Pronouns.Valid {
+			pronouns = &m.Pronouns.String
+		}
 		if m.StartDate.Valid {
 			startDate = &m.StartDate.Time
 		}
@@ -232,9 +236,13 @@ func (s *Store) ListOfficers(c echo.Context) error {
 			UserName:           m.UserName,
 			Avatar:             m.Avatar,
 			EmailAlias:         m.EmailAlias,
+			Pronouns:           pronouns,
 			OfficerName:        m.OfficerName,
 			OfficerDescription: m.OfficerDescription,
 			HistoryWikiURL:     m.HistoryWikiURL,
+			TeamEmail:          m.TeamEmail,
+			IsLeader:           m.IsLeader,
+			IsDeputy:           m.IsDeputy,
 			StartDate:          startDate,
 			EndDate:            endDate,
 		})
