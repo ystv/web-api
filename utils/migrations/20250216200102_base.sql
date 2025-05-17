@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS people.officership_teams(
     short_description text NOT NULL DEFAULT '',
     full_description text NOT NULL DEFAULT ''
 );
-COMMENT ON TABLE people.officership_teams IS 'This would be the organisational units of the socieity i.e. comp team, admin team, etc';
+COMMENT ON TABLE people.officership_teams IS 'This would be the organisational units of the society i.e. comp team, admin team, etc';
 COMMENT ON COLUMN people.officership_teams.full_description IS 'Markdown formatted. Hopefully could be used to build out proper team pages';
 --
 -- people.officership_team_members
