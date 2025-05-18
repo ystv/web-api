@@ -1335,6 +1335,153 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/internal/custom-setting": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "custom-settings"
+                ],
+                "summary": "Create a custom setting",
+                "operationId": "add-custom-setting",
+                "parameters": [
+                    {
+                        "description": "Custom Setting object",
+                        "name": "customSetting",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customsettings.CustomSetting"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/customsettings.CustomSetting"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/custom-setting/{officerid}": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "custom-settings"
+                ],
+                "summary": "Edits a custom setting",
+                "operationId": "edit-custom-setting",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "setting id",
+                        "name": "settingid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Custom Setting object",
+                        "name": "customSetting",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/customsettings.CustomSettingEditDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customsettings.CustomSetting"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/internal/custom-setting/{settingid}": {
+            "get": {
+                "description": "Contains a single setting value in string base64 format",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "custom-settings"
+                ],
+                "summary": "Provides a single setting",
+                "operationId": "get-custom-setting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Setting id",
+                        "name": "settingid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/customsettings.CustomSetting"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "custom-settings"
+                ],
+                "summary": "Deletes custom setting",
+                "operationId": "delete-custom-setting",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "setting id",
+                        "name": "settingid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/v1/internal/custom-settings": {
+            "get": {
+                "description": "Contains settings and value in string base64 format",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "custom-settings"
+                ],
+                "summary": "Provides all settings",
+                "operationId": "get-custom-settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/customsettings.CustomSetting"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/internal/encoder/transcode_finished/{taskid}": {
             "post": {
                 "description": "Marks a transcode item as finished",
@@ -3510,6 +3657,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/public/custom-setting/{settingid}": {
+            "get": {
+                "description": "Contains a single setting value in string format",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public-custom-settings"
+                ],
+                "summary": "Provides a single public setting",
+                "operationId": "get-public-custom-setting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Setting id",
+                        "name": "settingid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/public.CustomSetting"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/public/find/{url}": {
             "get": {
                 "description": "Allows us to remain backwards compatible with the existing URLs",
@@ -4469,6 +4646,32 @@ const docTemplate = `{
                 }
             }
         },
+        "customsettings.CustomSetting": {
+            "type": "object",
+            "properties": {
+                "public": {
+                    "type": "boolean"
+                },
+                "settingID": {
+                    "type": "string"
+                },
+                "value": {
+                    "description": "Value will be returned in Base64 from PostgreSQL"
+                }
+            }
+        },
+        "customsettings.CustomSettingEditDTO": {
+            "type": "object",
+            "properties": {
+                "public": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "description": "Value will be returned in Base64 from PostgreSQL",
+                    "type": "string"
+                }
+            }
+        },
         "encode.Format": {
             "type": "object",
             "properties": {
@@ -5278,6 +5481,17 @@ const docTemplate = `{
                 "urlName": {
                     "description": "\"tennis\"",
                     "type": "string"
+                }
+            }
+        },
+        "public.CustomSetting": {
+            "type": "object",
+            "properties": {
+                "settingID": {
+                    "type": "string"
+                },
+                "value": {
+                    "description": "Value will be returned in Base64 from PostgreSQL"
                 }
             }
         },
