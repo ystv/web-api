@@ -24,6 +24,7 @@ func main() {
 	}
 
 	downOne := flag.Bool("down_one", false, "undo the last migration instead of upgrading - only use for development!")
+	downAll := flag.Bool("down_all", false, "undo all migrations instead of upgrading - only use for development!")
 	flag.Parse()
 
 	host := os.Getenv("WAPI_DB_HOST")
@@ -51,6 +52,11 @@ func main() {
 
 	if *downOne {
 		if err = goose.Down(database.DB, "."); err != nil {
+			log.Fatalf("unable to downgrade: %v", err)
+		}
+		return
+	} else if *downAll {
+		if err = goose.DownTo(database.DB, ".", 0); err != nil {
 			log.Fatalf("unable to downgrade: %v", err)
 		}
 		return
