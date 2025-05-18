@@ -15,6 +15,7 @@ import (
 
 	clapperPackage "github.com/ystv/web-api/controllers/v1/clapper"
 	creatorPackage "github.com/ystv/web-api/controllers/v1/creator"
+	customSettingsPackage "github.com/ystv/web-api/controllers/v1/customsettings"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
 	miscPackage "github.com/ystv/web-api/controllers/v1/misc"
 	peoplePackage "github.com/ystv/web-api/controllers/v1/people"
@@ -29,50 +30,53 @@ import (
 // Router provides an HTTP server for web-api
 type (
 	Router struct {
-		version string
-		commit  string
-		router  *echo.Echo
-		access  utils.Repo
-		clapper clapperPackage.Repos
-		creator creatorPackage.Repos
-		encoder encoderPackage.Repo
-		misc    miscPackage.Repos
-		people  peoplePackage.Repos
-		public  publicPackage.Repos
-		stream  streamV1.Repos
+		version        string
+		commit         string
+		router         *echo.Echo
+		access         utils.Repo
+		clapper        clapperPackage.Repos
+		creator        creatorPackage.Repos
+		customSettings customSettingsPackage.Repos
+		encoder        encoderPackage.Repo
+		misc           miscPackage.Repos
+		people         peoplePackage.Repos
+		public         publicPackage.Repos
+		stream         streamV1.Repos
 	}
 
 	// NewRouter is the required dependencies
 	NewRouter struct {
-		Version    string
-		Commit     string
-		DomainName string
-		Debug      bool
-		Access     utils.Repo
-		Clapper    clapperPackage.Repos
-		Creator    creatorPackage.Repos
-		Encoder    encoderPackage.Repo
-		Misc       miscPackage.Repos
-		People     peoplePackage.Repos
-		Public     publicPackage.Repos
-		Stream     streamV1.Repos
+		Version        string
+		Commit         string
+		DomainName     string
+		Debug          bool
+		Access         utils.Repo
+		Clapper        clapperPackage.Repos
+		Creator        creatorPackage.Repos
+		CustomSettings customSettingsPackage.Repos
+		Encoder        encoderPackage.Repo
+		Misc           miscPackage.Repos
+		People         peoplePackage.Repos
+		Public         publicPackage.Repos
+		Stream         streamV1.Repos
 	}
 )
 
 // New creates a new router instance
 func New(conf *NewRouter) *Router {
 	r := &Router{
-		version: conf.Version,
-		commit:  conf.Commit,
-		router:  echo.New(),
-		access:  conf.Access,
-		clapper: conf.Clapper,
-		creator: conf.Creator,
-		encoder: conf.Encoder,
-		misc:    conf.Misc,
-		people:  conf.People,
-		public:  conf.Public,
-		stream:  conf.Stream,
+		version:        conf.Version,
+		commit:         conf.Commit,
+		router:         echo.New(),
+		access:         conf.Access,
+		clapper:        conf.Clapper,
+		creator:        conf.Creator,
+		customSettings: conf.CustomSettings,
+		encoder:        conf.Encoder,
+		misc:           conf.Misc,
+		people:         conf.People,
+		public:         conf.Public,
+		stream:         conf.Stream,
 	}
 	r.router.HideBanner = true
 
@@ -435,6 +439,17 @@ func (r *Router) loadRoutes() {
 					streamAuthed.PUT("", r.stream.EditStream)
 					streamAuthed.DELETE("", r.stream.DeleteStream)
 				}
+			}
+			customSettings := internal.Group("/custom-setting")
+			{
+				customSettings.GET("s", r.customSettings.ListCustomSettings)
+				customSetting := customSettings.Group("/:settingid")
+				{
+					customSetting.GET("", r.customSettings.GetCustomSetting)
+					customSetting.PUT("", r.customSettings.EditCustomSetting, r.access.SuperUserAuthMiddleware)
+					customSetting.DELETE("", r.customSettings.DeleteCustomSetting, r.access.SuperUserAuthMiddleware)
+				}
+				customSettings.POST("", r.customSettings.AddCustomSetting, r.access.SuperUserAuthMiddleware)
 			}
 		}
 		apiV1.GET("/list-unsubscribe/:uuid", r.misc.UnsubscribeByUUID)

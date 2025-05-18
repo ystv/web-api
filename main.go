@@ -9,6 +9,7 @@ import (
 
 	"github.com/ystv/web-api/controllers/v1/clapper"
 	"github.com/ystv/web-api/controllers/v1/creator"
+	"github.com/ystv/web-api/controllers/v1/customsettings"
 	encoderPackage "github.com/ystv/web-api/controllers/v1/encoder"
 	"github.com/ystv/web-api/controllers/v1/misc"
 	"github.com/ystv/web-api/controllers/v1/people"
@@ -139,17 +140,18 @@ func main() {
 	enc := encoder.NewEncoder(db, cdn, encoderConfig)
 
 	New(&NewRouter{
-		Version:    Version,
-		Commit:     Commit,
-		DomainName: os.Getenv("WAPI_DOMAIN_NAME"),
-		Debug:      debug,
-		Access:     access,
-		Clapper:    clapper.NewRepos(db, access),
-		Creator:    creator.NewRepos(db, cdn, enc, access, creatorConfig, cdnConfig.Endpoint),
-		Encoder:    encoderPackage.NewEncoderController(enc, access),
-		Misc:       misc.NewRepos(db, access),
-		People:     people.NewRepos(db, cdn, access, cdnConfig.Endpoint),
-		Public:     public.NewRepos(db, cdnConfig.Endpoint),
-		Stream:     stream.NewRepos(db),
+		Version:        Version,
+		Commit:         Commit,
+		DomainName:     os.Getenv("WAPI_DOMAIN_NAME"),
+		Debug:          debug,
+		Access:         access,
+		Clapper:        clapper.NewRepos(db, access),
+		Creator:        creator.NewRepos(db, cdn, enc, access, creatorConfig, cdnConfig.Endpoint),
+		CustomSettings: customsettings.NewRepos(db, access),
+		Encoder:        encoderPackage.NewEncoderController(enc, access),
+		Misc:           misc.NewRepos(db, access),
+		People:         people.NewRepos(db, cdn, access, cdnConfig.Endpoint),
+		Public:         public.NewRepos(db, cdnConfig.Endpoint),
+		Stream:         stream.NewRepos(db),
 	}).Start()
 }
