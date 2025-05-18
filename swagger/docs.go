@@ -5405,13 +5405,25 @@ const docTemplate = `{
                 "historywikiURL": {
                     "type": "string"
                 },
+                "isDeputy": {
+                    "type": "boolean"
+                },
+                "isLeader": {
+                    "type": "boolean"
+                },
                 "officerDescription": {
                     "type": "string"
                 },
                 "officerName": {
                     "type": "string"
                 },
+                "pronouns": {
+                    "type": "string"
+                },
                 "startDate": {
+                    "type": "string"
+                },
+                "teamEmail": {
                     "type": "string"
                 },
                 "userName": {
