@@ -15,6 +15,7 @@ type (
 		BreadcrumbRepo
 		TeamRepo
 		StreamRepo
+		CustomSettingsRepo
 	}
 
 	// VideoRepo represents all video interactions
@@ -64,6 +65,9 @@ type (
 	StreamRepo interface {
 		ListChannels(ctx context.Context) ([]Channel, error)
 		GetChannel(ctx context.Context, urlName string) (Channel, error)
+	}
+	CustomSettingsRepo interface {
+		GetCustomSettingPublic(ctx context.Context, settingID string) (CustomSetting, error)
 	}
 	// Store encapsulates our dependency
 	Store struct {

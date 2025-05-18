@@ -16,6 +16,7 @@ type (
 		StreamRepo
 		TeamRepo
 		VideoRepo
+		CustomSettingRepo
 	}
 
 	BreadcrumbRepo interface {
@@ -57,6 +58,10 @@ type (
 	VideoRepo interface {
 		GetVideo(c echo.Context) error
 		ListVideos(c echo.Context) error
+	}
+
+	CustomSettingRepo interface {
+		GetCustomSettingPublic(c echo.Context) error
 	}
 
 	Store struct {

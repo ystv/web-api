@@ -487,6 +487,10 @@ func (r *Router) loadRoutes() {
 				streamChannel.GET("s", r.public.ListChannels)
 				streamChannel.GET("/:channelShortName", r.public.GetChannel)
 			}
+			customSetting := public.Group("/custom-setting")
+			{
+				customSetting.GET("/:settingid", r.public.GetCustomSettingPublic)
+			}
 		}
 	}
 	r.router.GET("/", func(c echo.Context) error {
