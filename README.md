@@ -222,6 +222,15 @@ Clone the repo and create a `.env.local` for an easy config setup. Use the `debu
 I recommend not using the production environment for testing and recommending running postgres and rabbitmq in Docker.
 
 Updating the DB schema use `goose` to migrate safely.
+You can use the command below to run the migrations.
+
+`go run cmd/migrate-db/main.go`
+
+#### Taking the Database down
+
+If you need to take the database down, then you can use the following command.
+
+`go run cmd/migrate-db/main.go --down-all`
 
 When ran with the `debug` flag set to true. 500 server errors will be returned to the browser, not just logged. Otherwise, it will only return the 500 code and not the actual error.
 

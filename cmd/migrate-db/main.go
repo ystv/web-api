@@ -23,8 +23,8 @@ func main() {
 		log.Println("failed to load env file, using global env")
 	}
 
-	downOne := flag.Bool("down_one", false, "undo the last migration instead of upgrading - only use for development!")
-	downAll := flag.Bool("down_all", false, "undo all migrations instead of upgrading - only use for development!")
+	downOne := flag.Bool("down-one", false, "undo the last migration instead of upgrading - only use for development!")
+	downAll := flag.Bool("down-all", false, "undo all migrations instead of upgrading - only use for development!")
 	flag.Parse()
 
 	host := os.Getenv("WAPI_DB_HOST")
