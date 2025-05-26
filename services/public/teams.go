@@ -117,7 +117,11 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 
 	teamMembers := make([]TeamMember, 0)
 	for _, m := range teamMembersDB {
+		var pronouns *string
 		var startDate, endDate *time.Time
+		if m.Pronouns.Valid {
+			pronouns = &m.Pronouns.String
+		}
 		if m.StartDate.Valid {
 			startDate = &m.StartDate.Time
 		}
@@ -129,6 +133,7 @@ func (s *Store) GetTeamByEmail(ctx context.Context, emailAlias string) (Team, er
 			UserName:           m.UserName,
 			Avatar:             m.Avatar,
 			EmailAlias:         m.EmailAlias,
+			Pronouns:           pronouns,
 			OfficerName:        m.OfficerName,
 			OfficerDescription: m.OfficerDescription,
 			HistoryWikiURL:     m.HistoryWikiURL,
@@ -156,7 +161,11 @@ func (s *Store) GetTeamByID(ctx context.Context, teamID int) (Team, error) {
 
 	teamMembers := make([]TeamMember, 0)
 	for _, m := range teamMembersDB {
+		var pronouns *string
 		var startDate, endDate *time.Time
+		if m.Pronouns.Valid {
+			pronouns = &m.Pronouns.String
+		}
 		if m.StartDate.Valid {
 			startDate = &m.StartDate.Time
 		}
@@ -168,6 +177,7 @@ func (s *Store) GetTeamByID(ctx context.Context, teamID int) (Team, error) {
 			UserName:           m.UserName,
 			Avatar:             m.Avatar,
 			EmailAlias:         m.EmailAlias,
+			Pronouns:           pronouns,
 			OfficerName:        m.OfficerName,
 			OfficerDescription: m.OfficerDescription,
 			HistoryWikiURL:     m.HistoryWikiURL,
